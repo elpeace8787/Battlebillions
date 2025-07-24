@@ -19,7 +19,7 @@
       background: #1f1f1f;
       padding: 30px;
       border-radius: 10px;
-      width: 300px;
+      width: 320px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
     input {
@@ -32,57 +32,54 @@
     button {
       width: 100%;
       padding: 10px;
+      margin-top: 10px;
       background: #ff9900;
       border: none;
       border-radius: 5px;
       color: black;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
     }
     h2 {
       text-align: center;
       margin-bottom: 20px;
     }
-    .social-login {
-      margin-top: 20px;
-      text-align: center;
-    }
-    .social-login button {
+    .social-btn {
       background: #333;
       color: white;
-      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Battlebillions</h2>
-    <input type="text" placeholder="Username" />
-    <input type="password" placeholder="Password" />
-    <button>Login</button>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="loginBtn">Login</button>
+    <button id="signupBtn" class="social-btn">Sign Up</button>
     <hr style="margin: 20px 0; border-color: #444;" />
-    <button style="background:#333; color:white;">Sign Up</button>
-
-    <div class="social-login">
-      <p>Or login with:</p>
-      <button id="google-login">Login with Google</button>
-    </div>
+    <p style="text-align: center;">Or login with:</p>
+    <button id="googleLogin" class="social-btn">Login with Google</button>
+    <button id="facebookLogin" class="social-btn">Login with Facebook</button>
+    <button id="githubLogin" class="social-btn">Login with GitHub</button>
   </div>
 
   <script type="module">
-    import { signInWithGoogle } from './firebase.js';
+    import { auth, signInWith, googleProvider, facebookProvider, githubProvider } from './firebase.js';
 
-    const googleBtn = document.getElementById('google-login');
-    googleBtn.addEventListener('click', async () => {
-      try {
-        const user = await signInWithGoogle();
-        alert(`Welcome ${user.displayName}! You are logged in.`);
-        // TODO: redirect user or load next content here
-      } catch (error) {
-        console.error(error);
-        alert('Google login failed. Please try again.');
-      }
+    document.getElementById('googleLogin').addEventListener('click', async () => {
+      await signInWith(googleProvider);
+      alert('Logged in with Google!');
+    });
+
+    document.getElementById('facebookLogin').addEventListener('click', async () => {
+      await signInWith(facebookProvider);
+      alert('Logged in with Facebook!');
+    });
+
+    document.getElementById('githubLogin').addEventListener('click', async () => {
+      await signInWith(githubProvider);
+      alert('Logged in with GitHub!');
     });
   </script>
 </body>
