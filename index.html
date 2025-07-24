@@ -32,13 +32,26 @@
     button {
       width: 100%;
       padding: 10px;
-      background: #ff9900;
+      margin-top: 5px;
       border: none;
       border-radius: 5px;
-      color: black;
+      color: white;
       font-weight: bold;
       cursor: pointer;
     }
+    button#loginBtn {
+      background: #ff9900;
+      color: black;
+    }
+    button#signupBtn {
+      background: #333;
+    }
+    .social-btn {
+      margin-top: 10px;
+    }
+    .google { background: #DB4437; }
+    .facebook { background: #3b5998; }
+    .github { background: #24292e; }
     h2 {
       text-align: center;
       margin-bottom: 20px;
@@ -48,15 +61,59 @@
 <body>
   <div class="container">
     <h2>Battlebillions</h2>
-    <input type="text" placeholder="Username" />
-    <input type="password" placeholder="Password" />
-    <button>Login</button>
+    <input type="text" placeholder="Email" id="email" />
+    <input type="password" placeholder="Password" id="password" />
+    <button id="loginBtn">Login</button>
     <hr style="margin: 20px 0; border-color: #444;" />
-    <button style="background:#333; color:white;">Sign Up</button>
+    <button id="signupBtn">Sign Up</button>
+
+    <hr style="margin: 20px 0; border-color: #444;" />
+    <p style="text-align:center;">Or login with:</p>
+    <button class="social-btn google" id="googleLogin">Login with Google</button>
+    <button class="social-btn facebook" id="facebookLogin">Login with Facebook</button>
+    <button class="social-btn github" id="githubLogin">Login with GitHub</button>
   </div>
+
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, GithubAuthProvider } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_NEW_API_KEY",
+      authDomain: "battlebillions-78513.firebaseapp.com",
+      projectId: "battlebillions-78513",
+      storageBucket: "battlebillions-78513.firebasestorage.app",
+      messagingSenderId: "193175716159",
+      appId: "1:193175716159:web:7dcc6d4ea5f5f2422e138a"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Providers
+    const googleProvider = new GoogleAuthProvider();
+    const facebookProvider = new FacebookAuthProvider();
+    const githubProvider = new GithubAuthProvider();
+
+    // Social login function
+    async function loginWithProvider(provider) {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        alert("Welcome, " + result.user.displayName);
+        console.log(result.user);
+      } catch (error) {
+        alert("Error: " + error.message);
+        console.error(error);
+      }
+    }
+
+    // Add event listeners
+    document.getElementById("googleLogin").addEventListener("click", () => loginWithProvider(googleProvider));
+    document.getElementById("facebookLogin").addEventListener("click", () => loginWithProvider(facebookProvider));
+    document.getElementById("githubLogin").addEventListener("click", () => loginWithProvider(githubProvider));
+  </script>
 </body>
 </html>
-<script type="module">
-  import { auth } from './firebase.js';
-  console.log('Firebase connected:', auth);
-</script>
