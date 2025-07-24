@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Battlebillions Login</title>
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjEZye_acZYmEWYoPMGF2asfQ6ATreLAY",
+      authDomain: "battlebillions-78513.firebaseapp.com",
+      projectId: "battlebillions-78513",
+      storageBucket: "battlebillions-78513.firebasestorage.app",
+      messagingSenderId: "193175716159",
+      appId: "1:193175716159:web:7dcc6d4ea5f5f2422e138a"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Handle Signup
+    window.signup = async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Signup successful!");
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    // Handle Login
+    window.login = async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Login successful!");
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+  </script>
+</head>
+<body>
+  <h1>Login / Signup</h1>
+  <input id="email" type="email" placeholder="Email"><br>
+  <input id="password" type="password" placeholder="Password"><br><br>
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Log In</button>
+</body>
+</html>
