@@ -3,12 +3,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDjEZye_acZYmEWYoPMGF2asfQ6ATreLAY",
+  authDomain: "battlebillions-78513.firebaseapp.com",
+  projectId: "battlebillions-78513",
+  storageBucket: "battlebillions-78513.firebasestorage.app",
+  messagingSenderId: "193175716159",
+  appId: "1:193175716159:web:7dcc6d4ea5f5f2422e138a"
 };
 
 // Initialize Firebase
