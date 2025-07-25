@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Battlebillions Login</title>
   <style>
     body {
@@ -22,10 +22,15 @@
       width: 350px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .logo {
       width: 350px;
-      margin-bottom: 15px;
+      height: auto;
+      margin-bottom: 10px;
+      object-fit: contain;
     }
     input {
       width: 100%;
@@ -33,39 +38,73 @@
       margin: 8px 0;
       border: none;
       border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .btn-group {
+      width: 100%;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
     }
     button {
-      width: 100%;
+      flex: 1;
       padding: 10px;
       border: none;
       border-radius: 5px;
-      color: white;
       font-weight: bold;
       cursor: pointer;
-      margin-bottom: 10px;
+      font-size: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      font-size: 14px;
+      gap: 8px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      color: white;
     }
     button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 8px rgba(255,255,255,0.2);
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
     }
-    .login-btn { background: #ff9900; color: black; }
-    .signup-btn { background: #333; }
-    .google { background: #db4437; }
-    .facebook { background: #3b5998; }
-    .instagram { background: #e4405f; }
+    .login-btn {
+      background: #ff9900;
+      color: black;
+    }
+    .signup-btn {
+      background: #333;
+      color: white;
+    }
+    .social-btn {
+      width: 100%;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .google {
+      background: #db4437;
+    }
+    .facebook {
+      background: #3b5998;
+    }
+    .instagram {
+      background: #e4405f;
+    }
     .social-btn img {
       width: 28px;
       height: 28px;
       background: none;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #444;
+      margin: 15px 0;
+      width: 100%;
     }
     p {
-      margin: 10px 0;
+      margin: 10px 0 12px 0;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -77,10 +116,12 @@
     <!-- Login Form -->
     <input type="email" placeholder="Email" />
     <input type="password" placeholder="Password" />
-    <button class="login-btn">Login</button>
-    <button class="signup-btn">Sign Up</button>
+    <div class="btn-group">
+      <button class="login-btn">Login</button>
+      <button class="signup-btn">Sign Up</button>
+    </div>
     
-    <hr style="margin: 15px 0; border-color: #444;" />
+    <hr />
     <p>Or login with:</p>
     
     <!-- Social Login Buttons -->
