@@ -1,112 +1,94 @@
-/* Signup Page Styles */
 body {
   background: #121212;
-  color: #fff;
   font-family: 'Orbitron', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
   margin: 0;
+  color: #fff;
 }
 
 .container {
   background: #1f1f1f;
-  padding: 30px 25px;
+  padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  width: 320px;
+  width: 350px;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .logo {
   width: 280px;
-  margin-bottom: 20px;
-  user-select: none;
+  margin: 0 auto 20px auto; /* Brings logo closer to form */
+  display: block;
 }
 
-/* Form Inputs */
-form input {
+input {
   width: 100%;
   padding: 10px;
-  margin: 10px 0;
+  margin: 8px 0;
   border: none;
-  border-radius: 6px;
-  background: #2a2a2a;
+  border-radius: 8px;
+  background: #333;
   color: #fff;
   font-size: 14px;
 }
 
-form input:focus {
-  outline: none;
-  box-shadow: 0 0 6px #ff9900;
-}
-
-/* Buttons */
 .btn-group {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.login-btn,
-.signup-btn {
-  flex: 1;
-  padding: 10px 0;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 10px;
 }
 
 .login-btn {
   background: #ff9900;
   color: #121212;
+  padding: 10px 20px;
+  flex: 1;
+  margin-right: 5px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
 }
 
 .signup-btn {
   background: #333;
   color: #fff;
+  padding: 10px 20px;
+  flex: 1;
+  margin-left: 5px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
 }
 
-button:hover {
-  transform: scale(1.05);
+.social-title {
+  margin: 15px 0 10px;
+  color: #aaa;
+  font-size: 14px;
 }
 
-/* Social Buttons */
 .social-btn {
+  width: 100%;
+  margin: 6px 0;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 8px;
-  margin: 6px 0;
-  border-radius: 6px;
-  color: #fff;
+  border: none;
+  border-radius: 8px;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease;
-  width: 100%;
 }
 
 .social-btn img {
   width: 18px;
   height: 18px;
+  margin-right: 8px;
 }
-
-.social-btn:hover {
-  transform: scale(1.05);
-}
-
-.google { background: #db4437; }
-.facebook { background: #3b5998; }
-.instagram { background: #e4405f; }
-.tiktok { background: #010101; }
-
-p {
-  margin: 10px 0;
-  font-size: 13px;
-  color: #bbb;
-  }
+.google { background: #db4437; color: #fff; }
+.facebook { background: #3b5998; color: #fff; }
+.instagram { background: #e4405f; color: #fff; }
+.tiktok { background: #000; color: #fff; }
