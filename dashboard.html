@@ -4,46 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Dashboard</title>
+  <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="dashboard.css">
-  <script defer src="main.js"></script>
 </head>
 <body>
   <!-- Top Bar -->
-  <header class="top-bar">
-    <div class="top-icons">
-      <a href="settings.html" title="Settings">
-        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" alt="Settings Icon">
-      </a>
-      <a href="../index.html" title="Logout">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828490.png" alt="Logout Icon">
-      </a>
+  <header>
+    <div class="top-right">
+      <a href="settings.html"><img src="assets/icons/settings.svg" alt="Settings" class="top-icon"></a>
+      <a href="index.html"><img src="assets/icons/logout.svg" alt="Logout" class="top-icon"></a>
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Battlebillions Logo Center -->
   <main class="main-content">
-    <img src="./Logopit_1697753255912.png" class="main-logo" alt="Battlebillions Logo">
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="center-logo" />
     <h2>Welcome to your Dashboard!</h2>
     <p>Choose an option from the bottom bar to get started.</p>
   </main>
 
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav">
-    <a href="home.html" class="icon" title="Home">
-      <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home Icon">
-    </a>
-    <a href="profile.html" class="icon" title="Profile">
-      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" alt="Profile Icon">
-    </a>
-    <a href="battlefeed.html" class="icon" title="Battle Feed">
-      <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" alt="Battle Icon">
-    </a>
-    <a href="leaderboard.html" class="icon" title="Leaderboard">
-      <img src="https://cdn-icons-png.flaticon.com/512/2583/2583346.png" alt="Leaderboard Icon">
-    </a>
-    <a href="wallet.html" class="icon" title="Wallet">
-      <img src="https://cdn-icons-png.flaticon.com/512/833/833314.png" alt="Wallet Icon">
-    </a>
+  <!-- Bottom Navigation -->
+  <nav class="bottom-bar">
+    <a href="home.html"><img src="assets/icons/home.svg" alt="Home" class="nav-icon"></a>
+    <a href="profile.html"><img src="assets/icons/profile.svg" alt="Profile" class="nav-icon"></a>
+    <a href="battle.html"><img src="Logopit_1753467170292.png" alt="Battle" class="nav-icon battle-icon"></a>
+    <a href="leaderboard.html"><img src="assets/icons/leaderboard.svg" alt="Leaderboard" class="nav-icon"></a>
+    <a href="wallet.html"><img src="assets/icons/wallet.svg" alt="Wallet" class="nav-icon"></a>
   </nav>
+
+  <script src="main.js"></script>
 </body>
 </html>
