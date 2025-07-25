@@ -1,153 +1,54 @@
-/* Dashboard.css - Battlebillions */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Battlebillions Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" />
+      <h1>Battlebillions</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Profile</a></li>
+        <li><a href="#">Settings</a></li>
+        <li><a href="index.html">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
 
-body {
-  background: #121212;
-  color: white;
-  font-family: 'Orbitron', sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  opacity: 0;
-  animation: fadeIn 0.6s ease forwards;
-}
+  <!-- Main Content -->
+  <main>
+    <section class="welcome">
+      <h2>Welcome to your Dashboard!</h2>
+      <p>Manage your Battlebillions account here.</p>
+    </section>
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    <section class="dashboard">
+      <div class="card">
+        <h3>Account Balance</h3>
+        <p>$1,000,000</p>
+      </div>
+      <div class="card">
+        <h3>Active Battles</h3>
+        <p>5 ongoing</p>
+      </div>
+      <div class="card">
+        <h3>Achievements</h3>
+        <p>10 unlocked</p>
+      </div>
+    </section>
+  </main>
 
-header {
-  background: #1f1f1f;
-  padding: 14px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-}
-
-header .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-header .logo img {
-  width: 45px;
-  height: 45px;
-}
-
-header .logo h1 {
-  font-size: 20px;
-  letter-spacing: 1px;
-  color: #ff9900;
-}
-
-nav ul {
-  display: flex;
-  list-style: none;
-  gap: 20px;
-  margin: 0;
-  padding: 0;
-}
-
-nav ul li a {
-  color: white;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-nav ul li a:hover {
-  color: #ff9900;
-}
-
-main.dashboard {
-  width: 90%;
-  max-width: 1200px;
-  margin: 30px auto 50px auto;
-  padding-bottom: 30px;
-}
-
-.welcome {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.welcome h2 {
-  font-size: 28px;
-  color: #ff9900;
-  margin-bottom: 10px;
-}
-
-.welcome p {
-  font-size: 16px;
-  color: #bbb;
-}
-
-section.dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.card {
-  background: #1f1f1f;
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: default;
-  user-select: none;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 24px rgba(255,153,0,0.5);
-}
-
-.card h3 {
-  font-size: 22px;
-  color: #ffae33;
-  margin-bottom: 12px;
-}
-
-.card p {
-  font-size: 18px;
-  color: #ccc;
-}
-
-footer {
-  text-align: center;
-  padding: 20px 10px;
-  font-size: 14px;
-  color: #777;
-  background: #121212;
-  user-select: none;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  header .logo h1 {
-    font-size: 18px;
-  }
-  nav ul {
-    gap: 12px;
-  }
-  .welcome h2 {
-    font-size: 24px;
-  }
-  .card h3 {
-    font-size: 20px;
-  }
-  .card p {
-    font-size: 16px;
-  }
-  }
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Battlebillions. All rights reserved.</p>
+  </footer>
+</body>
+</html>
