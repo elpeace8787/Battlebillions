@@ -4,7 +4,7 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   FacebookAuthProvider,
-  GithubAuthProvider, 
+  OAuthProvider,
   signInWithPopup 
 } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
 
@@ -25,7 +25,18 @@ export const auth = getAuth(app);
 // Providers
 export const googleProvider = new GoogleAuthProvider();
 export const facebookProvider = new FacebookAuthProvider();
-export const githubProvider = new GithubAuthProvider();
+
+// Instagram OAuth Provider (custom)
+export const instagramProvider = new OAuthProvider('oauth2.instagram.com');
+instagramProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
+// TikTok OAuth Provider (custom)
+export const tiktokProvider = new OAuthProvider('oauth2.tiktok.com');
+tiktokProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 // Generic function to sign in with any provider
 export async function signInWith(provider) {
