@@ -1,221 +1,63 @@
-/* === Login and Signup Page Styles === */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Battlebillions Login</title>
+<link rel="stylesheet" href="assets/css/login.css" />
+</head>
+<body>
+  <main class="container" role="main" aria-label="Battlebillions login form">
+    <img
+      src="assets/logopit/Logopit_1697753255912.png"
+      alt="Battlebillions logo"
+      class="logo"
+      loading="eager"
+      draggable="false"
+    />
 
-body {
-  background: #121212;
-  color: #fff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+    <form id="loginForm" action="#" method="POST" novalidate style="width: 100%;">
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="Email"
+        autocomplete="email"
+        required
+        aria-required="true"
+      />
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Password"
+        autocomplete="current-password"
+        required
+        aria-required="true"
+      />
 
-.container {
-  background: #1f1f1f;
-  padding: 24px 28px;
-  border-radius: 12px;
-  width: 360px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  user-select: none;
-  transition: box-shadow 0.3s ease;
-}
-.container:hover {
-  box-shadow: 0 12px 48px rgba(255, 153, 0, 0.6);
-}
+      <div class="btn-group" role="group" aria-label="Login and sign up buttons">
+        <button type="submit" class="login-btn" aria-label="Login to Battlebillions account">Login</button>
+        <button type="button" class="signup-btn" aria-label="Sign up for Battlebillions" onclick="location.href='signup.html'">Sign Up</button>
+      </div>
+    </form>
 
-.logo {
-  width: 300px; /* Fixed size */
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 12px; /* Tight, clean spacing */
-  display: block;
-  object-fit: contain;
-  filter: drop-shadow(0 0 6px rgba(255, 153, 0, 0.8));
-  user-select: none;
-  transition: transform 0.3s ease;
-}
-.logo:hover {
-  transform: scale(1.03);
-}
+    <hr />
 
-input[type="email"],
-input[type="password"],
-input[type="text"] {
-  width: 100%;
-  padding: 14px 16px;
-  margin: 6px 0 14px 0;
-  border: none;
-  border-radius: 8px;
-  background: #2c2c2c;
-  color: #eee;
-  font-size: 16px;
-  font-weight: 500;
-  outline-offset: 2px;
-  outline-color: #ff9900;
-  transition: background-color 0.25s ease, outline-color 0.25s ease;
-  user-select: text;
-}
-input::placeholder {
-  color: #bbb;
-  font-weight: 400;
-}
-input:focus {
-  background: #3a3a3a;
-  outline-color: #ffae33;
-  box-shadow: 0 0 6px #ffae33;
-}
+    <p>Or login with:</p>
 
-.btn-group {
-  width: 100%;
-  margin-bottom: 22px;
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-}
-button {
-  flex: 1;
-  padding: 14px 0;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  user-select: none;
-  border: none;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.3s ease;
-  color: white;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-}
-button:focus-visible {
-  outline: 3px solid #ffb733;
-  outline-offset: 3px;
-}
-button:hover {
-  transform: scale(1.07);
-  box-shadow: 0 8px 16px rgba(255,153,0,0.5);
-}
-
-.login-btn {
-  background: #ff9900;
-  color: #1b1b1b;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-shadow: 0 0 3px #e68000;
-  box-shadow: 0 6px 12px rgba(255,153,0,0.7);
-}
-.login-btn:hover {
-  background: #ffb733;
-  box-shadow: 0 10px 20px #ffb733cc;
-  color: #0f0f0f;
-  text-shadow: 0 0 6px #ffdb4d;
-}
-
-.signup-btn {
-  background: #333333;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-}
-.signup-btn:hover {
-  background: #4d4d4d;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.8);
-}
-
-hr {
-  border: none;
-  border-top: 1px solid #444;
-  margin: 20px 0;
-  width: 100%;
-}
-
-p {
-  margin: 0 0 16px 0;
-  font-size: 15px;
-  color: #ccc;
-  user-select: none;
-}
-
-.social-btn {
-  width: 100%;
-  margin-bottom: 12px;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  user-select: none;
-  color: white;
-  font-weight: 600;
-  padding: 12px 0;
-  box-shadow: 0 3px 7px rgba(0,0,0,0.6);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  text-shadow: 0 0 2px rgba(0,0,0,0.4);
-}
-.social-btn img {
-  width: 28px;
-  height: 28px;
-  background: none;
-  display: inline-block;
-  vertical-align: middle;
-  filter: drop-shadow(0 0 1px rgba(0,0,0,0.7));
-  user-select: none;
-}
-
-.google {
-  background: #db4437;
-}
-.google:hover {
-  background: #c33c31;
-  box-shadow: 0 8px 20px #c33c31cc;
-}
-
-.facebook {
-  background: #3b5998;
-}
-.facebook:hover {
-  background: #314d86;
-  box-shadow: 0 8px 20px #314d86cc;
-}
-
-.instagram {
-  background: #e4405f;
-}
-.instagram:hover {
-  background: #cc3952;
-  box-shadow: 0 8px 20px #cc3952cc;
-}
-
-/* === Responsive tweaks === */
-@media (max-width: 400px) {
-  .container {
-    width: 95vw;
-    padding: 16px 20px;
-  }
-  .logo {
-    width: 100%;
-    margin-bottom: 6px;
-  }
-  input[type="email"],
-  input[type="password"],
-  input[type="text"] {
-    font-size: 14px;
-    padding: 12px 14px;
-  }
-  button, .social-btn {
-    font-size: 14px;
-    padding: 12px 0;
-  }
-}
+    <button class="social-btn google" aria-label="Login with Google">
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google logo" draggable="false" />
+      Login with Google
+    </button>
+    <button class="social-btn facebook" aria-label="Login with Facebook">
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook logo" draggable="false" />
+      Login with Facebook
+    </button>
+    <button class="social-btn instagram" aria-label="Login with Instagram">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram logo" draggable="false" />
+      Login with Instagram
+    </button>
+  </main>
+</body>
+</html>
