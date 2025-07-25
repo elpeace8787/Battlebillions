@@ -44,19 +44,16 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
-    .login-btn {
-      background: #ff9900;
-      color: black;
-    }
-    .signup-btn {
-      background: #333;
-    }
+    .login-btn { background: #ff9900; color: black; }
+    .signup-btn { background: #333; }
     .social-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       margin-top: 8px;
+      font-size: 14px;
+      font-weight: bold;
     }
     .google { background: #db4437; }
     .facebook { background: #3b5998; }
@@ -65,7 +62,9 @@
 </head>
 <body>
   <div class="container">
-    <img src="Assets/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+    <!-- Correct path to logo -->
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+    
     <input type="email" placeholder="Email" />
     <input type="password" placeholder="Password" />
     <button class="login-btn">Login</button>
