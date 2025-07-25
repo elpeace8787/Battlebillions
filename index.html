@@ -19,12 +19,12 @@
       background: #1f1f1f;
       padding: 30px;
       border-radius: 10px;
-      width: 320px;
+      width: 340px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
       text-align: center;
     }
     .logo {
-      width: 150px;
+      width: 200px; /* Increased size */
       margin-bottom: 20px;
     }
     input {
@@ -43,26 +43,26 @@
       font-weight: bold;
       cursor: pointer;
       margin-bottom: 10px;
-    }
-    .login-btn { background: #ff9900; color: black; }
-    .signup-btn { background: #333; }
-    .social-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin-top: 8px;
       font-size: 14px;
-      font-weight: bold;
     }
+    .login-btn { background: #ff9900; color: black; }
+    .signup-btn { background: #333; }
     .google { background: #db4437; }
     .facebook { background: #3b5998; }
     .instagram { background: #e4405f; }
+    .social-btn img {
+      width: 20px;
+      height: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Correct path to logo -->
+    <!-- Battlebillions Logo -->
     <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
     
     <input type="email" placeholder="Email" />
@@ -71,9 +71,17 @@
     <button class="signup-btn">Sign Up</button>
     <hr style="margin: 20px 0; border-color: #444;" />
     <p>Or login with:</p>
-    <button class="social-btn google">Login with Google</button>
-    <button class="social-btn facebook">Login with Facebook</button>
-    <button class="social-btn instagram">Login with Instagram</button>
+    
+    <!-- Social Login Buttons -->
+    <button class="social-btn google">
+      <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" /> Login with Google
+    </button>
+    <button class="social-btn facebook">
+      <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" /> Login with Facebook
+    </button>
+    <button class="social-btn instagram">
+      <img src="https://www.svgrepo.com/show/303145/instagram-2-1-logo.svg" alt="Instagram" /> Login with Instagram
+    </button>
   </div>
 </body>
 </html>
