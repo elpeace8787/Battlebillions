@@ -1,104 +1,87 @@
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Page Styles */
 body {
   background: #121212;
-  color: white;
+  color: #fff;
   font-family: 'Orbitron', sans-serif;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   height: 100vh;
+  margin: 0;
 }
 
-/* Container */
 .container {
   background: #1f1f1f;
-  padding: 30px 20px;
+  padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   text-align: center;
-  width: 90%;
-  max-width: 400px;
+  width: 320px;
 }
 
-/* Logo */
 .logo {
   width: 280px;
+  margin: 10px auto 15px auto;
+  display: block;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
-/* Inputs */
 input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
+  padding: 10px;
   border: none;
-  border-radius: 8px;
-  background: #333;
-  color: white;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: #fff;
   font-size: 14px;
 }
 
-input:focus {
-  outline: 2px solid #ff9900;
+.btn-group {
+  display: flex;
+  justify-content: center;
 }
 
-/* Buttons */
-button {
-  border: none;
-  border-radius: 8px;
+.signup-btn {
+  background: #ff9900;
+  color: #121212;
+  padding: 10px;
   font-weight: 700;
-  font-size: 16px;
+  border-radius: 6px;
   cursor: pointer;
-  padding: 12px;
-  margin-top: 8px;
+  width: 100%;
+}
+
+.alt-text {
+  margin: 15px 0 10px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.social-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 8px rgba(255,153,0,0.6);
-}
-
-/* Gold Sign Up Button */
-.login-btn {
-  background: #ff9900;
-  color: #121212;
-  width: 100%;
-}
-
-/* Social Buttons */
-.social-btn {
-  width: 100%;
-  margin-top: 10px;
-}
-
-.google { background: #db4437; color: #fff; }
-.facebook { background: #3b5998; color: #fff; }
-.instagram { background: #e4405f; color: #fff; }
-.tiktok { background: #010101; color: #fff; }
-
-/* Text Links */
-.switch-page {
-  margin: 12px 0;
+  gap: 8px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 10px;
   font-size: 14px;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.switch-page a {
-  color: #ff9900;
-  text-decoration: none;
+.social-btn img {
+  width: 18px;
+  height: 18px;
 }
 
-.switch-page a:hover {
-  text-decoration: underline;
+.social-btn:hover {
+  transform: scale(1.05);
 }
