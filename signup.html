@@ -4,40 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Sign Up</title>
-  <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="signup.css">
 </head>
 <body>
   <div class="container">
     <!-- Battlebillions Logo -->
-    <img src="assets/logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" draggable="false" />
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" draggable="false" />
 
     <!-- Sign Up Form -->
-    <form id="signupForm">
+    <form id="signupForm" style="width: 100%;">
       <input type="text" name="username" placeholder="Username" required />
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Password" required />
       <input type="password" name="confirm_password" placeholder="Confirm Password" required />
 
       <div class="btn-group">
-        <button type="submit" class="signup-btn">Sign Up</button>
+        <button type="submit" class="login-btn">Sign Up</button>
       </div>
     </form>
 
-    <p class="alt-text">Or sign up with:</p>
+    <p class="switch-page">
+      Already have an account? <a href="index.html">Login</a>
+    </p>
 
-    <!-- Social Login Buttons -->
+    <hr />
+    <p>Or sign up with:</p>
     <button class="social-btn google">
-      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> Sign Up with Google
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> Google
     </button>
     <button class="social-btn facebook">
-      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" /> Sign Up with Facebook
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" /> Facebook
     </button>
     <button class="social-btn instagram">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" /> Sign Up with Instagram
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" /> Instagram
     </button>
     <button class="social-btn tiktok">
-      <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok Logo" /> Sign Up with TikTok
+      <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok Logo" /> TikTok
     </button>
   </div>
 
