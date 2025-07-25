@@ -1,30 +1,32 @@
-// Chat User Switching
-document.querySelectorAll('.chat-user').forEach(user => {
-  user.addEventListener('click', () => {
-    document.querySelectorAll('.chat-user').forEach(u => u.classList.remove('active'));
-    user.classList.add('active');
+document.addEventListener("DOMContentLoaded", () => {
+  const chatItems = document.querySelectorAll(".chat");
+  const chatThread = document.getElementById("chatThread");
+  const sendMessageForm = document.getElementById("sendMessageForm");
+  const messageInput = document.getElementById("messageInput");
 
-    const chatId = user.getAttribute('data-chat');
-    document.querySelectorAll('.chat-messages').forEach(chat => chat.classList.add('hidden'));
-    document.getElementById(chatId).classList.remove('hidden');
-
-    document.querySelector('.chat-username').textContent = user.querySelector('span').textContent;
+  // Switch chat threads
+  chatItems.forEach(item => {
+    item.addEventListener("click", () => {
+      document.querySelector(".chat.active")?.classList.remove("active");
+      item.classList.add("active");
+      chatThread.innerHTML = `
+        <div class="message received">
+          <p>Chat with ${item.dataset.user} started...</p>
+        </div>`;
+    });
   });
-});
 
-// Sending a Message
-document.getElementById('messageForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const input = e.target.querySelector('input');
-  const msg = input.value.trim();
-  if (msg) {
-    const activeChat = document.querySelector('.chat-user.active').getAttribute('data-chat');
-    const chatBox = document.getElementById(activeChat);
-    const newMsg = document.createElement('div');
-    newMsg.classList.add('message', 'sent');
-    newMsg.textContent = msg;
-    chatBox.appendChild(newMsg);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    input.value = '';
-  }
+  // Send new message
+  sendMessageForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const message = messageInput.value.trim();
+    if (message) {
+      const newMsg = document.createElement("div");
+      newMsg.className = "message sent";
+      newMsg.innerHTML = `<p>${message}</p>`;
+      chatThread.appendChild(newMsg);
+      chatThread.scrollTop = chatThread.scrollHeight;
+      messageInput.value = "";
+    }
+  });
 });
