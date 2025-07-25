@@ -1,0 +1,68 @@
+/* Dashboard Page Specific Styles */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  opacity: 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.welcome {
+  text-align: center;
+  margin: 40px 20px;
+}
+
+.welcome h2 {
+  font-size: 28px;
+  color: #ff9900;
+  margin-bottom: 10px;
+}
+
+.welcome p {
+  font-size: 16px;
+  color: #bbb;
+}
+
+.dashboard {
+  width: 90%;
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(255,153,0,0.4);
+}
+
+.cta {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.cta button {
+  background: #ff9900;
+  color: #121212;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px #ffae33;
+}
+
+@media (max-width: 600px) {
+  .welcome h2 {
+    font-size: 24px;
+  }
+  nav ul {
+    gap: 10px;
+  }
+}
