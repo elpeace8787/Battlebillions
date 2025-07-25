@@ -8,15 +8,19 @@ body {
   min-height: 100vh;
 }
 
-/* Center Logo */
-.center-logo {
-  display: block;
-  margin: 30px auto 10px;
+/* Top Dashboard Header */
+.dashboard-header {
+  position: relative;
+  padding: 10px;
+  text-align: center;
+  background: #1f1f1f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.dashboard-logo {
   width: 200px;
   height: auto;
+  margin-top: 10px;
 }
-
-/* Top Right Settings & Logout */
 .top-right {
   position: absolute;
   top: 15px;
@@ -25,8 +29,8 @@ body {
   gap: 15px;
 }
 .top-icon {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -37,12 +41,11 @@ body {
 /* Main content */
 .main-content {
   text-align: center;
-  margin-top: 100px;
+  padding: 20px;
 }
 .main-content h2 {
   color: #ff9900;
   font-size: 24px;
-  margin-top: 20px;
 }
 .main-content p {
   color: #ccc;
@@ -57,20 +60,21 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 10px 0;
-  background: rgba(31, 31, 31, 0.9);
+  padding: 12px 0;
+  background: rgba(31, 31, 31, 0.95);
   backdrop-filter: blur(6px);
 }
 .nav-icon {
-  width: 28px;
-  height: 28px;
-  filter: brightness(0) invert(1);
+  width: 32px;
+  height: 32px;
   transition: transform 0.2s ease;
 }
 .nav-icon:hover {
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
+
+/* Battle icon is bigger */
 .battle-icon {
-  width: 36px; /* Battle icon slightly larger */
-  filter: none; /* Keep its original color */
+  width: 42px;
+  height: 42px;
 }
