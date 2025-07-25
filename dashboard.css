@@ -82,10 +82,9 @@ p {
 }
 
 .nav-icon {
-  width: 45px;
-  height: 45px;
+  width: 95px;
+  height: 95px;
   cursor: pointer;
-  filter: drop-shadow(0 0 4px rgba(255,255,255,0.5));
   transition: transform 0.2s ease;
 }
 
@@ -93,13 +92,11 @@ p {
   transform: scale(1.1);
 }
 
-.nav-icon.large {
-  width: 90px;
-  height: 90px;
+.home-icon {
+  width: 100px;
+  height: 100px;
 }
 
 .wallet-icon {
-  width: 55px;
-  height: 55px;
   filter: drop-shadow(0 0 6px darkgoldenrod);
 }
