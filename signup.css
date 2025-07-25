@@ -1,92 +1,65 @@
-/* Signup Page Styles */
+/* Sign Up Page Styles */
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   background: #121212;
   font-family: 'Orbitron', sans-serif;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
   margin: 0;
 }
 
 .container {
   background: #1f1f1f;
-  padding: 40px 25px;
+  padding: 25px 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  width: 100%;
+  width: 90%;
   max-width: 400px;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .logo {
   width: 280px;
-  margin-bottom: 20px; /* Closer to form */
-  margin-left: auto;
-  margin-right: auto;
+  margin: 10px auto 15px auto; /* Brings logo closer to form */
+  display: block;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
+form input {
   width: 100%;
   padding: 12px;
   margin: 8px 0;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  background: #333;
-  color: #fff;
-  font-size: 14px;
-}
-
-.btn-group {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-button {
-  padding: 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-button:hover {
-  transform: scale(1.05);
+  font-size: 16px;
 }
 
 .login-btn {
   background: #ff9900;
   color: #121212;
-  flex: 1;
-}
-
-.signup-btn {
-  background: #333;
-  color: #fff;
-  flex: 1;
-}
-
-/* Social Buttons */
-.social-btn {
-  margin-top: 8px;
-  padding: 12px;
+  padding: 12px 20px;
   width: 100%;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 8px;
+  margin-top: 10px;
 }
 
-.google { background: #db4437; color: #fff; }
-.facebook { background: #3b5998; color: #fff; }
-.instagram { background: #e4405f; color: #fff; }
-.tiktok { background: #010101; color: #fff; }
+.social-btn {
+  width: 100%;
+  margin: 8px 0;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+}
+
+.google { background: #db4437; }
+.facebook { background: #3b5998; }
+.instagram { background: #e4405f; }
+.tiktok { background: #000; }
