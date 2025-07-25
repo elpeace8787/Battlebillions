@@ -2,49 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Battlebillions Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="shared.css" />
 </head>
 <body>
-  <!-- Top bar -->
-  <header>
-    <div class="left-icons">
-      <button data-page="messages">
-        <img src="messages 3d.png" alt="Messages" class="icon">
-      </button>
-    </div>
-    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo">
-    <div class="top-icons">
-      <button data-page="settings">
-        <img src="settings 3d .png" alt="Settings" class="icon">
-      </button>
-      <button onclick="window.location.href='index.html'">
-        <img src="logout 3d.png" alt="Logout" class="icon">
-      </button>
+  <header class="top-bar">
+    <img src="logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+    <div class="top-right-icons">
+      <img src="logopit/settings 3d .png" alt="Settings" id="settingsIcon" class="icon clickable" />
+      <img src="logopit/logout 3d.png" alt="Logout" id="logoutIcon" class="icon clickable" />
     </div>
   </header>
 
-  <!-- Content Area -->
-  <main id="content">
-    <h2>Welcome to your Dashboard!</h2>
-    <p>Choose an option from the bottom bar to get started.</p>
+  <main id="content" class="content-area">
+    <section class="welcome-section">
+      <h2>Welcome to your Dashboard!</h2>
+      <p>Choose an option from the bottom bar to get started.</p>
+    </section>
   </main>
 
-  <!-- Bottom navigation bar -->
-  <nav class="bottom-nav">
-    <button class="nav-btn" data-page="home">
-      <img src="profile.png" alt="Home/Profile" class="nav-icon home-icon">
-    </button>
-    <button class="nav-btn" data-page="battle">
-      <img src="battle 3d.png" alt="Battle" class="nav-icon battle-icon">
-    </button>
-    <button class="nav-btn" data-page="leaderboard">
-      <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon leaderboard-icon">
-    </button>
-    <button class="nav-btn" data-page="wallet">
-      <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon">
-    </button>
+  <nav id="bottomNav" class="bottom-nav">
+    <img src="logopit/user-profile.png" alt="Home/Profile" id="homeIcon" class="nav-icon clickable" />
+    <img src="logopit/battle 3d.png" alt="Battle" id="battleIcon" class="nav-icon clickable" />
+    <img src="logopit/leaderboard 3d.png" alt="Leaderboard" id="leaderboardIcon" class="nav-icon clickable" />
+    <img src="logopit/billions 3d.png" alt="Wallet" id="walletIcon" class="nav-icon clickable wallet-icon" />
+    <img src="logopit/messages 3d.png" alt="Messages" id="messagesIcon" class="nav-icon clickable" />
   </nav>
 
   <script src="main.js"></script>
