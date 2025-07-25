@@ -1,79 +1,58 @@
 document.addEventListener("DOMContentLoaded", () => {
   const bottomBar = document.getElementById("bottomBar");
   const content = document.getElementById("content");
-  const navIcons = document.querySelectorAll(".nav-icon");
-  
-  // Pages content map - update content for each page
+  const navIcons = bottomBar.querySelectorAll(".nav-icon");
+
+  // Page content for demo, replace with your real page HTML or loading logic
   const pages = {
-    home: {
-      title: "Home",
-      content: "<p>This is your home dashboard overview.</p>"
-    },
-    messages: {
-      title: "Messages",
-      content: "<p>Your messages will show here.</p>"
-    },
-    profile: {
-      title: "Profile",
-      content: "<p>Manage your user profile here.</p>"
-    },
-    battle: {
-      title: "Battle",
-      content: "<p>Start or join battles here.</p>"
-    },
-    leaderboard: {
-      title: "Leaderboard",
-      content: "<p>Check rankings and top players here.</p>"
-    },
-    wallet: {
-      title: "Wallet",
-      content: "<p>Manage your wallet and transactions here.</p>"
-    }
+    home: `<h2>Home</h2><p>This is your home/profile page content.</p>`,
+    battle: `<h2>Battle</h2><p>Prepare for battle! Your battles will appear here.</p>`,
+    leaderboard: `<h2>Leaderboard</h2><p>Check out the top players here.</p>`,
+    wallet: `<h2>Wallet</h2><p>Manage your wallet and funds here.</p>`
   };
 
-  // Initially show home page content
-  updateContent("home");
-
-  navIcons.forEach(icon => {
-    icon.addEventListener("click", () => {
-      // Update content based on clicked icon's data-page attribute
-      const page = icon.getAttribute("data-page");
-      updateContent(page);
-    });
-  });
-
-  function updateContent(page) {
-    if (pages[page]) {
-      content.innerHTML = `
-        <h2>${pages[page].title}</h2>
-        ${pages[page].content}
-      `;
-      // Highlight active icon
-      navIcons.forEach(i => i.classList.toggle("active", i.getAttribute("data-page") === page));
-    }
-  }
-
-  // Fade bottom bar logic:
+  // Handle bottom bar fade/unfade on scroll
   let fadeTimeout;
+  const fadeDuration = 1500; // ms
 
   function fadeOutBar() {
     bottomBar.classList.add("faded");
+    bottomBar.style.pointerEvents = "none";
   }
-
   function fadeInBar() {
     bottomBar.classList.remove("faded");
-    clearTimeout(fadeTimeout);
-    fadeTimeout = setTimeout(fadeOutBar, 2000);
+    bottomBar.style.pointerEvents = "auto";
   }
 
-  // Start faded
-  fadeOutBar();
+  // Fade bottom bar initially after 3 seconds
+  setTimeout(fadeOutBar, 3000);
 
-  // Fade in on scroll or touch
-  window.addEventListener("scroll", fadeInBar);
-  window.addEventListener("touchstart", fadeInBar);
+  // On scroll fade in and out after delay
+  let scrollTimer;
+  window.addEventListener("scroll", () => {
+    fadeInBar();
 
-  // Also fade in on bottom bar tap
-  bottomBar.addEventListener("mouseenter", fadeInBar);
-  bottomBar.addEventListener("mouseleave", fadeOutBar);
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      fadeOutBar();
+    }, fadeDuration);
+  });
+
+  // Handle icon clicks to load content without page reload
+  navIcons.forEach(icon => {
+    icon.addEventListener("click", () => {
+      const page = icon.getAttribute("data-page");
+      if (page && pages[page]) {
+        content.innerHTML = pages[page];
+        // highlight selected icon (optional)
+        navIcons.forEach(ic => ic.classList.remove("active"));
+        icon.classList.add("active");
+      }
+    });
+  });
+
+  // Initially load home page
+  content.innerHTML = pages.home;
+  navIcons.forEach(ic => ic.classList.remove("active"));
+  navIcons[0].classList.add("active");
 });
