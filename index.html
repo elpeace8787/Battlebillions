@@ -17,20 +17,20 @@
     }
     .container {
       background: #1f1f1f;
-      padding: 30px;
+      padding: 20px;
       border-radius: 10px;
       width: 350px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
       text-align: center;
     }
     .logo {
-      width: 400px; /* Increased to 400px */
-      margin-bottom: 20px;
+      width: 350px; /* Reduced to 350px */
+      margin-bottom: 15px; /* Closer to login fields */
     }
     input {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
+      margin: 8px 0;
       border: none;
       border-radius: 5px;
     }
@@ -63,6 +63,9 @@
       width: 22px;
       height: 22px;
     }
+    p {
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -70,11 +73,13 @@
     <!-- Battlebillions Logo -->
     <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
     
+    <!-- Login Form -->
     <input type="email" placeholder="Email" />
     <input type="password" placeholder="Password" />
     <button class="login-btn">Login</button>
     <button class="signup-btn">Sign Up</button>
-    <hr style="margin: 20px 0; border-color: #444;" />
+    
+    <hr style="margin: 15px 0; border-color: #444;" />
     <p>Or login with:</p>
     
     <!-- Social Login Buttons -->
