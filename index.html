@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Login</title>
-  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="assets/css/login.css">
 </head>
 <body>
@@ -62,7 +62,7 @@
       try {
         const user = await signInWith(googleProvider);
         console.log("Google Login Success:", user);
-        window.location.href = 'Dashboard/Dashboard.html';
+        window.location.href = 'dashboard.html';
       } catch (err) {
         alert('Google login failed: ' + err.message);
       }
@@ -73,7 +73,7 @@
       try {
         const user = await signInWith(facebookProvider);
         console.log("Facebook Login Success:", user);
-        window.location.href = 'Dashboard/Dashboard.html';
+        window.location.href = 'dashboard.html';
       } catch (err) {
         alert('Facebook login failed: ' + err.message);
       }
@@ -84,7 +84,7 @@
       try {
         const user = await signInWith(instagramProvider);
         console.log("Instagram Login Success:", user);
-        window.location.href = 'Dashboard/Dashboard.html';
+        window.location.href = 'dashboard.html';
       } catch (err) {
         alert('Instagram login failed: ' + err.message);
       }
@@ -95,7 +95,7 @@
       try {
         const user = await signInWith(tiktokProvider);
         console.log("TikTok Login Success:", user);
-        window.location.href = 'Dashboard/Dashboard.html';
+        window.location.href = 'dashboard.html';
       } catch (err) {
         alert('TikTok login failed: ' + err.message);
       }
@@ -107,9 +107,9 @@
       e.preventDefault();
       document.body.classList.add('fade-out');
       setTimeout(() => {
-        window.location.href = 'Dashboard/Dashboard.html';
+        window.location.href = 'dashboard.html';
       }, 600);
     });
   </script>
 </body>
-          </html>
+</html>
