@@ -13,6 +13,30 @@ body {
   font-family: 'Orbitron', sans-serif;
   height: 100vh;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Top Bar */
+.top-bar {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  display: flex;
+  gap: 15px;
+  z-index: 100;
+}
+
+.top-icons img {
+  width: 28px;
+  height: 28px;
+  filter: invert(100%);
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.top-icons img:hover {
+  transform: scale(1.2);
+  filter: invert(65%) sepia(100%) saturate(900%) hue-rotate(20deg) brightness(1);
 }
 
 /* Main Content */
