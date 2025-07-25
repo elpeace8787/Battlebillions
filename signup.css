@@ -1,0 +1,71 @@
+/* signup.css */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #121212;
+  font-family: 'Orbitron', sans-serif;
+  margin: 0;
+}
+
+.container {
+  background: #1f1f1f;
+  padding: 25px;
+  border-radius: 12px;
+  width: 350px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
+.logo {
+  width: 280px;
+  margin-bottom: 15px; /* bring closer to inputs */
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.login-btn, .signup-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.social-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+p {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #ccc;
+}
