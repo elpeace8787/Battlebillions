@@ -11,111 +11,35 @@
   <header>
     <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo">
     <div class="top-icons">
-      <button class="top-btn" data-target="messages">
+      <button onclick="window.location.href='messages.html'">
         <img src="messages 3d.png" alt="Messages" class="icon">
       </button>
-      <button class="top-btn" data-target="settings">
+      <button onclick="window.location.href='settings.html'">
         <img src="settings 3d .png" alt="Settings" class="icon">
       </button>
-      <button class="top-btn" id="logoutBtn">
+      <button onclick="window.location.href='index.html'">
         <img src="logout 3d.png" alt="Logout" class="icon">
       </button>
     </div>
   </header>
 
-  <!-- Content sections -->
   <main>
-    <!-- Home/Profile Section -->
-    <section id="home" class="page-section">
-      <h2>Welcome to your Dashboard!</h2>
-      <p>Choose an option from the bottom bar to get started.</p>
-    </section>
-
-    <!-- Battle Section -->
-    <section id="battle" class="page-section hidden">
-      <h2>Battle Arena</h2>
-      <p>Here is your battle feed and challenges.</p>
-    </section>
-
-    <!-- Leaderboard Section -->
-    <section id="leaderboard" class="page-section hidden">
-      <h2>Leaderboard</h2>
-      <p>Top players and rankings will appear here.</p>
-    </section>
-
-    <!-- Wallet Section -->
-    <section id="wallet" class="page-section hidden">
-      <h2>Your Wallet</h2>
-      <p>Manage your coins and transactions here.</p>
-    </section>
-
-    <!-- Settings Section -->
-    <section id="settings" class="page-section hidden">
-      <h2>Settings</h2>
-      <p>Update your preferences and account settings.</p>
-    </section>
-
-    <!-- Messages Section -->
-    <section id="messages" class="page-section hidden">
-      <div class="messages-wrapper">
-        <div class="chat-sidebar">
-          <h3>Messages</h3>
-          <ul class="chat-users">
-            <li class="chat-user active" data-chat="chat1">
-              <img src="profile.png" alt="User">
-              <span>Player1</span>
-            </li>
-            <li class="chat-user" data-chat="chat2">
-              <img src="profile.png" alt="User">
-              <span>Player2</span>
-            </li>
-            <li class="chat-user" data-chat="chat3">
-              <img src="profile.png" alt="User">
-              <span>Player3</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="chat-window">
-          <div class="chat-header">
-            <img src="profile.png" alt="User" class="chat-profile">
-            <span class="chat-username">Player1</span>
-          </div>
-
-          <div class="chat-messages" id="chat1">
-            <div class="message received">Hey! Ready for the next battle?</div>
-            <div class="message sent">Absolutely, let's go!</div>
-          </div>
-          <div class="chat-messages hidden" id="chat2">
-            <div class="message received">Yo, when are you online?</div>
-            <div class="message sent">Later tonight.</div>
-          </div>
-          <div class="chat-messages hidden" id="chat3">
-            <div class="message received">Congrats on your win!</div>
-            <div class="message sent">Thanks!</div>
-          </div>
-
-          <form class="message-input" id="messageForm">
-            <input type="text" placeholder="Message..." required>
-            <button type="submit">Send</button>
-          </form>
-        </div>
-      </div>
-    </section>
+    <h2>Welcome to your Dashboard!</h2>
+    <p>Choose an option from the bottom bar to get started.</p>
   </main>
 
   <!-- Bottom navigation bar -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-target="home">
+    <button class="nav-btn" onclick="window.location.href='home.html'">
       <img src="profile.png" alt="Home/Profile" class="nav-icon home-icon">
     </button>
-    <button class="nav-btn" data-target="battle">
+    <button class="nav-btn" onclick="window.location.href='battle.html'">
       <img src="battle 3d.png" alt="Battle" class="nav-icon battle-icon">
     </button>
-    <button class="nav-btn" data-target="leaderboard">
+    <button class="nav-btn" onclick="window.location.href='leaderboard.html'">
       <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon leaderboard-icon">
     </button>
-    <button class="nav-btn" data-target="wallet">
+    <button class="nav-btn" onclick="window.location.href='wallet.html'">
       <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon">
     </button>
   </nav>
