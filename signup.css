@@ -11,17 +11,17 @@ body {
 
 .container {
   background: #1f1f1f;
-  padding: 30px;
+  padding: 25px 20px;
   border-radius: 12px;
-  width: 350px;
+  width: 320px;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .logo {
   width: 280px;
-  margin: 0 auto 20px auto; /* Brings logo closer to form */
   display: block;
+  margin: 0 auto 15px auto; /* Logo closer to the inputs */
 }
 
 input {
@@ -81,6 +81,11 @@ input {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.social-btn:hover {
+  transform: scale(1.05);
 }
 
 .social-btn img {
@@ -88,6 +93,7 @@ input {
   height: 18px;
   margin-right: 8px;
 }
+
 .google { background: #db4437; color: #fff; }
 .facebook { background: #3b5998; color: #fff; }
 .instagram { background: #e4405f; color: #fff; }
