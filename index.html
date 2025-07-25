@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Battlebillions Login</title>
+  <title>Battlebillions Login — Omega El Level</title>
   <style>
     /* === Reset & base styles === */
     *, *::before, *::after {
       box-sizing: border-box;
     }
     body {
-      background: #121212;
-      color: #fff;
+      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+      color: #fefefe;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       align-items: center;
@@ -20,168 +20,241 @@
       margin: 0;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
     }
 
     /* === Container === */
     .container {
-      background: #1f1f1f;
-      padding: 24px 28px;
-      border-radius: 12px;
-      width: 360px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+      background: #222222ee;
+      padding: 28px 32px;
+      border-radius: 16px;
+      width: 380px;
+      max-width: 95vw;
+      box-shadow:
+        0 4px 8px rgba(255,153,0,0.15),
+        0 8px 24px rgba(255,153,0,0.25),
+        0 16px 48px rgba(255,153,0,0.35);
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       user-select: none;
-      transition: box-shadow 0.3s ease;
+      position: relative;
+      animation: glowPulse 4s ease-in-out infinite alternate;
     }
-    .container:hover {
-      box-shadow: 0 12px 48px rgba(255, 153, 0, 0.6);
+
+    /* subtle glowing pulse animation */
+    @keyframes glowPulse {
+      0% {
+        box-shadow:
+          0 4px 8px rgba(255,153,0,0.12),
+          0 8px 24px rgba(255,153,0,0.22),
+          0 16px 48px rgba(255,153,0,0.30);
+      }
+      100% {
+        box-shadow:
+          0 6px 14px rgba(255,153,0,0.22),
+          0 12px 32px rgba(255,153,0,0.32),
+          0 24px 56px rgba(255,153,0,0.45);
+      }
     }
 
     /* === Logo === */
     .logo {
-      width: 350px;
+      width: 360px;
       max-width: 100%;
       height: auto;
-      margin-bottom: 3px; /* Omega tight spacing */
+      margin-bottom: 4px;
       object-fit: contain;
       display: block;
-      filter: drop-shadow(0 0 3px rgba(255, 153, 0, 0.7));
+      filter: drop-shadow(0 0 6px #ffaa00cc);
       user-select: none;
+      transition: filter 0.4s ease;
+    }
+    .logo:hover,
+    .logo:focus {
+      filter: drop-shadow(0 0 12px #ffcc33ff);
     }
 
     /* === Inputs === */
     input[type="email"],
     input[type="password"] {
       width: 100%;
-      padding: 14px 16px;
-      margin: 6px 0 14px 0;
+      padding: 16px 18px;
+      margin: 6px 0 16px 0;
       border: none;
-      border-radius: 8px;
-      background: #2c2c2c;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
       color: #eee;
-      font-size: 16px;
-      font-weight: 500;
-      outline-offset: 2px;
-      outline-color: #ff9900;
-      transition: background-color 0.25s ease, outline-color 0.25s ease;
+      font-size: 17px;
+      font-weight: 600;
+      outline-offset: 3px;
+      outline-color: #ffb933;
+      box-shadow:
+        inset 0 0 8px rgba(255, 153, 0, 0.15),
+        inset 0 4px 6px rgba(255, 153, 0, 0.08);
+      transition: background-color 0.3s ease, outline-color 0.3s ease, box-shadow 0.3s ease;
       user-select: text;
     }
     input::placeholder {
       color: #bbb;
       font-weight: 400;
+      letter-spacing: 0.04em;
+      user-select: none;
     }
     input:focus {
-      background: #3a3a3a;
-      outline-color: #ffae33;
-      box-shadow: 0 0 6px #ffae33;
+      background: linear-gradient(145deg, #352b0d, #4c3d07);
+      outline-color: #ffc366;
+      box-shadow:
+        inset 0 0 12px #ffb933cc,
+        0 0 12px #ffb933cc;
     }
 
     /* === Button Group === */
     .btn-group {
       width: 100%;
-      margin-bottom: 22px;
+      margin-bottom: 26px;
       display: flex;
-      gap: 14px;
+      gap: 16px;
       justify-content: center;
+      user-select: none;
     }
     button {
       flex: 1;
-      padding: 14px 0;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 16px;
+      padding: 16px 0;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 17px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       user-select: none;
       border: none;
-      transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.3s ease;
+      transition:
+        transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.3s ease,
+        background-color 0.3s ease,
+        color 0.3s ease;
       color: white;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      box-shadow:
+        0 6px 14px rgba(0,0,0,0.4);
+      text-shadow: 0 0 4px rgba(0,0,0,0.2);
+      letter-spacing: 0.06em;
     }
     button:focus-visible {
-      outline: 3px solid #ffb733;
+      outline: 3px solid #ffcc33;
       outline-offset: 3px;
     }
     button:hover {
-      transform: scale(1.07);
-      box-shadow: 0 8px 16px rgba(255,153,0,0.5);
+      transform: scale(1.08) translateY(-3px);
+      box-shadow:
+        0 12px 28px rgba(255, 179, 51, 0.7),
+        0 4px 16px rgba(255, 179, 51, 0.5);
+      color: #1b1b1b;
+      text-shadow: 0 0 10px #ffda61;
     }
 
     .login-btn {
       background: #ff9900;
       color: #1b1b1b;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-shadow: 0 0 3px #e68000;
-      box-shadow: 0 6px 12px rgba(255,153,0,0.7);
+      text-shadow: 0 0 5px #fbb500;
+      box-shadow: 0 8px 24px rgba(255, 153, 0, 0.8);
     }
     .login-btn:hover {
       background: #ffb733;
-      box-shadow: 0 10px 20px #ffb733cc;
+      box-shadow:
+        0 16px 36px #ffb733cc,
+        0 6px 20px #ffb733aa;
       color: #0f0f0f;
-      text-shadow: 0 0 6px #ffdb4d;
+      text-shadow: 0 0 15px #ffdb4d;
     }
 
     .signup-btn {
       background: #333333;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      box-shadow:
+        0 6px 16px rgba(0,0,0,0.7);
+      color: white;
     }
     .signup-btn:hover {
       background: #4d4d4d;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.8);
+      box-shadow:
+        0 10px 28px rgba(0,0,0,0.9);
+      color: #ddd;
     }
 
     /* === Divider === */
     hr {
       border: none;
-      border-top: 1px solid #444;
-      margin: 20px 0;
+      border-top: 1px solid #555;
+      margin: 24px 0;
       width: 100%;
+      filter: drop-shadow(0 0 2px #ffbb0040);
     }
 
     p {
-      margin: 0 0 16px 0;
+      margin: 0 0 18px 0;
       font-size: 15px;
-      color: #ccc;
+      color: #ddd;
       user-select: none;
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 2px #ffbb0040;
     }
 
     /* === Social Buttons === */
     .social-btn {
       width: 100%;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       font-size: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      border-radius: 8px;
+      gap: 14px;
+      border-radius: 14px;
       border: none;
       cursor: pointer;
       user-select: none;
       color: white;
-      font-weight: 600;
-      padding: 12px 0;
-      box-shadow: 0 3px 7px rgba(0,0,0,0.6);
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      text-shadow: 0 0 2px rgba(0,0,0,0.4);
+      font-weight: 700;
+      padding: 14px 0;
+      box-shadow:
+        0 5px 14px rgba(0,0,0,0.7);
+      transition:
+        background-color 0.32s ease,
+        box-shadow 0.32s ease,
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-shadow: 0 0 3px rgba(0,0,0,0.5);
+      letter-spacing: 0.05em;
+      user-select: none;
+      text-transform: none;
+      will-change: transform, box-shadow;
     }
+    .social-btn:focus-visible {
+      outline: 3px solid #ffcc33;
+      outline-offset: 3px;
+    }
+    .social-btn:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 12px 28px rgba(255, 179, 51, 0.85),
+        0 6px 24px rgba(255, 179, 51, 0.65);
+      text-shadow: 0 0 12px #ffda61;
+    }
+
     .social-btn img {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       background: none;
       display: inline-block;
       vertical-align: middle;
-      filter: drop-shadow(0 0 1px rgba(0,0,0,0.7));
+      filter: drop-shadow(0 0 2px rgba(0,0,0,0.7));
       user-select: none;
+      will-change: filter;
+      transition: filter 0.3s ease;
+    }
+    .social-btn:hover img {
+      filter: drop-shadow(0 0 5px #ffda61);
     }
 
     .google {
@@ -189,7 +262,8 @@
     }
     .google:hover {
       background: #c33c31;
-      box-shadow: 0 8px 20px #c33c31cc;
+      box-shadow:
+        0 12px 28px #c33c31cc;
     }
 
     .facebook {
@@ -197,7 +271,8 @@
     }
     .facebook:hover {
       background: #314d86;
-      box-shadow: 0 8px 20px #314d86cc;
+      box-shadow:
+        0 12px 28px #314d86cc;
     }
 
     .instagram {
@@ -205,14 +280,15 @@
     }
     .instagram:hover {
       background: #cc3952;
-      box-shadow: 0 8px 20px #cc3952cc;
+      box-shadow:
+        0 12px 28px #cc3952cc;
     }
 
     /* === Responsive tweaks === */
-    @media (max-width: 400px) {
+    @media (max-width: 420px) {
       .container {
         width: 95vw;
-        padding: 16px 20px;
+        padding: 20px 24px;
       }
       .logo {
         width: 100%;
@@ -220,29 +296,43 @@
       }
       input[type="email"],
       input[type="password"] {
-        font-size: 14px;
-        padding: 12px 14px;
+        font-size: 15px;
+        padding: 14px 16px;
       }
       button, .social-btn {
-        font-size: 14px;
-        padding: 12px 0;
+        font-size: 15px;
+        padding: 14px 0;
       }
+    }
+
+    /* === Screen-reader only === */
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
     }
   </style>
 </head>
 <body>
-  <div class="container" role="main" aria-label="Battlebillions login form">
+  <main class="container" role="main" aria-label="Battlebillions login form">
     <!-- Battlebillions Logo -->
     <img
       src="Logopit_1697753255912.png"
       alt="Battlebillions logo"
       class="logo"
       loading="eager"
-      width="350"
+      width="360"
       height="auto"
       draggable="false"
       role="img"
       aria-hidden="true"
+      tabindex="-1"
     />
 
     <!-- Login Form -->
@@ -282,53 +372,4 @@
 
     <hr />
 
-    <p>Or login with:</p>
-
-    <!-- Social Login Buttons -->
-    <button class="social-btn google" aria-label="Login with Google">
-      <img
-        src="https://www.svgrepo.com/show/475656/google-color.svg"
-        alt="Google logo"
-        aria-hidden="true"
-        draggable="false"
-      />
-      Login with Google
-    </button>
-
-    <button class="social-btn facebook" aria-label="Login with Facebook">
-      <img
-        src="https://cdn-icons-png.flaticon.com/512/733/733547.png"
-        alt="Facebook logo"
-        aria-hidden="true"
-        draggable="false"
-      />
-      Login with Facebook
-    </button>
-
-    <button class="social-btn instagram" aria-label="Login with Instagram">
-      <img
-        src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png"
-        alt="Instagram logo"
-        aria-hidden="true"
-        draggable="false"
-      />
-      Login with Instagram
-    </button>
-  </div>
-
-  <style>
-    /* Screen-reader only text */
-    .sr-only {
-      position: absolute !important;
-      width: 1px !important;
-      height: 1px !important;
-      padding: 0 !important;
-      margin: -1px !important;
-      overflow: hidden !important;
-      clip: rect(0,0,0,0) !important;
-      white-space: nowrap !important;
-      border: 0 !important;
-    }
-  </style>
-</body>
-</html>
+    <p>
