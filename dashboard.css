@@ -11,16 +11,17 @@ body {
 /* Top Header */
 .dashboard-header {
   position: relative;
-  padding: 8px 0 0;
+  padding: 10px 0;
   text-align: center;
   background: #1f1f1f;
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
+
 .dashboard-logo {
-  width: 180px;   /* Smaller logo for top placement */
+  width: 160px;
   height: auto;
-  margin-top: 5px;
 }
+
 .top-right {
   position: absolute;
   top: 15px;
@@ -28,26 +29,29 @@ body {
   display: flex;
   gap: 15px;
 }
+
 .top-icon {
   width: 26px;
   height: 26px;
   cursor: pointer;
 }
 
-/* Main content area */
+/* Content */
 .main-content {
   flex: 1;
   text-align: center;
   padding: 20px;
 }
+
 .tab-page {
   display: none;
 }
+
 .tab-page.active {
   display: block;
 }
 
-/* Bottom Bar */
+/* Bottom Navigation */
 .bottom-bar {
   position: fixed;
   bottom: 0;
@@ -59,15 +63,18 @@ body {
   background: rgba(31,31,31,0.95);
   backdrop-filter: blur(6px);
 }
+
 .nav-icon {
   width: 32px;
   height: 32px;
   transition: transform 0.2s ease;
 }
+
 .nav-icon:hover {
   transform: scale(1.1);
 }
+
 .battle-icon {
-  width: 50px; /* Bigger Battle Icon */
-  height: 50px;
+  width: 65px;   /* Bigger battle icon */
+  height: 65px;
 }
