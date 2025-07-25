@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-  <!-- Top Header -->
+  <!-- Header -->
   <header class="dashboard-header">
     <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="dashboard-logo" />
     <div class="top-right">
@@ -16,7 +16,7 @@
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Dynamic Content -->
   <main class="main-content">
     <section id="home" class="tab-page active">
       <h2>Welcome to your Dashboard!</h2>
@@ -25,12 +25,12 @@
     <section id="profile" class="tab-page"><h2>Your Profile</h2></section>
     <section id="battle" class="tab-page"><h2>Battle Arena</h2></section>
     <section id="leaderboard" class="tab-page"><h2>Leaderboard</h2></section>
-    <section id="wallet" class="tab-page"><h2>Wallet</h2></section>
+    <section id="wallet" class="tab-page"><h2>Your Wallet</h2></section>
     <section id="settings" class="tab-page"><h2>Settings</h2></section>
   </main>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-bar">
+  <!-- Bottom Icon Bar -->
+  <nav class="bottom-bar" id="bottomBar">
     <img src="assets/icons/home.png" alt="Home" class="nav-icon" onclick="showPage('home')" />
     <img src="assets/icons/profile.png" alt="Profile" class="nav-icon" onclick="showPage('profile')" />
     <img src="Logopit_1753467170292.png" alt="Battle" class="nav-icon battle-icon" onclick="showPage('battle')" />
