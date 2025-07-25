@@ -5,39 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
+  <script defer src="main.js"></script>
 </head>
 <body>
-  <!-- Header -->
-  <header class="dashboard-header">
-    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="dashboard-logo" />
-    <div class="top-right">
-      <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" alt="Settings" class="top-icon" onclick="showPage('settings')" />
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828490.png" alt="Logout" class="top-icon" onclick="window.location.href='index.html'" />
+  <!-- Top bar -->
+  <header class="top-bar">
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="top-logo">
+    <div class="top-actions">
+      <button class="settings-btn">⚙️</button>
+      <button class="logout-btn">⎋</button>
     </div>
   </header>
 
-  <!-- Dynamic Content -->
+  <!-- Dashboard main content -->
   <main class="main-content">
-    <section id="home" class="tab-page active">
-      <h2>Welcome to your Dashboard!</h2>
-      <p>Choose an option from the bottom bar to get started.</p>
-    </section>
-    <section id="profile" class="tab-page"><h2>Your Profile</h2></section>
-    <section id="battle" class="tab-page"><h2>Battle Arena</h2></section>
-    <section id="leaderboard" class="tab-page"><h2>Leaderboard</h2></section>
-    <section id="wallet" class="tab-page"><h2>Your Wallet</h2></section>
-    <section id="settings" class="tab-page"><h2>Settings</h2></section>
+    <h2>Welcome to your Dashboard!</h2>
+    <p>Choose an option from the bottom bar to get started.</p>
   </main>
 
-  <!-- Bottom Icon Bar -->
-  <nav class="bottom-bar" id="bottomBar">
-    <img src="https://cdn-icons-png.flaticon.com/512/1946/1946433.png" alt="Home" class="nav-icon" onclick="showPage('home')" />
-    <img src="https://cdn-icons-png.flaticon.com/512/456/456212.png" alt="Profile" class="nav-icon profile-icon" onclick="showPage('profile')" />
-    <img src="Logopit_1753467170292.png" alt="Battle" class="nav-icon battle-icon" onclick="showPage('battle')" />
-    <span class="nav-icon trophy-icon" onclick="showPage('leaderboard')">🏆</span>
-    <img src="Logopit_1753467389806.png" alt="Wallet" class="nav-icon wallet-icon" onclick="showPage('wallet')" />
-  </nav>
-
-  <script src="main.js"></script>
+  <!-- Bottom bar with navigation icons -->
+  <div class="bottom-bar">
+    <img src="Logopit_Home.png" class="nav-icon home-icon" alt="Home" data-page="home">
+    <img src="Logopit_Profile.png" class="nav-icon profile-icon" alt="Profile" data-page="profile">
+    <img src="Logopit_1753467170292.png" class="nav-icon battle-icon" alt="Battle" data-page="battle">
+    <img src="Logopit_Trophy.png" class="nav-icon leaderboard-icon" alt="Leaderboard" data-page="leaderboard">
+    <img src="Logopit_1753467389806.png" class="nav-icon wallet-icon" alt="Wallet" data-page="wallet">
+  </div>
 </body>
-  </html>
+</html>
