@@ -15,8 +15,7 @@ body {
 }
 
 .dashboard-logo {
-  width: 140px;
-  height: auto;
+  width: 120px;
   display: block;
   margin: 0 auto;
 }
@@ -30,8 +29,8 @@ body {
 }
 
 .top-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
   filter: invert(100%);
 }
@@ -41,6 +40,15 @@ body {
   padding: 20px;
 }
 
+.tab-page {
+  display: none;
+}
+
+.tab-page.active {
+  display: block;
+}
+
+/* Bottom Navigation */
 .bottom-bar {
   position: fixed;
   bottom: 0;
@@ -52,6 +60,13 @@ body {
   align-items: center;
   padding: 8px 0;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.bottom-bar:hover,
+.bottom-bar:focus-within {
+  opacity: 1;
 }
 
 .nav-icon {
@@ -69,4 +84,4 @@ body {
   width: 85px;
   height: 85px;
   filter: brightness(1) sepia(1) hue-rotate(10deg) saturate(4) brightness(1.3);
-}
+  }
