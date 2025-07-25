@@ -1,25 +1,24 @@
 body {
   margin: 0;
-  font-family: 'Orbitron', sans-serif;
+  padding: 0;
   background: #121212;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
 }
 
-/* Top Header */
 .dashboard-header {
   position: relative;
-  padding: 10px 0;
+  padding: 10px;
   text-align: center;
   background: #1f1f1f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
 .dashboard-logo {
-  width: 160px;
+  width: 150px;
   height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .top-right {
@@ -27,54 +26,42 @@ body {
   top: 15px;
   right: 15px;
   display: flex;
-  gap: 15px;
+  gap: 10px;
 }
 
 .top-icon {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   cursor: pointer;
+  filter: invert(100%);
 }
 
-/* Content */
 .main-content {
-  flex: 1;
   text-align: center;
   padding: 20px;
 }
 
-.tab-page {
-  display: none;
-}
-
-.tab-page.active {
-  display: block;
-}
-
-/* Bottom Navigation */
 .bottom-bar {
   position: fixed;
   bottom: 0;
+  left: 0;
   width: 100%;
+  background: #1f1f1f;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 10px 0;
-  background: rgba(31,31,31,0.95);
-  backdrop-filter: blur(6px);
+  padding: 8px 0;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
 }
 
 .nav-icon {
-  width: 32px;
-  height: 32px;
-  transition: transform 0.2s ease;
-}
-
-.nav-icon:hover {
-  transform: scale(1.1);
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  filter: invert(100%);
 }
 
 .battle-icon {
-  width: 65px;   /* Bigger battle icon */
-  height: 65px;
-}
+  width: 85px;
+  height: 85px;
+  }
