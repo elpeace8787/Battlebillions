@@ -50,6 +50,7 @@ body {
   padding: 20px;
   flex-grow: 1;
   text-align: center;
+  transition: opacity 0.3s ease;
 }
 
 /* Bottom Bar */
