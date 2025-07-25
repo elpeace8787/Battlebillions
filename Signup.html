@@ -41,13 +41,12 @@
   <script>
     const signupForm = document.getElementById('signupForm');
     signupForm.addEventListener('submit', function(e) {
-      e.preventDefault(); 
-      // Add validation and signup logic here
+      e.preventDefault();
       document.body.classList.add('fade-out');
       setTimeout(() => {
         window.location.href = 'Dashboard/Dashboard.html';
-      }, 600); // match fade duration
+      }, 600);
     });
   </script>
 </body>
-</html>
+  </html>
