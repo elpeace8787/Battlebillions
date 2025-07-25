@@ -2,18 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Battlebillions Login</title>
-  <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/login.css">
+  <link rel="stylesheet" href="assets/css/shared.css" />
+  <link rel="stylesheet" href="assets/css/login.css" />
 </head>
 <body>
   <div class="container">
     <!-- Battlebillions Logo -->
-    <img src="assets/logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+    <img 
+      src="assets/logopit/Logopit_1697753255912.png" 
+      alt="Battlebillions Logo" 
+      class="logo" 
+      draggable="false"
+    />
 
     <!-- Login Form -->
-    <form id="loginForm" style="width: 100%;">
+    <form id="loginForm">
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Password" required />
 
@@ -25,20 +30,26 @@
 
     <hr />
     <p>Or login with:</p>
+
+    <!-- Social Login Buttons -->
     <button class="social-btn google">
-      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> Login with Google
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> 
+      Login with Google
     </button>
     <button class="social-btn facebook">
-      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" /> Login with Facebook
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" /> 
+      Login with Facebook
     </button>
     <button class="social-btn instagram">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" /> Login with Instagram
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" /> 
+      Login with Instagram
     </button>
   </div>
 
   <script>
+    // Fade out and redirect to dashboard
     const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', function (e) {
       e.preventDefault();
       document.body.classList.add('fade-out');
       setTimeout(() => {
