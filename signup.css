@@ -1,37 +1,48 @@
-/* signup.css */
+/* Signup Page Styles */
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   background: #121212;
+  color: #fff;
   font-family: 'Orbitron', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
   margin: 0;
 }
 
 .container {
   background: #1f1f1f;
-  padding: 25px;
+  padding: 30px 25px;
   border-radius: 12px;
-  width: 350px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  width: 320px;
   text-align: center;
 }
 
 .logo {
   width: 280px;
-  margin-bottom: 15px; /* bring closer to inputs */
+  margin-bottom: 20px;
+  user-select: none;
 }
 
-input {
+/* Form Inputs */
+form input {
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
+  padding: 10px;
+  margin: 10px 0;
   border: none;
   border-radius: 6px;
+  background: #2a2a2a;
+  color: #fff;
   font-size: 14px;
 }
 
+form input:focus {
+  outline: none;
+  box-shadow: 0 0 6px #ff9900;
+}
+
+/* Buttons */
 .btn-group {
   display: flex;
   justify-content: space-between;
@@ -39,24 +50,45 @@ input {
   margin: 15px 0;
 }
 
-.login-btn, .signup-btn {
+.login-btn,
+.signup-btn {
   flex: 1;
-  padding: 10px;
+  padding: 10px 0;
   border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.login-btn {
+  background: #ff9900;
+  color: #121212;
+}
+
+.signup-btn {
+  background: #333;
+  color: #fff;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* Social Buttons */
 .social-btn {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
-  margin: 5px 0;
+  padding: 8px;
+  margin: 6px 0;
   border-radius: 6px;
+  color: #fff;
   font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  width: 100%;
 }
 
 .social-btn img {
@@ -64,8 +96,17 @@ input {
   height: 18px;
 }
 
+.social-btn:hover {
+  transform: scale(1.05);
+}
+
+.google { background: #db4437; }
+.facebook { background: #3b5998; }
+.instagram { background: #e4405f; }
+.tiktok { background: #010101; }
+
 p {
   margin: 10px 0;
-  font-size: 14px;
-  color: #ccc;
-}
+  font-size: 13px;
+  color: #bbb;
+  }
