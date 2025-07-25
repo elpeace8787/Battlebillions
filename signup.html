@@ -10,10 +10,10 @@
 <body>
   <div class="container">
     <!-- Battlebillions Logo -->
-    <img src="assets/logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+    <img src="assets/logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" draggable="false" />
 
     <!-- Sign Up Form -->
-    <form id="signupForm" style="width: 100%;">
+    <form id="signupForm">
       <input type="text" name="fullname" placeholder="Full Name" required />
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Password" required />
@@ -25,7 +25,9 @@
       </div>
     </form>
 
-    <p>Or sign up with:</p>
+    <p class="social-title">Or sign up with:</p>
+
+    <!-- Social Login Buttons -->
     <button class="social-btn google">
       <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> 
       Sign Up with Google
