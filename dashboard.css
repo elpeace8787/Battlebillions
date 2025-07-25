@@ -15,7 +15,7 @@ body {
 }
 
 .dashboard-logo {
-  width: 150px;
+  width: 140px;
   height: auto;
   display: block;
   margin: 0 auto;
@@ -30,8 +30,8 @@ body {
 }
 
 .top-icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   filter: invert(100%);
 }
@@ -58,10 +58,15 @@ body {
   width: 40px;
   height: 40px;
   cursor: pointer;
-  filter: invert(100%);
 }
 
 .battle-icon {
   width: 85px;
   height: 85px;
-  }
+}
+
+.wallet-icon {
+  width: 85px;
+  height: 85px;
+  filter: brightness(1) sepia(1) hue-rotate(10deg) saturate(4) brightness(1.3);
+}
