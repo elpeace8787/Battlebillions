@@ -87,5 +87,12 @@ body {
 }
 
 .profile-icon {
-  filter: brightness(0.8) sepia(1) hue-rotate(180deg) saturate(3);
+  filter: brightness(0.8) sepia(1) hue-rotate(-10deg) saturate(6) brightness(0.9) contrast(1.2);
 }
+
+/* Trophy Icon */
+.trophy-icon {
+  font-size: 40px;
+  color: gold;
+  cursor: pointer;
+  }
