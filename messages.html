@@ -1,57 +1,52 @@
-<div class="messages-container">
-  <div class="messages-header">
-    <div class="user-info">
-      <img src="profile.png" alt="User Profile" class="user-avatar" />
-      <span class="username">ElPeace</span>
+<div class="messages-page">
+  <header class="messages-header">
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo">
+    <div class="header-icons">
+      <button class="icon-btn"><img src="settings 3d .png" alt="Settings"></button>
+      <button class="icon-btn"><img src="logout 3d.png" alt="Logout"></button>
     </div>
-    <div class="header-actions">
-      <button class="icon-btn">
-        <img src="settings 3d .png" alt="Settings" />
-      </button>
-      <button class="icon-btn">
-        <img src="logout 3d.png" alt="Logout" />
-      </button>
-    </div>
-  </div>
+  </header>
 
-  <div class="messages-main">
+  <div class="messages-content">
+    <!-- Search -->
+    <div class="search-bar">
+      <input type="text" placeholder="Search messages...">
+    </div>
+
     <!-- Chat List -->
     <div class="chat-list">
-      <input type="search" placeholder="Search messages" class="chat-search" />
-      <ul>
-        <li class="chat active" data-user="Alex">
-          <img src="profile.png" alt="Alex" />
-          <div class="chat-info">
-            <strong>Alex</strong>
-            <p>Ready for the next battle?</p>
-          </div>
-          <span class="time">2h</span>
-        </li>
-        <li class="chat" data-user="Jamie">
-          <img src="profile.png" alt="Jamie" />
-          <div class="chat-info">
-            <strong>Jamie</strong>
-            <p>Sent the coins, check your wallet.</p>
-          </div>
-          <span class="time">Yesterday</span>
-        </li>
-      </ul>
+      <div class="chat" data-user="Alex">
+        <img src="profile.png" alt="Alex">
+        <div class="chat-info">
+          <strong>Alex</strong>
+          <p>Ready for the next battle?</p>
+        </div>
+        <span class="time">2h</span>
+      </div>
+      <div class="chat" data-user="Jamie">
+        <img src="profile.png" alt="Jamie">
+        <div class="chat-info">
+          <strong>Jamie</strong>
+          <p>Sent the coins, check your wallet.</p>
+        </div>
+        <span class="time">Yesterday</span>
+      </div>
     </div>
 
-    <!-- Chat Window -->
-    <div class="chat-window">
-      <div class="chat-thread" id="chatThread">
-        <div class="message received">
-          <p>Hey! Ready for the next battle?</p>
-        </div>
-        <div class="message sent">
-          <p>Almost there, just gearing up!</p>
-        </div>
+    <!-- Chat Thread -->
+    <div class="chat-thread" id="chatThread">
+      <div class="message received">
+        <p>Hey! Ready for the next battle?</p>
       </div>
-      <form class="send-message" id="sendMessageForm">
-        <input type="text" placeholder="Type a message..." id="messageInput" />
-        <button type="submit">➤</button>
-      </form>
+      <div class="message sent">
+        <p>Almost there, just gearing up!</p>
+      </div>
     </div>
+
+    <!-- Message Input -->
+    <form class="send-message" id="sendMessageForm">
+      <input type="text" id="messageInput" placeholder="Type a message...">
+      <button type="submit">➤</button>
+    </form>
   </div>
 </div>
