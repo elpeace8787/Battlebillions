@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Battlebillions Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="dashboard.css" />
   <script defer src="main.js"></script>
 </head>
 <body>
   <!-- Top Bar -->
   <header class="top-bar">
+    <img src="messages 3d.png" alt="Messages" class="icon-btn messages-btn" />
     <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="top-logo" />
     <div class="top-actions">
       <img src="settings 3d.png" alt="Settings" class="icon-btn settings-btn" />
@@ -17,19 +18,21 @@
     </div>
   </header>
 
-  <!-- Main Dashboard Content -->
-  <main class="main-content">
+  <!-- Main Content -->
+  <main class="main-content" id="content">
     <h2>Welcome to your Dashboard!</h2>
     <p>Choose an option from the bottom bar to get started.</p>
   </main>
 
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-bar">
-    <img src="billions 3d.png" class="nav-icon home-icon" alt="Home" data-page="home">
-    <img src="messages 3d.png" class="nav-icon profile-icon" alt="Profile" data-page="profile">
-    <img src="battle 3d.png" class="nav-icon battle-icon" alt="Battle" data-page="battle">
-    <img src="leaderboard 3d.png" class="nav-icon leaderboard-icon" alt="Leaderboard" data-page="leaderboard">
-    <img src="Logopit_1753467389806.png" class="nav-icon wallet-icon" alt="Wallet" data-page="wallet">
+  <!-- Bottom Navigation -->
+  <nav class="bottom-bar faded" id="bottomBar">
+    <!-- Profile Picture as Home Icon -->
+    <img src="profile.jpg" class="nav-icon profile-picture" alt="User Profile" data-page="home" />
+    <img src="messages 3d.png" class="nav-icon messages-icon" alt="Messages" data-page="messages" />
+    <img src="messages 3d.png" class="nav-icon profile-icon" alt="Profile" data-page="profile" />
+    <img src="battle 3d.png" class="nav-icon battle-icon" alt="Battle" data-page="battle" />
+    <img src="leaderboard 3d.png" class="nav-icon leaderboard-icon" alt="Leaderboard" data-page="leaderboard" />
+    <img src="billions 3d.png" class="nav-icon wallet-icon" alt="Wallet" data-page="wallet" />
   </nav>
 </body>
 </html>
