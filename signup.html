@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Sign Up</title>
-  <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/signup.css">
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="signup.css">
 </head>
 <body>
   <div class="container">
     <!-- Battlebillions Logo -->
-    <img src="assets/logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" draggable="false" />
+    <img src="logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
 
     <!-- Sign Up Form -->
-    <form id="signupForm">
+    <form id="signupForm" style="width: 100%;">
       <input type="text" name="fullname" placeholder="Full Name" required />
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Password" required />
@@ -25,7 +25,7 @@
       </div>
     </form>
 
-    <p class="social-title">Or sign up with:</p>
+    <p style="margin-top: 20px;">Or sign up with:</p>
     <button class="social-btn google">
       <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> Sign Up with Google
     </button>
@@ -46,7 +46,7 @@
       e.preventDefault();
       document.body.classList.add('fade-out');
       setTimeout(() => {
-        window.location.href = 'Dashboard/Dashboard.html';
+        window.location.href = 'dashboard.html';
       }, 600);
     });
   </script>
