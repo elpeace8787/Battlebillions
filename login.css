@@ -25,10 +25,11 @@ body {
 .logo {
   width: 280px;
   height: auto;
-  margin-bottom: 8px; /* Brings logo closer to email input */
+  margin-bottom: 4px; /* Brings logo closer to email input */
   display: block;
   margin-left: auto;
   margin-right: auto;
+  margin-top: -10px; /* Slightly pushes logo down */
 }
 
 /* Inputs */
@@ -81,6 +82,11 @@ button:hover {
 .signup-btn {
   background: #333;
   color: #fff;
+}
+
+/* Remove white line */
+hr {
+  display: none;
 }
 
 /* Social Buttons */
@@ -141,4 +147,4 @@ button:hover {
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
-  }
+}
