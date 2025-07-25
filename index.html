@@ -4,153 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Login</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700&display=swap');
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      background: #121212;
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      transition: opacity 0.6s ease;
-    }
-    body.fade-out {
-      opacity: 0;
-    }
-
-    .container {
-      background: #1f1f1f;
-      padding: 24px 28px;
-      border-radius: 12px;
-      width: 360px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container:hover {
-      box-shadow: 0 12px 48px rgba(255, 153, 0, 0.6);
-    }
-
-    .logo {
-      width: 350px;
-      max-width: 100%;
-      height: auto;
-      margin-bottom: 6px;
-      filter: drop-shadow(0 0 3px rgba(255, 153, 0, 0.7));
-    }
-
-    input {
-      width: 100%;
-      padding: 14px 16px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 8px;
-      background: #2c2c2c;
-      color: #eee;
-      font-size: 16px;
-      outline: none;
-      transition: background-color 0.25s ease;
-    }
-    input:focus {
-      background: #3a3a3a;
-      box-shadow: 0 0 6px #ffae33;
-    }
-    input::placeholder {
-      color: #bbb;
-    }
-
-    .btn-group {
-      width: 100%;
-      display: flex;
-      gap: 10px;
-      margin: 16px 0;
-    }
-    button {
-      flex: 1;
-      padding: 12px 0;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      border: none;
-      color: white;
-      transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.3s ease;
-    }
-    button:hover {
-      transform: scale(1.07);
-    }
-
-    .login-btn {
-      background: #ff9900;
-      color: #1b1b1b;
-      box-shadow: 0 4px 10px rgba(255,153,0,0.7);
-    }
-    .signup-btn {
-      background: #333;
-    }
-
-    hr {
-      border: none;
-      border-top: 1px solid #444;
-      margin: 16px 0;
-      width: 100%;
-    }
-
-    p {
-      margin: 0 0 12px;
-      font-size: 15px;
-      color: #ccc;
-    }
-
-    .social-btn {
-      width: 100%;
-      margin-bottom: 10px;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      color: white;
-      font-weight: 600;
-      padding: 12px 0;
-    }
-    .social-btn img {
-      width: 28px;
-      height: 28px;
-    }
-
-    .google { background: #db4437; }
-    .facebook { background: #3b5998; }
-    .instagram { background: #e4405f; }
-
-    @media (max-width: 400px) {
-      .container {
-        width: 95%;
-        padding: 16px;
-      }
-      .logo {
-        width: 100%;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <link rel="stylesheet" href="assets/css/login.css">
 </head>
 <body>
   <div class="container">
@@ -159,11 +14,12 @@
 
     <!-- Login Form -->
     <form id="loginForm" style="width: 100%;">
-      <input type="email" placeholder="Email" required />
-      <input type="password" placeholder="Password" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+
       <div class="btn-group">
         <button type="submit" class="login-btn">Login</button>
-        <button type="button" class="signup-btn">Sign Up</button>
+        <button type="button" class="signup-btn" onclick="window.location.href='signup.html'">Sign Up</button>
       </div>
     </form>
 
@@ -183,11 +39,11 @@
   <script>
     const loginForm = document.getElementById('loginForm');
     loginForm.addEventListener('submit', function(e) {
-      e.preventDefault(); 
+      e.preventDefault();
       document.body.classList.add('fade-out');
       setTimeout(() => {
         window.location.href = 'Dashboard/Dashboard.html';
-      }, 600); // match fade duration
+      }, 600);
     });
   </script>
 </body>
