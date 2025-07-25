@@ -1,30 +1,42 @@
-<div class="messages-page">
-  <header class="messages-header">
-    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo">
-    <div class="header-icons">
-      <button class="icon-btn"><img src="settings 3d .png" alt="Settings"></button>
-      <button class="icon-btn"><img src="logout 3d.png" alt="Logout"></button>
-    </div>
-  </header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Battlebillions Messages</title>
+  <link rel="stylesheet" href="messages.css" />
+</head>
+<body>
+  <div class="messages-page">
+    <header class="messages-header">
+      <div class="left-space"></div> <!-- to balance logo center -->
+      <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+      <div class="header-icons">
+        <button class="icon-btn" id="settingsBtn">
+          <img src="settings 3d .png" alt="Settings" />
+        </button>
+        <button class="icon-btn" id="logoutBtn">
+          <img src="logout 3d.png" alt="Logout" />
+        </button>
+      </div>
+    </header>
 
-  <div class="messages-content">
-    <!-- Search -->
     <div class="search-bar">
-      <input type="text" placeholder="Search messages...">
+      <input type="search" placeholder="Search messages..." />
     </div>
 
-    <!-- Chat List -->
-    <div class="chat-list">
+    <div class="chat-list" id="chatList">
       <div class="chat" data-user="Alex">
-        <img src="profile.png" alt="Alex">
+        <img src="profile.png" alt="Alex Profile" />
         <div class="chat-info">
           <strong>Alex</strong>
           <p>Ready for the next battle?</p>
         </div>
         <span class="time">2h</span>
       </div>
+
       <div class="chat" data-user="Jamie">
-        <img src="profile.png" alt="Jamie">
+        <img src="profile.png" alt="Jamie Profile" />
         <div class="chat-info">
           <strong>Jamie</strong>
           <p>Sent the coins, check your wallet.</p>
@@ -33,20 +45,56 @@
       </div>
     </div>
 
-    <!-- Chat Thread -->
     <div class="chat-thread" id="chatThread">
-      <div class="message received">
-        <p>Hey! Ready for the next battle?</p>
-      </div>
-      <div class="message sent">
-        <p>Almost there, just gearing up!</p>
-      </div>
+      <p>Select a chat to start messaging</p>
     </div>
 
-    <!-- Message Input -->
-    <form class="send-message" id="sendMessageForm">
-      <input type="text" id="messageInput" placeholder="Type a message...">
+    <form class="send-message" id="sendMessageForm" style="display:none;">
+      <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off" />
       <button type="submit">➤</button>
     </form>
   </div>
-</div>
+
+  <script>
+    const chatList = document.getElementById('chatList');
+    const chatThread = document.getElementById('chatThread');
+    const sendMessageForm = document.getElementById('sendMessageForm');
+    const messageInput = document.getElementById('messageInput');
+
+    chatList.addEventListener('click', (e) => {
+      let chat = e.target.closest('.chat');
+      if (!chat) return;
+
+      // Clear previous chat
+      chatThread.innerHTML = '';
+      sendMessageForm.style.display = 'flex';
+
+      const user = chat.dataset.user;
+
+      // For demo, show simple message thread
+      chatThread.innerHTML = `
+        <div class="message received"><p>Hello from ${user}!</p></div>
+        <div class="message sent"><p>Hey ${user}, what's up?</p></div>
+      `;
+
+      messageInput.focus();
+    });
+
+    sendMessageForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', 'sent');
+      messageDiv.innerHTML = `<p>${text}</p>`;
+      chatThread.appendChild(messageDiv);
+      messageInput.value = '';
+      messageInput.focus();
+
+      // Scroll to bottom
+      chatThread.scrollTop = chatThread.scrollHeight;
+    });
+  </script>
+</body>
+</html>
