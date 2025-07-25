@@ -5,48 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script defer src="main.js"></script>
 </head>
 <body>
   <!-- Sidebar -->
   <aside class="sidebar">
-    <ul>
-      <li><a href="#" class="home" title="Home"><i class="fas fa-home"></i></a></li>
-      <li><a href="#" class="profile" title="Profile"><i class="fas fa-user"></i></a></li>
-      <li><a href="#" class="battle" title="Battle Feed"><i class="fas fa-fire"></i></a></li>
-      <li><a href="#" class="leaderboard" title="Leaderboard"><i class="fas fa-trophy"></i></a></li>
-      <li><a href="#" class="settings" title="Settings"><i class="fas fa-cog"></i></a></li>
-      <li><a href="#" class="wallet" title="Wallet"><i class="fas fa-wallet"></i></a></li>
-      <li><a href="index.html" class="logout" title="Logout"><i class="fas fa-sign-out-alt"></i></a></li>
-    </ul>
+    <a href="home.html" class="icon" title="Home">
+      <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home Icon">
+    </a>
+    <a href="profile.html" class="icon" title="Profile">
+      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" alt="Profile Icon">
+    </a>
+    <a href="battlefeed.html" class="icon" title="Battle Feed">
+      <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" alt="Battle Feed Icon">
+    </a>
+    <a href="leaderboard.html" class="icon" title="Leaderboard">
+      <img src="https://cdn-icons-png.flaticon.com/512/2583/2583346.png" alt="Leaderboard Icon">
+    </a>
+    <a href="wallet.html" class="icon" title="Wallet">
+      <img src="https://cdn-icons-png.flaticon.com/512/833/833314.png" alt="Wallet Icon">
+    </a>
+    <a href="settings.html" class="icon" title="Settings">
+      <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" alt="Settings Icon">
+    </a>
   </aside>
 
   <!-- Main Content -->
-  <main class="content">
-    <!-- Centered Logo -->
-    <div class="logo-center">
-      <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="bb-logo" />
-    </div>
-
-    <section class="welcome">
-      <h2>Welcome to your Dashboard!</h2>
-      <p>Manage your Battlebillions account here.</p>
-    </section>
-
-    <section class="dashboard">
-      <div class="card">
-        <h3>Account Balance</h3>
-        <p>$1,000,000</p>
-      </div>
-      <div class="card">
-        <h3>Active Battles</h3>
-        <p>5 ongoing</p>
-      </div>
-      <div class="card">
-        <h3>Achievements</h3>
-        <p>10 unlocked</p>
-      </div>
-    </section>
+  <main class="main-content">
+    <img src="../logopit/Logopit_1697753255912.png" class="main-logo" alt="Battlebillions Logo">
+    <h2>Welcome to your Dashboard!</h2>
+    <p>Choose an option from the sidebar to get started.</p>
   </main>
 </body>
 </html>
