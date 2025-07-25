@@ -29,23 +29,29 @@
     .logo {
       width: 350px;
       height: auto;
-      margin-bottom: 0; /* No space below logo */
+      margin-bottom: 8px; /* closer but not too tight */
       object-fit: contain;
+      display: block;
     }
     input {
       width: 100%;
       padding: 10px;
-      margin: 0; /* No margin */
+      margin: 6px 0 12px 0; /* vertical spacing for readability */
       border: none;
       border-radius: 5px;
       font-size: 14px;
       box-sizing: border-box;
+      background: #2a2a2a;
+      color: white;
+    }
+    input::placeholder {
+      color: #bbb;
     }
     .btn-group {
       width: 100%;
-      margin-bottom: 0; /* No bottom margin */
+      margin-bottom: 18px;
       display: flex;
-      gap: 8px; /* Tiny gap between buttons */
+      gap: 12px;
       justify-content: center;
     }
     button {
@@ -62,6 +68,7 @@
       gap: 8px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       color: white;
+      user-select: none;
     }
     button:hover {
       transform: scale(1.05);
@@ -79,15 +86,16 @@
       width: 100%;
       margin-bottom: 10px;
       font-size: 14px;
-    }
-    .google {
-      background: #db4437;
-    }
-    .facebook {
-      background: #3b5998;
-    }
-    .instagram {
-      background: #e4405f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      color: white;
+      transition: background-color 0.3s ease;
     }
     .social-btn img {
       width: 28px;
@@ -96,14 +104,32 @@
       display: inline-block;
       vertical-align: middle;
     }
+    .google {
+      background: #db4437;
+    }
+    .google:hover {
+      background: #c33c31;
+    }
+    .facebook {
+      background: #3b5998;
+    }
+    .facebook:hover {
+      background: #314d86;
+    }
+    .instagram {
+      background: #e4405f;
+    }
+    .instagram:hover {
+      background: #cc3952;
+    }
     hr {
       border: none;
       border-top: 1px solid #444;
-      margin: 15px 0;
+      margin: 18px 0;
       width: 100%;
     }
     p {
-      margin: 10px 0 12px 0;
+      margin: 10px 0 14px 0;
       font-size: 14px;
     }
   </style>
@@ -129,10 +155,10 @@
       <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> Login with Google
     </button>
     <button class="social-btn facebook">
-      <img src="https://www.svgrepo.com/show/475646/facebook-color.svg" alt="Facebook Logo" /> Login with Facebook
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" /> Login with Facebook
     </button>
     <button class="social-btn instagram">
-      <img src="https://www.svgrepo.com/show/475699/instagram-color.svg" alt="Instagram Logo" /> Login with Instagram
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" /> Login with Instagram
     </button>
   </div>
 </body>
