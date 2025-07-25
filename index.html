@@ -19,12 +19,12 @@
       background: #1f1f1f;
       padding: 30px;
       border-radius: 10px;
-      width: 340px;
+      width: 350px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
       text-align: center;
     }
     .logo {
-      width: 200px; /* Increased size */
+      width: 250px; /* Increased logo size */
       margin-bottom: 20px;
     }
     input {
@@ -48,6 +48,11 @@
       justify-content: center;
       gap: 8px;
       font-size: 14px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    button:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2);
     }
     .login-btn { background: #ff9900; color: black; }
     .signup-btn { background: #333; }
@@ -55,8 +60,8 @@
     .facebook { background: #3b5998; }
     .instagram { background: #e4405f; }
     .social-btn img {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
     }
   </style>
 </head>
@@ -74,13 +79,13 @@
     
     <!-- Social Login Buttons -->
     <button class="social-btn google">
-      <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" /> Login with Google
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Google_2015_logo.svg" alt="Google" /> Login with Google
     </button>
     <button class="social-btn facebook">
-      <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" /> Login with Facebook
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_(2019).png" alt="Facebook" /> Login with Facebook
     </button>
     <button class="social-btn instagram">
-      <img src="https://www.svgrepo.com/show/303145/instagram-2-1-logo.svg" alt="Instagram" /> Login with Instagram
+      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" /> Login with Instagram
     </button>
   </div>
 </body>
