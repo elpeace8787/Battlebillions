@@ -28,31 +28,38 @@ body {
 }
 
 .sidebar ul li a {
-  color: #fff;
   font-size: 22px;
   text-decoration: none;
-  transition: color 0.3s;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .sidebar ul li a:hover {
-  color: #ff9900;
+  transform: scale(1.2);
 }
+
+/* Icon Colors */
+.sidebar .home i { color: #4CAF50; }
+.sidebar .profile i { color: #2196F3; }
+.sidebar .battle i { color: #FF5722; }
+.sidebar .leaderboard i { color: #FFC107; }
+.sidebar .settings i { color: #9C27B0; }
+.sidebar .wallet i { color: #00BCD4; }
+.sidebar .logout i { color: #F44336; }
 
 /* Content */
 .content {
   flex: 1;
   padding: 20px;
+  text-align: center;
 }
 
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.logo-center {
+  margin-top: 40px;
   margin-bottom: 20px;
 }
 
 .bb-logo {
-  width: 120px;
+  width: 180px;
   height: auto;
 }
 
