@@ -1,69 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battlebillions Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
   <!-- Top Bar -->
   <header class="top-bar">
-    <img src="messages 3d.png" alt="Messages" class="icon-top left" id="messagesBtn">
-    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="battle-logo">
-    <div class="top-right">
-      <img src="settings 3d .png" alt="Settings" class="icon-top" id="settingsBtn">
-      <img src="logout 3d.png" alt="Logout" class="icon-top" id="logoutBtn">
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="bb-logo">
+    <div class="top-icons">
+      <button id="messagesBtn" class="icon-btn">
+        <img src="messages 3d.png" alt="Messages">
+      </button>
+      <button id="settingsBtn" class="icon-btn">
+        <img src="settings 3d .png" alt="Settings">
+      </button>
+      <button id="logoutBtn" class="icon-btn">
+        <img src="logout 3d.png" alt="Logout">
+      </button>
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Sections -->
   <main>
     <!-- Home/Profile -->
     <section id="home" class="page-section active">
       <h2>Welcome to your Dashboard!</h2>
-      <p>Choose an option from the bottom bar to get started.</p>
-    </section>
-
-    <!-- Messages -->
-    <section id="messages" class="page-section">
-      <h2>Messages</h2>
-      <p>Your messages will appear here.</p>
+      <p>Manage your account and view updates here.</p>
     </section>
 
     <!-- Battle -->
     <section id="battle" class="page-section">
       <h2>Battle Arena</h2>
-      <p>Start your battles here.</p>
+      <p>Join and manage your battles.</p>
     </section>
 
     <!-- Leaderboard -->
     <section id="leaderboard" class="page-section">
       <h2>Leaderboard</h2>
-      <p>See who’s on top.</p>
+      <p>Check out the top players.</p>
     </section>
 
     <!-- Wallet -->
     <section id="wallet" class="page-section">
       <h2>Your Wallet</h2>
-      <p>Manage your funds here.</p>
+      <p>Balance: $1,000,000</p>
+    </section>
+
+    <!-- Messages -->
+    <section id="messages" class="page-section">
+      <div class="messages-container">
+        <h2>Messages</h2>
+        <div class="chat-list">
+          <div class="chat-item">
+            <p><strong>Player1:</strong> Good luck on your next battle!</p>
+          </div>
+          <div class="chat-item">
+            <p><strong>Player2:</strong> I just hit level 5!</p>
+          </div>
+        </div>
+        <form class="message-form">
+          <input type="text" placeholder="Type your message..." required>
+          <button type="submit">Send</button>
+        </form>
+      </div>
     </section>
 
     <!-- Settings -->
     <section id="settings" class="page-section">
       <h2>Settings</h2>
-      <p>Manage your account and preferences.</p>
+      <p>Adjust your preferences here.</p>
     </section>
   </main>
 
-  <!-- Bottom Fade Navigation -->
+  <!-- Bottom Icon Bar -->
   <nav class="bottom-bar">
-    <img src="profile.png" alt="Home" class="nav-icon home-icon" id="homeBtn">
-    <img src="battle 3d.png" alt="Battle" class="nav-icon" id="battleBtn">
-    <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon leaderboard-icon" id="leaderboardBtn">
-    <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon" id="walletBtn">
+    <button id="homeBtn" class="icon-btn">
+      <img src="profile.png" alt="Home/Profile">
+    </button>
+    <button id="battleBtn" class="icon-btn center-icon">
+      <img src="battle 3d.png" alt="Battle">
+    </button>
+    <button id="leaderboardBtn" class="icon-btn">
+      <img src="leaderboard 3d.png" alt="Leaderboard">
+    </button>
+    <button id="walletBtn" class="icon-btn">
+      <img src="billions 3d.png" alt="Wallet">
+    </button>
   </nav>
 
   <script src="main.js"></script>
 </body>
-</html>
+        </html>
