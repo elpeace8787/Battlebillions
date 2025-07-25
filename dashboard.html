@@ -2,34 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css" />
-  <script defer src="main.js"></script>
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
   <!-- Top Bar -->
   <header class="top-bar">
-    <img src="messages 3d.png" alt="Messages" class="icon-btn messages-btn" data-page="messages" />
-    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="top-logo" />
-    <div class="top-actions">
-      <img src="settings 3d .png" alt="Settings" class="icon-btn settings-btn" data-page="settings" />
-      <img src="logout 3d.png" alt="Logout" class="icon-btn logout-btn" />
+    <img src="messages 3d.png" alt="Messages" class="icon-top left" id="messagesBtn">
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="battle-logo">
+    <div class="top-right">
+      <img src="settings 3d .png" alt="Settings" class="icon-top" id="settingsBtn">
+      <img src="logout 3d.png" alt="Logout" class="icon-top" id="logoutBtn">
     </div>
   </header>
 
-  <!-- Dynamic Content -->
-  <main class="main-content" id="content">
-    <h2>Welcome to your Dashboard!</h2>
-    <p>Choose an option from the bottom bar to get started.</p>
+  <!-- Main Content -->
+  <main>
+    <!-- Home/Profile -->
+    <section id="home" class="page-section active">
+      <h2>Welcome to your Dashboard!</h2>
+      <p>Choose an option from the bottom bar to get started.</p>
+    </section>
+
+    <!-- Messages -->
+    <section id="messages" class="page-section">
+      <h2>Messages</h2>
+      <p>Your messages will appear here.</p>
+    </section>
+
+    <!-- Battle -->
+    <section id="battle" class="page-section">
+      <h2>Battle Arena</h2>
+      <p>Start your battles here.</p>
+    </section>
+
+    <!-- Leaderboard -->
+    <section id="leaderboard" class="page-section">
+      <h2>Leaderboard</h2>
+      <p>See who’s on top.</p>
+    </section>
+
+    <!-- Wallet -->
+    <section id="wallet" class="page-section">
+      <h2>Your Wallet</h2>
+      <p>Manage your funds here.</p>
+    </section>
+
+    <!-- Settings -->
+    <section id="settings" class="page-section">
+      <h2>Settings</h2>
+      <p>Manage your account and preferences.</p>
+    </section>
   </main>
 
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-bar" id="bottomBar">
-    <img src="profile.jpg" class="nav-icon profile-picture" alt="User Profile" data-page="home" />
-    <img src="battle 3d.png" class="nav-icon battle-icon" alt="Battle" data-page="battle" />
-    <img src="leaderboard 3d.png" class="nav-icon leaderboard-icon" alt="Leaderboard" data-page="leaderboard" />
-    <img src="billions 3d.png" class="nav-icon wallet-icon" alt="Wallet" data-page="wallet" />
+  <!-- Bottom Fade Navigation -->
+  <nav class="bottom-bar">
+    <img src="profile.png" alt="Home" class="nav-icon" id="homeBtn">
+    <img src="battle 3d.png" alt="Battle" class="nav-icon large" id="battleBtn">
+    <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon" id="leaderboardBtn">
+    <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon" id="walletBtn">
   </nav>
+
+  <script src="main.js"></script>
 </body>
-  </html>
+</html>
