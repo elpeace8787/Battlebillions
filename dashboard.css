@@ -1,1 +1,72 @@
+body {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: #121212;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
+/* Top Header */
+.dashboard-header {
+  position: relative;
+  padding: 10px 0;
+  text-align: center;
+  background: #1f1f1f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.dashboard-logo {
+  width: 280px;
+  height: auto;
+}
+.top-right {
+  position: absolute;
+  top: 20px;
+  right: 15px;
+  display: flex;
+  gap: 15px;
+}
+.top-icon {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  text-align: center;
+  padding: 20px;
+}
+.tab-page {
+  display: none;
+}
+.tab-page.active {
+  display: block;
+}
+
+/* Bottom Bar */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0;
+  background: rgba(31,31,31,0.95);
+  backdrop-filter: blur(6px);
+}
+.nav-icon {
+  width: 36px;
+  height: 36px;
+  transition: transform 0.2s ease;
+}
+.nav-icon:hover {
+  transform: scale(1.1);
+}
+.battle-icon {
+  width: 60px; /* Bigger Battle Icon */
+  height: 60px;
+}
