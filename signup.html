@@ -4,16 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Sign Up</title>
-  <link rel="stylesheet" href="assets/css/shared.css">
-  <link rel="stylesheet" href="assets/css/login.css">
+  <link rel="stylesheet" href="assets/css/shared.css" />
+  <link rel="stylesheet" href="assets/css/login.css" />
 </head>
 <body>
   <div class="container">
     <!-- Battlebillions Logo -->
-    <img src="assets/logopit/Logopit_1697753255912.png" 
-         alt="Battlebillions Logo" 
-         class="logo" 
-         draggable="false" />
+    <img src="assets/logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" draggable="false" />
 
     <!-- Sign Up Form -->
     <form id="signupForm" style="width: 100%;">
@@ -30,31 +27,100 @@
 
     <p>Or sign up with:</p>
 
-    <!-- Social Buttons -->
+    <!-- Social Sign Up Buttons -->
     <button class="social-btn google">
-      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" />
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> 
       Sign Up with Google
     </button>
+
     <button class="social-btn facebook">
-      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" />
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" /> 
       Sign Up with Facebook
     </button>
+
     <button class="social-btn instagram">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" />
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" /> 
       Sign Up with Instagram
     </button>
+
     <button class="social-btn tiktok">
-      <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok Logo" />
+      <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok Logo" /> 
       Sign Up with TikTok
     </button>
   </div>
 
-  <script>
+  <script type="module">
+    import { 
+      signInWith, 
+      googleProvider, 
+      facebookProvider, 
+      instagramProvider,
+      tiktokProvider 
+    } from './firebase.js';
+
+    // Google signup
+    document.querySelector('.google').addEventListener('click', async () => {
+      try {
+        const user = await signInWith(googleProvider);
+        console.log("Google Sign Up Success:", user);
+        window.location.href = 'Dashboard/Dashboard.html';
+      } catch (err) {
+        alert('Google sign up failed: ' + err.message);
+      }
+    });
+
+    // Facebook signup
+    document.querySelector('.facebook').addEventListener('click', async () => {
+      try {
+        const user = await signInWith(facebookProvider);
+        console.log("Facebook Sign Up Success:", user);
+        window.location.href = 'Dashboard/Dashboard.html';
+      } catch (err) {
+        alert('Facebook sign up failed: ' + err.message);
+      }
+    });
+
+    // Instagram signup
+    document.querySelector('.instagram').addEventListener('click', async () => {
+      try {
+        const user = await signInWith(instagramProvider);
+        console.log("Instagram Sign Up Success:", user);
+        window.location.href = 'Dashboard/Dashboard.html';
+      } catch (err) {
+        alert('Instagram sign up failed: ' + err.message);
+      }
+    });
+
+    // TikTok signup
+    document.querySelector('.tiktok').addEventListener('click', async () => {
+      try {
+        const user = await signInWith(tiktokProvider);
+        console.log("TikTok Sign Up Success:", user);
+        window.location.href = 'Dashboard/Dashboard.html';
+      } catch (err) {
+        alert('TikTok sign up failed: ' + err.message);
+      }
+    });
+
+    // Email/password signup form submit
     const signupForm = document.getElementById('signupForm');
     signupForm.addEventListener('submit', function(e) {
       e.preventDefault();
+
+      // Simple validation: password match check
+      const password = signupForm.password.value;
+      const confirmPassword = signupForm.confirm_password.value;
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      // Add fade out animation
       document.body.classList.add('fade-out');
+
       setTimeout(() => {
+        // Redirect to dashboard after fade
         window.location.href = 'Dashboard/Dashboard.html';
       }, 600);
     });
