@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Login</title>
   <link rel="stylesheet" href="shared.css">
-  <link rel="stylesheet" href="assets/css/login.css">
+  <link rel="stylesheet" href="login.css">
 </head>
 <body>
   <div class="container">
     <!-- Battlebillions Logo -->
-    <img src="assets/logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" draggable="false" />
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" draggable="false" />
 
     <!-- Login Form -->
     <form id="loginForm" style="width: 100%;">
@@ -61,7 +61,6 @@
     document.querySelector('.google').addEventListener('click', async () => {
       try {
         const user = await signInWith(googleProvider);
-        console.log("Google Login Success:", user);
         window.location.href = 'dashboard.html';
       } catch (err) {
         alert('Google login failed: ' + err.message);
@@ -72,7 +71,6 @@
     document.querySelector('.facebook').addEventListener('click', async () => {
       try {
         const user = await signInWith(facebookProvider);
-        console.log("Facebook Login Success:", user);
         window.location.href = 'dashboard.html';
       } catch (err) {
         alert('Facebook login failed: ' + err.message);
@@ -83,7 +81,6 @@
     document.querySelector('.instagram').addEventListener('click', async () => {
       try {
         const user = await signInWith(instagramProvider);
-        console.log("Instagram Login Success:", user);
         window.location.href = 'dashboard.html';
       } catch (err) {
         alert('Instagram login failed: ' + err.message);
@@ -94,7 +91,6 @@
     document.querySelector('.tiktok').addEventListener('click', async () => {
       try {
         const user = await signInWith(tiktokProvider);
-        console.log("TikTok Login Success:", user);
         window.location.href = 'dashboard.html';
       } catch (err) {
         alert('TikTok login failed: ' + err.message);
