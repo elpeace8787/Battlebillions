@@ -9,12 +9,14 @@
 <body>
   <!-- Top bar -->
   <header>
-    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo">
-    <div class="top-icons">
-      <button onclick="window.location.href='messages.html'">
+    <div class="left-icons">
+      <button data-page="messages">
         <img src="messages 3d.png" alt="Messages" class="icon">
       </button>
-      <button onclick="window.location.href='settings.html'">
+    </div>
+    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo">
+    <div class="top-icons">
+      <button data-page="settings">
         <img src="settings 3d .png" alt="Settings" class="icon">
       </button>
       <button onclick="window.location.href='index.html'">
@@ -23,23 +25,24 @@
     </div>
   </header>
 
-  <main>
+  <!-- Content Area -->
+  <main id="content">
     <h2>Welcome to your Dashboard!</h2>
     <p>Choose an option from the bottom bar to get started.</p>
   </main>
 
   <!-- Bottom navigation bar -->
   <nav class="bottom-nav">
-    <button class="nav-btn" onclick="window.location.href='home.html'">
+    <button class="nav-btn" data-page="home">
       <img src="profile.png" alt="Home/Profile" class="nav-icon home-icon">
     </button>
-    <button class="nav-btn" onclick="window.location.href='battle.html'">
+    <button class="nav-btn" data-page="battle">
       <img src="battle 3d.png" alt="Battle" class="nav-icon battle-icon">
     </button>
-    <button class="nav-btn" onclick="window.location.href='leaderboard.html'">
+    <button class="nav-btn" data-page="leaderboard">
       <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon leaderboard-icon">
     </button>
-    <button class="nav-btn" onclick="window.location.href='wallet.html'">
+    <button class="nav-btn" data-page="wallet">
       <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon">
     </button>
   </nav>
