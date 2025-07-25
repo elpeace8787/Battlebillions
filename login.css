@@ -1,30 +1,43 @@
-/* Container */
+/* Login & Sign-Up Page Styles */
+
+body {
+  background: #121212;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
 .container {
-  width: 320px;
-  margin: 60px auto;
   background: #1f1f1f;
+  padding: 30px 25px;
   border-radius: 12px;
-  padding: 25px;
-  text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  width: 320px;
+  animation: fadeIn 0.6s ease forwards;
 }
 
 /* Logo */
 .logo {
-  width: 300px;
+  width: 280px;
   height: auto;
-  margin-bottom: 15px;
+  margin-bottom: 8px; /* Brings logo closer to email input */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* Input Fields */
-input[type="email"],
-input[type="password"],
-input[type="text"] {
+/* Inputs */
+input {
   width: 100%;
-  padding: 10px 12px;
-  margin: 8px 0;
+  padding: 12px 14px;
+  margin: 10px 0;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #2a2a2a;
   color: #fff;
   font-size: 14px;
@@ -32,22 +45,25 @@ input[type="text"] {
 
 input:focus {
   outline: none;
+  background: #333;
   border: 1px solid #ff9900;
 }
 
-/* Buttons */
+/* Button Group */
 .btn-group {
   display: flex;
+  justify-content: space-between;
   gap: 10px;
   margin-top: 10px;
 }
 
 button {
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 600;
+  flex: 1;
+  padding: 12px;
   border: none;
   border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -56,52 +72,73 @@ button:hover {
   transform: scale(1.05);
 }
 
+/* Primary Buttons */
 .login-btn {
   background: #ff9900;
   color: #121212;
-  flex: 1;
 }
 
 .signup-btn {
-  background: #444;
+  background: #333;
   color: #fff;
-  flex: 1;
 }
 
 /* Social Buttons */
 .social-btn {
   width: 100%;
-  margin-top: 8px;
-  padding: 8px;
-  border-radius: 6px;
+  margin: 8px 0;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 500;
+  gap: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .social-btn img {
-  width: 16px;
-  height: 16px;
-  margin-right: 6px;
+  width: 18px;
+  height: 18px;
 }
 
-/* Colors */
-.google { background: #db4437; color: #fff; }
-.facebook { background: #3b5998; color: #fff; }
-.instagram { background: #e4405f; color: #fff; }
-.tiktok { background: #010101; color: #fff; }
-
-/* Divider */
-hr {
-  margin: 15px 0;
-  border: 0;
-  border-top: 1px solid #333;
+.social-btn:hover {
+  transform: scale(1.04);
 }
 
-p {
-  font-size: 13px;
-  color: #bbb;
-  margin-bottom: 5px;
+.google {
+  background: #db4437;
+  color: #fff;
 }
+
+.facebook {
+  background: #3b5998;
+  color: #fff;
+}
+
+.instagram {
+  background: #e4405f;
+  color: #fff;
+}
+
+.tiktok {
+  background: #000;
+  color: #fff;
+}
+
+/* Fade animation */
+.fade-out {
+  animation: fadeOut 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+  }
