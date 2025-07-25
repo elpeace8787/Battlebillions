@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Login</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700&display=swap');
 
     * {
       margin: 0;
@@ -14,185 +14,153 @@
     }
     body {
       background: #121212;
-      color: #fff;
-      font-family: 'Arial', sans-serif;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
+      transition: opacity 0.6s ease;
+    }
+    body.fade-out {
+      opacity: 0;
     }
 
     .container {
-      background: #1e1e1e;
-      padding: 28px 32px;
+      background: #1f1f1f;
+      padding: 24px 28px;
       border-radius: 12px;
       width: 360px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      animation: fadeIn 0.7s ease forwards;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .container:hover {
+      box-shadow: 0 12px 48px rgba(255, 153, 0, 0.6);
     }
 
     .logo {
-      width: 320px;
+      width: 350px;
       max-width: 100%;
       height: auto;
-      margin-bottom: 10px;
-      display: block;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 0 3px rgba(255, 153, 0, 0.7));
     }
 
-    input[type="email"],
-    input[type="password"] {
+    input {
       width: 100%;
       padding: 14px 16px;
-      margin: 10px 0;
+      margin: 8px 0;
       border: none;
       border-radius: 8px;
       background: #2c2c2c;
       color: #eee;
-      font-size: 15px;
+      font-size: 16px;
       outline: none;
-      transition: background-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    input::placeholder {
-      color: #bbb;
+      transition: background-color 0.25s ease;
     }
     input:focus {
       background: #3a3a3a;
       box-shadow: 0 0 6px #ffae33;
     }
+    input::placeholder {
+      color: #bbb;
+    }
 
     .btn-group {
       width: 100%;
       display: flex;
-      gap: 14px;
-      margin: 14px 0 22px 0;
+      gap: 10px;
+      margin: 16px 0;
     }
     button {
       flex: 1;
       padding: 12px 0;
       border-radius: 8px;
-      border: none;
-      cursor: pointer;
       font-weight: 700;
-      font-size: 15px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      position: relative;
-      overflow: hidden;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      color: white;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.3s ease;
     }
     button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+      transform: scale(1.07);
     }
 
     .login-btn {
       background: #ff9900;
-      color: #1a1a1a;
-      box-shadow: 0 4px 8px rgba(255, 153, 0, 0.5);
+      color: #1b1b1b;
+      box-shadow: 0 4px 10px rgba(255,153,0,0.7);
     }
-    .login-btn:hover {
-      background: #ffae33;
-    }
-
-    /* Loader Animation */
-    .login-btn.loading {
-      pointer-events: none;
-      color: transparent;
-    }
-    .login-btn.loading::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 22px;
-      height: 22px;
-      border: 3px solid #1a1a1a;
-      border-top: 3px solid #ff9900;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
     .signup-btn {
-      background: #333333;
-      color: #fff;
-    }
-    .signup-btn:hover {
-      background: #4d4d4d;
+      background: #333;
     }
 
     hr {
       border: none;
       border-top: 1px solid #444;
-      margin: 20px 0;
+      margin: 16px 0;
       width: 100%;
     }
 
     p {
-      margin: 0 0 16px 0;
+      margin: 0 0 12px;
       font-size: 15px;
       color: #ccc;
     }
 
     .social-btn {
       width: 100%;
-      margin-bottom: 12px;
-      padding: 12px 0;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
+      margin-bottom: 10px;
+      font-size: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      font-weight: 600;
-      font-size: 14px;
+      gap: 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
       color: white;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .social-btn:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+      font-weight: 600;
+      padding: 12px 0;
     }
     .social-btn img {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
     }
+
     .google { background: #db4437; }
     .facebook { background: #3b5998; }
     .instagram { background: #e4405f; }
 
     @media (max-width: 400px) {
       .container {
-        width: 95vw;
-        padding: 20px;
+        width: 95%;
+        padding: 16px;
       }
-      .logo { width: 100%; }
+      .logo {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Logo -->
-    <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+    <!-- Battlebillions Logo -->
+    <img src="assets/images/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
 
     <!-- Login Form -->
-    <form id="loginForm" action="#" method="POST" style="width: 100%;">
+    <form id="loginForm" style="width: 100%;">
       <input type="email" placeholder="Email" required />
       <input type="password" placeholder="Password" required />
-
       <div class="btn-group">
         <button type="submit" class="login-btn">Login</button>
         <button type="button" class="signup-btn">Sign Up</button>
@@ -201,36 +169,26 @@
 
     <hr />
     <p>Or login with:</p>
-
-    <!-- Social Buttons -->
     <button class="social-btn google">
-      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" />
-      Login with Google
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" /> Login with Google
     </button>
     <button class="social-btn facebook">
-      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" />
-      Login with Facebook
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" /> Login with Facebook
     </button>
     <button class="social-btn instagram">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" />
-      Login with Instagram
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo" /> Login with Instagram
     </button>
   </div>
 
   <script>
-    const loginBtn = document.querySelector('.login-btn');
     const loginForm = document.getElementById('loginForm');
-
     loginForm.addEventListener('submit', function(e) {
-      e.preventDefault(); // Prevent real form submit for demo
-      loginBtn.classList.add('loading');
-
-      // Simulate login delay
+      e.preventDefault(); 
+      document.body.classList.add('fade-out');
       setTimeout(() => {
-        loginBtn.classList.remove('loading');
-        alert('Login successful (simulation)');
-      }, 2000);
+        window.location.href = 'Dashboard/Dashboard.html';
+      }, 600); // match fade duration
     });
   </script>
 </body>
-  </html>
+</html>
