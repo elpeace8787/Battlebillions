@@ -24,11 +24,8 @@
       text-align: center;
     }
     .logo {
-      max-width: 180px;
+      width: 150px;
       margin-bottom: 20px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
     }
     input {
       width: 100%;
@@ -36,91 +33,48 @@
       margin: 10px 0;
       border: none;
       border-radius: 5px;
-      font-size: 14px;
     }
-    .btn {
+    button {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
       border: none;
       border-radius: 5px;
+      color: white;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.1s ease-in-out;
+      margin-bottom: 10px;
     }
-    .btn:hover {
-      transform: scale(1.03);
-    }
-    .btn-login {
+    .login-btn {
       background: #ff9900;
       color: black;
     }
-    .btn-signup {
+    .signup-btn {
       background: #333;
-      color: white;
-    }
-    .divider {
-      margin: 20px 0;
-      border-top: 1px solid #444;
-      position: relative;
-    }
-    .divider span {
-      background: #1f1f1f;
-      padding: 0 10px;
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 14px;
-      color: #aaa;
     }
     .social-btn {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      transition: transform 0.1s ease-in-out;
-      font-size: 14px;
+      gap: 8px;
+      margin-top: 8px;
     }
-    .social-btn img {
-      width: 20px;
-      height: 20px;
-    }
-    .social-btn:hover {
-      transform: scale(1.03);
-    }
-    .google { background: #ffffff; color: #444; }
-    .facebook { background: #1877F2; color: white; }
-    .instagram { background: #E1306C; color: white; }
+    .google { background: #db4437; }
+    .facebook { background: #3b5998; }
+    .instagram { background: #e4405f; }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="./Assets/Logopit_1697756731082.png" alt="Battlebillions Logo" class="logo" />
-    
-    <input type="text" placeholder="Email" />
+    <img src="Assets/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+    <input type="email" placeholder="Email" />
     <input type="password" placeholder="Password" />
-    <button class="btn btn-login">Login</button>
-    <button class="btn btn-signup">Sign Up</button>
-    
-    <div class="divider"><span>Or login with</span></div>
-    
-    <button class="social-btn google">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google Logo"> Login with Google
-    </button>
-    <button class="social-btn facebook">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg" alt="Facebook Logo"> Login with Facebook
-    </button>
-    <button class="social-btn instagram">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram Logo"> Login with Instagram
-    </button>
+    <button class="login-btn">Login</button>
+    <button class="signup-btn">Sign Up</button>
+    <hr style="margin: 20px 0; border-color: #444;" />
+    <p>Or login with:</p>
+    <button class="social-btn google">Login with Google</button>
+    <button class="social-btn facebook">Login with Facebook</button>
+    <button class="social-btn instagram">Login with Instagram</button>
   </div>
 </body>
 </html>
