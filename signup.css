@@ -1,100 +1,82 @@
+/* Sign Up Page Styles */
 body {
   background: #121212;
+  color: white;
   font-family: 'Orbitron', sans-serif;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   height: 100vh;
   margin: 0;
-  color: #fff;
 }
 
 .container {
   background: #1f1f1f;
-  padding: 25px 20px;
+  padding: 20px;
   border-radius: 12px;
-  width: 320px;
+  width: 350px;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .logo {
   width: 280px;
+  margin: 0 auto 15px auto;
   display: block;
-  margin: 0 auto 15px auto; /* Logo closer to the inputs */
 }
 
-input {
+form input {
   width: 100%;
   padding: 10px;
-  margin: 8px 0;
+  margin: 10px 0;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #333;
-  color: #fff;
+  color: white;
   font-size: 14px;
 }
 
 .btn-group {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
   margin-top: 10px;
 }
 
 .login-btn {
   background: #ff9900;
   color: #121212;
-  padding: 10px 20px;
+  padding: 10px;
   flex: 1;
-  margin-right: 5px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
 }
 
 .signup-btn {
   background: #333;
-  color: #fff;
-  padding: 10px 20px;
+  color: white;
+  padding: 10px;
   flex: 1;
-  margin-left: 5px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
 }
 
 .social-title {
-  margin: 15px 0 10px;
-  color: #aaa;
+  margin-top: 20px;
+  margin-bottom: 10px;
   font-size: 14px;
+  color: #bbb;
 }
 
 .social-btn {
   width: 100%;
-  margin: 6px 0;
-  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-radius: 8px;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 6px;
   font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  margin: 5px 0;
 }
 
-.social-btn:hover {
-  transform: scale(1.05);
-}
-
-.social-btn img {
-  width: 18px;
-  height: 18px;
-  margin-right: 8px;
-}
-
-.google { background: #db4437; color: #fff; }
-.facebook { background: #3b5998; color: #fff; }
-.instagram { background: #e4405f; color: #fff; }
-.tiktok { background: #000; color: #fff; }
+.google { background: #db4437; color: white; }
+.facebook { background: #3b5998; color: white; }
+.instagram { background: #e4405f; color: white; }
+.tiktok { background: #000; color: white; }
