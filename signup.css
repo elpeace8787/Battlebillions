@@ -22,7 +22,7 @@ body {
 
 .logo {
   width: 280px;
-  margin: 10px auto 15px auto;
+  margin: 0 auto 10px auto; /* Logo closer to input fields */
   display: block;
 }
 
@@ -48,13 +48,13 @@ form input {
 .social-btn {
   width: 100%;
   margin: 6px 0;
-  padding: 10px; /* Smaller padding for smaller buttons */
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border-radius: 6px;
-  font-size: 13px; /* Smaller font */
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   border: none;
@@ -62,7 +62,7 @@ form input {
 
 .social-btn img {
   width: 20px;
-  height: 20px; /* Make icons smaller */
+  height: 20px;
 }
 
 .google { background: #db4437; }
