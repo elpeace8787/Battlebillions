@@ -7,7 +7,6 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap');
 
-    /* Reset & base */
     * {
       margin: 0;
       padding: 0;
@@ -22,11 +21,8 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Container */
     .container {
       background: #1e1e1e;
       padding: 28px 32px;
@@ -37,18 +33,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      animation: fadeIn 0.7s ease forwards;
     }
 
-    /* Logo */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .logo {
       width: 320px;
       max-width: 100%;
       height: auto;
-      margin-bottom: 10px; /* Close to email bar */
+      margin-bottom: 10px;
       display: block;
     }
 
-    /* Inputs */
     input[type="email"],
     input[type="password"] {
       width: 100%;
@@ -70,7 +70,6 @@
       box-shadow: 0 0 6px #ffae33;
     }
 
-    /* Button group */
     .btn-group {
       width: 100%;
       display: flex;
@@ -86,6 +85,8 @@
       font-weight: 700;
       font-size: 15px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
     button:hover {
       transform: scale(1.05);
@@ -101,6 +102,29 @@
       background: #ffae33;
     }
 
+    /* Loader Animation */
+    .login-btn.loading {
+      pointer-events: none;
+      color: transparent;
+    }
+    .login-btn.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 22px;
+      height: 22px;
+      border: 3px solid #1a1a1a;
+      border-top: 3px solid #ff9900;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
     .signup-btn {
       background: #333333;
       color: #fff;
@@ -109,7 +133,6 @@
       background: #4d4d4d;
     }
 
-    /* Divider */
     hr {
       border: none;
       border-top: 1px solid #444;
@@ -123,7 +146,6 @@
       color: #ccc;
     }
 
-    /* Social Buttons */
     .social-btn {
       width: 100%;
       margin-bottom: 12px;
@@ -148,25 +170,16 @@
       width: 26px;
       height: 26px;
     }
-    .google {
-      background: #db4437;
-    }
-    .facebook {
-      background: #3b5998;
-    }
-    .instagram {
-      background: #e4405f;
-    }
+    .google { background: #db4437; }
+    .facebook { background: #3b5998; }
+    .instagram { background: #e4405f; }
 
-    /* Responsive */
     @media (max-width: 400px) {
       .container {
         width: 95vw;
         padding: 20px;
       }
-      .logo {
-        width: 100%;
-      }
+      .logo { width: 100%; }
     }
   </style>
 </head>
@@ -176,7 +189,7 @@
     <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
 
     <!-- Login Form -->
-    <form action="#" method="POST" style="width: 100%;">
+    <form id="loginForm" action="#" method="POST" style="width: 100%;">
       <input type="email" placeholder="Email" required />
       <input type="password" placeholder="Password" required />
 
@@ -203,5 +216,21 @@
       Login with Instagram
     </button>
   </div>
+
+  <script>
+    const loginBtn = document.querySelector('.login-btn');
+    const loginForm = document.getElementById('loginForm');
+
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent real form submit for demo
+      loginBtn.classList.add('loading');
+
+      // Simulate login delay
+      setTimeout(() => {
+        loginBtn.classList.remove('loading');
+        alert('Login successful (simulation)');
+      }, 2000);
+    });
+  </script>
 </body>
-</html>
+  </html>
