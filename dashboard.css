@@ -18,6 +18,12 @@ header {
   z-index: 1000;
 }
 
+.left-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .logo {
   width: 95px;
   height: auto;
@@ -29,17 +35,16 @@ header {
 
 .top-icons {
   display: flex;
-  gap: 15px;
-  margin-left: auto;
+  gap: 10px;
 }
 
-.top-icons button {
+.top-icons button, .left-icons button {
   background: none;
   border: none;
   cursor: pointer;
 }
 
-.top-icons img.icon {
+.icon {
   width: 40px;
   height: 40px;
 }
@@ -51,14 +56,14 @@ main {
 
 .bottom-nav {
   position: fixed;
-  bottom: 10px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   justify-content: center;
-  gap: 25px;
-  padding: 8px 20px;
-  border-radius: 30px;
+  gap: 20px;
+  padding: 5px 15px;
+  border-radius: 25px;
   background: rgba(31, 31, 31, 0.9);
   transition: opacity 0.3s ease;
 }
@@ -74,13 +79,13 @@ main {
 }
 
 .nav-icon {
-  width: 95px;
-  height: 95px;
+  width: 70px;
+  height: 70px;
 }
 
 .home-icon {
-  width: 100px;
-  height: 100px;
+  width: 75px;
+  height: 75px;
 }
 
 .battle-icon {
@@ -89,12 +94,12 @@ main {
 }
 
 .leaderboard-icon {
-  width: 80px;
-  height: 80px;
+  width: 65px;
+  height: 65px;
 }
 
 .wallet-icon {
-  width: 95px;
-  height: 95px;
+  width: 85px;
+  height: 85px;
   filter: drop-shadow(0 0 5px darkgoldenrod);
-}
+  }
