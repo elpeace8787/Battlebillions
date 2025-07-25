@@ -1,124 +1,85 @@
 body {
   margin: 0;
-  padding: 0;
   background: #121212;
   color: white;
-  font-family: 'Orbitron', sans-serif;
-}
-
-.dashboard-header {
-  position: relative;
-  padding: 10px;
+  font-family: 'Arial', sans-serif;
   text-align: center;
-  background: #1f1f1f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
-.dashboard-logo {
-  width: 120px;
-  display: block;
-  margin: 0 auto;
-}
-
-.top-right {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+/* Top bar */
+.top-bar {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  position: relative;
+  background: #1f1f1f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-.top-icon {
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  filter: invert(100%);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.top-icon:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(255, 153, 0, 0.6);
-}
-
-.main-content {
-  text-align: center;
-  padding: 20px;
-}
-
-.tab-page {
-  display: none;
-}
-
-.tab-page.active {
+.top-logo {
+  width: 120px;
+  height: auto;
   display: block;
 }
 
-/* Bottom Navigation */
+.top-actions {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.top-actions button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Main content */
+.main-content {
+  padding: 50px 20px;
+}
+
+/* Bottom navigation bar */
 .bottom-bar {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #1f1f1f;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 8px 0;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
-  opacity: 0.6;
+  gap: 25px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
   transition: opacity 0.3s ease;
 }
 
-.bottom-bar:hover,
-.bottom-bar:focus-within {
+.bottom-bar:hover {
   opacity: 1;
 }
 
-/* 3D Icon Style */
-.nav-icon,
-.trophy-icon {
-  width: 40px;
-  height: 40px;
+.nav-icon {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
   cursor: pointer;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #1a1a1a, #262626);
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7),
-              -4px -4px 8px rgba(255, 255, 255, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
-.nav-icon:hover,
-.trophy-icon:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.7),
-              -6px -6px 12px rgba(255, 255, 255, 0.1);
-}
-
-/* Special Battle Icon */
 .battle-icon {
   width: 90px;
   height: 90px;
-  border-radius: 20px;
 }
 
-/* Wallet Icon with Dark Gold */
+.nav-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Wallet icon dark gold filter */
 .wallet-icon {
-  width: 85px;
-  height: 85px;
-  filter: brightness(0.8) sepia(1) hue-rotate(10deg) saturate(4) brightness(1.1);
+  filter: brightness(0) saturate(100%) invert(48%) sepia(92%) saturate(420%) hue-rotate(6deg) brightness(102%) contrast(97%);
 }
-
-/* Profile Icon Dark Red */
-.profile-icon {
-  filter: brightness(0.8) sepia(1) hue-rotate(-10deg) saturate(6) brightness(0.9) contrast(1.2);
-}
-
-/* Trophy Icon */
-.trophy-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34px;
-  color: gold;
-  }
