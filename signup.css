@@ -22,7 +22,7 @@ body {
 
 .logo {
   width: 280px;
-  margin: 10px auto 15px auto; /* Brings logo closer to form */
+  margin: 10px auto 15px auto;
   display: block;
 }
 
@@ -42,21 +42,27 @@ form input {
   width: 100%;
   border-radius: 8px;
   margin-top: 10px;
+  font-weight: bold;
 }
 
 .social-btn {
   width: 100%;
-  margin: 8px 0;
-  padding: 12px;
+  margin: 6px 0;
+  padding: 10px; /* Smaller padding for smaller buttons */
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 6px;
+  font-size: 13px; /* Smaller font */
+  font-weight: 600;
   cursor: pointer;
   border: none;
+}
+
+.social-btn img {
+  width: 20px;
+  height: 20px; /* Make icons smaller */
 }
 
 .google { background: #db4437; }
