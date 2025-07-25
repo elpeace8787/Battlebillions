@@ -1,61 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Messages | Battlebillions</title>
-  <link rel="stylesheet" href="messages.css">
-</head>
-<body>
-  <div class="messages-wrapper">
-    <!-- Chat Sidebar -->
-    <div class="chat-sidebar">
-      <h3>Messages</h3>
-      <ul class="chat-users">
-        <li class="chat-user active" data-chat="chat1">
-          <img src="profile.png" alt="User">
-          <span>Player1</span>
+<div class="messages-container">
+  <header class="messages-header">
+    <img src="profile.png" alt="User Profile" class="user-pic" />
+    <h2>Messages</h2>
+  </header>
+
+  <section class="messages-content">
+    <aside class="chat-list">
+      <input type="search" placeholder="Search chats..." class="chat-search" />
+      <ul class="chat-items">
+        <li class="chat-item active">
+          <img src="profile.png" alt="User 1" class="chat-pic" />
+          <div class="chat-info">
+            <span class="chat-name">Alex</span>
+            <span class="chat-snippet">Hey! Are you ready for battle?</span>
+          </div>
+          <span class="chat-time">2h ago</span>
         </li>
-        <li class="chat-user" data-chat="chat2">
-          <img src="profile.png" alt="User">
-          <span>Player2</span>
+        <li class="chat-item">
+          <img src="profile.png" alt="User 2" class="chat-pic" />
+          <div class="chat-info">
+            <span class="chat-name">Jamie</span>
+            <span class="chat-snippet">Sent the coins, check your wallet.</span>
+          </div>
+          <span class="chat-time">Yesterday</span>
         </li>
-        <li class="chat-user" data-chat="chat3">
-          <img src="profile.png" alt="User">
-          <span>Player3</span>
-        </li>
+        <!-- Add more chat items -->
       </ul>
-    </div>
+    </aside>
 
-    <!-- Chat Window -->
-    <div class="chat-window">
-      <div class="chat-header">
-        <img src="profile.png" alt="User" class="chat-profile">
-        <span class="chat-username">Player1</span>
-      </div>
-
-      <!-- Chat Panels -->
-      <div class="chat-messages" id="chat1">
-        <div class="message received">Hey! Ready for the next battle?</div>
-        <div class="message sent">Absolutely, let's go!</div>
-      </div>
-      <div class="chat-messages hidden" id="chat2">
-        <div class="message received">Yo, when are you online?</div>
-        <div class="message sent">Later tonight.</div>
-      </div>
-      <div class="chat-messages hidden" id="chat3">
-        <div class="message received">Congrats on your win!</div>
-        <div class="message sent">Thanks!</div>
+    <main class="chat-thread">
+      <div class="messages">
+        <div class="message received">
+          <img src="profile.png" alt="Alex" class="msg-pic" />
+          <div class="msg-content">Hey! Ready for the next battle?</div>
+        </div>
+        <div class="message sent">
+          <div class="msg-content">Almost there, just gearing up!</div>
+        </div>
+        <!-- More messages -->
       </div>
 
-      <!-- Input -->
-      <form class="message-input" id="messageForm">
-        <input type="text" placeholder="Message..." required>
+      <form class="message-input-form">
+        <input type="text" placeholder="Type your message..." />
         <button type="submit">Send</button>
       </form>
-    </div>
-  </div>
-
-  <script src="messages.js"></script>
-</body>
-</html>
+    </main>
+  </section>
+</div>
