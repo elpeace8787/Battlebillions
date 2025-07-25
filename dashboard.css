@@ -97,6 +97,11 @@ p {
   height: 100px;
 }
 
+.leaderboard-icon {
+  width: 85px;
+  height: 85px;
+}
+
 .wallet-icon {
   filter: drop-shadow(0 0 6px darkgoldenrod);
 }
