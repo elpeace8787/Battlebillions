@@ -1,48 +1,44 @@
-// Get all navigation buttons
-const homeBtn = document.getElementById("homeBtn");
-const messagesBtn = document.getElementById("messagesBtn");
-const battleBtn = document.getElementById("battleBtn");
-const leaderboardBtn = document.getElementById("leaderboardBtn");
-const walletBtn = document.getElementById("walletBtn");
-const settingsBtn = document.getElementById("settingsBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-
-// Get all page sections
-const sections = document.querySelectorAll(".page-section");
-
-// Function to show a section and hide others
+// Function to show the correct section
 function showSection(sectionId) {
-  sections.forEach(section => {
-    section.classList.remove("active");
-  });
-  document.getElementById(sectionId).classList.add("active");
+  const sections = document.querySelectorAll('.page-section');
+  sections.forEach(sec => sec.classList.remove('active'));
+
+  const target = document.getElementById(sectionId);
+  if (target) target.classList.add('active');
 }
 
-// Event Listeners
-homeBtn.addEventListener("click", () => showSection("home"));
-messagesBtn.addEventListener("click", () => showSection("messages"));
-battleBtn.addEventListener("click", () => showSection("battle"));
-leaderboardBtn.addEventListener("click", () => showSection("leaderboard"));
-walletBtn.addEventListener("click", () => showSection("wallet"));
-settingsBtn.addEventListener("click", () => showSection("settings"));
-logoutBtn.addEventListener("click", () => {
-  alert("You have been logged out.");
-  // Add redirect if needed: window.location.href = "index.html";
+// Bottom navigation buttons
+document.getElementById('homeBtn').addEventListener('click', () => showSection('home'));
+document.getElementById('battleBtn').addEventListener('click', () => showSection('battle'));
+document.getElementById('leaderboardBtn').addEventListener('click', () => showSection('leaderboard'));
+document.getElementById('walletBtn').addEventListener('click', () => showSection('wallet'));
+document.getElementById('settingsBtn').addEventListener('click', () => showSection('settings'));
+
+// Top bar buttons
+document.getElementById('messagesBtn').addEventListener('click', () => showSection('messages'));
+document.getElementById('profileBtn').addEventListener('click', () => showSection('profile'));
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  alert('You have logged out!');
+  // Add actual logout functionality here
 });
 
-// Fade bottom bar on scroll
-const bottomBar = document.querySelector(".bottom-bar");
+// Faded bottom bar behavior
+const bottomBar = document.querySelector('.bottom-bar');
 let fadeTimeout;
 
-function showBottomBar() {
-  bottomBar.style.opacity = "1";
-  clearTimeout(fadeTimeout);
-  fadeTimeout = setTimeout(() => {
-    bottomBar.style.opacity = "0.3";
-  }, 2000);
+function fadeBar() {
+  bottomBar.style.opacity = 0.3;
 }
 
-// Initial fade
-bottomBar.style.opacity = "0.3";
-document.addEventListener("scroll", showBottomBar);
-document.addEventListener("click", showBottomBar);
+function showBar() {
+  bottomBar.style.opacity = 1;
+  clearTimeout(fadeTimeout);
+  fadeTimeout = setTimeout(fadeBar, 2500);
+}
+
+document.addEventListener('scroll', showBar);
+document.addEventListener('mousemove', showBar);
+document.addEventListener('touchstart', showBar);
+
+// Start faded
+fadeBar();
