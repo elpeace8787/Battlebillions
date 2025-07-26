@@ -41,9 +41,11 @@ p {
 }
 
 .center-header {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
 .icon-top {
@@ -65,16 +67,11 @@ p {
 }
 
 .profile-icon {
-  width: 42px;
-  height: 42px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   border: 2px solid #fff;
   cursor: pointer;
-}
-
-.battle-logo {
-  width: 90px;
-  display: block;
 }
 
 /* Bottom Bar */
@@ -95,8 +92,8 @@ p {
 }
 
 .nav-icon {
-  width: 70px;
-  height: 70px;
+  width: 65px;
+  height: 65px;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -106,8 +103,8 @@ p {
 }
 
 .home-icon {
-  width: 80px;
-  height: 80px;
+  width: 75px;
+  height: 75px;
 }
 
 .leaderboard-icon {
