@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leaderboard - Battlebillions</title>
+  <link rel="stylesheet" href="leaderboard.css">
+</head>
+<body>
+  <!-- Leaderboard Top Section -->
+  <header class="leaderboard-header">
+    <img src="leaderboard 3d.png" alt="Leaderboard Icon" class="leaderboard-icon-header">
+    <h1>Leaderboard</h1>
+  </header>
 
+  <!-- Search Bar -->
+  <div class="search-container">
+    <input type="text" placeholder="Search player..." id="searchInput">
+  </div>
+
+  <!-- Leaderboard List -->
+  <main class="leaderboard-list">
+    <div class="player-card first">
+      <span class="rank">1</span>
+      <img src="profile.png" alt="Player" class="player-img">
+      <p class="player-name">ElPeace</p>
+      <p class="player-score">1,250,000 Coins</p>
+    </div>
+
+    <div class="player-card second">
+      <span class="rank">2</span>
+      <img src="profile.png" alt="Player" class="player-img">
+      <p class="player-name">Alex</p>
+      <p class="player-score">1,150,000 Coins</p>
+    </div>
+
+    <div class="player-card third">
+      <span class="rank">3</span>
+      <img src="profile.png" alt="Player" class="player-img">
+      <p class="player-name">Jamie</p>
+      <p class="player-score">1,000,000 Coins</p>
+    </div>
+
+    <!-- Add more players dynamically if needed -->
+  </main>
+
+  <script>
+    // Basic search filter
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('keyup', function() {
+      const filter = searchInput.value.toLowerCase();
+      const cards = document.querySelectorAll('.player-card');
+      cards.forEach(card => {
+        const name = card.querySelector('.player-name').textContent.toLowerCase();
+        card.style.display = name.includes(filter) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
