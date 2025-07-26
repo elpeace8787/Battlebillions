@@ -1,72 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battlebillions Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-  <!-- Top Bar -->
+  <!-- TOP BAR -->
   <header class="top-bar">
-    <img src="messages 3d.png" alt="Messages" class="icon-top left" id="messagesBtn">
-    <img src="profile.png" alt="Profile" class="icon-top center" id="profileBtn">
+    <img src="assets/messages 3d.png" alt="Messages" class="icon-top left" id="messagesBtn">
+    <img src="assets/profile.png" alt="Profile" class="icon-top center" id="profileBtn">
     <div class="top-right">
-      <img src="settings 3d .png" alt="Settings" class="icon-top" id="settingsBtn">
-      <img src="logout 3d.png" alt="Logout" class="icon-top" id="logoutBtn">
+      <img src="assets/settings 3d .png" alt="Settings" class="icon-top" id="settingsBtn">
+      <img src="assets/logout 3d.png" alt="Logout" class="icon-top" id="logoutBtn">
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- MAIN SECTIONS -->
   <main>
-    <!-- Home -->
+    <!-- Home Page -->
     <section id="home" class="page-section active">
-      <h2>Welcome to your Dashboard!</h2>
-      <p>Choose an option from the bottom bar to get started.</p>
+      <div class="search-bar">
+        <input type="text" placeholder="Search Battlebillions..." />
+      </div>
+      <div class="feed" id="homeFeed">
+        <div class="feed-post">
+          <p>🔥 Welcome to Battlebillions feed!</p>
+        </div>
+      </div>
     </section>
 
-    <!-- Profile -->
+    <!-- Profile Page -->
     <section id="profile" class="page-section">
-      <h2>Your Profile</h2>
-      <p>Manage your profile details here.</p>
+      <div class="profile-header">
+        <img src="assets/profile.png" alt="User Avatar" class="profile-avatar">
+        <h2>ElPeace</h2>
+        <p>@elpeace8787</p>
+      </div>
     </section>
 
     <!-- Messages -->
     <section id="messages" class="page-section">
-      <h2>Messages</h2>
-      <p>Your messages will appear here.</p>
+      <div class="messages-container">
+        <div class="messages-search">
+          <input type="text" placeholder="Search messages...">
+        </div>
+        <div class="messages-list" id="messagesList">
+          <div class="message-item">Alex: Ready for the next battle?</div>
+          <div class="message-item">Jamie: Sent the coins, check your wallet.</div>
+        </div>
+        <div class="message-chat">
+          <input type="text" id="messageInput" placeholder="Type a message...">
+          <button id="sendMessage">➤</button>
+        </div>
+      </div>
     </section>
 
     <!-- Battle -->
     <section id="battle" class="page-section">
-      <h2>Battle Arena</h2>
-      <p>Start your battles here.</p>
+      <div class="search-bar">
+        <input type="text" placeholder="Search Battles..." />
+      </div>
+      <div class="battle-feed" id="battleFeed">
+        <p>No active battles yet.</p>
+      </div>
     </section>
 
     <!-- Leaderboard -->
     <section id="leaderboard" class="page-section">
-      <div id="leaderboardContent">Loading leaderboard...</div>
+      <div class="search-bar">
+        <input type="text" placeholder="Search players...">
+      </div>
+      <div class="leaderboard-list">
+        <div class="leaderboard-item">1. ElPeace - 1000pts</div>
+        <div class="leaderboard-item">2. Alex - 850pts</div>
+      </div>
     </section>
 
     <!-- Wallet -->
     <section id="wallet" class="page-section">
-      <h2>Your Wallet</h2>
-      <p>Manage your funds here.</p>
+      <h2>Wallet Balance: 500 Coins</h2>
+      <div class="donate">
+        <input type="text" placeholder="Username to donate to">
+        <input type="number" placeholder="Amount">
+        <button>Send Coins</button>
+      </div>
     </section>
 
     <!-- Settings -->
     <section id="settings" class="page-section">
       <h2>Settings</h2>
-      <p>Manage your account and preferences.</p>
+      <ul class="settings-menu">
+        <li>Account</li>
+        <li>Privacy</li>
+        <li>Notifications</li>
+        <li>Help</li>
+      </ul>
     </section>
   </main>
 
-  <!-- Bottom Fade Navigation -->
+  <!-- BOTTOM NAV -->
   <nav class="bottom-bar">
-    <img src="home.png" alt="Home" class="nav-icon home-icon" id="homeBtn">
-    <img src="battle 3d.png" alt="Battle" class="nav-icon" id="battleBtn">
-    <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon leaderboard-icon" id="leaderboardBtn">
-    <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon" id="walletBtn">
+    <img src="assets/home.png" alt="Home" class="nav-icon" id="homeBtn">
+    <img src="assets/battle 3d.png" alt="Battle" class="nav-icon" id="battleBtn">
+    <img src="assets/leaderboard 3d.png" alt="Leaderboard" class="nav-icon" id="leaderboardBtn">
+    <img src="assets/billions 3d.png" alt="Wallet" class="nav-icon" id="walletBtn">
   </nav>
 
   <script src="main.js"></script>
