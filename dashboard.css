@@ -8,7 +8,17 @@ body {
   min-height: 100vh;
 }
 
-/* Sections */
+h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #ff9900;
+}
+
+p {
+  color: #ccc;
+  font-size: 16px;
+}
+
 .page-section {
   display: none;
   text-align: center;
@@ -24,44 +34,26 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 12px;
+  padding: 8px 12px;
   background: #1f1f1f;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
-.top-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.top-right {
-  display: flex;
-  gap: 8px;
-}
-
-.icon-top {
-  width: 34px;
-  height: 34px;
+.user-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
 }
 
-.user-profile {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+.icon-top {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
 }
 
 .battle-logo {
   width: 95px;
-  height: auto;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 /* Bottom Bar */
@@ -75,6 +67,7 @@ body {
   bottom: 0;
   width: 100%;
   transition: opacity 0.3s ease;
+  opacity: 0.3;
 }
 
 .bottom-bar:hover {
@@ -82,32 +75,16 @@ body {
 }
 
 .nav-icon {
-  height: 95px;
-  width: auto;
+  width: 85px;
+  height: 85px;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
 .nav-icon:hover {
-  transform: scale(1.05);
-}
-
-.home-icon {
-  height: 100px;
-}
-
-.leaderboard-icon {
-  height: 80px;
+  transform: scale(1.1);
 }
 
 .wallet-icon {
-  height: 95px;
-  filter: drop-shadow(0 0 5px darkgoldenrod);
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  .nav-icon { height: 70px; }
-  .home-icon { height: 80px; }
-  .battle-logo { width: 80px; }
+  filter: drop-shadow(0 0 6px darkgoldenrod);
 }
