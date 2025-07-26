@@ -7,11 +7,10 @@
   <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
-
   <!-- Top Bar -->
   <header class="top-bar">
     <img src="messages 3d.png" alt="Messages" class="icon-top left" id="messagesBtn" />
-    <img src="profile.png" alt="Profile" class="profile-top" id="profileBtnTop" />
+    <img src="profile.png" alt="Profile" class="profile-top" id="profileBtn" />
     <div class="top-right">
       <img src="settings 3d .png" alt="Settings" class="icon-top" id="settingsBtn" />
       <img src="logout 3d.png" alt="Logout" class="icon-top" id="logoutBtn" />
@@ -20,129 +19,52 @@
 
   <!-- Main Content -->
   <main>
+    <div class="round-popup" id="roundPopup">Round 1!</div>
+
     <!-- Home -->
     <section id="home" class="page-section active">
-      <h2>Welcome Back, <span id="username">ElPeace</span>!</h2>
-      <p>Your Battlebillions dashboard is ready.</p>
-      <div class="feed-search">
-        <input type="text" id="battleSearch" placeholder="Search battles or users..." />
-      </div>
-      <div id="battleFeed" class="battle-feed">
-        <!-- Battle feed items inserted dynamically -->
-      </div>
+      <h2>Welcome to your Dashboard!</h2>
+      <p>Choose an option from the bottom bar to get started.</p>
     </section>
 
     <!-- Profile -->
     <section id="profile" class="page-section">
       <h2>Your Profile</h2>
-      <div class="profile-card">
-        <img src="profile.png" alt="User Profile" class="profile-image" />
-        <h3>ElPeace</h3>
-        <p>Level 42 • Battle Master</p>
-        <p>Joined: 2024</p>
-        <button id="editProfileBtn">Edit Profile</button>
-      </div>
+      <p>Manage your user details here.</p>
     </section>
 
     <!-- Messages -->
     <section id="messages" class="page-section">
-      <div class="messages-container">
-        <div class="messages-sidebar">
-          <input type="text" placeholder="Search messages..." class="search-bar" id="messageSearch" />
-          <div class="conversation-list" id="conversationList">
-            <div class="conversation active" data-user="Alex">
-              <img src="profile.png" alt="Alex" class="conversation-avatar" />
-              <div class="conversation-info">
-                <h4>Alex</h4>
-                <p>Ready for the next battle?</p>
-                <span class="time">2h</span>
-              </div>
-            </div>
-            <div class="conversation" data-user="Jamie">
-              <img src="profile.png" alt="Jamie" class="conversation-avatar" />
-              <div class="conversation-info">
-                <h4>Jamie</h4>
-                <p>Sent the coins, check your wallet.</p>
-                <span class="time">Yesterday</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="chat-area">
-          <div class="chat-header">
-            <img src="profile.png" alt="Alex" class="chat-avatar" id="chatAvatar" />
-            <h4 id="chatUser">Alex</h4>
-          </div>
-          <div class="chat-messages" id="chatMessages">
-            <div class="message received">Hey! Ready for the next battle?</div>
-            <div class="message sent">Almost there, just gearing up!</div>
-          </div>
-          <div class="chat-input">
-            <input type="text" id="messageInput" placeholder="Type a message..." />
-            <button id="sendBtn">➤</button>
-          </div>
-        </div>
-      </div>
+      <h2>Messages</h2>
+      <p>Your messages will appear here.</p>
     </section>
 
     <!-- Battle -->
     <section id="battle" class="page-section">
       <h2>Battle Arena</h2>
-      <div class="feed-search">
-        <input type="text" id="battleFilter" placeholder="Filter battles..." />
+      <p>Start your battles here.</p>
+      <div class="battle-timer-container">
+        <div id="battleTimer" class="battle-timer">03:00</div>
+        <div id="roundsBoard" class="rounds-board">Round 1 of 5</div>
       </div>
-      <div id="battleList" class="battle-list">
-        <!-- Dynamic battle items -->
-      </div>
+      <!-- Future place for Periscope dual screen or attack log -->
     </section>
 
     <!-- Leaderboard -->
     <section id="leaderboard" class="page-section">
-      <h2>Leaderboard</h2>
-      <input type="text" id="leaderboardSearch" placeholder="Search players..." />
-      <table id="leaderboardTable">
-        <thead>
-          <tr>
-            <th>Rank</th><th>Player</th><th>Level</th><th>Wins</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Leaderboard rows dynamically inserted -->
-        </tbody>
-      </table>
+      <div id="leaderboardContent">Loading leaderboard...</div>
     </section>
 
     <!-- Wallet -->
     <section id="wallet" class="page-section">
       <h2>Your Wallet</h2>
-      <p>Balance: <span id="walletBalance">1000 BB</span></p>
-      <div class="donation-form">
-        <input type="text" id="donationUser" placeholder="Recipient username" />
-        <input type="number" id="donationAmount" placeholder="Amount to donate" min="1" />
-        <button id="donateBtn">Donate</button>
-      </div>
-      <div id="donationMsg" class="donation-message"></div>
+      <p>Manage your funds here.</p>
     </section>
 
     <!-- Settings -->
     <section id="settings" class="page-section">
       <h2>Settings</h2>
-      <div class="settings-form">
-        <label>
-          Username:
-          <input type="text" id="settingUsername" value="ElPeace" />
-        </label>
-        <label>
-          Email Notifications:
-          <input type="checkbox" id="emailNotifications" checked />
-        </label>
-        <label>
-          Dark Mode:
-          <input type="checkbox" id="darkModeToggle" />
-        </label>
-        <button id="saveSettingsBtn">Save Settings</button>
-      </div>
+      <p>Manage your account and preferences.</p>
     </section>
   </main>
 
@@ -156,4 +78,4 @@
 
   <script src="main.js"></script>
 </body>
-  </html>
+</html>
