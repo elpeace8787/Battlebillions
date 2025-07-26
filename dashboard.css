@@ -29,15 +29,20 @@ p {
   display: block;
 }
 
-/* Top Bar */
+/* Top Icons */
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 6px 10px;
-  background: #1f1f1f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow: none;
   position: relative;
+  background: none;
+}
+
+.top-bar.no-bg {
+  background: none;
+  box-shadow: none;
 }
 
 .center-header {
@@ -74,21 +79,22 @@ p {
   cursor: pointer;
 }
 
-/* Bottom Bar */
+/* Bottom Floating Navigation */
 .bottom-bar {
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 8px 0;
-  background: rgba(20, 20, 20, 0.9);
   position: fixed;
   bottom: 0;
   width: 100%;
+  background: none;
+  box-shadow: none;
   transition: opacity 0.3s ease;
 }
 
-.bottom-bar:hover {
-  opacity: 1;
+.bottom-bar.no-bg {
+  background: none;
 }
 
 .nav-icon {
