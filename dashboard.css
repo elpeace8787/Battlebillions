@@ -1,16 +1,15 @@
-/* Reset and base */
 body, html {
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
   background: #121212;
-  color: white;
+  color: #fff;
   height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Top bar */
+/* Top Bar */
 .top-bar {
   position: fixed;
   top: 0;
@@ -23,73 +22,50 @@ body, html {
   padding: 0 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   z-index: 1000;
-  position: relative;
 }
 
-/* Messages icon top-left */
+.logo {
+  height: 95px;
+}
+
 .top-left-icon {
   position: absolute;
-  left: 20px;
-  height: 45px;
+  left: 15px;
+  height: 40px;
   cursor: pointer;
-  filter: brightness(0.8);
-  transition: filter 0.3s ease;
 }
 
-.top-left-icon:hover {
-  filter: brightness(1);
-}
-
-/* Battlebillions logo centered in top bar */
-.top-bar .logo {
-  height: 95px;
-  cursor: default;
-}
-
-/* Settings and Logout top right */
 .top-right-icons {
   position: absolute;
-  right: 20px;
+  right: 15px;
   display: flex;
-  gap: 15px;
+  gap: 12px;
 }
 
 .top-right-icons .icon {
-  height: 40px;
+  height: 35px;
   cursor: pointer;
-  filter: brightness(0.8);
-  transition: filter 0.3s ease;
 }
 
-.top-right-icons .icon:hover {
-  filter: brightness(1);
-}
-
-/* Content area below top bar */
+/* Content */
 .content-area {
-  margin-top: 100px; /* space for top bar */
   flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-/* Welcome section */
-.welcome-section {
+  margin-top: 90px;
+  padding: 15px;
   text-align: center;
 }
 
 .welcome-section h2 {
-  font-size: 28px;
+  font-size: 22px;
   color: #ff9900;
-  margin-bottom: 10px;
 }
 
 .welcome-section p {
-  font-size: 16px;
-  color: #bbb;
+  font-size: 14px;
+  color: #ccc;
 }
 
-/* Bottom nav bar */
+/* Bottom Navigation */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -102,26 +78,17 @@ body, html {
   box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
   transition: opacity 0.3s ease, transform 0.3s ease;
   z-index: 1000;
-  opacity: 1;
 }
 
 .bottom-nav.hidden {
   opacity: 0;
-  pointer-events: none;
   transform: translateY(100%);
 }
 
-/* Bottom nav icons */
 .nav-icon {
-  height: 95px;
   cursor: pointer;
-  filter: brightness(0.8);
-  transition: filter 0.3s ease, transform 0.2s ease;
-}
-
-.nav-icon.wallet-icon {
-  filter: brightness(0.8) saturate(1.2);
-  filter: hue-rotate(40deg) brightness(0.8) saturate(1.3); /* Dark gold tone */
+  filter: brightness(0.9);
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .nav-icon:hover {
@@ -129,20 +96,10 @@ body, html {
   transform: scale(1.05);
 }
 
-/* Specific icon sizes */
-#homeIcon {
-  height: 100px;
-}
-
-#leaderboardIcon {
-  height: 80px;
-}
-
-#battleIcon {
-  height: 90px;
-}
-
-/* Clickable cursor */
-.clickable {
-  cursor: pointer;
+.home-icon { height: 100px; }
+.battle-icon { height: 90px; }
+.leaderboard-icon { height: 80px; }
+.wallet-icon {
+  height: 95px;
+  filter: hue-rotate(40deg) brightness(0.9) saturate(1.3); /* Dark gold */
 }
