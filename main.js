@@ -1,38 +1,48 @@
-const content = document.getElementById('content');
-const bottomNav = document.getElementById('bottomNav');
+// Get all navigation buttons
+const homeBtn = document.getElementById("homeBtn");
+const messagesBtn = document.getElementById("messagesBtn");
+const battleBtn = document.getElementById("battleBtn");
+const leaderboardBtn = document.getElementById("leaderboardBtn");
+const walletBtn = document.getElementById("walletBtn");
+const settingsBtn = document.getElementById("settingsBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-const icons = {
-  homeIcon: document.getElementById('homeIcon'),
-  battleIcon: document.getElementById('battleIcon'),
-  leaderboardIcon: document.getElementById('leaderboardIcon'),
-  walletIcon: document.getElementById('walletIcon'),
-  messagesIcon: document.getElementById('messagesIcon'),
-  settingsIcon: document.getElementById('settingsIcon'),
-  logoutIcon: document.getElementById('logoutIcon'),
-};
+// Get all page sections
+const sections = document.querySelectorAll(".page-section");
 
-async function loadPage(page) {
-  try {
-    const res = await fetch(`${page}.html`);
-    content.innerHTML = await res.text();
-  } catch {
-    content.innerHTML = `<p style="color:red;">Failed to load ${page}</p>`;
-  }
+// Function to show a section and hide others
+function showSection(sectionId) {
+  sections.forEach(section => {
+    section.classList.remove("active");
+  });
+  document.getElementById(sectionId).classList.add("active");
 }
 
-icons.homeIcon.addEventListener('click', () => loadPage('home'));
-icons.battleIcon.addEventListener('click', () => loadPage('battle'));
-icons.leaderboardIcon.addEventListener('click', () => loadPage('leaderboard'));
-icons.walletIcon.addEventListener('click', () => loadPage('wallet'));
-icons.messagesIcon.addEventListener('click', () => loadPage('messages'));
-icons.settingsIcon.addEventListener('click', () => loadPage('settings'));
-icons.logoutIcon.addEventListener('click', () => window.location.href = 'index.html');
-
-let lastScrollY = window.scrollY;
-window.addEventListener('scroll', () => {
-  if (window.scrollY > lastScrollY) bottomNav.classList.add('hidden');
-  else bottomNav.classList.remove('hidden');
-  lastScrollY = window.scrollY;
+// Event Listeners
+homeBtn.addEventListener("click", () => showSection("home"));
+messagesBtn.addEventListener("click", () => showSection("messages"));
+battleBtn.addEventListener("click", () => showSection("battle"));
+leaderboardBtn.addEventListener("click", () => showSection("leaderboard"));
+walletBtn.addEventListener("click", () => showSection("wallet"));
+settingsBtn.addEventListener("click", () => showSection("settings"));
+logoutBtn.addEventListener("click", () => {
+  alert("You have been logged out.");
+  // Add redirect if needed: window.location.href = "index.html";
 });
 
-loadPage('home');
+// Fade bottom bar on scroll
+const bottomBar = document.querySelector(".bottom-bar");
+let fadeTimeout;
+
+function showBottomBar() {
+  bottomBar.style.opacity = "1";
+  clearTimeout(fadeTimeout);
+  fadeTimeout = setTimeout(() => {
+    bottomBar.style.opacity = "0.3";
+  }, 2000);
+}
+
+// Initial fade
+bottomBar.style.opacity = "0.3";
+document.addEventListener("scroll", showBottomBar);
+document.addEventListener("click", showBottomBar);
