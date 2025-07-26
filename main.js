@@ -1,54 +1,38 @@
-// Cache DOM elements
-const content = document.getElementById('content');
-const bottomNav = document.getElementById('bottomNav');
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Battlebillions Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="shared.css" />
+</head>
+<body>
+  <header class="top-bar">
+    <img src="logopit/messages 3d.png" alt="Messages" id="messagesIcon" class="icon clickable top-left-icon" />
 
-const icons = {
-  homeIcon: document.getElementById('homeIcon'),
-  battleIcon: document.getElementById('battleIcon'),
-  leaderboardIcon: document.getElementById('leaderboardIcon'),
-  walletIcon: document.getElementById('walletIcon'),
-  messagesIcon: document.getElementById('messagesIcon'),
-  settingsIcon: document.getElementById('settingsIcon'),
-  logoutIcon: document.getElementById('logoutIcon'),
-};
+    <img src="logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
 
-// Helper to load content dynamically
-async function loadPage(page) {
-  try {
-    const res = await fetch(`${page}.html`);
-    if (!res.ok) throw new Error(`Failed to load ${page}`);
-    const html = await res.text();
-    content.innerHTML = html;
-  } catch (err) {
-    content.innerHTML = `<p style="color:red; text-align:center;">${err.message}</p>`;
-  }
-}
+    <div class="top-right-icons">
+      <img src="logopit/settings 3d .png" alt="Settings" id="settingsIcon" class="icon clickable" />
+      <img src="logopit/logout 3d.png" alt="Logout" id="logoutIcon" class="icon clickable" />
+    </div>
+  </header>
 
-// Icon click handlers
-icons.homeIcon.addEventListener('click', () => loadPage('home'));
-icons.battleIcon.addEventListener('click', () => loadPage('battle'));
-icons.leaderboardIcon.addEventListener('click', () => loadPage('leaderboard'));
-icons.walletIcon.addEventListener('click', () => loadPage('wallet'));
-icons.messagesIcon.addEventListener('click', () => loadPage('messages'));
-icons.settingsIcon.addEventListener('click', () => loadPage('settings'));
-icons.logoutIcon.addEventListener('click', () => {
-  // Example logout function, redirect to login or clear session
-  window.location.href = 'index.html';
-});
+  <main id="content" class="content-area">
+    <section class="welcome-section">
+      <h2>Welcome to your Dashboard!</h2>
+      <p>Choose an option from the bottom bar to get started.</p>
+    </section>
+  </main>
 
-// Fade bottom nav on scroll
-let lastScrollY = window.scrollY;
+  <nav id="bottomNav" class="bottom-nav">
+    <img src="logopit/user-profile.png" alt="Home/Profile" id="homeIcon" class="nav-icon clickable" />
+    <img src="logopit/battle 3d.png" alt="Battle" id="battleIcon" class="nav-icon clickable" />
+    <img src="logopit/leaderboard 3d.png" alt="Leaderboard" id="leaderboardIcon" class="nav-icon clickable" />
+    <img src="logopit/billions 3d.png" alt="Wallet" id="walletIcon" class="nav-icon clickable wallet-icon" />
+  </nav>
 
-window.addEventListener('scroll', () => {
-  if (window.scrollY > lastScrollY) {
-    // Scroll down - hide bar
-    bottomNav.classList.add('hidden');
-  } else {
-    // Scroll up - show bar
-    bottomNav.classList.remove('hidden');
-  }
-  lastScrollY = window.scrollY;
-});
-
-// Load home page by default
-loadPage('home');
+  <script src="main.js"></script>
+</body>
+</html>
