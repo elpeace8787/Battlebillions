@@ -2,18 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Battlebillions Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
+
   <!-- Top Bar -->
   <header class="top-bar">
-    <img src="messages 3d.png" alt="Messages" class="icon-top left" id="messagesBtn">
-    <img src="profile.png" alt="User Profile" class="icon-top center" id="profileBtn">
+    <img src="messages 3d.png" alt="Messages" class="icon-top left" id="messagesBtn" />
+    <img src="profile.png" alt="Profile" class="profile-top" id="profileBtnTop" />
     <div class="top-right">
-      <img src="settings 3d .png" alt="Settings" class="icon-top" id="settingsBtn">
-      <img src="logout 3d.png" alt="Logout" class="icon-top" id="logoutBtn">
+      <img src="settings 3d .png" alt="Settings" class="icon-top" id="settingsBtn" />
+      <img src="logout 3d.png" alt="Logout" class="icon-top" id="logoutBtn" />
     </div>
   </header>
 
@@ -21,41 +22,66 @@
   <main>
     <!-- Home -->
     <section id="home" class="page-section active">
-      <h2>Welcome to Battlebillions!</h2>
-      <div class="feed">
-        <div class="feed-post">
-          <h3>New Battle Event</h3>
-          <p>Join the trending battles happening now!</p>
-        </div>
-        <div class="feed-post">
-          <h3>User Highlight</h3>
-          <p>Check out the top-performing players of this week.</p>
-        </div>
+      <h2>Welcome Back, <span id="username">ElPeace</span>!</h2>
+      <p>Your Battlebillions dashboard is ready.</p>
+      <div class="feed-search">
+        <input type="text" id="battleSearch" placeholder="Search battles or users..." />
+      </div>
+      <div id="battleFeed" class="battle-feed">
+        <!-- Battle feed items inserted dynamically -->
       </div>
     </section>
 
     <!-- Profile -->
     <section id="profile" class="page-section">
-      <div class="profile-header">
-        <img src="profile.png" alt="Profile" class="profile-avatar">
-        <h2>Your Profile</h2>
-        <p>Update your stats and achievements.</p>
+      <h2>Your Profile</h2>
+      <div class="profile-card">
+        <img src="profile.png" alt="User Profile" class="profile-image" />
+        <h3>ElPeace</h3>
+        <p>Level 42 • Battle Master</p>
+        <p>Joined: 2024</p>
+        <button id="editProfileBtn">Edit Profile</button>
       </div>
     </section>
 
     <!-- Messages -->
     <section id="messages" class="page-section">
       <div class="messages-container">
-        <div class="messages-search">
-          <input type="text" placeholder="Search messages...">
+        <div class="messages-sidebar">
+          <input type="text" placeholder="Search messages..." class="search-bar" id="messageSearch" />
+          <div class="conversation-list" id="conversationList">
+            <div class="conversation active" data-user="Alex">
+              <img src="profile.png" alt="Alex" class="conversation-avatar" />
+              <div class="conversation-info">
+                <h4>Alex</h4>
+                <p>Ready for the next battle?</p>
+                <span class="time">2h</span>
+              </div>
+            </div>
+            <div class="conversation" data-user="Jamie">
+              <img src="profile.png" alt="Jamie" class="conversation-avatar" />
+              <div class="conversation-info">
+                <h4>Jamie</h4>
+                <p>Sent the coins, check your wallet.</p>
+                <span class="time">Yesterday</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="messages-list">
-          <div class="message-item">Alex: Ready for the next battle?</div>
-          <div class="message-item">Jamie: Sent the coins, check your wallet.</div>
-        </div>
-        <div class="message-chat">
-          <input type="text" placeholder="Type a message...">
-          <button>➤</button>
+
+        <div class="chat-area">
+          <div class="chat-header">
+            <img src="profile.png" alt="Alex" class="chat-avatar" id="chatAvatar" />
+            <h4 id="chatUser">Alex</h4>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="message received">Hey! Ready for the next battle?</div>
+            <div class="message sent">Almost there, just gearing up!</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <button id="sendBtn">➤</button>
+          </div>
         </div>
       </div>
     </section>
@@ -63,52 +89,71 @@
     <!-- Battle -->
     <section id="battle" class="page-section">
       <h2>Battle Arena</h2>
-      <div class="battle-feed">
-        <p>Upcoming Battles:</p>
-        <ul>
-          <li>Battle Royale – 2h</li>
-          <li>Ultimate Clash – 5h</li>
-        </ul>
+      <div class="feed-search">
+        <input type="text" id="battleFilter" placeholder="Filter battles..." />
+      </div>
+      <div id="battleList" class="battle-list">
+        <!-- Dynamic battle items -->
       </div>
     </section>
 
     <!-- Leaderboard -->
     <section id="leaderboard" class="page-section">
       <h2>Leaderboard</h2>
-      <div id="leaderboardContent">Loading leaderboard...</div>
+      <input type="text" id="leaderboardSearch" placeholder="Search players..." />
+      <table id="leaderboardTable">
+        <thead>
+          <tr>
+            <th>Rank</th><th>Player</th><th>Level</th><th>Wins</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Leaderboard rows dynamically inserted -->
+        </tbody>
+      </table>
     </section>
 
     <!-- Wallet -->
     <section id="wallet" class="page-section">
       <h2>Your Wallet</h2>
-      <p>Balance: <strong>$120</strong></p>
-      <div class="donate">
-        <input type="text" placeholder="Enter username to donate">
-        <input type="number" placeholder="Amount">
-        <button>Donate</button>
+      <p>Balance: <span id="walletBalance">1000 BB</span></p>
+      <div class="donation-form">
+        <input type="text" id="donationUser" placeholder="Recipient username" />
+        <input type="number" id="donationAmount" placeholder="Amount to donate" min="1" />
+        <button id="donateBtn">Donate</button>
       </div>
+      <div id="donationMsg" class="donation-message"></div>
     </section>
 
     <!-- Settings -->
     <section id="settings" class="page-section">
       <h2>Settings</h2>
-      <ul class="settings-menu">
-        <li>Account</li>
-        <li>Notifications</li>
-        <li>Privacy</li>
-        <li>Help</li>
-      </ul>
+      <div class="settings-form">
+        <label>
+          Username:
+          <input type="text" id="settingUsername" value="ElPeace" />
+        </label>
+        <label>
+          Email Notifications:
+          <input type="checkbox" id="emailNotifications" checked />
+        </label>
+        <label>
+          Dark Mode:
+          <input type="checkbox" id="darkModeToggle" />
+        </label>
+        <button id="saveSettingsBtn">Save Settings</button>
+      </div>
     </section>
   </main>
 
   <!-- Bottom Fade Navigation -->
   <nav class="bottom-bar">
-    <img src="home 3d.png" alt="Home" class="nav-icon" id="homeBtn">
-    <img src="battle 3d.png" alt="Battle" class="nav-icon" id="battleBtn">
-    <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon leaderboard-icon" id="leaderboardBtn">
-    <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon" id="walletBtn">
+    <img src="profile.png" alt="Home" class="nav-icon home-icon" id="homeBtn" />
+    <img src="battle 3d.png" alt="Battle" class="nav-icon" id="battleBtn" />
+    <img src="leaderboard 3d.png" alt="Leaderboard" class="nav-icon leaderboard-icon" id="leaderboardBtn" />
+    <img src="billions 3d.png" alt="Wallet" class="nav-icon wallet-icon" id="walletBtn" />
   </nav>
 
   <script src="main.js"></script>
 </body>
-</html>
+  </html>
