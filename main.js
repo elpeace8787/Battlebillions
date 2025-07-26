@@ -3,23 +3,6 @@ function showSection(sectionId) {
     section.classList.remove('active');
   });
   document.getElementById(sectionId).classList.add('active');
-
-  // Load external leaderboard content when Leaderboard is opened
-  if (sectionId === 'leaderboard') {
-    loadLeaderboard();
-  }
-}
-
-function loadLeaderboard() {
-  fetch('leaderboard.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('leaderboardContent').innerHTML = data;
-    })
-    .catch(error => {
-      console.error('Error loading leaderboard:', error);
-      document.getElementById('leaderboardContent').innerHTML = '<p>Failed to load leaderboard.</p>';
-    });
 }
 
 // Event Listeners
@@ -33,4 +16,19 @@ document.getElementById('settingsBtn').addEventListener('click', () => showSecti
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
   alert('Logged out successfully!');
+});
+
+// Messaging system simulation
+document.getElementById('sendMessage').addEventListener('click', () => {
+  const input = document.getElementById('messageInput');
+  const text = input.value.trim();
+  if (text) {
+    const msgList = document.getElementById('messagesList');
+    const newMsg = document.createElement('div');
+    newMsg.classList.add('message-item');
+    newMsg.textContent = "You: " + text;
+    msgList.appendChild(newMsg);
+    input.value = '';
+    msgList.scrollTop = msgList.scrollHeight;
+  }
 });
