@@ -16,7 +16,7 @@ h2 {
 
 p {
   color: #ccc;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .page-section {
@@ -34,26 +34,47 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: #1f1f1f;
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  position: relative;
 }
 
-.user-pic {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
+.center-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .icon-top {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.icon-top.left {
+  position: absolute;
+  left: 10px;
+}
+
+.top-right {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.profile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #fff;
   cursor: pointer;
 }
 
 .battle-logo {
-  width: 95px;
+  width: 90px;
+  display: block;
 }
 
 /* Bottom Bar */
@@ -61,13 +82,12 @@ p {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 6px 0;
+  padding: 8px 0;
   background: rgba(20, 20, 20, 0.9);
   position: fixed;
   bottom: 0;
   width: 100%;
   transition: opacity 0.3s ease;
-  opacity: 0.3;
 }
 
 .bottom-bar:hover {
@@ -75,16 +95,26 @@ p {
 }
 
 .nav-icon {
-  width: 85px;
-  height: 85px;
+  width: 70px;
+  height: 70px;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
 .nav-icon:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+}
+
+.home-icon {
+  width: 80px;
+  height: 80px;
+}
+
+.leaderboard-icon {
+  width: 60px;
+  height: 60px;
 }
 
 .wallet-icon {
-  filter: drop-shadow(0 0 6px darkgoldenrod);
+  filter: drop-shadow(0 0 5px darkgoldenrod);
 }
