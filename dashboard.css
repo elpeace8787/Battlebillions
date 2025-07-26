@@ -34,10 +34,10 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 10px;
+  padding: 10px 10px; /* Increased padding to bring icons down */
   box-shadow: none;
   position: relative;
-  background: none;
+  margin-top: 8px;  /* Shifted the entire top bar down */
 }
 
 .top-bar.no-bg {
@@ -51,12 +51,15 @@ p {
   transform: translateX(-50%);
   display: flex;
   align-items: center;
+  top: 10px; /* Adjusted down */
 }
 
 .icon-top {
   width: 36px;
   height: 36px;
   cursor: pointer;
+  position: relative;
+  top: 10px; /* Bring individual icons down */
 }
 
 .icon-top.left {
@@ -69,6 +72,7 @@ p {
   right: 10px;
   display: flex;
   gap: 8px;
+  top: 10px; /* Bring settings/logout down */
 }
 
 .profile-icon {
@@ -120,4 +124,4 @@ p {
 
 .wallet-icon {
   filter: drop-shadow(0 0 5px darkgoldenrod);
-}
+  }
