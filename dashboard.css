@@ -1,105 +1,129 @@
-body {
+/* Reset and base */
+body, html {
   margin: 0;
+  padding: 0;
   font-family: 'Orbitron', sans-serif;
   background: #121212;
-  color: #fff;
-  text-align: center;
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
+/* Top bar */
+.top-bar {
   position: fixed;
   top: 0;
   width: 100%;
+  height: 70px;
   background: #1f1f1f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   z-index: 1000;
 }
 
-.left-icons {
+.top-bar .logo {
+  height: 95px;
+  cursor: default;
+}
+
+.top-right-icons {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 
-.logo {
-  width: 95px;
-  height: auto;
-  margin: 0 auto;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.top-icons {
-  display: flex;
-  gap: 10px;
-}
-
-.top-icons button, .left-icons button {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.icon {
-  width: 40px;
+.top-right-icons .icon {
   height: 40px;
+  cursor: pointer;
+  filter: brightness(1);
+  transition: filter 0.3s ease;
 }
 
-main {
-  padding-top: 100px;
-  padding-bottom: 100px;
+.top-right-icons .icon:hover {
+  filter: brightness(1.3);
 }
 
+/* Content area below top bar */
+.content-area {
+  margin-top: 100px; /* space for top bar */
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Welcome section */
+.welcome-section {
+  text-align: center;
+}
+
+.welcome-section h2 {
+  font-size: 28px;
+  color: #ff9900;
+  margin-bottom: 10px;
+}
+
+.welcome-section p {
+  font-size: 16px;
+  color: #bbb;
+}
+
+/* Bottom nav bar */
 .bottom-nav {
   position: fixed;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  width: 100%;
+  height: 65px;
+  background: #1f1f1f;
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 5px 15px;
-  border-radius: 25px;
-  background: rgba(31, 31, 31, 0.9);
-  transition: opacity 0.3s ease;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  opacity: 1;
 }
 
-.bottom-nav.fade {
-  opacity: 0.3;
+.bottom-nav.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(100%);
 }
 
-.nav-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
+/* Icons */
 .nav-icon {
-  width: 70px;
-  height: 70px;
+  height: 95px;
+  cursor: pointer;
+  filter: brightness(0.8);
+  transition: filter 0.3s ease, transform 0.2s ease;
 }
 
-.home-icon {
-  width: 75px;
-  height: 75px;
+.nav-icon.wallet-icon {
+  filter: brightness(0.8) saturate(1.2);
+  filter: hue-rotate(40deg) brightness(0.8) saturate(1.3); /* Dark gold tone */
 }
 
-.battle-icon {
-  width: 90px;
+.nav-icon:hover {
+  filter: brightness(1);
+  transform: scale(1.05);
+}
+
+/* Specific icon sizes */
+#homeIcon {
+  height: 100px;
+}
+
+#leaderboardIcon {
+  height: 80px;
+}
+
+#battleIcon {
   height: 90px;
 }
 
-.leaderboard-icon {
-  width: 65px;
-  height: 65px;
+/* Clickable cursor */
+.clickable {
+  cursor: pointer;
 }
-
-.wallet-icon {
-  width: 85px;
-  height: 85px;
-  filter: drop-shadow(0 0 5px darkgoldenrod);
-  }
