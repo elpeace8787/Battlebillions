@@ -5,18 +5,19 @@ html, body {
   box-sizing: border-box;
   font-family: 'Segoe UI', Arial, sans-serif;
   background: #f6f7fb;
-  color: #2d3748;
+  color: #22223b;
 }
 
 #app {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow: hidden;
 }
 
 #main-content {
   flex: 1;
-  padding: 24px 16px 72px;
+  padding: 24px 16px 72px 16px;
   box-sizing: border-box;
   background: #fff;
   border-radius: 0 0 12px 12px;
@@ -35,8 +36,9 @@ html, body {
   border-radius: 12px 12px 0 0;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
   position: fixed;
-  bottom: 0; left: 0; width: 100%;
-  z-index: 40;
+  bottom: 0; left: 0; width: 100vw;
+  z-index: 10;
+  overflow-x: auto;
 }
 
 .nav-btn {
@@ -46,11 +48,13 @@ html, body {
   outline: none;
   padding: 8px 0 0 0;
   color: #c9ada7;
-  font-size: 18px;
+  font-size: 19px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: color 0.2s;
+  transition: color 0.18s;
+  min-width: 34px;
+  cursor: pointer;
 }
 
 .nav-btn.active, .nav-btn:focus, .nav-btn:hover {
@@ -58,12 +62,35 @@ html, body {
 }
 
 .nav-btn span {
-  font-size: 22px;
+  font-size: 23px;
 }
 
 .nav-btn small {
-  font-size: 11px;
+  font-size: 10.6px;
   margin-top: 2px;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+}
+
+thead {
+  background: #e9ecef;
+  font-size: 13px;
+}
+th, td {
+  padding: 0.44em 0.8em;
+  text-align: left;
+  border-bottom: 1px solid #ececec;
+}
+
+@media (max-width: 600px) {
+  #main-content {
+    padding-left: 4vw;
+    padding-right: 4vw;
+  }
+  }
