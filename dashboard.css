@@ -18,19 +18,38 @@ body, html {
   height: 70px;
   background: #1f1f1f;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 0 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   z-index: 1000;
+  position: relative;
 }
 
+/* Messages icon top-left */
+.top-left-icon {
+  position: absolute;
+  left: 20px;
+  height: 45px;
+  cursor: pointer;
+  filter: brightness(0.8);
+  transition: filter 0.3s ease;
+}
+
+.top-left-icon:hover {
+  filter: brightness(1);
+}
+
+/* Battlebillions logo centered in top bar */
 .top-bar .logo {
   height: 95px;
   cursor: default;
 }
 
+/* Settings and Logout top right */
 .top-right-icons {
+  position: absolute;
+  right: 20px;
   display: flex;
   gap: 15px;
 }
@@ -38,12 +57,12 @@ body, html {
 .top-right-icons .icon {
   height: 40px;
   cursor: pointer;
-  filter: brightness(1);
+  filter: brightness(0.8);
   transition: filter 0.3s ease;
 }
 
 .top-right-icons .icon:hover {
-  filter: brightness(1.3);
+  filter: brightness(1);
 }
 
 /* Content area below top bar */
@@ -92,7 +111,7 @@ body, html {
   transform: translateY(100%);
 }
 
-/* Icons */
+/* Bottom nav icons */
 .nav-icon {
   height: 95px;
   cursor: pointer;
