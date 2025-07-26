@@ -1,38 +1,38 @@
-<!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Battlebillions Dashboard</title>
-  <link rel="stylesheet" href="dashboard.css" />
-  <link rel="stylesheet" href="shared.css" />
-</head>
-<body>
-  <header class="top-bar">
-    <img src="logopit/messages 3d.png" alt="Messages" id="messagesIcon" class="icon clickable top-left-icon" />
+const content = document.getElementById('content');
+const bottomNav = document.getElementById('bottomNav');
 
-    <img src="logopit/Logopit_1697753255912.png" alt="Battlebillions Logo" class="logo" />
+const icons = {
+  homeIcon: document.getElementById('homeIcon'),
+  battleIcon: document.getElementById('battleIcon'),
+  leaderboardIcon: document.getElementById('leaderboardIcon'),
+  walletIcon: document.getElementById('walletIcon'),
+  messagesIcon: document.getElementById('messagesIcon'),
+  settingsIcon: document.getElementById('settingsIcon'),
+  logoutIcon: document.getElementById('logoutIcon'),
+};
 
-    <div class="top-right-icons">
-      <img src="logopit/settings 3d .png" alt="Settings" id="settingsIcon" class="icon clickable" />
-      <img src="logopit/logout 3d.png" alt="Logout" id="logoutIcon" class="icon clickable" />
-    </div>
-  </header>
+async function loadPage(page) {
+  try {
+    const res = await fetch(`${page}.html`);
+    content.innerHTML = await res.text();
+  } catch {
+    content.innerHTML = `<p style="color:red;">Failed to load ${page}</p>`;
+  }
+}
 
-  <main id="content" class="content-area">
-    <section class="welcome-section">
-      <h2>Welcome to your Dashboard!</h2>
-      <p>Choose an option from the bottom bar to get started.</p>
-    </section>
-  </main>
+icons.homeIcon.addEventListener('click', () => loadPage('home'));
+icons.battleIcon.addEventListener('click', () => loadPage('battle'));
+icons.leaderboardIcon.addEventListener('click', () => loadPage('leaderboard'));
+icons.walletIcon.addEventListener('click', () => loadPage('wallet'));
+icons.messagesIcon.addEventListener('click', () => loadPage('messages'));
+icons.settingsIcon.addEventListener('click', () => loadPage('settings'));
+icons.logoutIcon.addEventListener('click', () => window.location.href = 'index.html');
 
-  <nav id="bottomNav" class="bottom-nav">
-    <img src="logopit/user-profile.png" alt="Home/Profile" id="homeIcon" class="nav-icon clickable" />
-    <img src="logopit/battle 3d.png" alt="Battle" id="battleIcon" class="nav-icon clickable" />
-    <img src="logopit/leaderboard 3d.png" alt="Leaderboard" id="leaderboardIcon" class="nav-icon clickable" />
-    <img src="logopit/billions 3d.png" alt="Wallet" id="walletIcon" class="nav-icon clickable wallet-icon" />
-  </nav>
+let lastScrollY = window.scrollY;
+window.addEventListener('scroll', () => {
+  if (window.scrollY > lastScrollY) bottomNav.classList.add('hidden');
+  else bottomNav.classList.remove('hidden');
+  lastScrollY = window.scrollY;
+});
 
-  <script src="main.js"></script>
-</body>
-</html>
+loadPage('home');
