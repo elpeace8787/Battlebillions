@@ -1,25 +1,49 @@
 // main.js
 
-document.addEventListener("DOMContentLoaded", () => { const buttons = document.querySelectorAll(".nav-btn"); const pages = document.querySelectorAll(".page");
+document.addEventListener("DOMContentLoaded", () => {
+  const content = document.getElementById("main-content");
+  const navButtons = document.querySelectorAll(".nav-btn");
 
-function showPage(pageId) { pages.forEach(page => { page.classList.remove("active"); page.classList.add("hidden"); });
+  // Load the page content and CSS dynamically
+  async function loadPage(page) {
+    try {
+      // Fetch HTML content for the page
+      const res = await fetch(`pages/${page}.html`);
+      if (!res.ok) throw new Error(`Failed to load pages/${page}.html`);
+      const html = await res.text();
+      content.innerHTML = html;
 
-const targetPage = document.getElementById(pageId);
-if (targetPage) {
-  targetPage.classList.remove("hidden");
-  targetPage.classList.add("active");
-}
+      // Remove previously loaded page CSS
+      const prevStyle = document.getElementById("page-style");
+      if (prevStyle) prevStyle.remove();
 
-buttons.forEach(btn => btn.classList.remove("active"));
-const activeBtn = document.querySelector(`.nav-btn[data-page='${pageId}']`);
-if (activeBtn) {
-  activeBtn.classList.add("active");
-}
+      // Dynamically inject the CSS for the page
+      const cssLink = document.createElement("link");
+      cssLink.rel = "stylesheet";
+      cssLink.href = `css/${page}.css`;
+      cssLink.id = "page-style";
+      document.head.appendChild(cssLink);
 
-}
+    } catch (error) {
+      console.error(error);
+      content.innerHTML = `<p style="color:red;">Error loading the page: ${page}</p>`;
+    }
+  }
 
-buttons.forEach(button => { button.addEventListener("click", () => { const targetPage = button.getAttribute("data-page"); showPage(targetPage); }); });
+  // Setup nav buttons click handlers
+  navButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Remove active class from all buttons
+      navButtons.forEach((b) => b.classList.remove("active"));
+      // Add active class to clicked button
+      btn.classList.add("active");
 
-// Initial page load showPage("home"); });
+      // Load the page matching the clicked button's data-page attribute
+      const page = btn.dataset.page;
+      loadPage(page);
+    });
+  });
 
-                          
+  // Load default page on initial load
+  loadPage("home");
+});
