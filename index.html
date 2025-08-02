@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions - Enter the Arena</title>
+  <link rel="stylesheet" href="shared.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -185,11 +186,6 @@
       height: 120px;
       margin-bottom: 2rem;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
       box-shadow: 
         0 0 30px rgba(255, 153, 0, 0.3),
         0 0 60px rgba(255, 153, 0, 0.1);
@@ -406,7 +402,6 @@
       cursor: pointer;
       position: relative;
       transition: all 0.3s ease;
-      appearance: none;
     }
 
     .custom-checkbox:checked {
@@ -669,7 +664,7 @@
     <div class="login-wrapper">
       <!-- Brand Section -->
       <div class="brand-section">
-        <div class="brand-logo">⚔️</div>
+        <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="brand-logo" draggable="false" />
         
         <h1 class="brand-title">BATTLEBILLIONS</h1>
         <p class="brand-subtitle">
@@ -766,12 +761,15 @@
     </div>
   </div>
 
-  <script>
-    // Demo credentials for testing
-    const DEMO_CREDENTIALS = {
-      email: 'demo@battlebillions.com',
-      password: 'demo123'
-    };
+  <script type="module">
+    import { 
+      signInWith, 
+      googleProvider, 
+      facebookProvider, 
+      instagramProvider,
+      tiktokProvider,
+      signInWithEmailAndPassword
+    } from './firebase.js';
 
     // DOM Elements
     const loginForm = document.getElementById('loginForm');
@@ -790,134 +788,4 @@
       const otherMessage = element === errorMessage ? successMessage : errorMessage;
       otherMessage.style.display = 'none';
       
-      if (duration > 0) {
-        setTimeout(() => {
-          element.style.display = 'none';
-        }, duration);
-      }
-    }
-
-    function hideMessages() {
-      errorMessage.style.display = 'none';
-      successMessage.style.display = 'none';
-    }
-
-    // Password strength checker
-    function checkPasswordStrength(password) {
-      let strength = 0;
-      const checks = {
-        length: password.length >= 8,
-        lowercase: /[a-z]/.test(password),
-        uppercase: /[A-Z]/.test(password),
-        numbers: /\d/.test(password),
-        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-      };
-
-      strength = Object.values(checks).filter(Boolean).length;
-
-      if (strength <= 2) {
-        passwordStrengthBar.className = 'password-strength-bar strength-weak';
-      } else if (strength <= 4) {
-        passwordStrengthBar.className = 'password-strength-bar strength-medium';
-      } else {
-        passwordStrengthBar.className = 'password-strength-bar strength-strong';
-      }
-    }
-
-    // Navigation functions
-    function navigateToSignup() {
-      showMessage(successMessage, 'Redirecting to signup page...', 2000);
-      setTimeout(() => {
-        // Simulate navigation
-        showMessage(successMessage, 'Signup page would load here. This is a demo!', 0);
-      }, 2000);
-    }
-
-    function showForgotPassword() {
-      showMessage(successMessage, 'Password reset link would be sent to your email. This is a demo!', 5000);
-    }
-
-    function showSupport() {
-      showMessage(successMessage, 'Support chat would open here. This is a demo!', 5000);
-    }
-
-    // Page transition
-    function showPageTransition() {
-      pageTransition.classList.add('active');
-      setTimeout(() => {
-        pageTransition.classList.remove('active');
-      }, 600);
-    }
-
-    // Social login handlers
-    document.querySelectorAll('.social-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const provider = this.dataset.provider;
-        this.style.pointerEvents = 'none';
-        this.innerHTML = `<div style="width: 20px; height: 20px; border: 2px solid currentColor; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div> Connecting...`;
-        
-        setTimeout(() => {
-          showMessage(successMessage, `${provider.charAt(0).toUpperCase() + provider.slice(1)} login successful! Redirecting to dashboard...`, 3000);
-          setTimeout(() => {
-            showPageTransition();
-            // Here you would normally redirect to dashboard
-            setTimeout(() => {
-              showMessage(successMessage, 'Dashboard would load here. This is a demo!', 0);
-            }, 600);
-          }, 3000);
-        }, 2000);
-      });
-    });
-
-    // Password input handler
-    passwordInput.addEventListener('input', function() {
-      checkPasswordStrength(this.value);
-    });
-
-    // Form submission
-    loginForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      hideMessages();
-
-      const formData = new FormData(this);
-      const email = formData.get('email');
-      const password = formData.get('password');
-      const rememberMe = document.getElementById('rememberMe').checked;
-
-      // Show loading state
-      const submitBtn = this.querySelector('.primary-btn');
-      const originalText = submitBtn.textContent;
-      submitBtn.classList.add('loading');
-      submitBtn.textContent = '';
-
-      // Simulate login process
-      setTimeout(() => {
-        // Check demo credentials
-        if (email === DEMO_CREDENTIALS.email && password === DEMO_CREDENTIALS.password) {
-          showMessage(successMessage, 'Login successful! Welcome back, warrior! Redirecting to dashboard...', 3000);
-          
-          if (rememberMe) {
-            // Simulate saving login state
-            console.log('Login state saved for 30 days');
-          }
-
-          setTimeout(() => {
-            showPageTransition();
-            // Here you would normally redirect to dashboard
-            setTimeout(() => {
-              showMessage(successMessage, 'Dashboard would load here. This is a demo! Try: demo@battlebillions.com / demo123', 0);
-            }, 600);
-          }, 3000);
-        } else {
-          showMessage(errorMessage, 'Invalid credentials. Try demo@battlebillions.com / demo123');
-        }
-
-        // Reset button
-        submitBtn.classList.remove('loading');
-        submitBtn.textContent = originalText;
-      }, 2000);
-    });
-
-    // Initial demo message
-    setTimeout(() => {
-      showMessage(successMessage, 'Demo Login: Use "demo@battleb
+      if (
