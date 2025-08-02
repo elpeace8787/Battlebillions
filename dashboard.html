@@ -5,20 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Periscope Dashboard</title>
   <link rel="stylesheet" href="dashboard.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #app {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    main#main-content {
+      flex-grow: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      background-color: #ffffff;
+      border-top: 1px solid #ccc;
+      padding: 10px 0;
+      position: sticky;
+      bottom: 0;
+      z-index: 1000;
+    }
+
+    .nav-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      font-size: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #888;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-btn small {
+      font-size: 10px;
+    }
+
+    .nav-btn.active {
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .nav-btn:hover {
+      color: #007bff;
+    }
+
+    @media (min-width: 768px) {
+      .bottom-nav {
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 12px 12px 0 0;
+        box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="app">
-    <main id="main-content"></main>
+    <main id="main-content">
+      <h1>Welcome to Battlebillions</h1>
+      <p>Select a tab below to begin.</p>
+    </main>
+
     <nav class="bottom-nav">
-      <button class="nav-btn active" data-page="home">🏠<small>Home</small></button>
-      <button class="nav-btn" data-page="profile">👤<small>Profile</small></button>
-      <button class="nav-btn" data-page="messages">💬<small>Messages</small></button>
-      <button class="nav-btn" data-page="battle">⚔️<small>Battle</small></button>
-      <button class="nav-btn" data-page="leaderboard">🏆<small>Leaderboard</small></button>
-      <button class="nav-btn" data-page="wallet">💰<small>Wallet</small></button>
-      <button class="nav-btn" data-page="settings">⚙️<small>Settings</small></button>
+      <button class="nav-btn active" data-page="home" aria-label="Home">🏠<small>Home</small></button>
+      <button class="nav-btn" data-page="profile" aria-label="Profile">👤<small>Profile</small></button>
+      <button class="nav-btn" data-page="messages" aria-label="Messages">💬<small>Messages</small></button>
+      <button class="nav-btn" data-page="battle" aria-label="Battle">⚔️<small>Battle</small></button>
+      <button class="nav-btn" data-page="leaderboard" aria-label="Leaderboard">🏆<small>Leaderboard</small></button>
+      <button class="nav-btn" data-page="wallet" aria-label="Wallet">💰<small>Wallet</small></button>
+      <button class="nav-btn" data-page="settings" aria-label="Settings">⚙️<small>Settings</small></button>
     </nav>
   </div>
-  <script src="main.js"></script>
+
+  <script>
+    const mainContent = document.getElementById('main-content');
+    const navButtons = document.querySelectorAll('.nav-btn');
+
+    const pages = {
+      home: '<h2>🏠 Home</h2><p>This is your dashboard overview.</p>',
+      profile: '<h2>👤 Profile</h2><p>View and edit your profile info.</p>',
+      messages: '<h2>💬 Messages</h2><p>Your latest conversations.</p>',
+      battle: '<h2>⚔️ Battle</h2><p>Enter the arena and challenge others.</p>',
+      leaderboard: '<h2>🏆 Leaderboard</h2><p>Top players ranked globally.</p>',
+      wallet: '<h2>💰 Wallet</h2><p>Your earnings and transaction history.</p>',
+      settings: '<h2>⚙️ Settings</h2><p>Update your preferences.</p>',
+    };
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelector('.nav-btn.active')?.classList.remove('active');
+        btn.classList.add('active');
+
+        const page = btn.dataset.page;
+        mainContent.innerHTML = pages[page] || '<p>Page not found.</p>';
+      });
+    });
+  </script>
 </body>
-</html>
+                                                                                             </html>
