@@ -3,9 +3,16 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Periscope Dashboard</title>
+  <title>⚔️ Periscope: Battlebillions Command</title>
   <link rel="stylesheet" href="dashboard.css"/>
   <style>
+    :root {
+      --primary: #111827;
+      --accent: #10b981;
+      --bg: #f0f2f5;
+      --glass: rgba(255, 255, 255, 0.1);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -14,48 +21,98 @@
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f2f5;
-      color: #333;
+      background: var(--primary);
+      color: white;
       height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     #app {
-      flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      height: 100%;
+      width: 100%;
     }
 
     main#main-content {
       flex-grow: 1;
-      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       overflow-y: auto;
+      padding: 16px;
+      scroll-snap-type: y mandatory;
+    }
+
+    section.scene {
+      scroll-snap-align: start;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.6s ease, opacity 0.6s ease;
+    }
+
+    .scene h2 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .dual-screen {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .screen-feed {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 300px;
+      box-shadow: 0 0 20px #00000066;
+      position: relative;
+    }
+
+    .screen-feed::after {
+      content: "Live Feed";
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 12px;
+      color: #10b981;
+      background: #000;
+      padding: 2px 6px;
+      border-radius: 6px;
     }
 
     .bottom-nav {
       display: flex;
       justify-content: space-around;
-      background-color: #ffffff;
-      border-top: 1px solid #ccc;
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
       padding: 10px 0;
       position: sticky;
       bottom: 0;
       z-index: 1000;
+      border-top: 1px solid #444;
     }
 
     .nav-btn {
-      flex: 1;
       background: none;
       border: none;
+      color: #bbb;
       font-size: 18px;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      color: #888;
-      transition: color 0.2s;
       cursor: pointer;
+      transition: color 0.3s ease;
     }
 
     .nav-btn small {
@@ -63,20 +120,25 @@
     }
 
     .nav-btn.active {
-      color: #007bff;
+      color: var(--accent);
       font-weight: bold;
     }
 
-    .nav-btn:hover {
-      color: #007bff;
+    .flame-slot {
+      margin-top: 20px;
+      padding: 10px;
+      background: linear-gradient(135deg, #10b981, #3b82f6);
+      color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #10b981aa;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
     }
 
-    @media (min-width: 768px) {
-      .bottom-nav {
-        max-width: 600px;
-        margin: 0 auto;
-        border-radius: 12px 12px 0 0;
-        box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
+    @media (max-width: 768px) {
+      .dual-screen {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -84,44 +146,52 @@
 <body>
   <div id="app">
     <main id="main-content">
-      <h1>Welcome to Battlebillions</h1>
-      <p>Select a tab below to begin.</p>
+      <!-- SCENE 1: Home -->
+      <section class="scene" id="scene-home">
+        <h2>🏠 Command Center</h2>
+        <p>Scroll down to enter the battle layer.</p>
+        <div class="flame-slot">
+          🔥 Flame Authority Verified <br/> El Key Active.
+        </div>
+      </section>
+
+      <!-- SCENE 2: Battle View -->
+      <section class="scene" id="scene-battle">
+        <h2>⚔️ Live Battle Periscope</h2>
+        <div class="dual-screen">
+          <div class="screen-feed" id="screen-left">Player One Feed</div>
+          <div class="screen-feed" id="screen-right">Player Two Feed</div>
+        </div>
+        <div class="flame-slot">⚡Scroll 342: Eyes Upon the Flame</div>
+      </section>
+
+      <!-- SCENE 3: Stats -->
+      <section class="scene" id="scene-leaderboard">
+        <h2>🏆 Leaderboard</h2>
+        <p>Top players ranked by scroll-aligned battles.</p>
+      </section>
     </main>
 
     <nav class="bottom-nav">
-      <button class="nav-btn active" data-page="home" aria-label="Home">🏠<small>Home</small></button>
-      <button class="nav-btn" data-page="profile" aria-label="Profile">👤<small>Profile</small></button>
-      <button class="nav-btn" data-page="messages" aria-label="Messages">💬<small>Messages</small></button>
-      <button class="nav-btn" data-page="battle" aria-label="Battle">⚔️<small>Battle</small></button>
-      <button class="nav-btn" data-page="leaderboard" aria-label="Leaderboard">🏆<small>Leaderboard</small></button>
-      <button class="nav-btn" data-page="wallet" aria-label="Wallet">💰<small>Wallet</small></button>
-      <button class="nav-btn" data-page="settings" aria-label="Settings">⚙️<small>Settings</small></button>
+      <button class="nav-btn active" data-target="scene-home">🏠<small>Home</small></button>
+      <button class="nav-btn" data-target="scene-battle">⚔️<small>Battle</small></button>
+      <button class="nav-btn" data-target="scene-leaderboard">🏆<small>Leaderboard</small></button>
     </nav>
   </div>
 
   <script>
-    const mainContent = document.getElementById('main-content');
     const navButtons = document.querySelectorAll('.nav-btn');
 
-    const pages = {
-      home: '<h2>🏠 Home</h2><p>This is your dashboard overview.</p>',
-      profile: '<h2>👤 Profile</h2><p>View and edit your profile info.</p>',
-      messages: '<h2>💬 Messages</h2><p>Your latest conversations.</p>',
-      battle: '<h2>⚔️ Battle</h2><p>Enter the arena and challenge others.</p>',
-      leaderboard: '<h2>🏆 Leaderboard</h2><p>Top players ranked globally.</p>',
-      wallet: '<h2>💰 Wallet</h2><p>Your earnings and transaction history.</p>',
-      settings: '<h2>⚙️ Settings</h2><p>Update your preferences.</p>',
-    };
-
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
+    navButtons.forEach(button => {
+      button.addEventListener('click', () => {
         document.querySelector('.nav-btn.active')?.classList.remove('active');
-        btn.classList.add('active');
+        button.classList.add('active');
 
-        const page = btn.dataset.page;
-        mainContent.innerHTML = pages[page] || '<p>Page not found.</p>';
+        const targetId = button.dataset.target;
+        const targetSection = document.getElementById(targetId);
+        targetSection.scrollIntoView({ behavior: 'smooth' });
       });
     });
   </script>
 </body>
-                                                                                             </html>
+            </html>
