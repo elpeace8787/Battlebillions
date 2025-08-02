@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battlebillions | Home</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+  <div class="page-content home-page">
+    <!-- Header -->
+    <header class="header">
+      <h1>Welcome, Commander</h1>
+      <p class="subtitle" id="dateTime"></p>
+    </header>
 
+    <!-- Quick Stats -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <h2>💰 Coins</h2>
+        <p>8,504</p>
+      </div>
+      <div class="stat-card">
+        <h2>⚔️ Battles</h2>
+        <p>27</p>
+      </div>
+      <div class="stat-card">
+        <h2>💬 Messages</h2>
+        <p>19</p>
+      </div>
+    </section>
+
+    <!-- Live Feed -->
+    <section class="live-feed">
+      <h2>Live Feed</h2>
+      <ul>
+        <li>🔥 Top Battle: Phoenix vs Hydra</li>
+        <li>⚡️ Blitz round starts in 2 minutes</li>
+        <li>🏆 Leaderboard updated</li>
+      </ul>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="actions">
+      <button class="action-btn" onclick="navigateTo('battle.html')">Join Battle</button>
+      <button class="action-btn" onclick="navigateTo('leaderboard.html')">Top Players</button>
+      <button class="action-btn" onclick="navigateTo('wallet.html')">View Wallet</button>
+    </section>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="navigateTo('home.html')">
+      <img src="assets/home-icon.png" alt="Home" />
+      <span>Home</span>
+    </div>
+    <div class="nav-item" onclick="navigateTo('battle.html')">
+      <img src="assets/battle 3d.png" alt="Battle" />
+      <span>Battle</span>
+    </div>
+    <div class="nav-item" onclick="navigateTo('leaderboard.html')">
+      <img src="assets/leaderboard 3d.png" alt="Leaderboard" />
+      <span>Rank</span>
+    </div>
+    <div class="nav-item" onclick="navigateTo('messages.html')">
+      <img src="assets/messages 3d.png" alt="Messages" />
+      <span>Chat</span>
+    </div>
+    <div class="nav-item" onclick="navigateTo('settings.html')">
+      <img src="assets/settings 3d .png" alt="Settings" />
+      <span>Settings</span>
+    </div>
+  </nav>
+
+  <script src="main.js"></script>
+</body>
+      </html>
