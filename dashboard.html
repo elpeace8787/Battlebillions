@@ -1,124 +1,100 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Periscope Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Futuristic Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
   <style>
-    :root {
-      --primary-bg: #0f0f0f;
-      --secondary-bg: #1a1a1a;
-      --accent: #00ffe1;
-      --text: #ffffff;
-      --muted: #888888;
-    }* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--primary-bg);
-  color: var(--text);
+  background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+  color: #ffffff;
   height: 100vh;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
 #app {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
+  overflow: hidden;
 }
 
-main#main-content {
-  flex-grow: 1;
+main {
+  flex: 1;
   overflow-y: auto;
-  padding: 16px;
-  background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  padding: 20px;
 }
 
 .page {
   display: none;
-  flex-direction: column;
-  gap: 20px;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .page.active {
-  display: flex;
+  display: block;
 }
 
-.dashboard-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  width: 100%;
-}
-
-.card {
-  background: var(--secondary-bg);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 0 12px rgba(0, 255, 225, 0.1);
-  transition: transform 0.3s ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  transform: translateY(-5px) scale(1.02);
-}
-
-.card h3 {
-  font-size: 1.4rem;
-  margin-bottom: 8px;
-  color: var(--accent);
-}
-
-.card p {
-  font-size: 0.95rem;
-  color: var(--muted);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bottom-nav {
   display: flex;
   justify-content: space-around;
-  padding: 12px 0;
-  background: var(--secondary-bg);
-  border-top: 1px solid #333;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 .nav-btn {
   background: none;
   border: none;
-  color: var(--muted);
-  font-size: 1rem;
+  color: #bbb;
+  font-size: 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer;
-  transition: color 0.3s;
+  transition: color 0.2s;
 }
 
-.nav-btn.active, .nav-btn:hover {
-  color: var(--accent);
+.nav-btn.active,
+.nav-btn:hover {
+  color: #00ffff;
 }
 
 .nav-btn small {
-  font-size: 0.7rem;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 @media (max-width: 600px) {
-  main#main-content {
-    padding: 12px;
-  }
-
-  .dashboard-panel {
-    grid-template-columns: 1fr;
+  main {
+    padding-bottom: 80px;
   }
 }
 
@@ -127,70 +103,35 @@ main#main-content {
 <body>
   <div id="app">
     <main id="main-content">
-      <div class="page active" id="page-home">
-        <div class="dashboard-panel">
-          <div class="card">
-            <h3>Realtime Feed</h3>
-            <p>Access the latest updates and live stream statistics.</p>
-          </div>
-          <div class="card">
-            <h3>Player Stats</h3>
-            <p>Track your performance across games with advanced metrics.</p>
-          </div>
-        </div>
-      </div><div class="page" id="page-profile">
-    <div class="dashboard-panel">
-      <div class="card">
-        <h3>User Profile</h3>
-        <p>View and edit your user information and preferences.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-messages">
-    <div class="dashboard-panel">
-      <div class="card">
-        <h3>Messages</h3>
-        <p>Chat with players and view recent conversations.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-battle">
-    <div class="dashboard-panel">
-      <div class="card">
-        <h3>Battle Arena</h3>
-        <p>Join matches or spectate games in progress.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-wallet">
-    <div class="dashboard-panel">
-      <div class="card">
-        <h3>Wallet</h3>
-        <p>View balance, transactions and connected accounts.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="page" id="page-settings">
-    <div class="dashboard-panel">
-      <div class="card">
-        <h3>Settings</h3>
-        <p>Configure app settings and notification preferences.</p>
-      </div>
-    </div>
-  </div>
-</main>
-
-<nav class="bottom-nav">
-  <button class="nav-btn active" data-page="page-home">🏠<small>Home</small></button>
-  <button class="nav-btn" data-page="page-profile">👤<small>Profile</small></button>
-  <button class="nav-btn" data-page="page-messages">💬<small>Messages</small></button>
-  <button class="nav-btn" data-page="page-battle">⚔️<small>Battle</small></button>
-  <button class="nav-btn" data-page="page-wallet">💰<small>Wallet</small></button>
-  <button class="nav-btn" data-page="page-settings">⚙️<small>Settings</small></button>
+      <section class="page active" id="page-home">
+        <div class="card">Welcome to the Future Home</div>
+      </section>
+      <section class="page" id="page-profile">
+        <div class="card">Profile Information</div>
+      </section>
+      <section class="page" id="page-messages">
+        <div class="card">Your Messages</div>
+      </section>
+      <section class="page" id="page-battle">
+        <div class="card">Battle Arena</div>
+      </section>
+      <section class="page" id="page-leaderboard">
+        <div class="card">Leaderboard Rankings</div>
+      </section>
+      <section class="page" id="page-wallet">
+        <div class="card">Wallet Overview</div>
+      </section>
+      <section class="page" id="page-settings">
+        <div class="card">System Settings</div>
+      </section>
+    </main><nav class="bottom-nav">
+  <button class="nav-btn active" data-page="home">🏠<small>Home</small></button>
+  <button class="nav-btn" data-page="profile">👤<small>Profile</small></button>
+  <button class="nav-btn" data-page="messages">💬<small>Messages</small></button>
+  <button class="nav-btn" data-page="battle">⚔️<small>Battle</small></button>
+  <button class="nav-btn" data-page="leaderboard">🏆<small>Leaderboard</small></button>
+  <button class="nav-btn" data-page="wallet">💰<small>Wallet</small></button>
+  <button class="nav-btn" data-page="settings">⚙️<small>Settings</small></button>
 </nav>
 
   </div>  <script>
@@ -199,12 +140,19 @@ main#main-content {
 
     navButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelector('.nav-btn.active')?.classList.remove('active');
-        btn.classList.add('active');
+        const targetId = 'page-' + btn.dataset.page;
 
-        const target = btn.getAttribute('data-page');
-        pages.forEach(p => p.classList.remove('active'));
-        document.getElementById(target).classList.add('active');
+        // Toggle page visibility
+        pages.forEach(page => {
+          page.classList.remove('active');
+          if (page.id === targetId) {
+            page.classList.add('active');
+          }
+        });
+
+        // Update nav active state
+        navButtons.forEach(nav => nav.classList.remove('active'));
+        btn.classList.add('active');
       });
     });
   </script></body>
