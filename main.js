@@ -1,36 +1,75 @@
-// main.js
-import { auth, provider, signInWithPopup, onAuthStateChanged, signOut } from './firebase.js';
+// /js/main.js
+import {
+  auth,
+  signInWithPopup,
+  googleProvider,
+  facebookProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from './firebase.js';
 
-// LOGIN BUTTON
-const googleBtn = document.getElementById("googleLoginBtn");
-if (googleBtn) {
-  googleBtn.addEventListener("click", async () => {
+// Email Login Handler
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = loginForm.email.value;
+    const password = loginForm.password.value;
+
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log("Logged in as:", user.displayName);
-      window.location.href = "home.html";  // or "dashboard.html"
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "dashboard.html";
     } catch (error) {
-      console.error("Login error:", error.message);
+      showError(error.message);
     }
   });
 }
 
-// LOGOUT HANDLER (for dashboard, settings, etc.)
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "login.html";
+// Signup Handler
+const signupForm = document.getElementById("signupForm");
+if (signupForm) {
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = signupForm.email.value;
+    const password = signupForm.password.value;
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      showError(error.message);
+    }
   });
 }
 
-// REDIRECT BLOCKED PAGES IF NOT LOGGED IN
-const protectedPages = ["home.html", "dashboard.html", "battle.html"];
+// Social Login
+document.querySelectorAll(".social-btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const provider = btn.dataset.provider === "google" ? googleProvider : facebookProvider;
+    try {
+      await signInWithPopup(auth, provider);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      showError(err.message);
+    }
+  });
+});
+
+// Auto-Redirect Protection
+const protectedPages = ["dashboard.html"];
 if (protectedPages.includes(window.location.pathname.split("/").pop())) {
   onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-    }
+    if (!user) window.location.href = "login.html";
   });
 }
+
+// Helpers
+function showError(message) {
+  const errBox = document.getElementById("errorMessage");
+  if (errBox) {
+    errBox.innerText = message;
+    errBox.style.display = 'block';
+  }
+        }
