@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions - Dual Reels</title>
+  <title>Battlebillions - Triangle Battle</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -19,9 +19,9 @@
       top: 14px;
       left: 14px;
       z-index: 999;
+      border-radius: 50%;
       width: 48px;
       height: 48px;
-      border-radius: 50%;
       border: 2px solid white;
       object-fit: cover;
       cursor: pointer;
@@ -61,41 +61,40 @@
     .reel {
       height: 100vh;
       scroll-snap-align: start;
+      position: relative;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding-top: 60px;
     }
 
-    .video-row {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      height: 60vh;
-      padding: 0 12px;
-      box-sizing: border-box;
-    }
-
-    .video-box {
-      flex: 1;
-      margin: 0 6px;
+    .triangle-box {
       position: relative;
-      border: 2px solid #fff;
-      border-radius: 10px;
+      width: 90vw;
+      height: 85vh;
       overflow: hidden;
+      border: 2px solid white;
+      border-radius: 16px;
     }
 
-    .video-box video {
+    .triangle-video {
+      position: absolute;
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
+    .top-video {
+      clip-path: polygon(0 0, 100% 0, 0% 100%);
+    }
+
+    .bottom-video {
+      clip-path: polygon(100% 100%, 100% 0, 0% 100%);
+    }
+
     .vote-buttons {
       display: flex;
-      gap: 40px;
       justify-content: center;
+      gap: 30px;
       margin-top: 16px;
     }
 
@@ -115,7 +114,6 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      align-items: center;
       padding: 0 14px;
       box-sizing: border-box;
     }
@@ -133,9 +131,8 @@
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #111;
+      width: 100%;
+      background: #000;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
@@ -152,7 +149,6 @@
     }
   </style>
 </head>
-
 <body>
   <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
 
@@ -164,33 +160,25 @@
   <div class="reel-container" id="reelContainer">
     <!-- Reel 1 -->
     <div class="reel">
-      <div class="video-row">
-        <div class="video-box">
-          <video src="videos/sample1.mp4" autoplay loop muted></video>
-        </div>
-        <div class="video-box">
-          <video src="videos/sample2.mp4" autoplay loop muted></video>
-        </div>
+      <div class="triangle-box">
+        <video src="videos/sample1.mp4" class="triangle-video top-video" autoplay loop muted></video>
+        <video src="videos/sample2.mp4" class="triangle-video bottom-video" autoplay loop muted></video>
       </div>
       <div class="vote-buttons">
-        <button onclick="vote('left')">🔥 Vote Left</button>
-        <button onclick="vote('right')">🔥 Vote Right</button>
+        <button onclick="vote('top')">🔥 Vote Top</button>
+        <button onclick="vote('bottom')">🔥 Vote Bottom</button>
       </div>
     </div>
 
     <!-- Reel 2 -->
     <div class="reel">
-      <div class="video-row">
-        <div class="video-box">
-          <video src="videos/sample3.mp4" autoplay loop muted></video>
-        </div>
-        <div class="video-box">
-          <video src="videos/sample4.mp4" autoplay loop muted></video>
-        </div>
+      <div class="triangle-box">
+        <video src="videos/sample3.mp4" class="triangle-video top-video" autoplay loop muted></video>
+        <video src="videos/sample4.mp4" class="triangle-video bottom-video" autoplay loop muted></video>
       </div>
       <div class="vote-buttons">
-        <button onclick="vote('left')">🔥 Vote Left</button>
-        <button onclick="vote('right')">🔥 Vote Right</button>
+        <button onclick="vote('top')">🔥 Vote Top</button>
+        <button onclick="vote('bottom')">🔥 Vote Bottom</button>
       </div>
     </div>
   </div>
@@ -199,7 +187,6 @@
     <input type="text" class="chat-input" placeholder="💬 Type your message..." />
   </div>
 
-  <!-- Bottom Emoji Nav Bar -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
@@ -215,7 +202,6 @@
 
     let round = 1;
     let timeLeft = 30;
-
     const countdownEl = document.getElementById('countdown');
     const roundEl = document.getElementById('roundNumber');
     const reelContainer = document.getElementById('reelContainer');
@@ -223,12 +209,10 @@
     setInterval(() => {
       timeLeft--;
       countdownEl.textContent = timeLeft;
-
       if (timeLeft === 0) {
         round++;
         timeLeft = 30;
         roundEl.textContent = round;
-
         if (reelContainer.scrollTop + window.innerHeight < reelContainer.scrollHeight) {
           reelContainer.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
         }
@@ -236,8 +220,8 @@
     }, 1000);
 
     function vote(side) {
-      alert(`You voted for the ${side} player!`);
+      alert(`You voted for the ${side} competitor!`);
     }
   </script>
 </body>
-</html>
+          </html>
