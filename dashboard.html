@@ -14,32 +14,32 @@
       overflow-x: hidden;
     }
 
-    .profile-btn {
+    .trophy-icon {
       position: fixed;
       top: 14px;
       left: 14px;
-      width: 44px;
-      height: 44px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 2px solid white;
-      z-index: 999;
+      font-size: 26px;
+      z-index: 1000;
       cursor: pointer;
     }
 
-    .logo-floating {
+    .profile-btn {
       position: fixed;
       top: 12px;
       right: 14px;
       width: 44px;
       height: 44px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid white;
+      z-index: 1000;
+      cursor: pointer;
       animation: float 3s ease-in-out infinite;
-      z-index: 999;
     }
 
     @keyframes float {
       0% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
+      50% { transform: translateY(-6px); }
       100% { transform: translateY(0px); }
     }
 
@@ -123,16 +123,17 @@
   </style>
 </head>
 <body>
-  <!-- Profile & Logo -->
-  <img src="Logopit_1697753255912.png" class="logo-floating" alt="BattleBillions Logo" />
+  <!-- Trophy Icon (Left Top) -->
+  <div class="trophy-icon" onclick="goTo('leaderboard.html')">🏆</div>
+
+  <!-- Profile Image (Floating Right) -->
   <img src="profile.jpg" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
 
-  <!-- Dashboard Title -->
+  <!-- Title -->
   <div class="dashboard-title">🔥 Battles You Follow</div>
 
-  <!-- Scrollable Feed -->
+  <!-- Scrollable Battle Feed -->
   <div class="battle-feed">
-    <!-- Battle Card -->
     <div class="battle-card">
       <div class="competitor-info">
         <span>@TopDancer</span>
@@ -164,10 +165,10 @@
         <button onclick="vote('dripking')">🔥 Vote DripKing</button>
       </div>
     </div>
-    <!-- Add more battles dynamically as needed -->
+    <!-- More battle cards will be loaded dynamically -->
   </div>
 
-  <!-- Bottom Nav -->
+  <!-- Bottom Nav Bar -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
@@ -186,4 +187,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
