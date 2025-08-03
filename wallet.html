@@ -19,6 +19,7 @@
 
     .wallet-container {
       padding: 25px;
+      padding-bottom: 100px; /* ✅ Prevents bottom nav overlap */
       flex: 1;
       text-align: center;
     }
@@ -96,10 +97,11 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    /* Bottom icon nav */
+    /* ✅ Bottom icon nav */
     .bottom-nav {
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
       background: #1f1f1f;
       display: flex;
@@ -107,12 +109,14 @@
       align-items: center;
       padding: 12px 0;
       border-top: 1px solid #333;
+      z-index: 100;
     }
 
     .nav-icon {
       text-align: center;
       color: #fff;
       font-size: 12px;
+      cursor: pointer;
     }
 
     .nav-icon img {
@@ -120,7 +124,10 @@
       height: 24px;
       display: block;
       margin: 0 auto 4px;
-      filter: brightness(0) invert(1);
+    }
+
+    .nav-icon:hover {
+      color: #ff9900;
     }
   </style>
 </head>
@@ -158,26 +165,27 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation -->
+  <!-- ✅ Bottom Navigation Bar -->
   <div class="bottom-nav">
-    <div class="nav-icon">
+    <div class="nav-icon" onclick="navigateTo('home')">
       <img src="icons/home.png" alt="Home">
       <span>Home</span>
     </div>
-    <div class="nav-icon">
+    <div class="nav-icon" onclick="navigateTo('wallet')">
       <img src="icons/wallet.png" alt="Wallet">
       <span>Wallet</span>
     </div>
-    <div class="nav-icon">
+    <div class="nav-icon" onclick="navigateTo('messages')">
       <img src="icons/message.png" alt="Messages">
       <span>Messages</span>
     </div>
-    <div class="nav-icon">
+    <div class="nav-icon" onclick="navigateTo('profile')">
       <img src="icons/profile.png" alt="Profile">
       <span>Profile</span>
     </div>
   </div>
 
+  <!-- ✅ Navigation Logic -->
   <script>
     function sendMoney() {
       alert("Send Money coming soon.");
@@ -185,6 +193,10 @@
 
     function addMoney() {
       alert("Add Money coming soon.");
+    }
+
+    function navigateTo(page) {
+      window.location.href = page + ".html";
     }
   </script>
 
