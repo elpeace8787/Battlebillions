@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Battlebillions Portal</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page-transition" id="pageTransition"></div>
+  
+  <!-- Background -->
+  <div class="background"></div>
+  <div class="floating-elements">
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+  </div>
 
+  <div class="main-container">
+    <div class="login-wrapper">
+      
+      <!-- Brand Side -->
+      <div class="brand-section">
+        <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="brand-logo" draggable="false" />
+        <h1 class="brand-title">BATTLEBILLIONS</h1>
+        <p class="brand-subtitle">
+          Create your legacy. Rise through the ranks. Join the battle now.
+        </p>
+        <ul class="features-list">
+          <li><span class="icon">👤</span> Create a unique warrior profile</li>
+          <li><span class="icon">🎯</span> Get matched instantly</li>
+          <li><span class="icon">🔥</span> Win battles & climb leaderboards</li>
+        </ul>
+      </div>
+
+      <!-- Portal Buttons (Replaces Form) -->
+      <div class="login-container">
+        <div class="login-header">
+          <h2 class="login-title">Enter the Flame</h2>
+          <p class="login-subtitle">Choose your path to join the Battle.</p>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn primary-btn" onclick="goTo('login.html')">Login</button>
+          <button class="btn secondary-btn" onclick="goTo('signup.html')">Sign Up</button>
+        </div>
+
+        <div class="divider"><span>Or connect with</span></div>
+
+        <div class="social-grid">
+          <button class="social-btn google" data-provider="google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" /> Google
+          </button>
+          <button class="social-btn facebook" data-provider="facebook">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" /> Facebook
+          </button>
+          <button class="social-btn instagram" data-provider="instagram">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" /> Instagram
+          </button>
+          <button class="social-btn tiktok" data-provider="tiktok">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" /> TikTok
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goTo(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+  </html>
