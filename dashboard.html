@@ -3,103 +3,162 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions Dashboard</title>
-  <link rel="stylesheet" href="shared.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>Battlebillions Feed</title>
+  <link rel="stylesheet" href="shared.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* Top-left floating brand */
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #111;
+      color: white;
+      overflow-x: hidden;
+    }
+
     .floating-brand {
-      position: absolute;
-      top: 12px;
+      position: fixed;
+      top: 10px;
       left: 16px;
       font-family: 'Orbitron', sans-serif;
       font-size: 14px;
       font-weight: 700;
       letter-spacing: 1px;
-      color: white;
-      z-index: 10;
-      opacity: 0.75;
-      text-shadow: 1px 1px 2px black;
+      z-index: 1000;
+      opacity: 0.85;
+      color: #fff;
     }
 
-    /* Profile style avatar tweak */
-    .profile-style {
-      width: 100px;
-      height: 100px;
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px 6px;
+      background-color: #111;
+      border-bottom: 1px solid #333;
+      margin-top: 30px;
+    }
+
+    .topbar img {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 12px;
-      border: 2px solid #fff;
+      margin-right: 10px;
     }
 
-    .message-btn {
-      margin-bottom: 20px;
+    .topbar h2 {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .feed-container {
+      padding: 10px 0 60px;
+    }
+
+    .post {
+      background-color: #1b1b1b;
+      margin: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .post-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .post-header h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .post-img {
       width: 100%;
-      font-size: 15px;
+      height: auto;
+      display: block;
+    }
+
+    .post-caption {
+      padding: 10px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #181818;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid #333;
+      padding: 8px 0;
+      z-index: 999;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+    }
+
+    .bottom-nav button:active {
+      color: #0ff;
     }
   </style>
 </head>
 <body>
-  <div class="page-transition" id="pageTransition"></div>
-
-  <!-- Floating Title -->
   <div class="floating-brand">BATTLEBILLIONS</div>
 
-  <!-- Background -->
-  <div class="background"></div>
-  <div class="floating-elements">
-    <div class="float-item"></div>
-    <div class="float-item"></div>
-    <div class="float-item"></div>
-    <div class="float-item"></div>
-    <div class="float-item"></div>
+  <div class="topbar">
+    <img src="Logopit_1697753255912.png" alt="Avatar" />
+    <h2>Welcome, Warrior</h2>
   </div>
 
-  <div class="main-container">
-    <div class="login-wrapper">
-      
-      <!-- Profile Side -->
-      <div class="brand-section">
-        <img src="Logopit_1697753255912.png" alt="Profile" class="brand-logo profile-style" draggable="false" />
-        <button class="btn secondary-btn message-btn" onclick="goTo('messages.html')">💬 Messages</button>
-        <h1 class="brand-title">Welcome, Warrior</h1>
-        <p class="brand-subtitle">
-          Your journey continues. Choose your next path.
-        </p>
-        <ul class="features-list">
-          <li><span class="icon">⚔️</span> Enter battles & earn rank</li>
-          <li><span class="icon">🏆</span> View leaderboards</li>
-          <li><span class="icon">💰</span> Manage your wallet & rewards</li>
-        </ul>
+  <div class="feed-container">
+    <!-- Feed Post 1 -->
+    <div class="post">
+      <div class="post-header">
+        <img src="Logopit_1697753255912.png" alt="User" />
+        <h3>@battler1</h3>
       </div>
-
-      <!-- Dashboard Buttons -->
-      <div class="login-container">
-        <div class="login-header">
-          <h2 class="login-title">Dashboard</h2>
-          <p class="login-subtitle">Tap a portal to proceed.</p>
-        </div>
-
-        <div class="btn-group">
-          <button class="btn primary-btn" onclick="goTo('battle.html')">⚔️ Battle</button>
-          <button class="btn primary-btn" onclick="goTo('leaderboard.html')">🏆 Leaderboard</button>
-          <button class="btn primary-btn" onclick="goTo('wallet.html')">💰 Wallet</button>
-          <button class="btn primary-btn" onclick="goTo('shop.html')">🛒 Shop</button>
-          <button class="btn primary-btn" onclick="goTo('settings.html')">⚙️ Settings</button>
-          <button class="btn secondary-btn" onclick="goTo('index.html')">🚪 Logout</button>
-        </div>
-      </div>
+      <img class="post-img" src="https://placekitten.com/400/250" alt="Battle Moment" />
+      <div class="post-caption">🔥 Won the last 3 rounds in a row. Who's next?</div>
     </div>
+
+    <!-- Feed Post 2 -->
+    <div class="post">
+      <div class="post-header">
+        <img src="Logopit_1697753255912.png" alt="User" />
+        <h3>@flamechamp</h3>
+      </div>
+      <img class="post-img" src="https://placehold.co/400x250/222/fff?text=Leaderboard+Win" alt="Victory" />
+      <div class="post-caption">Top 10 status locked. Leaderboard domination begins!</div>
+    </div>
+
+    <!-- More posts here -->
+  </div>
+
+  <div class="bottom-nav">
+    <button onclick="goTo('feed.html')">🏠</button>
+    <button onclick="goTo('battle.html')">⚔️</button>
+    <button onclick="goTo('messages.html')">💬</button>
+    <button onclick="goTo('profile.html')">👤</button>
   </div>
 
   <script>
     function goTo(page) {
-      document.body.classList.add("fade-out");
-      setTimeout(() => {
-        window.location.href = page;
-      }, 600);
+      window.location.href = page;
     }
   </script>
 </body>
