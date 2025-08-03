@@ -4,27 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Wallet</title>
-  <link rel="stylesheet" href="shared.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       background: #121212;
       color: #fff;
       font-family: 'Orbitron', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     .wallet-container {
-      background: #1f1f1f;
-      padding: 30px;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      padding: 25px;
+      flex: 1;
       text-align: center;
-      width: 320px;
     }
 
     .wallet-profile {
@@ -46,13 +42,14 @@
     .wallet-balance {
       font-size: 24px;
       font-weight: bold;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
     .wallet-actions {
       display: flex;
       gap: 12px;
       justify-content: center;
+      margin-bottom: 25px;
     }
 
     .wallet-btn {
@@ -75,7 +72,55 @@
     .wallet-label {
       font-size: 16px;
       color: #aaa;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .transfer-section {
+      margin-top: 20px;
+    }
+
+    .transfer-list {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .transfer-pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #ff9900;
+      object-fit: cover;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* Bottom icon nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #1f1f1f;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid #333;
+    }
+
+    .nav-icon {
+      text-align: center;
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .nav-icon img {
+      width: 24px;
+      height: 24px;
+      display: block;
+      margin: 0 auto 4px;
+      filter: brightness(0) invert(1);
     }
   </style>
 </head>
@@ -89,20 +134,57 @@
     <div class="wallet-label">Available Balance</div>
     <div class="wallet-balance">$3,330.00</div>
 
-    <!-- Action Buttons -->
+    <!-- Buttons -->
     <div class="wallet-actions">
       <button class="wallet-btn" onclick="sendMoney()">Send</button>
       <button class="wallet-btn" onclick="addMoney()">Add</button>
+    </div>
+
+    <!-- Transfer History -->
+    <div class="transfer-section">
+      <div class="wallet-label">People You Sent Money To</div>
+      <div class="transfer-list">
+        <img src="avatars/sent1.png" class="transfer-pic" alt="Sent to 1">
+        <img src="avatars/sent2.png" class="transfer-pic" alt="Sent to 2">
+        <img src="avatars/sent3.png" class="transfer-pic" alt="Sent to 3">
+      </div>
+
+      <div class="wallet-label" style="margin-top: 20px;">People Who Sent You Money</div>
+      <div class="transfer-list">
+        <img src="avatars/received1.png" class="transfer-pic" alt="Received from 1">
+        <img src="avatars/received2.png" class="transfer-pic" alt="Received from 2">
+        <img src="avatars/received3.png" class="transfer-pic" alt="Received from 3">
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-icon">
+      <img src="icons/home.png" alt="Home">
+      <span>Home</span>
+    </div>
+    <div class="nav-icon">
+      <img src="icons/wallet.png" alt="Wallet">
+      <span>Wallet</span>
+    </div>
+    <div class="nav-icon">
+      <img src="icons/message.png" alt="Messages">
+      <span>Messages</span>
+    </div>
+    <div class="nav-icon">
+      <img src="icons/profile.png" alt="Profile">
+      <span>Profile</span>
     </div>
   </div>
 
   <script>
     function sendMoney() {
-      alert("Send Money functionality coming soon!");
+      alert("Send Money coming soon.");
     }
 
     function addMoney() {
-      alert("Add Money functionality coming soon!");
+      alert("Add Money coming soon.");
     }
   </script>
 
