@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Login</title>
-  <link rel="stylesheet" href="css/shared.css">
+  <link rel="stylesheet" href="shared.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="page-transition" id="pageTransition"></div>
-
+  
   <!-- Background -->
   <div class="background"></div>
   <div class="floating-elements">
@@ -24,26 +24,26 @@
 
   <div class="main-container">
     <div class="login-wrapper">
-
-      <!-- Brand Section -->
+      
+      <!-- Brand Side -->
       <div class="brand-section">
         <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="brand-logo" draggable="false" />
         <h1 class="brand-title">BATTLEBILLIONS</h1>
         <p class="brand-subtitle">
-          Return to your throne. Enter the arena. Rule with skill and soul.
+          Create your legacy. Rise through the ranks. Join the battle now.
         </p>
         <ul class="features-list">
-          <li><span class="icon">🛡️</span> Secured entry to leaderboard battles</li>
-          <li><span class="icon">👁️</span> Verified user access only</li>
-          <li><span class="icon">🌐</span> Global match sync in seconds</li>
+          <li><span class="icon">👤</span> Create a unique warrior profile</li>
+          <li><span class="icon">🎯</span> Get matched instantly</li>
+          <li><span class="icon">🔥</span> Win battles & climb leaderboards</li>
         </ul>
       </div>
 
-      <!-- Login Form -->
+      <!-- Login Form Side -->
       <div class="login-container">
         <div class="login-header">
           <h2 class="login-title">Welcome Back</h2>
-          <p class="login-subtitle">Ready to conquer again? Log in to continue.</p>
+          <p class="login-subtitle">Enter the arena once more.</p>
         </div>
 
         <!-- Messages -->
@@ -52,25 +52,22 @@
 
         <form id="loginForm">
           <div class="form-group">
-            <input type="email" name="email" class="form-input" placeholder="Enter your email" required />
+            <input type="email" name="email" class="form-input" placeholder="Email" required />
             <div class="form-icon">📧</div>
           </div>
           <div class="form-group">
-            <input type="password" name="password" class="form-input" placeholder="Enter your password" required />
+            <input type="password" name="password" class="form-input" placeholder="Password" required />
             <div class="form-icon">🔒</div>
-            <div class="password-strength">
-              <div id="passwordStrengthBar" class="password-strength-bar"></div>
-            </div>
           </div>
 
           <div class="remember-group">
-            <input type="checkbox" class="custom-checkbox" id="rememberMe" />
-            <label for="rememberMe">Remember me for 30 days</label>
+            <input type="checkbox" class="custom-checkbox" />
+            <label>Remember Me</label>
           </div>
 
           <div class="btn-group">
-            <button type="submit" class="btn primary-btn">Enter Arena</button>
-            <a href="signup.html"><button type="button" class="btn secondary-btn">Join Battle</button></a>
+            <button type="submit" class="btn primary-btn">Login</button>
+            <a href="signup.html"><button type="button" class="btn secondary-btn">Create Account</button></a>
           </div>
         </form>
 
@@ -90,15 +87,20 @@
             <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" /> TikTok
           </button>
         </div>
-
-        <div class="footer-links">
-          <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
-          <a href="#" onclick="showSupport()">Need Help?</a>
-        </div>
       </div>
     </div>
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    loginForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      // TODO: Firebase login logic here
+      document.body.classList.add("fade-out");
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 600);
+    });
+  </script>
 </body>
-              </html>
+</html>
