@@ -1,150 +1,29 @@
-/* Login & Sign-Up Page Styles */
-
 body {
-  background: #121212;
+  font-family: sans-serif;
+  background: #0f0f0f;
   color: #fff;
-  font-family: 'Orbitron', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-
-.container {
-  background: #1f1f1f;
-  padding: 30px 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   text-align: center;
-  width: 320px;
-  animation: fadeIn 0.6s ease forwards;
 }
 
-/* Logo */
+.login-container {
+  margin-top: 15vh;
+}
+
 .logo {
-  width: 280px;
-  height: auto;
-  margin-bottom: 4px; /* Brings logo closer to email input */
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: -10px; /* Slightly pushes logo down */
-}
-
-/* Inputs */
-input {
-  width: 100%;
-  padding: 12px 14px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 6px;
-  background: #2a2a2a;
-  color: #fff;
-  font-size: 14px;
-}
-
-input:focus {
-  outline: none;
-  background: #333;
-  border: 1px solid #ff9900;
-}
-
-/* Button Group */
-.btn-group {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
+  width: 120px;
+  margin-bottom: 20px;
 }
 
 button {
-  flex: 1;
-  padding: 12px;
+  background: #ff3c3c;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
+  padding: 12px 24px;
+  font-size: 16px;
+  color: #fff;
+  border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-button:hover {
-  transform: scale(1.05);
-}
-
-/* Primary Buttons */
-.login-btn {
-  background: #ff9900;
-  color: #121212;
-}
-
-.signup-btn {
-  background: #333;
-  color: #fff;
-}
-
-/* Remove white line */
-hr {
-  display: none;
-}
-
-/* Social Buttons */
-.social-btn {
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.social-btn img {
-  width: 18px;
-  height: 18px;
-}
-
-.social-btn:hover {
-  transform: scale(1.04);
-}
-
-.google {
-  background: #db4437;
-  color: #fff;
-}
-
-.facebook {
-  background: #3b5998;
-  color: #fff;
-}
-
-.instagram {
-  background: #e4405f;
-  color: #fff;
-}
-
-.tiktok {
-  background: #000;
-  color: #fff;
-}
-
-/* Fade animation */
-.fade-out {
-  animation: fadeOut 0.6s ease forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+.alt-option {
+  margin-top: 20px;
 }
