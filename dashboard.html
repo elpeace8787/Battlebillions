@@ -3,106 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions Feed</title>
+  <title>Battlebillions Dashboard</title>
   <link rel="stylesheet" href="shared.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
-      background: #111;
-      color: white;
+      background-color: #000;
       overflow-x: hidden;
+      color: white;
     }
 
-    .floating-brand {
+    /* Floating Profile Button */
+    .profile-btn {
       position: fixed;
-      top: 10px;
-      left: 16px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      z-index: 1000;
-      opacity: 0.85;
-      color: #fff;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      padding: 12px 16px 6px;
-      background-color: #111;
-      border-bottom: 1px solid #333;
-      margin-top: 30px;
-    }
-
-    .topbar img {
-      width: 36px;
-      height: 36px;
+      top: 14px;
+      left: 14px;
+      z-index: 999;
       border-radius: 50%;
-      margin-right: 10px;
+      width: 48px;
+      height: 48px;
+      border: 2px solid white;
+      object-fit: cover;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
     }
 
-    .topbar h2 {
-      font-size: 16px;
-      margin: 0;
+    /* Reel Container */
+    .reel-container {
+      height: 100vh;
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
     }
 
-    .feed-container {
-      padding: 10px 0 60px;
+    .reel {
+      position: relative;
+      height: 100vh;
+      scroll-snap-align: start;
     }
 
-    .post {
-      background-color: #1b1b1b;
-      margin: 10px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
-
-    .post-header {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-    }
-
-    .post-header img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-
-    .post-header h3 {
-      margin: 0;
-      font-size: 14px;
-    }
-
-    .post-img {
+    .reel video {
       width: 100%;
-      height: auto;
-      display: block;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .post-caption {
-      padding: 10px;
+    /* Overlay Text + Icons */
+    .overlay {
+      position: absolute;
+      bottom: 100px;
+      left: 16px;
+      right: 16px;
+      color: white;
+      z-index: 10;
+    }
+
+    .overlay h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .overlay p {
+      margin-top: 6px;
       font-size: 14px;
-      color: #ccc;
+      opacity: 0.8;
     }
 
+    .actions {
+      position: absolute;
+      right: 16px;
+      bottom: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      z-index: 10;
+    }
+
+    .actions button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    /* Bottom Nav */
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 0;
       width: 100%;
-      background-color: #181818;
+      background: rgba(0,0,0,0.85);
       display: flex;
       justify-content: space-around;
-      align-items: center;
-      border-top: 1px solid #333;
-      padding: 8px 0;
+      padding: 10px 0;
       z-index: 999;
+      border-top: 1px solid #222;
     }
 
     .bottom-nav button {
@@ -110,50 +109,67 @@
       border: none;
       color: white;
       font-size: 20px;
-    }
-
-    .bottom-nav button:active {
-      color: #0ff;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="floating-brand">BATTLEBILLIONS</div>
 
-  <div class="topbar">
-    <img src="Logopit_1697753255912.png" alt="Avatar" />
-    <h2>Welcome, Warrior</h2>
-  </div>
+  <!-- Profile Button -->
+  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
 
-  <div class="feed-container">
-    <!-- Feed Post 1 -->
-    <div class="post">
-      <div class="post-header">
-        <img src="Logopit_1697753255912.png" alt="User" />
-        <h3>@battler1</h3>
+  <!-- Reel Feed -->
+  <div class="reel-container">
+    <!-- Reel 1 -->
+    <div class="reel">
+      <video src="videos/sample1.mp4" autoplay loop muted></video>
+      <div class="overlay">
+        <h3>@warrior_001</h3>
+        <p>Climbing to #1 in Battlebillions 🧨🔥</p>
       </div>
-      <img class="post-img" src="https://placekitten.com/400/250" alt="Battle Moment" />
-      <div class="post-caption">🔥 Won the last 3 rounds in a row. Who's next?</div>
+      <div class="actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
     </div>
 
-    <!-- Feed Post 2 -->
-    <div class="post">
-      <div class="post-header">
-        <img src="Logopit_1697753255912.png" alt="User" />
-        <h3>@flamechamp</h3>
+    <!-- Reel 2 -->
+    <div class="reel">
+      <video src="videos/sample2.mp4" autoplay loop muted></video>
+      <div class="overlay">
+        <h3>@flamequeen</h3>
+        <p>Unlocked hidden treasure 💎 in battle!</p>
       </div>
-      <img class="post-img" src="https://placehold.co/400x250/222/fff?text=Leaderboard+Win" alt="Victory" />
-      <div class="post-caption">Top 10 status locked. Leaderboard domination begins!</div>
+      <div class="actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
     </div>
 
-    <!-- More posts here -->
+    <!-- Reel 3 -->
+    <div class="reel">
+      <video src="videos/sample3.mp4" autoplay loop muted></video>
+      <div class="overlay">
+        <h3>@battlebeast</h3>
+        <p>Double knockout round 🔥👑</p>
+      </div>
+      <div class="actions">
+        <button>❤️</button>
+        <button>💬</button>
+        <button>🔗</button>
+      </div>
+    </div>
   </div>
 
+  <!-- Bottom Nav Bar -->
   <div class="bottom-nav">
-    <button onclick="goTo('feed.html')">🏠</button>
+    <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
     <button onclick="goTo('messages.html')">💬</button>
-    <button onclick="goTo('profile.html')">👤</button>
+    <button onclick="goTo('wallet.html')">💰</button>
+    <button onclick="goTo('settings.html')">⚙️</button>
   </div>
 
   <script>
@@ -161,5 +177,6 @@
       window.location.href = page;
     }
   </script>
+
 </body>
 </html>
