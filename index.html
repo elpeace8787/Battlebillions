@@ -1,28 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions – Enter</title>
+  <title>Battlebillions – Enter the Arena</title>
   <link rel="stylesheet" href="css/shared.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="page-transition" id="pageTransition"></div>
+
+  <!-- Background & Effects -->
+  <div class="background"></div>
+  <div class="floating-elements">
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+  </div>
+
   <div class="main-container">
     <div class="login-wrapper">
+
+      <!-- Brand Section -->
       <div class="brand-section">
-        <img src="assets/logo.png" class="brand-logo"/>
+        <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="brand-logo" draggable="false" />
         <h1 class="brand-title">BATTLEBILLIONS</h1>
-        <p class="brand-subtitle">Clash. Rank. Rise.</p>
+        <p class="brand-subtitle">
+          The ultimate arena for global competition.  
+          Rise, clash, and claim your name in the fire.
+        </p>
+
+        <ul class="features-list">
+          <li><span class="icon">⚔️</span> Real-time face-offs</li>
+          <li><span class="icon">🏆</span> Global rankings and leagues</li>
+          <li><span class="icon">🔥</span> Instant audience voting & tipping</li>
+        </ul>
       </div>
 
+      <!-- Entry Options -->
       <div class="login-container">
-        <h2 class="login-title">Join the Battle</h2>
+        <div class="login-header">
+          <h2 class="login-title">Enter the Arena</h2>
+          <p class="login-subtitle">Choose your path and begin your journey.</p>
+        </div>
+
         <div class="btn-group">
           <a href="login.html"><button class="btn primary-btn">Login</button></a>
           <a href="signup.html"><button class="btn secondary-btn">Sign Up</button></a>
         </div>
+
+        <div class="divider"><span>Or join with</span></div>
+
+        <div class="social-grid">
+          <button class="social-btn google" data-provider="google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" /> Google
+          </button>
+          <button class="social-btn facebook" data-provider="facebook">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" /> Facebook
+          </button>
+          <button class="social-btn instagram" data-provider="instagram">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" /> Instagram
+          </button>
+          <button class="social-btn tiktok" data-provider="tiktok">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" /> TikTok
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
