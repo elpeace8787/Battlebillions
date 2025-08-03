@@ -1,219 +1,136 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions - Dual Reels</title>
-  <link rel="stylesheet" href="shared.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Battlebillions Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: 'Inter', sans-serif;
-      background-color: #000;
-      color: white;
-      overflow: hidden;
-    }.profile-btn {
-  position: fixed;
-  top: 14px;
-  left: 14px;
-  z-index: 999;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid white;
-  cursor: pointer;
-}
+      font-family: 'Orbitron', sans-serif;
+      background: #121212;
+      color: #fff;
+    }
 
-.reel-container {
-  position: fixed;
-  top: 60px;
-  bottom: 120px;
-  left: 0;
-  right: 0;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-}
+    .section {
+      display: none;
+      padding: 20px;
+    }
 
-.reel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  scroll-snap-align: start;
-  position: relative;
-  padding-top: 60px;
-}
+    .section.active {
+      display: block;
+    }
 
-.video-row {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  height: 60vh;
-  padding: 0 12px;
-  box-sizing: border-box;
-}
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #111;
+      border-top: 2px solid #333;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 12px 0;
+      z-index: 999;
+    }
 
-.video-box {
-  flex: 1;
-  margin: 0 6px;
-  position: relative;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  overflow: hidden;
-}
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: #fff;
+      cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+    }
 
-.video-box video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .bottom-nav button.active {
+      color: #ff9900;
+    }
 
-.vote-buttons {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
-  gap: 40px;
-}
+    .bottom-nav button:hover {
+      transform: scale(1.15);
+    }
 
-.vote-buttons button {
-  background: #111;
-  border: 1px solid white;
-  border-radius: 20px;
-  color: white;
-  font-size: 18px;
-  padding: 8px 20px;
-  cursor: pointer;
-}
+    .wallet-profile,
+    .transfer-pic {
+      animation: float 3s ease-in-out infinite;
+    }
 
-.timer-round {
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 1000;
-  font-family: 'Orbitron', sans-serif;
-}
-
-.timer-round .round {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.timer-round .timer {
-  font-size: 16px;
-}
-
-.chat-container {
-  position: fixed;
-  bottom: 70px;
-  width: 100%;
-  padding: 0 14px;
-  box-sizing: border-box;
-}
-
-.chat-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 20px;
-  border: none;
-  font-size: 14px;
-  background: #111;
-  color: white;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  z-index: 999;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-}
-
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+      100% { transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />  <div class="timer-round">
-    <div class="round">Round <span id="roundNumber">1</span></div>
-    <div class="timer">⏱️ <span id="countdown">30</span> sec</div>
-  </div>  <div class="reel-container" id="reelContainer">
-    <!-- Reel 1 -->
-    <div class="reel">
-      <div class="video-row">
-        <div class="video-box">
-          <video src="videos/sample1.mp4" autoplay loop muted></video>
-        </div>
-        <div class="video-box">
-          <video src="videos/sample2.mp4" autoplay loop muted></video>
-        </div>
-      </div>
-      <div class="vote-buttons">
-        <button onclick="vote('left')">🔥 Vote Left</button>
-        <button onclick="vote('right')">🔥 Vote Right</button>
-      </div>
-    </div><!-- Reel 2 -->
-<div class="reel">
-  <div class="video-row">
-    <div class="video-box">
-      <video src="videos/sample3.mp4" autoplay loop muted></video>
-    </div>
-    <div class="video-box">
-      <video src="videos/sample4.mp4" autoplay loop muted></video>
-    </div>
+
+  <!-- Dashboard Section -->
+  <div id="dashboard" class="section active">
+    <h1>Welcome to Battlebillions</h1>
+    <p>Main dashboard content goes here.</p>
   </div>
-  <div class="vote-buttons">
-    <button onclick="vote('left')">🔥 Vote Left</button>
-    <button onclick="vote('right')">🔥 Vote Right</button>
+
+  <!-- Battle Section -->
+  <div id="battle" class="section">
+    <h2>Battle Arena</h2>
+    <p>Start your live battle or join ongoing reels here.</p>
   </div>
-</div>
 
-  </div>  <div class="chat-container">
-    <input type="text" class="chat-input" placeholder="💬 Type your message..." />
-  </div>  <div class="bottom-nav">
-    <button onclick="goTo('dashboard.html')">🏠</button>
-    <button onclick="goTo('battle.html')">⚔️</button>
-    <button onclick="goTo('messages.html')">💬</button>
-    <button onclick="goTo('wallet.html')">💰</button>
-    <button onclick="goTo('settings.html')">⚙️</button>
-  </div>  <script>
-    let round = 1;
-    let timeLeft = 30;
+  <!-- Messages Section -->
+  <div id="messages" class="section">
+    <h2>Messages</h2>
+    <p>Chat with your Battlebillions contacts here.</p>
+  </div>
 
-    const countdownEl = document.getElementById('countdown');
-    const roundEl = document.getElementById('roundNumber');
-    const reelContainer = document.getElementById('reelContainer');
+  <!-- Wallet Section -->
+  <div id="wallet" class="section">
+    <h2>Wallet</h2>
+    <p>Balance: $3,330.00</p>
+    <button onclick="alert('Send Money')">Send</button>
+    <button onclick="alert('Add Money')">Add</button>
+  </div>
 
-    setInterval(() => {
-      timeLeft--;
-      countdownEl.textContent = timeLeft;
-      if (timeLeft === 0) {
-        round++;
-        timeLeft = 30;
-        roundEl.textContent = round;
-        if (reelContainer.scrollTop + window.innerHeight < reelContainer.scrollHeight) {
-          reelContainer.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-        }
-      }
-    }, 1000);
+  <!-- Profile Section -->
+  <div id="profile" class="section">
+    <h2>Profile</h2>
+    <p>Edit your name, picture, and view your battle history.</p>
+  </div>
 
-    function vote(side) {
-      alert(`You voted for the ${side} player!`);
+  <!-- Settings Section -->
+  <div id="settings" class="section">
+    <h2>Settings</h2>
+    <p>Adjust your preferences, notifications, and more.</p>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button class="active" onclick="showSection('dashboard', this)">🏠</button>
+    <button onclick="showSection('battle', this)">⚔️</button>
+    <button onclick="showSection('messages', this)">💬</button>
+    <button onclick="showSection('wallet', this)">💰</button>
+    <button onclick="showSection('settings', this)">⚙️</button>
+  </div>
+
+  <script>
+    function showSection(sectionId, btn) {
+      // Hide all sections
+      document.querySelectorAll('.section').forEach(div => {
+        div.classList.remove('active');
+      });
+
+      // Remove active class from all nav buttons
+      document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+
+      // Show selected section
+      document.getElementById(sectionId).classList.add('active');
+
+      // Mark this button as active
+      btn.classList.add('active');
     }
+  </script>
 
-    function goTo(page) {
-      window.location.href = page;
-    }
-  </script></body>
+</body>
 </html>
