@@ -12,7 +12,7 @@
 <body>
   <div class="page-transition" id="pageTransition"></div>
 
-  <!-- Background and Effects -->
+  <!-- Background -->
   <div class="background"></div>
   <div class="floating-elements">
     <div class="float-item"></div>
@@ -22,23 +22,39 @@
     <div class="float-item"></div>
   </div>
 
-  <!-- Main Container -->
-  <div class="main-container dashboard-container">
-    <!-- Top Profile Section -->
-    <div class="dashboard-header">
-      <img src="Logopit_1697753255912.png" alt="Profile Picture" class="profile-pic" draggable="false" />
-      <h2 class="dashboard-title">Welcome, Warrior</h2>
-      <p class="dashboard-subtitle">Choose your next move.</p>
-    </div>
+  <div class="main-container">
+    <div class="login-wrapper">
+      
+      <!-- Brand/Profile Side -->
+      <div class="brand-section">
+        <img src="Logopit_1697753255912.png" alt="Profile" class="brand-logo profile-style" draggable="false" />
+        <h1 class="brand-title">Welcome, Warrior</h1>
+        <p class="brand-subtitle">
+          Your journey continues. Choose your next path.
+        </p>
+        <ul class="features-list">
+          <li><span class="icon">⚔️</span> Enter battles & earn rank</li>
+          <li><span class="icon">🏆</span> View leaderboards</li>
+          <li><span class="icon">💰</span> Manage your wallet & rewards</li>
+        </ul>
+      </div>
 
-    <!-- Button Grid -->
-    <div class="dashboard-buttons">
-      <button class="dashboard-btn" onclick="goTo('battle.html')">⚔️ Battle</button>
-      <button class="dashboard-btn" onclick="goTo('leaderboard.html')">🏆 Leaderboard</button>
-      <button class="dashboard-btn" onclick="goTo('wallet.html')">💰 Wallet</button>
-      <button class="dashboard-btn" onclick="goTo('shop.html')">🛒 Shop</button>
-      <button class="dashboard-btn" onclick="goTo('settings.html')">⚙️ Settings</button>
-      <button class="dashboard-btn logout-btn" onclick="goTo('index.html')">🚪 Logout</button>
+      <!-- Dashboard Button Section -->
+      <div class="login-container">
+        <div class="login-header">
+          <h2 class="login-title">Dashboard</h2>
+          <p class="login-subtitle">Tap a portal to proceed.</p>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn primary-btn" onclick="goTo('battle.html')">⚔️ Battle</button>
+          <button class="btn primary-btn" onclick="goTo('leaderboard.html')">🏆 Leaderboard</button>
+          <button class="btn primary-btn" onclick="goTo('wallet.html')">💰 Wallet</button>
+          <button class="btn primary-btn" onclick="goTo('shop.html')">🛒 Shop</button>
+          <button class="btn primary-btn" onclick="goTo('settings.html')">⚙️ Settings</button>
+          <button class="btn secondary-btn" onclick="goTo('index.html')">🚪 Logout</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -47,8 +63,8 @@
       document.body.classList.add("fade-out");
       setTimeout(() => {
         window.location.href = page;
-      }, 500);
+      }, 600);
     }
   </script>
 </body>
-</html>
+        </html>
