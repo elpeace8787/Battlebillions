@@ -53,7 +53,6 @@
     .battle-feed {
       margin-bottom: 90px;
       padding: 10px;
-      overflow-y: auto;
       max-height: calc(100vh - 180px);
     }
 
@@ -155,8 +154,9 @@
   <img src="profile.jpg" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
   <div class="dashboard-title">🔥 Battles You Follow</div>
 
-  <div class="battle-feed">
-    <div class="battle-card">
+  <div class="battle-feed" id="battleFeed">
+    <!-- Initial battle card will be cloned for infinite scroll -->
+    <div class="battle-card" id="battleCardTemplate">
       <div class="competitor-info">
         <span>@TopDancer</span>
         <span>vs</span>
@@ -169,8 +169,8 @@
       </div>
 
       <div class="battle-videos">
-        <video id="video1" src="videos/topdancer.mp4" autoplay muted loop></video>
-        <video id="video2" src="videos/beatmaster.mp4" autoplay muted loop></video>
+        <video class="video1" src="videos/topdancer.mp4" autoplay muted loop></video>
+        <video class="video2" src="videos/beatmaster.mp4" autoplay muted loop></video>
       </div>
 
       <div class="flag-bar">
@@ -202,52 +202,90 @@
       alert(`🔥 You voted for @${user}`);
     }
 
-    const timerEl = document.querySelector('.timer');
-    const roundNumEl = document.querySelector('.round-num');
-    const video1 = document.getElementById('video1');
-    const video2 = document.getElementById('video2');
+    // Simulate infinite scroll by cloning the template
+    const battleFeed = document.getElementById('battleFeed');
+    const template = document.getElementById('battleCardTemplate');
 
-    let currentRound = 1;
-    const totalRounds = 3;
-    let isFirstPlayerTurn = true;
-
-    function startTurn(seconds) {
-      if (isFirstPlayerTurn) {
-        video1.classList.add('highlight');
-        video2.classList.remove('highlight');
-      } else {
-        video2.classList.add('highlight');
-        video1.classList.remove('highlight');
+    function loadMoreBattles() {
+      for (let i = 0; i < 3; i++) {
+        const clone = template.cloneNode(true);
+        clone.id = ''; // Remove duplicate ID
+        battleFeed.appendChild(clone);
       }
-
-      timerEl.textContent = seconds;
-      const interval = setInterval(() => {
-        seconds--;
-        timerEl.textContent = seconds;
-
-        if (seconds <= 0) {
-          clearInterval(interval);
-          setTimeout(() => {
-            if (!isFirstPlayerTurn) {
-              currentRound++;
-              roundNumEl.textContent = currentRound;
-            }
-
-            if (currentRound > totalRounds) {
-              video1.classList.remove('highlight');
-              video2.classList.remove('highlight');
-              timerEl.textContent = "0";
-              return;
-            }
-
-            isFirstPlayerTurn = !isFirstPlayerTurn;
-            startTurn(47);
-          }, 4000); // 4 second pause
-        }
-      }, 1000);
     }
 
-    startTurn(47);
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        loadMoreBattles();
+      }
+    });
+
+    // Start Round Timer Logic
+    let currentRound = 1;
+    let isFirstPlayerTurn = true;
+    const totalRounds = 3;
+
+    function startBattleTimer(card) {
+      const timerEl = card.querySelector('.timer');
+      const roundNumEl = card.querySelector('.round-num');
+      const video1 = card.querySelector('.video1');
+      const video2 = card.querySelector('.video2');
+      let round = 1;
+      let isFirst = true;
+
+      const runRound = (seconds) => {
+        if (round > totalRounds) {
+          video1.classList.remove('highlight');
+          video2.classList.remove('highlight');
+          return;
+        }
+
+        if (isFirst) {
+          video1.classList.add('highlight');
+          video2.classList.remove('highlight');
+        } else {
+          video2.classList.add('highlight');
+          video1.classList.remove('highlight');
+        }
+
+        timerEl.textContent = seconds;
+        const interval = setInterval(() => {
+          seconds--;
+          timerEl.textContent = seconds;
+          if (seconds <= 0) {
+            clearInterval(interval);
+            setTimeout(() => {
+              if (!isFirst) {
+                round++;
+                roundNumEl.textContent = round;
+              }
+              isFirst = !isFirst;
+              runRound(47);
+            }, 4000);
+          }
+        }, 1000);
+      };
+
+      runRound(47);
+    }
+
+    // Start timer for initial card
+    document.querySelectorAll('.battle-card').forEach(card => {
+      startBattleTimer(card);
+    });
+
+    // Auto-start timers on new cards
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.classList && node.classList.contains('battle-card')) {
+            startBattleTimer(node);
+          }
+        });
+      });
+    });
+
+    observer.observe(battleFeed, { childList: true });
   </script>
 </body>
-</html>
+          </html>
