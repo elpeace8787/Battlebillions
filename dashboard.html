@@ -3,119 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions - Live Reels Arena</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Battlebillions - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+    }
+
+    body {
       font-family: 'Inter', sans-serif;
-      background-color: #000;
+      background: black;
       color: white;
       overflow: hidden;
     }
 
-    .profile-btn {
+    canvas#particles {
       position: fixed;
-      top: 14px;
-      left: 14px;
-      z-index: 999;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      border: 2px solid white;
-      object-fit: cover;
-      cursor: pointer;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
     }
 
-    .leaderboard-btn {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 999;
-      font-size: 26px;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
+    header {
+      text-align: center;
+      padding: 20px 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      color: #ffcc00;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 5px #ffcc00, 0 0 10px #ff9900;
+      }
+      to {
+        text-shadow: 0 0 20px #ffcc00, 0 0 30px #ff6600;
+      }
     }
 
     .timer-round {
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%);
       text-align: center;
-      z-index: 1000;
+      margin-bottom: 20px;
+    }
+
+    .round {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .timer {
+      font-size: 20px;
       font-family: 'Orbitron', sans-serif;
     }
 
-    .reel-container {
-      position: fixed;
-      top: 60px;
-      bottom: 130px;
-      left: 0;
-      right: 0;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-    }
-
-    .reel {
-      height: 100vh;
-      scroll-snap-align: start;
+    .dashboard-content {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      height: calc(100vh - 160px);
+      overflow-y: auto;
+      padding: 10px 0;
     }
 
-    .side-by-side-box {
-      display: flex;
-      width: 90vw;
-      height: 85vh;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-    }
-
-    .side-video {
-      width: 50%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .vote-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin-top: 16px;
-    }
-
-    .vote-buttons button {
+    .card {
+      width: 90%;
       background: #111;
-      border: 1px solid white;
-      border-radius: 20px;
-      color: white;
-      font-size: 18px;
-      padding: 8px 20px;
-      cursor: pointer;
-    }
-
-    .chat-container {
-      position: fixed;
-      bottom: 70px;
-      width: 100%;
-      padding: 0 14px;
-      box-sizing: border-box;
-    }
-
-    .chat-input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 20px;
-      border: none;
-      background: #111;
-      color: white;
-      font-size: 14px;
+      border: 1px solid #333;
+      border-radius: 12px;
+      margin: 12px 0;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
     }
 
     .bottom-nav {
@@ -137,55 +100,24 @@
       font-size: 24px;
       cursor: pointer;
     }
-
-    .round {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .timer {
-      font-size: 15px;
-    }
   </style>
 </head>
 <body>
-  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
+  <canvas id="particles"></canvas>
 
-  <button class="leaderboard-btn" onclick="goTo('leaderboard.html')" title="Leaderboard">🏆</button>
+  <header>🔥 Battlebillions Dashboard 🔥</header>
 
   <div class="timer-round">
     <div class="round">Round <span id="roundNumber">1</span></div>
     <div class="timer">⏱️ <span id="countdown">30</span> sec</div>
   </div>
 
-  <div class="reel-container" id="reelContainer">
-    <!-- Reel 1 -->
-    <div class="reel">
-      <div class="side-by-side-box">
-        <video src="videos/competitor1.mp4" class="side-video" autoplay loop muted></video>
-        <video src="videos/competitor2.mp4" class="side-video" autoplay loop muted></video>
-      </div>
-      <div class="vote-buttons">
-        <button onclick="vote('left')">🔥 Vote Left</button>
-        <button onclick="vote('right')">🔥 Vote Right</button>
-      </div>
-    </div>
-
-    <!-- Reel 2 -->
-    <div class="reel">
-      <div class="side-by-side-box">
-        <video src="videos/competitor3.mp4" class="side-video" autoplay loop muted></video>
-        <video src="videos/competitor4.mp4" class="side-video" autoplay loop muted></video>
-      </div>
-      <div class="vote-buttons">
-        <button onclick="vote('left')">🔥 Vote Left</button>
-        <button onclick="vote('right')">🔥 Vote Right</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="chat-container">
-    <input type="text" class="chat-input" placeholder="💬 Type your message..." />
+  <div class="dashboard-content">
+    <div class="card">🏆 Featured Battle: Lil Vibe vs Jet Flame</div>
+    <div class="card">🔥 Trending Arena: East Coast Freestyle Showdown</div>
+    <div class="card">💰 Wallet Update: +33 FlameCoin</div>
+    <div class="card">👑 Top Competitor: Blazefire (New York, USA)</div>
+    <div class="card">💬 Message: “You ready to get smoked?” – Rival X</div>
   </div>
 
   <div class="bottom-nav">
@@ -205,7 +137,6 @@
     let timeLeft = 30;
     const countdownEl = document.getElementById('countdown');
     const roundEl = document.getElementById('roundNumber');
-    const reelContainer = document.getElementById('reelContainer');
 
     setInterval(() => {
       timeLeft--;
@@ -214,15 +145,58 @@
         round++;
         timeLeft = 30;
         roundEl.textContent = round;
-        if (reelContainer.scrollTop + window.innerHeight < reelContainer.scrollHeight) {
-          reelContainer.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-        }
       }
     }, 1000);
+  </script>
 
-    function vote(side) {
-      alert(`You voted for the ${side} competitor!`);
+  <script>
+    // Particle animation
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particlesArray = [];
+
+    function initParticles() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particlesArray = [];
+
+      for (let i = 0; i < 70; i++) {
+        particlesArray.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 1,
+          speedX: (Math.random() - 0.5) * 1.5,
+          speedY: (Math.random() - 0.5) * 1.5
+        });
+      }
     }
+
+    function handleParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particlesArray.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        // Wrap around edges
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+      });
+    }
+
+    function animate() {
+      handleParticles();
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', initParticles);
+    initParticles();
+    animate();
   </script>
 </body>
 </html>
