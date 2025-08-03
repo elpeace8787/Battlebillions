@@ -27,6 +27,17 @@
       cursor: pointer;
     }
 
+    .leaderboard-btn {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 999;
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      cursor: pointer;
+    }
+
     .timer-round {
       position: fixed;
       top: 14px;
@@ -138,6 +149,7 @@
 </head>
 <body>
   <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
+  <img src="assets/leaderboard-icon.png" class="leaderboard-btn" onclick="goTo('leaderboard.html')" alt="Leaderboard" />
 
   <div class="timer-round">
     <div class="round">Round <span id="roundNumber">1</span></div>
