@@ -19,14 +19,14 @@
 
     .wallet-container {
       padding: 25px;
-      padding-bottom: 100px; /* Prevent overlap with bottom nav */
+      padding-bottom: 100px;
       flex: 1;
       text-align: center;
     }
 
     .wallet-profile {
-      width: 95px;
-      height: 95px;
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid white;
@@ -97,49 +97,48 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    /* Bottom Navigation */
+    /* Bottom Nav Matching Dashboard */
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 0;
       width: 100%;
-      background: #1f1f1f;
+      background: #1a1a1a;
+      border-top: 1px solid #333;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 12px 0;
-      border-top: 1px solid #333;
-      z-index: 100;
+      padding: 10px 0;
+      z-index: 999;
     }
 
-    .nav-icon {
-      text-align: center;
-      color: #fff;
+    .bottom-nav .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
       font-size: 12px;
       cursor: pointer;
+      text-decoration: none;
     }
 
-    .nav-icon img {
-      width: 24px;
-      height: 24px;
-      display: block;
-      margin: 0 auto 4px;
+    .bottom-nav .nav-item img {
+      width: 26px;
+      height: 26px;
+      margin-bottom: 4px;
       filter: brightness(0) invert(1);
     }
 
-    .nav-icon span {
-      display: block;
-    }
-
-    .nav-icon:hover {
+    .bottom-nav .nav-item.active,
+    .bottom-nav .nav-item:hover {
       color: #ff9900;
     }
+
   </style>
 </head>
 <body>
 
   <div class="wallet-container">
-    <!-- Floating Profile Pic -->
+    <!-- Profile Pic -->
     <img src="avatars/user-wallet.png" alt="User Profile" class="wallet-profile">
 
     <!-- Balance -->
@@ -152,39 +151,39 @@
       <button class="wallet-btn" onclick="addMoney()">Add</button>
     </div>
 
-    <!-- Transfer History -->
+    <!-- Transfers -->
     <div class="transfer-section">
       <div class="wallet-label">People You Sent Money To</div>
       <div class="transfer-list">
-        <img src="avatars/sent1.png" class="transfer-pic" alt="Sent to 1">
-        <img src="avatars/sent2.png" class="transfer-pic" alt="Sent to 2">
-        <img src="avatars/sent3.png" class="transfer-pic" alt="Sent to 3">
+        <img src="avatars/sent1.png" class="transfer-pic" alt="Sent 1">
+        <img src="avatars/sent2.png" class="transfer-pic" alt="Sent 2">
+        <img src="avatars/sent3.png" class="transfer-pic" alt="Sent 3">
       </div>
 
       <div class="wallet-label" style="margin-top: 20px;">People Who Sent You Money</div>
       <div class="transfer-list">
-        <img src="avatars/received1.png" class="transfer-pic" alt="Received from 1">
-        <img src="avatars/received2.png" class="transfer-pic" alt="Received from 2">
-        <img src="avatars/received3.png" class="transfer-pic" alt="Received from 3">
+        <img src="avatars/received1.png" class="transfer-pic" alt="Received 1">
+        <img src="avatars/received2.png" class="transfer-pic" alt="Received 2">
+        <img src="avatars/received3.png" class="transfer-pic" alt="Received 3">
       </div>
     </div>
   </div>
 
   <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
-    <div class="nav-icon" onclick="navigateTo('dashboard')">
+    <div class="nav-item" onclick="navigateTo('dashboard')">
       <img src="icons/home.png" alt="Home">
       <span>Home</span>
     </div>
-    <div class="nav-icon" onclick="navigateTo('wallet')">
+    <div class="nav-item active" onclick="navigateTo('wallet')">
       <img src="icons/wallet.png" alt="Wallet">
       <span>Wallet</span>
     </div>
-    <div class="nav-icon" onclick="navigateTo('messages')">
+    <div class="nav-item" onclick="navigateTo('messages')">
       <img src="icons/message.png" alt="Messages">
       <span>Messages</span>
     </div>
-    <div class="nav-icon" onclick="navigateTo('profile')">
+    <div class="nav-item" onclick="navigateTo('profile')">
       <img src="icons/profile.png" alt="Profile">
       <span>Profile</span>
     </div>
@@ -192,11 +191,11 @@
 
   <script>
     function sendMoney() {
-      alert("Send Money coming soon.");
+      alert("Send Money feature coming soon.");
     }
 
     function addMoney() {
-      alert("Add Money coming soon.");
+      alert("Add Money feature coming soon.");
     }
 
     function navigateTo(page) {
