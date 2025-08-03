@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions - Triangle Battle</title>
+  <title>Battlebillions - Live Reels Arena</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -25,12 +25,11 @@
       border: 2px solid white;
       object-fit: cover;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
     }
 
     .timer-round {
       position: fixed;
-      top: 12px;
+      top: 14px;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
@@ -38,20 +37,10 @@
       font-family: 'Orbitron', sans-serif;
     }
 
-    .timer-round .round {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .timer-round .timer {
-      font-size: 16px;
-    }
-
     .reel-container {
-      height: 100vh;
       position: fixed;
       top: 60px;
-      bottom: 120px;
+      bottom: 130px;
       left: 0;
       right: 0;
       overflow-y: scroll;
@@ -61,34 +50,25 @@
     .reel {
       height: 100vh;
       scroll-snap-align: start;
-      position: relative;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
     }
 
-    .triangle-box {
-      position: relative;
+    .side-by-side-box {
+      display: flex;
       width: 90vw;
       height: 85vh;
+      border-radius: 20px;
       overflow: hidden;
-      border: 2px solid white;
-      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
     }
 
-    .triangle-video {
-      position: absolute;
-      width: 100%;
+    .side-video {
+      width: 50%;
       height: 100%;
       object-fit: cover;
-    }
-
-    .top-video {
-      clip-path: polygon(0 0, 100% 0, 0% 100%);
-    }
-
-    .bottom-video {
-      clip-path: polygon(100% 100%, 100% 0, 0% 100%);
     }
 
     .vote-buttons {
@@ -112,8 +92,6 @@
       position: fixed;
       bottom: 70px;
       width: 100%;
-      display: flex;
-      justify-content: center;
       padding: 0 14px;
       box-sizing: border-box;
     }
@@ -136,8 +114,8 @@
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      z-index: 999;
       border-top: 1px solid #222;
+      z-index: 999;
     }
 
     .bottom-nav button {
@@ -146,6 +124,15 @@
       color: white;
       font-size: 24px;
       cursor: pointer;
+    }
+
+    .round {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .timer {
+      font-size: 15px;
     }
   </style>
 </head>
@@ -160,25 +147,25 @@
   <div class="reel-container" id="reelContainer">
     <!-- Reel 1 -->
     <div class="reel">
-      <div class="triangle-box">
-        <video src="videos/sample1.mp4" class="triangle-video top-video" autoplay loop muted></video>
-        <video src="videos/sample2.mp4" class="triangle-video bottom-video" autoplay loop muted></video>
+      <div class="side-by-side-box">
+        <video src="videos/competitor1.mp4" class="side-video" autoplay loop muted></video>
+        <video src="videos/competitor2.mp4" class="side-video" autoplay loop muted></video>
       </div>
       <div class="vote-buttons">
-        <button onclick="vote('top')">🔥 Vote Top</button>
-        <button onclick="vote('bottom')">🔥 Vote Bottom</button>
+        <button onclick="vote('left')">🔥 Vote Left</button>
+        <button onclick="vote('right')">🔥 Vote Right</button>
       </div>
     </div>
 
     <!-- Reel 2 -->
     <div class="reel">
-      <div class="triangle-box">
-        <video src="videos/sample3.mp4" class="triangle-video top-video" autoplay loop muted></video>
-        <video src="videos/sample4.mp4" class="triangle-video bottom-video" autoplay loop muted></video>
+      <div class="side-by-side-box">
+        <video src="videos/competitor3.mp4" class="side-video" autoplay loop muted></video>
+        <video src="videos/competitor4.mp4" class="side-video" autoplay loop muted></video>
       </div>
       <div class="vote-buttons">
-        <button onclick="vote('top')">🔥 Vote Top</button>
-        <button onclick="vote('bottom')">🔥 Vote Bottom</button>
+        <button onclick="vote('left')">🔥 Vote Left</button>
+        <button onclick="vote('right')">🔥 Vote Right</button>
       </div>
     </div>
   </div>
@@ -224,4 +211,4 @@
     }
   </script>
 </body>
-          </html>
+</html>
