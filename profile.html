@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions Profile</title>
+  <title>User Profile</title>
   <link rel="stylesheet" href="shared.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -13,111 +13,78 @@
       font-family: 'Inter', sans-serif;
       background-color: #000;
       color: #fff;
-    }
-
-    /* Orbitron Floating Logo */
-    .floating-orbitron {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      animation: float 3s ease-in-out infinite;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 20px;
-      padding: 8px 12px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 1px solid #444;
-      border-radius: 10px;
-      cursor: default;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0); }
-    }
-
-    .profile-container {
-      padding: 100px 20px 40px;
-      max-width: 500px;
-      margin: auto;
       text-align: center;
     }
 
+    /* Floating Profile Picture */
     .profile-picture {
+      position: relative;
       width: 120px;
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid white;
-      margin-bottom: 20px;
+      margin: 80px auto 20px;
+      animation: float 3s ease-in-out infinite;
     }
 
-    .input-field {
-      width: 100%;
-      padding: 10px 12px;
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    .profile-container {
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .username {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 22px;
       margin: 10px 0;
-      border-radius: 8px;
+    }
+
+    .bio {
+      font-size: 16px;
+      opacity: 0.85;
+      margin-bottom: 30px;
+      padding: 0 10px;
+    }
+
+    .edit-btn {
+      padding: 12px 24px;
+      background-color: #ff5722;
       border: none;
-      background-color: #111;
+      border-radius: 8px;
       color: white;
       font-size: 16px;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border: 1px solid #555;
-    }
-
-    .btn-save {
-      margin-top: 20px;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #ff5722;
-      color: white;
       font-weight: bold;
       cursor: pointer;
-      font-size: 16px;
+      transition: background 0.3s ease;
     }
 
-    .btn-save:hover {
-      background: #e64a19;
-    }
-
-    .section-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
-      margin-bottom: 20px;
+    .edit-btn:hover {
+      background-color: #e64a19;
     }
   </style>
 </head>
 <body>
 
-  <!-- Floating Orbitron Logo -->
-  <div class="floating-orbitron">BATTLEBILLIONS</div>
-
-  <!-- Profile Page -->
   <div class="profile-container">
-    <img src="default-avatar.png" alt="Profile Picture" class="profile-picture" id="profilePic">
+    <!-- Floating Profile Pic -->
+    <img src="default-avatar.png" alt="Profile Picture" class="profile-picture" id="profilePic" />
 
-    <h2 class="section-title">Edit Profile</h2>
+    <h2 class="username">@battlewarrior</h2>
+    <p class="bio">Dreamer. Warrior. Billionaire in the making.</p>
 
-    <input type="text" id="displayName" class="input-field" placeholder="Your Name" value="El Shalom" />
-    <input type="text" id="username" class="input-field" placeholder="Username" value="@battlewarrior" />
-    <textarea id="bio" class="input-field" placeholder="Write a short bio...">Dreamer. Warrior. Billionaire in the making.</textarea>
-
-    <button class="btn-save" onclick="saveProfile()">Save Profile</button>
+    <button class="edit-btn" onclick="goToEdit()">Edit Profile</button>
   </div>
 
   <script>
-    function saveProfile() {
-      const name = document.getElementById("displayName").value;
-      const username = document.getElementById("username").value;
-      const bio = document.getElementById("bio").value;
-
-      alert(`Profile saved!\n\nName: ${name}\nUsername: ${username}\nBio: ${bio}`);
-      // Replace with actual saving logic to Firebase or backend
+    function goToEdit() {
+      window.location.href = "edit-profile.html"; // Make sure this file exists
     }
   </script>
 
