@@ -19,7 +19,7 @@
 
     .wallet-container {
       padding: 25px;
-      padding-bottom: 100px; /* ✅ Prevents bottom nav overlap */
+      padding-bottom: 100px; /* Prevent overlap with bottom nav */
       flex: 1;
       text-align: center;
     }
@@ -97,7 +97,7 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    /* ✅ Bottom icon nav */
+    /* Bottom Navigation */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -124,6 +124,11 @@
       height: 24px;
       display: block;
       margin: 0 auto 4px;
+      filter: brightness(0) invert(1);
+    }
+
+    .nav-icon span {
+      display: block;
     }
 
     .nav-icon:hover {
@@ -165,9 +170,9 @@
     </div>
   </div>
 
-  <!-- ✅ Bottom Navigation Bar -->
+  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
-    <div class="nav-icon" onclick="navigateTo('home')">
+    <div class="nav-icon" onclick="navigateTo('dashboard')">
       <img src="icons/home.png" alt="Home">
       <span>Home</span>
     </div>
@@ -185,7 +190,6 @@
     </div>
   </div>
 
-  <!-- ✅ Navigation Logic -->
   <script>
     function sendMoney() {
       alert("Send Money coming soon.");
