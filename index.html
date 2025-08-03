@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions – Portal</title>
+  <title>Battlebillions Portal</title>
   <link rel="stylesheet" href="css/shared.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 <body>
   <div class="page-transition" id="pageTransition"></div>
 
-  <!-- 🔥 Background -->
+  <!-- Background -->
   <div class="background"></div>
   <div class="floating-elements">
     <div class="float-item"></div>
@@ -22,50 +22,49 @@
     <div class="float-item"></div>
   </div>
 
-  <!-- 🔥 Main Layout -->
   <div class="main-container">
     <div class="login-wrapper">
 
-      <!-- 🔥 Brand Section -->
+      <!-- Brand Section -->
       <div class="brand-section">
         <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="brand-logo" draggable="false" />
         <h1 class="brand-title">BATTLEBILLIONS</h1>
         <p class="brand-subtitle">
-          The sacred arena of competition, creation, and cosmic recognition.<br>
-          Rise. Compete. Become Legendary.
+          The gateway to the Flame Arena. Your legend begins here.<br>
+          Choose your path. Enter the fire.
         </p>
         <ul class="features-list">
-          <li><span class="icon">🧠</span> AI-moderated face-offs</li>
-          <li><span class="icon">⚔️</span> 1v1 Battles + Global Leaderboard</li>
-          <li><span class="icon">💰</span> Win Flame-based rewards & honor</li>
+          <li><span class="icon">⚔️</span> Enter real-time battles</li>
+          <li><span class="icon">🔥</span> Earn rewards, rank up</li>
+          <li><span class="icon">💬</span> Watchers. Friends. Enemies.</li>
         </ul>
       </div>
 
-      <!-- 🔥 Entry Selection -->
+      <!-- Login/Sign Up Buttons -->
       <div class="login-container">
         <div class="login-header">
-          <h2 class="login-title">Choose Your Path</h2>
-          <p class="login-subtitle">Step into the flame and declare your entry.</p>
+          <h2 class="login-title">Enter the Flame</h2>
+          <p class="login-subtitle">Select your path to battle billions.</p>
         </div>
 
         <div class="btn-group">
-          <a href="login.html"><button class="btn primary-btn">Login</button></a>
-          <a href="signup.html"><button class="btn secondary-btn">Sign Up</button></a>
+          <button class="btn primary-btn" onclick="enterArena()">Login</button>
+          <button class="btn secondary-btn" onclick="joinBattle()">Sign Up</button>
         </div>
 
-        <div class="divider"><span>Or ignite with</span></div>
+        <div class="divider"><span>Or connect with</span></div>
 
         <div class="social-grid">
-          <button class="social-btn google" data-provider="google">
+          <button class="social-btn google">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" /> Google
           </button>
-          <button class="social-btn facebook" data-provider="facebook">
+          <button class="social-btn facebook">
             <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" /> Facebook
           </button>
-          <button class="social-btn instagram" data-provider="instagram">
+          <button class="social-btn instagram">
             <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" /> Instagram
           </button>
-          <button class="social-btn tiktok" data-provider="tiktok">
+          <button class="social-btn tiktok">
             <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" /> TikTok
           </button>
         </div>
@@ -74,6 +73,16 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <script>
+    function enterArena() {
+      // Navigate to dashboard.html
+      window.location.href = "dashboard.html";
+    }
+
+    function joinBattle() {
+      // Navigate to signup.html
+      window.location.href = "signup.html";
+    }
+  </script>
 </body>
-  </html>
+</html>
