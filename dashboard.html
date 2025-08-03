@@ -8,9 +8,44 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Top-left floating brand */
+    .floating-brand {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: white;
+      z-index: 10;
+      opacity: 0.75;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    /* Profile style avatar tweak */
+    .profile-style {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      border: 2px solid #fff;
+    }
+
+    .message-btn {
+      margin-bottom: 20px;
+      width: 100%;
+      font-size: 15px;
+    }
+  </style>
 </head>
 <body>
   <div class="page-transition" id="pageTransition"></div>
+
+  <!-- Floating Title -->
+  <div class="floating-brand">BATTLEBILLIONS</div>
 
   <!-- Background -->
   <div class="background"></div>
@@ -25,9 +60,10 @@
   <div class="main-container">
     <div class="login-wrapper">
       
-      <!-- Brand/Profile Side -->
+      <!-- Profile Side -->
       <div class="brand-section">
         <img src="Logopit_1697753255912.png" alt="Profile" class="brand-logo profile-style" draggable="false" />
+        <button class="btn secondary-btn message-btn" onclick="goTo('messages.html')">💬 Messages</button>
         <h1 class="brand-title">Welcome, Warrior</h1>
         <p class="brand-subtitle">
           Your journey continues. Choose your next path.
@@ -39,7 +75,7 @@
         </ul>
       </div>
 
-      <!-- Dashboard Button Section -->
+      <!-- Dashboard Buttons -->
       <div class="login-container">
         <div class="login-header">
           <h2 class="login-title">Dashboard</h2>
@@ -67,4 +103,4 @@
     }
   </script>
 </body>
-        </html>
+</html>
