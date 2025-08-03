@@ -1,144 +1,125 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Profile</title>
   <link rel="stylesheet" href="shared.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     body {
-      font-family: 'Inter', sans-serif;
       margin: 0;
+      font-family: 'Inter', sans-serif;
       background-color: #000;
       color: #fff;
-      overflow-x: hidden;
-    }.profile-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.05);
-}
+    }
 
-.avatar-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
+    /* Orbitron Floating Logo */
+    .floating-orbitron {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      animation: float 3s ease-in-out infinite;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #444;
+      border-radius: 10px;
+      cursor: default;
+    }
 
-.profile-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  object-fit: cover;
-}
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
 
-.upload-btn {
-  padding: 6px 12px;
-  background: #333;
-  border: 1px solid #555;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 6px;
-}
+    .profile-container {
+      padding: 100px 20px 40px;
+      max-width: 500px;
+      margin: auto;
+      text-align: center;
+    }
 
-.profile-info {
-  text-align: left;
-}
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid white;
+      margin-bottom: 20px;
+    }
 
-.profile-info h2 {
-  margin: 0;
-  font-size: 24px;
-}
+    .input-field {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background-color: #111;
+      color: white;
+      font-size: 16px;
+    }
 
-.profile-info p {
-  margin: 2px 0;
-  opacity: 0.8;
-}
+    .input-field:focus {
+      outline: none;
+      border: 1px solid #555;
+    }
 
-.profile-content {
-  padding: 20px;
-}
+    .btn-save {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #ff5722;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-.reel-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
-}
+    .btn-save:hover {
+      background: #e64a19;
+    }
 
-.reel-gallery video {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid #222;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  z-index: 999;
-  border-top: 1px solid #222;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-}
-
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
-<body>  <div class="profile-header">
-    <div class="avatar-wrapper">
-      <label for="avatarUpload">
-        <img src="Logopit_1697753255912.png" alt="Avatar" id="avatarImage" class="profile-avatar" />
-      </label>
-      <input type="file" id="avatarUpload" style="display:none" accept="image/*" onchange="updateAvatar(event)" />
-      <button class="upload-btn" onclick="document.getElementById('avatarUpload').click()">Change Avatar</button>
-    </div>
-    <div class="profile-info">
-      <h2>@YourUsername</h2>
-      <p>Rank: #12</p>
-      <p>Wins: 38 | Losses: 9</p>
-    </div>
-  </div>  <div class="profile-content">
-    <h3>🔥 Recorded Battles</h3>
-    <div class="reel-gallery">
-      <video src="videos/battle1.mp4" controls muted></video>
-      <video src="videos/battle2.mp4" controls muted></video>
-      <video src="videos/battle3.mp4" controls muted></video>
-      <video src="videos/battle4.mp4" controls muted></video>
-    </div>
-  </div>  <div class="bottom-nav">
-    <button onclick="goTo('dashboard.html')">🏠</button>
-    <button onclick="goTo('battle.html')">⚔️</button>
-    <button onclick="goTo('messages.html')">💬</button>
-    <button onclick="goTo('wallet.html')">💰</button>
-    <button onclick="goTo('settings.html')">⚙️</button>
-  </div>  <script>
-    function goTo(page) {
-      window.location.href = page;
-    }
+<body>
 
-    function updateAvatar(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById('avatarImage').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
+  <!-- Floating Orbitron Logo -->
+  <div class="floating-orbitron">BATTLEBILLIONS</div>
+
+  <!-- Profile Page -->
+  <div class="profile-container">
+    <img src="default-avatar.png" alt="Profile Picture" class="profile-picture" id="profilePic">
+
+    <h2 class="section-title">Edit Profile</h2>
+
+    <input type="text" id="displayName" class="input-field" placeholder="Your Name" value="El Shalom" />
+    <input type="text" id="username" class="input-field" placeholder="Username" value="@battlewarrior" />
+    <textarea id="bio" class="input-field" placeholder="Write a short bio...">Dreamer. Warrior. Billionaire in the making.</textarea>
+
+    <button class="btn-save" onclick="saveProfile()">Save Profile</button>
+  </div>
+
+  <script>
+    function saveProfile() {
+      const name = document.getElementById("displayName").value;
+      const username = document.getElementById("username").value;
+      const bio = document.getElementById("bio").value;
+
+      alert(`Profile saved!\n\nName: ${name}\nUsername: ${username}\nBio: ${bio}`);
+      // Replace with actual saving logic to Firebase or backend
     }
-  </script></body>
-  </html>
+  </script>
+
+</body>
+</html>
