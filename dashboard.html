@@ -74,16 +74,10 @@
       font-weight: 600;
     }
 
-    .competitor-info span img {
-      width: 20px;
-      height: 14px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-
     .battle-videos {
       display: flex;
       gap: 8px;
+      position: relative;
     }
 
     .battle-videos video {
@@ -92,12 +86,23 @@
       object-fit: cover;
       border-radius: 12px;
       border: 2px solid transparent;
-      transition: border 0.3s ease;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
     }
 
     .highlight {
       border: 2px solid #00ffcc !important;
       box-shadow: 0 0 12px #00ffcc;
+    }
+
+    .flag-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+
+    .flag-bar img {
+      width: 24px;
+      height: 16px;
     }
 
     .round-timer {
@@ -106,20 +111,6 @@
       align-items: center;
       margin: 10px 0;
       font-size: 14px;
-    }
-
-    .expand-btn {
-      position: absolute;
-      top: 12px;
-      left: -10px;
-      background-color: #222;
-      border: 1px solid white;
-      color: white;
-      padding: 6px 10px;
-      font-size: 12px;
-      border-radius: 16px;
-      cursor: pointer;
-      z-index: 1;
     }
 
     .vote-buttons {
@@ -167,29 +158,31 @@
   <div class="battle-feed">
     <div class="battle-card">
       <div class="competitor-info">
-        <span>@TopDancer <img src="flags/us.png" alt="US Flag" /></span>
+        <span>@TopDancer</span>
         <span>vs</span>
-        <span>@BeatMaster <img src="flags/uk.png" alt="UK Flag" /></span>
+        <span>@BeatMaster</span>
       </div>
 
       <div class="round-timer">
         <span>Round: <span class="round-num">1</span>/3</span>
-        <span>⏱ <span class="timer" data-seconds="47">47</span>s</span>
+        <span>⏱ <span class="timer" data-seconds="10">10</span>s</span>
       </div>
 
       <div class="battle-videos">
-        <video class="highlight" src="videos/topdancer.mp4" autoplay muted loop></video>
-        <video src="videos/beatmaster.mp4" autoplay muted loop></video>
+        <video id="video1" class="highlight" src="videos/topdancer.mp4" autoplay muted loop></video>
+        <video id="video2" src="videos/beatmaster.mp4" autoplay muted loop></video>
       </div>
 
-      <button class="expand-btn" onclick="expandBattle()">⛶ Expand</button>
+      <div class="flag-bar">
+        <img src="flags/us.png" alt="US Flag">
+        <img src="flags/uk.png" alt="UK Flag">
+      </div>
 
       <div class="vote-buttons">
         <button onclick="vote('topdancer')">🔥 Vote TopDancer</button>
         <button onclick="vote('beatmaster')">🔥 Vote BeatMaster</button>
       </div>
     </div>
-    <!-- Add more battle cards -->
   </div>
 
   <div class="bottom-nav">
@@ -209,12 +202,12 @@
       alert(`🔥 You voted for @${user}`);
     }
 
-    function expandBattle() {
-      alert("Expanding battle view...");
-    }
-
+    // Countdown logic
     document.querySelectorAll('.timer').forEach(timerEl => {
       let seconds = parseInt(timerEl.getAttribute('data-seconds'));
+      const video1 = document.getElementById('video1');
+      const video2 = document.getElementById('video2');
+
       const interval = setInterval(() => {
         if (seconds > 0) {
           seconds--;
@@ -222,6 +215,8 @@
         } else {
           clearInterval(interval);
           timerEl.textContent = "0";
+          video1.classList.remove('highlight');
+          video2.classList.add('highlight');
         }
       }, 1000);
     });
