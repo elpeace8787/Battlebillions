@@ -1,115 +1,97 @@
-<!DOCTYPE html><html lang="en"><head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BattleBillions Login</title>
-    <link rel="stylesheet" href="home.css">
-    <script type="module" src="firebase.js"></script>
-</head><body>
-    <div class="page-transition" id="pageTransition"></div><div class="login-container">
-    <img src="battlebillions.png" alt="BattleBillions Logo" class="logo">
-    <form id="loginForm">
-        <h2>Login to BattleBillions</h2>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" id="password" required>
-        <div class="password-strength">
-            <div class="password-strength-bar" id="passwordStrengthBar"></div>
-        </div>
-        <button type="submit">Login</button>
-        <div class="social-login">
-            <button type="button" class="social-btn" data-provider="google">Sign in with Google</button>
-            <button type="button" class="social-btn" data-provider="facebook">Sign in with Facebook</button>
-            <button type="button" class="social-btn" data-provider="instagram">Sign in with Instagram</button>
-            <button type="button" class="social-btn" data-provider="tiktok">Sign in with TikTok</button>
-        </div>
-        <p><a href="#" onclick="showForgotPassword()">Forgot Password?</a></p>
-        <p><a href="#" onclick="navigateToSignup()">Join Battle</a></p>
-        <p><a href="#" onclick="showSupport()">Support</a></p>
-    </form>
-    <div class="message error" id="errorMessage"></div>
-    <div class="message success" id="successMessage"></div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BattleBillions - Login</title>
+  <link rel="stylesheet" href="home.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script type="module" src="firebase.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>BattleBillions</h1>
 
-<script type="module">
-    import { signInWithEmailAndPassword, signInWith } from './firebase.js';
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" oninput="updateStrength()" />
+    <div id="strengthBar"><div id="barFill"></div></div>
 
-    const loginForm = document.getElementById('loginForm');
-    const passwordInput = document.getElementById('password');
-    const passwordStrengthBar = document.getElementById('passwordStrengthBar');
-    const errorMessage = document.getElementById('errorMessage');
-    const successMessage = document.getElementById('successMessage');
-    const pageTransition = document.getElementById('pageTransition');
+    <button onclick="login()">Log In</button>
 
-    function showMessage(element, message) {
-        element.textContent = message;
-        element.style.display = 'block';
-        setTimeout(() => {
-            element.style.display = 'none';
-        }, 3000);
-    }
+    <div class="social-login">
+      <button onclick="signInWith('google')">Login with Google</button>
+      <button onclick="signInWith('facebook')">Login with Facebook</button>
+      <button onclick="signInWith('github')">Login with GitHub</button>
+    </div>
 
-    passwordInput.addEventListener('input', () => {
-        const value = passwordInput.value;
-        const strengthBar = passwordStrengthBar;
+    <p id="message"></p>
+    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+  </div>
 
-        if (value.length === 0) {
-            strengthBar.style.width = '0%';
-            strengthBar.className = 'password-strength-bar';
-        } else if (value.length < 6) {
-            strengthBar.className = 'password-strength-bar strength-weak';
-        } else if (value.match(/[A-Z]/) && value.match(/[0-9]/) && value.length >= 8) {
-            strengthBar.className = 'password-strength-bar strength-strong';
-        } else {
-            strengthBar.className = 'password-strength-bar strength-medium';
-        }
-    });
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = loginForm.email.value;
-        const password = loginForm.password.value;
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-        try {
-            await signInWithEmailAndPassword(email, password);
-            showMessage(successMessage, 'Login successful!');
-            pageTransition.classList.add('active');
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 800);
-        } catch (error) {
-            showMessage(errorMessage, error.message || 'Failed to login.');
-        }
-    });
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const message = document.getElementById("message");
 
-    function navigateToSignup() {
-        pageTransition.classList.add('active');
-        setTimeout(() => {
-            window.location.href = 'signup.html';
-        }, 500);
-    }
-
-    document.querySelectorAll('.social-btn').forEach(button => {
-        button.addEventListener('click', async () => {
-            const providerName = button.dataset.provider;
-            try {
-                await signInWith(providerName);
-                showMessage(successMessage, `Signed in with ${providerName}`);
-                pageTransition.classList.add('active');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 800);
-            } catch (error) {
-                showMessage(errorMessage, error.message || `Failed to sign in with ${providerName}`);
-            }
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          message.style.color = "green";
+          message.textContent = "Login successful!";
+          setTimeout(() => window.location.href = "dashboard.html", 1000);
+        })
+        .catch(error => {
+          message.style.color = "red";
+          message.textContent = "Error: " + error.message;
         });
-    });
-
-    function showForgotPassword() {
-        alert("Password recovery isn't set up yet. Check back soon.");
     }
 
-    function showSupport() {
-        alert("Support page coming soon. For now, email support@battlebillions.com");
-    }
-</script>
+    function signInWith(providerName) {
+      let provider;
+      switch (providerName) {
+        case "google":
+          provider = new firebase.auth.GoogleAuthProvider();
+          break;
+        case "facebook":
+          provider = new firebase.auth.FacebookAuthProvider();
+          break;
+        case "github":
+          provider = new firebase.auth.GithubAuthProvider();
+          break;
+      }
 
-</body></html>
+      auth.signInWithPopup(provider)
+        .then(() => window.location.href = "dashboard.html")
+        .catch(error => {
+          document.getElementById("message").style.color = "red";
+          document.getElementById("message").textContent = "Error: " + error.message;
+        });
+    }
+
+    function updateStrength() {
+      const password = document.getElementById("password").value;
+      const bar = document.getElementById("barFill");
+      let strength = 0;
+
+      if (password.length >= 6) strength += 1;
+      if (/[A-Z]/.test(password)) strength += 1;
+      if (/[0-9]/.test(password)) strength += 1;
+      if (/[@$!%*?&#]/.test(password)) strength += 1;
+
+      bar.style.width = (strength * 25) + "%";
+      bar.style.backgroundColor = ["red", "orange", "yellow", "lightgreen", "green"][strength];
+    }
+  </script>
+</body>
+</html>
