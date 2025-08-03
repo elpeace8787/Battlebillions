@@ -97,42 +97,33 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    /* Bottom Nav Matching Dashboard */
+    /* Bottom Nav (Synced with battle.html) */
     .bottom-nav {
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
-      background: #1a1a1a;
-      border-top: 1px solid #333;
+      background: #111;
+      border-top: 2px solid #333;
       display: flex;
       justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
+      padding: 12px 0;
       z-index: 999;
     }
 
-    .bottom-nav .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: white;
-      font-size: 12px;
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: #fff;
       cursor: pointer;
-      text-decoration: none;
+      transition: 0.2s ease-in-out;
     }
 
-    .bottom-nav .nav-item img {
-      width: 26px;
-      height: 26px;
-      margin-bottom: 4px;
-      filter: brightness(0) invert(1);
-    }
-
-    .bottom-nav .nav-item.active,
-    .bottom-nav .nav-item:hover {
+    .bottom-nav button:hover {
       color: #ff9900;
+      transform: scale(1.2);
     }
-
   </style>
 </head>
 <body>
@@ -169,24 +160,13 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar -->
+  <!-- Synced Emoji Bottom Navigation -->
   <div class="bottom-nav">
-    <div class="nav-item" onclick="navigateTo('dashboard')">
-      <img src="icons/home.png" alt="Home">
-      <span>Home</span>
-    </div>
-    <div class="nav-item active" onclick="navigateTo('wallet')">
-      <img src="icons/wallet.png" alt="Wallet">
-      <span>Wallet</span>
-    </div>
-    <div class="nav-item" onclick="navigateTo('messages')">
-      <img src="icons/message.png" alt="Messages">
-      <span>Messages</span>
-    </div>
-    <div class="nav-item" onclick="navigateTo('profile')">
-      <img src="icons/profile.png" alt="Profile">
-      <span>Profile</span>
-    </div>
+    <button onclick="goTo('dashboard.html')">🏠</button>
+    <button onclick="goTo('battle.html')">⚔️</button>
+    <button onclick="goTo('messages.html')">💬</button>
+    <button onclick="goTo('wallet.html')">💰</button>
+    <button onclick="goTo('settings.html')">⚙️</button>
   </div>
 
   <script>
@@ -198,8 +178,8 @@
       alert("Add Money feature coming soon.");
     }
 
-    function navigateTo(page) {
-      window.location.href = page + ".html";
+    function goTo(page) {
+      window.location.href = page;
     }
   </script>
 
