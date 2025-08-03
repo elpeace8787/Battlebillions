@@ -1,191 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions Dual Reels Dashboard</title>
   <title>Battlebillions - Dual Reels</title>
-  <link rel="stylesheet" href="shared.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
       background-color: #000;
-      overflow: hidden;
       color: white;
       overflow: hidden;
-    }.profile-btn {
-  position: fixed;
-  top: 14px;
-  left: 14px;
-  z-index: 999;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid white;
-  object-fit: cover;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(255,255,255,0.3);
-}
-.rounds-timer {
-  position: fixed;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 999;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 14px;
-  background: rgba(0,0,0,0.6);
-  padding: 4px 10px;
-  border-radius: 10px;
-  border: 1px solid white;
-}
+    }
 
-.reel-container {
-  height: 100vh;
-  position: fixed;
-  top: 60px;
-  bottom: 120px;
-  left: 0;
-  right: 0;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-}
+    .profile-btn {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 999;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
 
-.reel {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  scroll-snap-align: start;
-  position: relative;
-  padding-top: 60px;
-}
+    .timer-round {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 1000;
+      font-family: 'Orbitron', sans-serif;
+    }
 
-.video-wrapper {
-  width: 50%;
-  height: 100%;
-.video-row {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  height: 60vh;
-  padding: 0 12px;
-  box-sizing: border-box;
-}
-.video-box {
-  flex: 1;
-  margin: 0 6px;
-  position: relative;
-  border: 2px solid #fff;
-  border-radius: 10px;
-  overflow: hidden;
-}
+    .timer-round .round {
+      font-size: 18px;
+      font-weight: 700;
+    }
 
-.video-wrapper video {
-.video-box video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .timer-round .timer {
+      font-size: 16px;
+    }
 
-.vote-btns {
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-.vote-buttons {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  margin-top: 16px;
-  gap: 40px;
-}
+    .reel-container {
+      height: 100vh;
+      position: fixed;
+      top: 60px;
+      bottom: 120px;
+      left: 0;
+      right: 0;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+    }
 
-.vote-btn {
-  font-size: 18px;
-  padding: 8px 16px;
-  border: 2px solid #fff;
-  background: transparent;
-  color: #fff;
-.vote-buttons button {
-  background: #111;
-  border: 1px solid white;
-  border-radius: 20px;
-  color: white;
-  font-size: 18px;
-  padding: 8px 20px;
-  cursor: pointer;
-}
+    .reel {
+      height: 100vh;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-top: 60px;
+    }
 
-.chat-box {
-  position: absolute;
-  bottom: 20px;
-.timer-round {
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 1000;
-  font-family: 'Orbitron', sans-serif;
-}
-.timer-round .round {
-  font-size: 18px;
-  font-weight: 700;
-}
-.timer-round .timer {
-  font-size: 16px;
-}
-.chat-container {
-  position: fixed;
-  bottom: 70px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 14px;
-  box-sizing: border-box;
-}
+    .video-row {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      height: 60vh;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
 
-.chat-input {
-  width: 80%;
-  width: 100%;
-  padding: 10px;
-  border-radius: 20px;
-  border: none;
-  background: rgba(255,255,255,0.1);
-  font-size: 14px;
-  background: #111;
-  color: white;
-}
+    .video-box {
+      flex: 1;
+      margin: 0 6px;
+      position: relative;
+      border: 2px solid #fff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
-@@ -111,7 +132,6 @@
-  justify-content: space-around;
-  padding: 10px 0;
-  z-index: 999;
-  border-top: 1px solid #222;
-}
+    .video-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.bottom-nav button {
-@@ -124,54 +144,76 @@
+    .vote-buttons {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 16px;
+    }
 
+    .vote-buttons button {
+      background: #111;
+      border: 1px solid white;
+      border-radius: 20px;
+      color: white;
+      font-size: 18px;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+
+    .chat-container {
+      position: fixed;
+      bottom: 70px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 14px;
+      box-sizing: border-box;
+    }
+
+    .chat-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      background: #111;
+      color: white;
+      font-size: 14px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #111;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 999;
+      border-top: 1px solid #222;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
   </style>
 </head>
-<body>  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
-  <div class="rounds-timer">
-    Round <span id="roundNum">1</span> — <span id="timer">30</span>s
+
 <body>
-  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />  <div class="timer-round">
+  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
+
+  <div class="timer-round">
     <div class="round">Round <span id="roundNumber">1</span></div>
     <div class="timer">⏱️ <span id="countdown">30</span> sec</div>
-  </div>  <div class="reel-container" id="reelContainer">
+  </div>
+
+  <div class="reel-container" id="reelContainer">
     <!-- Reel 1 -->
     <div class="reel">
-      <div class="video-wrapper">
-        <video src="videos/sample1.mp4" autoplay loop muted></video>
       <div class="video-row">
         <div class="video-box">
           <video src="videos/sample1.mp4" autoplay loop muted></video>
@@ -198,61 +176,59 @@
         <button onclick="vote('left')">🔥 Vote Left</button>
         <button onclick="vote('right')">🔥 Vote Right</button>
       </div>
-      <div class="video-wrapper">
-        <video src="videos/sample2.mp4" autoplay loop muted></video>
-      </div><div class="vote-btns">
-    <button class="vote-btn" onclick="vote('left')">🔥 Left</button>
-    <button class="vote-btn" onclick="vote('right')">🔥 Right</button>
-    </div><!-- Reel 2 -->
-<div class="reel">
-  <div class="video-row">
-    <div class="video-box">
-      <video src="videos/sample3.mp4" autoplay loop muted></video>
     </div>
-    <div class="video-box">
-      <video src="videos/sample4.mp4" autoplay loop muted></video>
-    </div>
-  </div>
-  <div class="chat-box">
-    <input type="text" class="chat-input" placeholder="Chat here..." />
-  <div class="vote-buttons">
-    <button onclick="vote('left')">🔥 Vote Left</button>
-    <button onclick="vote('right')">🔥 Vote Right</button>
-  </div>
-</div>
 
-  </div>  <div class="chat-container">
+    <!-- Reel 2 -->
+    <div class="reel">
+      <div class="video-row">
+        <div class="video-box">
+          <video src="videos/sample3.mp4" autoplay loop muted></video>
+        </div>
+        <div class="video-box">
+          <video src="videos/sample4.mp4" autoplay loop muted></video>
+        </div>
+      </div>
+      <div class="vote-buttons">
+        <button onclick="vote('left')">🔥 Vote Left</button>
+        <button onclick="vote('right')">🔥 Vote Right</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-container">
     <input type="text" class="chat-input" placeholder="💬 Type your message..." />
-  </div>  <div class="bottom-nav">
+  </div>
+
+  <!-- Bottom Emoji Nav Bar -->
+  <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
     <button onclick="goTo('messages.html')">💬</button>
     <button onclick="goTo('wallet.html')">💰</button>
     <button onclick="goTo('settings.html')">⚙️</button>
-  </div>  <script>
+  </div>
+
+  <script>
     function goTo(page) {
       window.location.href = page;
     }
+
     let round = 1;
-    let seconds = 30;
-    const timerEl = document.getElementById("timer");
-    const roundEl = document.getElementById("roundNum");
     let timeLeft = 30;
+
     const countdownEl = document.getElementById('countdown');
     const roundEl = document.getElementById('roundNumber');
     const reelContainer = document.getElementById('reelContainer');
 
     setInterval(() => {
-      seconds--;
-      timerEl.textContent = seconds;
-      if (seconds <= 0) {
       timeLeft--;
       countdownEl.textContent = timeLeft;
+
       if (timeLeft === 0) {
         round++;
         timeLeft = 30;
         roundEl.textContent = round;
-        seconds = 30;
+
         if (reelContainer.scrollTop + window.innerHeight < reelContainer.scrollHeight) {
           reelContainer.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
         }
@@ -260,12 +236,8 @@
     }, 1000);
 
     function vote(side) {
-      alert(`You voted for the ${side} competitor!`);
       alert(`You voted for the ${side} player!`);
     }
-    function goTo(page) {
-      window.location.href = page;
-    }
-  </script></body>
-            </html>
+  </script>
+</body>
 </html>
