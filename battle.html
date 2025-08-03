@@ -30,7 +30,8 @@
       background: #1c1c1c;
     }
 
-    .search-filter input, .search-filter select {
+    .search-filter input,
+    .search-filter select {
       padding: 10px;
       border-radius: 8px;
       border: none;
@@ -42,6 +43,7 @@
 
     .feed {
       padding: 15px;
+      padding-bottom: 90px; /* space for nav */
     }
 
     .battle-card {
@@ -122,30 +124,43 @@
     .bottom-nav {
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
-      background: #1f1f1f;
+      background: #000;
+      border-top: 2px solid #1f1f1f;
       display: flex;
       justify-content: space-around;
       align-items: center;
       padding: 12px 0;
-      border-top: 1px solid #333;
+      z-index: 999;
     }
 
-    .nav-icon {
-      text-align: center;
-      color: #fff;
+    .bottom-nav .nav-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       font-size: 12px;
-      cursor: pointer;
+      color: #fff;
+      text-align: center;
+      transition: 0.2s ease-in-out;
     }
 
-    .nav-icon img {
-      width: 24px;
-      height: 24px;
+    .bottom-nav .nav-icon img {
+      width: 26px;
+      height: 26px;
       margin-bottom: 4px;
+      filter: brightness(0.9);
     }
 
-    .nav-icon:hover {
+    .bottom-nav .nav-icon.active,
+    .bottom-nav .nav-icon:hover {
       color: #ff9900;
+    }
+
+    .bottom-nav .nav-icon.active img,
+    .bottom-nav .nav-icon:hover img {
+      filter: brightness(1.5);
     }
   </style>
 </head>
@@ -173,7 +188,6 @@
 
   <div class="feed">
 
-    <!-- Battle Reel 1 -->
     <div class="battle-card">
       <video class="battle-video" src="videos/battle1.mp4" controls autoplay muted loop></video>
       <div class="profile-pics">
@@ -185,7 +199,6 @@
       </div>
     </div>
 
-    <!-- Battle Reel 2 -->
     <div class="battle-card">
       <video class="battle-video" src="videos/battle2.mp4" controls autoplay muted loop></video>
       <div class="profile-pics">
@@ -199,23 +212,23 @@
 
   </div>
 
-  <!-- Bottom Navigation -->
+  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
     <div class="nav-icon" onclick="navigateTo('dashboard')">
       <img src="icons/home.png" alt="Home">
-      <div>Home</div>
+      <span>Home</span>
     </div>
-    <div class="nav-icon" onclick="navigateTo('battle')">
+    <div class="nav-icon active" onclick="navigateTo('battle')">
       <img src="icons/battle.png" alt="Battle">
-      <div>Battle</div>
+      <span>Battle</span>
     </div>
     <div class="nav-icon" onclick="navigateTo('messages')">
       <img src="icons/message.png" alt="Messages">
-      <div>Chat</div>
+      <span>Chat</span>
     </div>
     <div class="nav-icon" onclick="navigateTo('profile')">
       <img src="icons/profile.png" alt="Profile">
-      <div>Profile</div>
+      <span>Profile</span>
     </div>
   </div>
 
@@ -226,4 +239,4 @@
   </script>
 
 </body>
-</html>
+  </html>
