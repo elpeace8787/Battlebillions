@@ -14,41 +14,47 @@
       overflow-x: hidden;
     }
 
-    .profile-btn, .leaderboard-btn {
+    .profile-btn {
       position: fixed;
       top: 14px;
+      left: 14px;
       width: 44px;
       height: 44px;
       object-fit: cover;
-      border: none;
-      background: none;
+      border-radius: 50%;
+      border: 2px solid white;
       z-index: 999;
       cursor: pointer;
     }
 
-    .profile-btn {
-      left: 14px;
-      border-radius: 50%;
+    .logo-floating {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      width: 44px;
+      height: 44px;
+      animation: float 3s ease-in-out infinite;
+      z-index: 999;
     }
 
-    .leaderboard-btn {
-      right: 14px;
-      font-size: 26px;
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
     }
 
     .dashboard-title {
       text-align: center;
-      padding: 20px 0 60px;
-      font-size: 20px;
+      padding: 70px 0 20px;
+      font-size: 22px;
       font-family: 'Orbitron', sans-serif;
     }
 
     .battle-feed {
-      margin-top: 80px;
       margin-bottom: 90px;
       padding: 10px;
       overflow-y: auto;
-      max-height: calc(100vh - 170px);
+      max-height: calc(100vh - 180px);
     }
 
     .battle-card {
@@ -56,7 +62,7 @@
       border-radius: 16px;
       margin-bottom: 20px;
       padding: 14px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.07);
     }
 
     .competitor-info {
@@ -117,16 +123,16 @@
   </style>
 </head>
 <body>
-  <!-- Header Icons -->
-  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
-  <button class="leaderboard-btn" onclick="goTo('leaderboard.html')" title="Leaderboard">🏆</button>
+  <!-- Profile & Logo -->
+  <img src="Logopit_1697753255912.png" class="logo-floating" alt="BattleBillions Logo" />
+  <img src="profile.jpg" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
 
-  <!-- Title -->
+  <!-- Dashboard Title -->
   <div class="dashboard-title">🔥 Battles You Follow</div>
 
   <!-- Scrollable Feed -->
   <div class="battle-feed">
-    <!-- Battle Card 1 -->
+    <!-- Battle Card -->
     <div class="battle-card">
       <div class="competitor-info">
         <span>@TopDancer</span>
@@ -143,7 +149,6 @@
       </div>
     </div>
 
-    <!-- Battle Card 2 -->
     <div class="battle-card">
       <div class="competitor-info">
         <span>@FlowQueen</span>
@@ -159,11 +164,10 @@
         <button onclick="vote('dripking')">🔥 Vote DripKing</button>
       </div>
     </div>
-
-    <!-- Add more battle cards as needed -->
+    <!-- Add more battles dynamically as needed -->
   </div>
 
-  <!-- Bottom Navigation -->
+  <!-- Bottom Nav -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
@@ -182,4 +186,4 @@
     }
   </script>
 </body>
-      </html>
+  </html>
