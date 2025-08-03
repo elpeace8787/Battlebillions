@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battlebillions Dashboard</title>
+  <title>Battlebillions Dual Reels Dashboard</title>
   <link rel="stylesheet" href="shared.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -13,185 +12,166 @@
       background-color: #000;
       overflow: hidden;
       color: white;
-    }
+    }.profile-btn {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 999;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  border: 2px solid white;
+  object-fit: cover;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
 
-    .profile-btn {
-      position: fixed;
-      top: 14px;
-      left: 14px;
-      z-index: 999;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      border: 2px solid white;
-      object-fit: cover;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
-    }
+.rounds-timer {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  background: rgba(0,0,0,0.6);
+  padding: 4px 10px;
+  border-radius: 10px;
+  border: 1px solid white;
+}
 
-    .reel-container {
-      height: 100vh;
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-      scroll-behavior: smooth;
-    }
+.reel-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
 
-    .reel {
-      position: relative;
-      height: 100vh;
-      scroll-snap-align: start;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding-top: 80px;
-    }
+.reel {
+  height: 100vh;
+  display: flex;
+  scroll-snap-align: start;
+  position: relative;
+}
 
-    .battle-wrapper {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      max-width: 100%;
-      height: 80vh;
-    }
+.video-wrapper {
+  width: 50%;
+  height: 100%;
+  position: relative;
+}
 
-    .battle-screen {
-      width: 48%;
-      height: 100%;
-      position: relative;
-    }
+.video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-    .battle-screen video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 8px;
-    }
+.vote-btns {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+}
 
-    .overlay {
-      position: absolute;
-      bottom: 60px;
-      left: 8px;
-      color: white;
-      text-shadow: 1px 1px 4px black;
-    }
+.vote-btn {
+  font-size: 18px;
+  padding: 8px 16px;
+  border: 2px solid #fff;
+  background: transparent;
+  color: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+}
 
-    .vote-btn {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 24px;
-      background: rgba(255, 69, 0, 0.8);
-      border: none;
-      border-radius: 30px;
-      padding: 8px 20px;
-      cursor: pointer;
-      color: white;
-      font-weight: bold;
-    }
+.chat-box {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    .vote-btn:hover {
-      background: orange;
-    }
+.chat-input {
+  width: 80%;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
 
-    .round-timer-bar {
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
-      text-align: center;
-      background: rgba(0,0,0,0.6);
-      padding: 6px 20px;
-      border-radius: 20px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 16px;
-      font-weight: bold;
-      border: 1px solid #fff;
-      box-shadow: 0 0 6px rgba(255,255,255,0.3);
-    }
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  z-index: 999;
+  border-top: 1px solid #222;
+}
 
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      z-index: 999;
-      border-top: 1px solid #222;
-    }
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
 
-    .bottom-nav button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-    }
   </style>
 </head>
-<body>
-
-  <!-- Floating Profile -->
-  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
-
-  <!-- Scrollable Reels -->
-  <div class="reel-container">
-
-    <!-- REEL 1 -->
+<body>  <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
+  <div class="rounds-timer">
+    Round <span id="roundNum">1</span> — <span id="timer">30</span>s
+  </div>  <div class="reel-container" id="reelContainer">
     <div class="reel">
-      <div class="round-timer-bar">🔥 ROUND 1 — 00:45</div>
-      <div class="battle-wrapper">
-        <div class="battle-screen">
-          <video src="videos/sample1.mp4" autoplay muted loop></video>
-          <div class="overlay">@warrior_001</div>
-          <button class="vote-btn">🔥 Vote</button>
-        </div>
-        <div class="battle-screen">
-          <video src="videos/sample2.mp4" autoplay muted loop></video>
-          <div class="overlay">@flamequeen</div>
-          <button class="vote-btn">🔥 Vote</button>
-        </div>
+      <div class="video-wrapper">
+        <video src="videos/sample1.mp4" autoplay loop muted></video>
       </div>
-    </div>
-
-    <!-- REEL 2 -->
-    <div class="reel">
-      <div class="round-timer-bar">🔥 ROUND 2 — 00:59</div>
-      <div class="battle-wrapper">
-        <div class="battle-screen">
-          <video src="videos/sample3.mp4" autoplay muted loop></video>
-          <div class="overlay">@shadowbeast</div>
-          <button class="vote-btn">🔥 Vote</button>
-        </div>
-        <div class="battle-screen">
-          <video src="videos/sample4.mp4" autoplay muted loop></video>
-          <div class="overlay">@legendz</div>
-          <button class="vote-btn">🔥 Vote</button>
-        </div>
-      </div>
-    </div>
-
+      <div class="video-wrapper">
+        <video src="videos/sample2.mp4" autoplay loop muted></video>
+      </div><div class="vote-btns">
+    <button class="vote-btn" onclick="vote('left')">🔥 Left</button>
+    <button class="vote-btn" onclick="vote('right')">🔥 Right</button>
   </div>
 
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
+  <div class="chat-box">
+    <input type="text" class="chat-input" placeholder="Chat here..." />
+  </div>
+</div>
+
+  </div>  <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
     <button onclick="goTo('messages.html')">💬</button>
     <button onclick="goTo('wallet.html')">💰</button>
     <button onclick="goTo('settings.html')">⚙️</button>
-  </div>
-
-  <script>
+  </div>  <script>
     function goTo(page) {
       window.location.href = page;
     }
-  </script>
-</body>
-</html>
+
+    let round = 1;
+    let seconds = 30;
+    const timerEl = document.getElementById("timer");
+    const roundEl = document.getElementById("roundNum");
+
+    setInterval(() => {
+      seconds--;
+      timerEl.textContent = seconds;
+      if (seconds <= 0) {
+        round++;
+        roundEl.textContent = round;
+        seconds = 30;
+      }
+    }, 1000);
+
+    function vote(side) {
+      alert(`You voted for the ${side} competitor!`);
+    }
+  </script></body>
+            </html>
