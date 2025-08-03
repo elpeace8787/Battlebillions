@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battle Feed – Battlebillions</title>
   <link rel="stylesheet" href="shared.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -43,7 +43,7 @@
 
     .feed {
       padding: 15px;
-      padding-bottom: 100px; /* space for nav */
+      padding-bottom: 90px; /* space for nav */
     }
 
     .battle-card {
@@ -121,46 +121,32 @@
       color: #121212;
     }
 
+    /* Bottom Nav */
     .bottom-nav {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
-      background: #1f1f1f;
+      background: #111;
+      border-top: 2px solid #333;
       display: flex;
       justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      border-top: 2px solid #333;
-      z-index: 1000;
+      padding: 12px 0;
+      z-index: 999;
     }
 
-    .nav-icon {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 26px;
       color: #fff;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: 0.2s ease-in-out;
     }
 
-    .nav-icon img {
-      width: 26px;
-      height: 26px;
-      margin-bottom: 4px;
-      filter: brightness(0.9);
-    }
-
-    .nav-icon:hover,
-    .nav-icon.active {
+    .bottom-nav button:hover {
       color: #ff9900;
-    }
-
-    .nav-icon:hover img,
-    .nav-icon.active img {
-      filter: brightness(1.5);
+      transform: scale(1.2);
     }
   </style>
 </head>
@@ -187,6 +173,7 @@
   </div>
 
   <div class="feed">
+
     <!-- Battle Reel 1 -->
     <div class="battle-card">
       <video class="battle-video" src="videos/battle1.mp4" controls autoplay muted loop></video>
@@ -210,31 +197,21 @@
         <input type="text" placeholder="Say something 🔥..." />
       </div>
     </div>
+
   </div>
 
-  <!-- Bottom Nav Bar -->
+  <!-- Bottom Emoji Nav Bar -->
   <div class="bottom-nav">
-    <div class="nav-icon" onclick="navigateTo('dashboard')">
-      <img src="icons/home.png" alt="Home">
-      <span>Home</span>
-    </div>
-    <div class="nav-icon active" onclick="navigateTo('battle')">
-      <img src="icons/battle.png" alt="Battle">
-      <span>Battle</span>
-    </div>
-    <div class="nav-icon" onclick="navigateTo('messages')">
-      <img src="icons/message.png" alt="Chat">
-      <span>Chat</span>
-    </div>
-    <div class="nav-icon" onclick="navigateTo('profile')">
-      <img src="icons/profile.png" alt="Profile">
-      <span>Profile</span>
-    </div>
+    <button onclick="goTo('dashboard.html')">🏠</button>
+    <button onclick="goTo('battle.html')">⚔️</button>
+    <button onclick="goTo('messages.html')">💬</button>
+    <button onclick="goTo('wallet.html')">💰</button>
+    <button onclick="goTo('settings.html')">⚙️</button>
   </div>
 
   <script>
-    function navigateTo(page) {
-      window.location.href = page + ".html";
+    function goTo(page) {
+      window.location.href = page;
     }
   </script>
 
