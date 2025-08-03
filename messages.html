@@ -2,86 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Battlebillions Messages</title>
-  <link rel="stylesheet" href="messages.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Messages - Battlebillions</title>
+  <link rel="stylesheet" href="shared.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .messages-container {
+      padding: 20px;
+      padding-bottom: 80px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .message-user {
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+      animation: float 3s ease-in-out infinite;
+      border: 2px solid white;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+      100% { transform: translateY(0); }
+    }
+
+    .user-info {
+      flex-grow: 1;
+    }
+
+    .user-info h4 {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+    }
+
+    .user-info p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: #ccc;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      border-top: 1px solid #333;
+      z-index: 999;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="messages-page">
-    <div class="search-bar">
-      <input type="search" placeholder="Search messages..." />
-    </div>
 
-    <div class="chat-list" id="chatList">
-      <div class="chat" data-user="Alex">
-        <img src="profile.png" alt="Alex Profile" />
-        <div class="chat-info">
-          <strong>Alex</strong>
-          <p>Ready for the next battle?</p>
-        </div>
-        <span class="time">2h</span>
-      </div>
-
-      <div class="chat" data-user="Jamie">
-        <img src="profile.png" alt="Jamie Profile" />
-        <div class="chat-info">
-          <strong>Jamie</strong>
-          <p>Sent the coins, check your wallet.</p>
-        </div>
-        <span class="time">Yesterday</span>
+  <div class="messages-container">
+    <!-- Each Chat Entry -->
+    <div class="message-user">
+      <img src="avatars/user1.png" alt="User" class="profile-pic">
+      <div class="user-info">
+        <h4>@QueenFlame</h4>
+        <p>“You ready for round 2? 😏🔥”</p>
       </div>
     </div>
 
-    <div class="chat-thread" id="chatThread">
-      <p>Select a chat to start messaging</p>
+    <div class="message-user">
+      <img src="avatars/user2.png" alt="User" class="profile-pic">
+      <div class="user-info">
+        <h4>@VisionaryKing</h4>
+        <p>“We just getting started. Let’s go 💯💥”</p>
+      </div>
     </div>
 
-    <form class="send-message" id="sendMessageForm" style="display:none;">
-      <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off" />
-      <button type="submit">➤</button>
-    </form>
+    <div class="message-user">
+      <img src="avatars/user3.png" alt="User" class="profile-pic">
+      <div class="user-info">
+        <h4>@BladeRunner</h4>
+        <p>“Battle invite sent. Watch your throne 👑”</p>
+      </div>
+    </div>
+
+    <!-- Add more messages here -->
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button onclick="goTo('dashboard.html')">🏠</button>
+    <button onclick="goTo('battle.html')">⚔️</button>
+    <button onclick="goTo('messages.html')">💬</button>
+    <button onclick="goTo('wallet.html')">💰</button>
+    <button onclick="goTo('profile.html')">👤</button>
   </div>
 
   <script>
-    const chatList = document.getElementById('chatList');
-    const chatThread = document.getElementById('chatThread');
-    const sendMessageForm = document.getElementById('sendMessageForm');
-    const messageInput = document.getElementById('messageInput');
-
-    chatList.addEventListener('click', (e) => {
-      let chat = e.target.closest('.chat');
-      if (!chat) return;
-
-      // Clear previous chat
-      chatThread.innerHTML = '';
-      sendMessageForm.style.display = 'flex';
-
-      const user = chat.dataset.user;
-
-      // For demo, show simple message thread
-      chatThread.innerHTML = `
-        <div class="message received"><p>Hello from ${user}!</p></div>
-        <div class="message sent"><p>Hey ${user}, what's up?</p></div>
-      `;
-
-      messageInput.focus();
-    });
-
-    sendMessageForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const text = messageInput.value.trim();
-      if (!text) return;
-
-      const messageDiv = document.createElement('div');
-      messageDiv.classList.add('message', 'sent');
-      messageDiv.innerHTML = `<p>${text}</p>`;
-      chatThread.appendChild(messageDiv);
-      messageInput.value = '';
-      messageInput.focus();
-
-      // Scroll to bottom
-      chatThread.scrollTop = chatThread.scrollHeight;
-    });
+    function goTo(page) {
+      window.location.href = page;
+    }
   </script>
+
 </body>
 </html>
