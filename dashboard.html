@@ -165,11 +165,11 @@
 
       <div class="round-timer">
         <span>Round: <span class="round-num">1</span>/3</span>
-        <span>⏱ <span class="timer" data-seconds="10">10</span>s</span>
+        <span>⏱ <span class="timer">47</span>s</span>
       </div>
 
       <div class="battle-videos">
-        <video id="video1" class="highlight" src="videos/topdancer.mp4" autoplay muted loop></video>
+        <video id="video1" src="videos/topdancer.mp4" autoplay muted loop></video>
         <video id="video2" src="videos/beatmaster.mp4" autoplay muted loop></video>
       </div>
 
@@ -202,24 +202,52 @@
       alert(`🔥 You voted for @${user}`);
     }
 
-    // Countdown logic
-    document.querySelectorAll('.timer').forEach(timerEl => {
-      let seconds = parseInt(timerEl.getAttribute('data-seconds'));
-      const video1 = document.getElementById('video1');
-      const video2 = document.getElementById('video2');
+    const timerEl = document.querySelector('.timer');
+    const roundNumEl = document.querySelector('.round-num');
+    const video1 = document.getElementById('video1');
+    const video2 = document.getElementById('video2');
 
+    let currentRound = 1;
+    const totalRounds = 3;
+    let isFirstPlayerTurn = true;
+
+    function startTurn(seconds) {
+      if (isFirstPlayerTurn) {
+        video1.classList.add('highlight');
+        video2.classList.remove('highlight');
+      } else {
+        video2.classList.add('highlight');
+        video1.classList.remove('highlight');
+      }
+
+      timerEl.textContent = seconds;
       const interval = setInterval(() => {
-        if (seconds > 0) {
-          seconds--;
-          timerEl.textContent = seconds;
-        } else {
+        seconds--;
+        timerEl.textContent = seconds;
+
+        if (seconds <= 0) {
           clearInterval(interval);
-          timerEl.textContent = "0";
-          video1.classList.remove('highlight');
-          video2.classList.add('highlight');
+          setTimeout(() => {
+            if (!isFirstPlayerTurn) {
+              currentRound++;
+              roundNumEl.textContent = currentRound;
+            }
+
+            if (currentRound > totalRounds) {
+              video1.classList.remove('highlight');
+              video2.classList.remove('highlight');
+              timerEl.textContent = "0";
+              return;
+            }
+
+            isFirstPlayerTurn = !isFirstPlayerTurn;
+            startTurn(47);
+          }, 4000); // 4 second pause
         }
       }, 1000);
-    });
+    }
+
+    startTurn(47);
   </script>
 </body>
-  </html>
+</html>
