@@ -97,7 +97,7 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    /* Bottom Nav (Synced with battle.html) */
+    /* Exact Bottom Emoji Nav Bar */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -107,6 +107,7 @@
       border-top: 2px solid #333;
       display: flex;
       justify-content: space-around;
+      align-items: center;
       padding: 12px 0;
       z-index: 999;
     }
@@ -117,12 +118,12 @@
       font-size: 26px;
       color: #fff;
       cursor: pointer;
-      transition: 0.2s ease-in-out;
+      transition: color 0.2s, transform 0.2s;
     }
 
     .bottom-nav button:hover {
       color: #ff9900;
-      transform: scale(1.2);
+      transform: scale(1.15);
     }
   </style>
 </head>
@@ -160,7 +161,7 @@
     </div>
   </div>
 
-  <!-- Synced Emoji Bottom Navigation -->
+  <!-- Bottom Emoji Nav Bar -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
