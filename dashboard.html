@@ -5,85 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Battlebillions Dashboard</title>
   <link rel="stylesheet" href="shared.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
       background-color: #000;
-      overflow-x: hidden;
       color: white;
+      overflow: hidden;
     }
 
-    /* Floating Profile Button */
     .profile-btn {
       position: fixed;
       top: 14px;
       left: 14px;
       z-index: 999;
       border-radius: 50%;
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border: 2px solid white;
       object-fit: cover;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      box-shadow: 0 0 8px rgba(255,255,255,0.3);
     }
 
-    /* Reel Container */
     .reel-container {
       height: 100vh;
-      scroll-snap-type: y mandatory;
       overflow-y: scroll;
+      scroll-snap-type: y mandatory;
     }
 
     .reel {
-      position: relative;
+      display: flex;
+      flex-direction: row;
+      width: 100%;
       height: 100vh;
       scroll-snap-align: start;
+      position: relative;
     }
 
-    .reel video {
+    .video-wrapper {
+      width: 50%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-wrapper video {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    /* Overlay Text + Icons */
     .overlay {
       position: absolute;
-      bottom: 100px;
-      left: 16px;
-      right: 16px;
+      bottom: 80px;
+      left: 10px;
+      right: 10px;
       color: white;
       z-index: 10;
     }
 
     .overlay h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
     }
 
     .overlay p {
-      margin-top: 6px;
-      font-size: 14px;
-      opacity: 0.8;
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.85;
     }
 
-    .actions {
+    .vote-actions {
       position: absolute;
-      right: 16px;
-      bottom: 120px;
+      bottom: 130px;
+      right: 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
       z-index: 10;
+      gap: 16px;
     }
 
-    .actions button {
+    .vote-actions button {
       background: none;
       border: none;
       color: white;
@@ -91,7 +96,6 @@
       cursor: pointer;
     }
 
-    /* Bottom Nav */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -115,55 +119,69 @@
 </head>
 <body>
 
-  <!-- Profile Button -->
+  <!-- Floating Profile Button -->
   <img src="Logopit_1697753255912.png" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
 
-  <!-- Reel Feed -->
+  <!-- Reels Feed with Dual Screens -->
   <div class="reel-container">
-    <!-- Reel 1 -->
+
+    <!-- Duel Reel -->
     <div class="reel">
-      <video src="videos/sample1.mp4" autoplay loop muted></video>
-      <div class="overlay">
-        <h3>@warrior_001</h3>
-        <p>Climbing to #1 in Battlebillions 🧨🔥</p>
+      <!-- Competitor 1 -->
+      <div class="video-wrapper">
+        <video src="videos/sample1.mp4" autoplay loop muted></video>
+        <div class="overlay">
+          <h3>@warrior_001</h3>
+          <p>🔥 Round 1 Champion</p>
+        </div>
+        <div class="vote-actions">
+          <button onclick="vote('warrior_001')">🔥</button>
+        </div>
       </div>
-      <div class="actions">
-        <button>❤️</button>
-        <button>💬</button>
-        <button>🔗</button>
+
+      <!-- Competitor 2 -->
+      <div class="video-wrapper">
+        <video src="videos/sample2.mp4" autoplay loop muted></video>
+        <div class="overlay">
+          <h3>@flamequeen</h3>
+          <p>🔥 Style & Power</p>
+        </div>
+        <div class="vote-actions">
+          <button onclick="vote('flamequeen')">🔥</button>
+        </div>
       </div>
     </div>
 
-    <!-- Reel 2 -->
+    <!-- Another Duel Reel -->
     <div class="reel">
-      <video src="videos/sample2.mp4" autoplay loop muted></video>
-      <div class="overlay">
-        <h3>@flamequeen</h3>
-        <p>Unlocked hidden treasure 💎 in battle!</p>
+      <!-- Competitor 3 -->
+      <div class="video-wrapper">
+        <video src="videos/sample3.mp4" autoplay loop muted></video>
+        <div class="overlay">
+          <h3>@battlebeast</h3>
+          <p>🔥 Unstoppable Form</p>
+        </div>
+        <div class="vote-actions">
+          <button onclick="vote('battlebeast')">🔥</button>
+        </div>
       </div>
-      <div class="actions">
-        <button>❤️</button>
-        <button>💬</button>
-        <button>🔗</button>
+
+      <!-- Competitor 4 -->
+      <div class="video-wrapper">
+        <video src="videos/sample4.mp4" autoplay loop muted></video>
+        <div class="overlay">
+          <h3>@stormknight</h3>
+          <p>🔥 Wind-Style Finish</p>
+        </div>
+        <div class="vote-actions">
+          <button onclick="vote('stormknight')">🔥</button>
+        </div>
       </div>
     </div>
 
-    <!-- Reel 3 -->
-    <div class="reel">
-      <video src="videos/sample3.mp4" autoplay loop muted></video>
-      <div class="overlay">
-        <h3>@battlebeast</h3>
-        <p>Double knockout round 🔥👑</p>
-      </div>
-      <div class="actions">
-        <button>❤️</button>
-        <button>💬</button>
-        <button>🔗</button>
-      </div>
-    </div>
   </div>
 
-  <!-- Bottom Nav Bar -->
+  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
@@ -176,7 +194,11 @@
     function goTo(page) {
       window.location.href = page;
     }
-  </script>
 
+    function vote(user) {
+      alert("🔥 Voted for " + user + "!");
+      // You can replace this with Firebase/Supabase vote tracking
+    }
+  </script>
 </body>
-</html>
+          </html>
