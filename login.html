@@ -1,19 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login – BattleBillions</title>
-  <link rel="stylesheet" href="login.css" />
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="main.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Battlebillions Login</title>
+  <link rel="stylesheet" href="css/shared.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="login-container">
-    <img src="assets/logo.png" class="logo" alt="BattleBillions Logo" />
-    <h2>Login to BattleBillions</h2>
+  <div class="page-transition" id="pageTransition"></div>
 
-    <button id="googleLoginBtn">Continue with Google</button>
-
-    <p class="alt-option">Don't have an account? <a href="signup.html">Sign up</a></p>
+  <!-- Background -->
+  <div class="background"></div>
+  <div class="floating-elements">
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
+    <div class="float-item"></div>
   </div>
+
+  <div class="main-container">
+    <div class="login-wrapper">
+
+      <!-- Brand Section -->
+      <div class="brand-section">
+        <img src="Logopit_1697753255912.png" alt="Battlebillions Logo" class="brand-logo" draggable="false" />
+        <h1 class="brand-title">BATTLEBILLIONS</h1>
+        <p class="brand-subtitle">
+          Return to your throne. Enter the arena. Rule with skill and soul.
+        </p>
+        <ul class="features-list">
+          <li><span class="icon">🛡️</span> Secured entry to leaderboard battles</li>
+          <li><span class="icon">👁️</span> Verified user access only</li>
+          <li><span class="icon">🌐</span> Global match sync in seconds</li>
+        </ul>
+      </div>
+
+      <!-- Login Form -->
+      <div class="login-container">
+        <div class="login-header">
+          <h2 class="login-title">Welcome Back</h2>
+          <p class="login-subtitle">Ready to conquer again? Log in to continue.</p>
+        </div>
+
+        <!-- Messages -->
+        <div id="errorMessage" class="message error-message"></div>
+        <div id="successMessage" class="message success-message"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <input type="email" name="email" class="form-input" placeholder="Enter your email" required />
+            <div class="form-icon">📧</div>
+          </div>
+          <div class="form-group">
+            <input type="password" name="password" class="form-input" placeholder="Enter your password" required />
+            <div class="form-icon">🔒</div>
+            <div class="password-strength">
+              <div id="passwordStrengthBar" class="password-strength-bar"></div>
+            </div>
+          </div>
+
+          <div class="remember-group">
+            <input type="checkbox" class="custom-checkbox" id="rememberMe" />
+            <label for="rememberMe">Remember me for 30 days</label>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn primary-btn">Enter Arena</button>
+            <a href="signup.html"><button type="button" class="btn secondary-btn">Join Battle</button></a>
+          </div>
+        </form>
+
+        <div class="divider"><span>Or login with</span></div>
+
+        <div class="social-grid">
+          <button class="social-btn google" data-provider="google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" /> Google
+          </button>
+          <button class="social-btn facebook" data-provider="facebook">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" /> Facebook
+          </button>
+          <button class="social-btn instagram" data-provider="instagram">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" /> Instagram
+          </button>
+          <button class="social-btn tiktok" data-provider="tiktok">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" /> TikTok
+          </button>
+        </div>
+
+        <div class="footer-links">
+          <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+          <a href="#" onclick="showSupport()">Need Help?</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
 </body>
-</html>
+              </html>
