@@ -74,6 +74,13 @@
       font-weight: 600;
     }
 
+    .competitor-info span img {
+      width: 20px;
+      height: 14px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
     .battle-videos {
       display: flex;
       gap: 8px;
@@ -84,6 +91,13 @@
       height: 220px;
       object-fit: cover;
       border-radius: 12px;
+      border: 2px solid transparent;
+      transition: border 0.3s ease;
+    }
+
+    .highlight {
+      border: 2px solid #00ffcc !important;
+      box-shadow: 0 0 12px #00ffcc;
     }
 
     .round-timer {
@@ -97,14 +111,15 @@
     .expand-btn {
       position: absolute;
       top: 12px;
-      right: 12px;
-      background-color: #333;
+      left: -10px;
+      background-color: #222;
       border: 1px solid white;
       color: white;
       padding: 6px 10px;
       font-size: 12px;
       border-radius: 16px;
       cursor: pointer;
+      z-index: 1;
     }
 
     .vote-buttons {
@@ -145,22 +160,16 @@
   </style>
 </head>
 <body>
-  <!-- Trophy & Profile Icons -->
   <div class="trophy-icon" onclick="goTo('leaderboard.html')">🏆</div>
   <img src="profile.jpg" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
-
-  <!-- Title -->
   <div class="dashboard-title">🔥 Battles You Follow</div>
 
-  <!-- Scrollable Battle Feed -->
   <div class="battle-feed">
-
-    <!-- Battle Card Example -->
     <div class="battle-card">
       <div class="competitor-info">
-        <span>@TopDancer</span>
+        <span>@TopDancer <img src="flags/us.png" alt="US Flag" /></span>
         <span>vs</span>
-        <span>@BeatMaster</span>
+        <span>@BeatMaster <img src="flags/uk.png" alt="UK Flag" /></span>
       </div>
 
       <div class="round-timer">
@@ -169,7 +178,7 @@
       </div>
 
       <div class="battle-videos">
-        <video src="videos/topdancer.mp4" autoplay muted loop></video>
+        <video class="highlight" src="videos/topdancer.mp4" autoplay muted loop></video>
         <video src="videos/beatmaster.mp4" autoplay muted loop></video>
       </div>
 
@@ -180,12 +189,9 @@
         <button onclick="vote('beatmaster')">🔥 Vote BeatMaster</button>
       </div>
     </div>
-
-    <!-- Add more battle cards below -->
-
+    <!-- Add more battle cards -->
   </div>
 
-  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
@@ -205,10 +211,8 @@
 
     function expandBattle() {
       alert("Expanding battle view...");
-      // Optional: logic to open full screen or navigate to battle view
     }
 
-    // Countdown logic for all timers
     document.querySelectorAll('.timer').forEach(timerEl => {
       let seconds = parseInt(timerEl.getAttribute('data-seconds'));
       const interval = setInterval(() => {
@@ -223,4 +227,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
