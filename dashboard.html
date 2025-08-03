@@ -60,16 +60,17 @@
     .battle-card {
       background-color: #111;
       border-radius: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       padding: 14px;
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.07);
+      position: relative;
     }
 
     .competitor-info {
       display: flex;
       justify-content: space-between;
       font-size: 14px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       font-weight: 600;
     }
 
@@ -83,6 +84,27 @@
       height: 220px;
       object-fit: cover;
       border-radius: 12px;
+    }
+
+    .round-timer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .expand-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: #333;
+      border: 1px solid white;
+      color: white;
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 16px;
+      cursor: pointer;
     }
 
     .vote-buttons {
@@ -123,10 +145,8 @@
   </style>
 </head>
 <body>
-  <!-- Trophy Icon (Left Top) -->
+  <!-- Trophy & Profile Icons -->
   <div class="trophy-icon" onclick="goTo('leaderboard.html')">🏆</div>
-
-  <!-- Profile Image (Floating Right) -->
   <img src="profile.jpg" class="profile-btn" onclick="goTo('profile.html')" alt="Profile" />
 
   <!-- Title -->
@@ -134,41 +154,38 @@
 
   <!-- Scrollable Battle Feed -->
   <div class="battle-feed">
+
+    <!-- Battle Card Example -->
     <div class="battle-card">
       <div class="competitor-info">
         <span>@TopDancer</span>
         <span>vs</span>
         <span>@BeatMaster</span>
       </div>
+
+      <div class="round-timer">
+        <span>Round: <span class="round-num">1</span>/3</span>
+        <span>⏱ <span class="timer" data-seconds="47">47</span>s</span>
+      </div>
+
       <div class="battle-videos">
         <video src="videos/topdancer.mp4" autoplay muted loop></video>
         <video src="videos/beatmaster.mp4" autoplay muted loop></video>
       </div>
+
+      <button class="expand-btn" onclick="expandBattle()">⛶ Expand</button>
+
       <div class="vote-buttons">
         <button onclick="vote('topdancer')">🔥 Vote TopDancer</button>
         <button onclick="vote('beatmaster')">🔥 Vote BeatMaster</button>
       </div>
     </div>
 
-    <div class="battle-card">
-      <div class="competitor-info">
-        <span>@FlowQueen</span>
-        <span>vs</span>
-        <span>@DripKing</span>
-      </div>
-      <div class="battle-videos">
-        <video src="videos/flowqueen.mp4" autoplay muted loop></video>
-        <video src="videos/dripking.mp4" autoplay muted loop></video>
-      </div>
-      <div class="vote-buttons">
-        <button onclick="vote('flowqueen')">🔥 Vote FlowQueen</button>
-        <button onclick="vote('dripking')">🔥 Vote DripKing</button>
-      </div>
-    </div>
-    <!-- More battle cards will be loaded dynamically -->
+    <!-- Add more battle cards below -->
+
   </div>
 
-  <!-- Bottom Nav Bar -->
+  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
@@ -185,6 +202,25 @@
     function vote(user) {
       alert(`🔥 You voted for @${user}`);
     }
+
+    function expandBattle() {
+      alert("Expanding battle view...");
+      // Optional: logic to open full screen or navigate to battle view
+    }
+
+    // Countdown logic for all timers
+    document.querySelectorAll('.timer').forEach(timerEl => {
+      let seconds = parseInt(timerEl.getAttribute('data-seconds'));
+      const interval = setInterval(() => {
+        if (seconds > 0) {
+          seconds--;
+          timerEl.textContent = seconds;
+        } else {
+          clearInterval(interval);
+          timerEl.textContent = "0";
+        }
+      }, 1000);
+    });
   </script>
 </body>
 </html>
