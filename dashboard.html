@@ -1,259 +1,188 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BattleBillions - Dual Live Battle</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Battle Stream</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
       font-family: 'Inter', sans-serif;
       background: #000;
-      height: 100vh;
-      width: 100vw;
-      overflow-y: scroll;
-    }
-    .video-container {
-      display: flex;
-      width: 100vw;
-      height: 100vh;
-    }
-    video.stream {
-      width: 50vw;
-      height: 100vh;
-      object-fit: cover;
-    }
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 1rem;
-      box-sizing: border-box;
-      pointer-events: none;
-    }
-    .top-ui {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .live-label {
-      background: red;
       color: white;
-      padding: 0.3rem 0.6rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      animation: blink 1s infinite;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .stats {
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
-    }
-    .chat {
-      position: absolute;
-      bottom: 180px;
-      left: 10px;
-      width: 70%;
-      max-height: 30vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      z-index: 3;
-      pointer-events: auto;
-    }
-    .chat-message {
-      background: rgba(0,0,0,0.4);
-      padding: 5px 10px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-    }
-    .bottom-ui {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      align-items: center;
-      justify-content: flex-end;
-      pointer-events: auto;
-    }
-    .gift-button {
-      background: #ff0080;
-      color: white;
-      padding: 10px 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-    }
-    .profile-ui {
-      position: absolute;
-      top: 100px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      z-index: 3;
-      pointer-events: auto;
-    }
-    .profile-circle {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-      border: 2px solid white;
-    }
-    .side-button {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0));
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0;
-      z-index: 999;
-    }
-    .bottom-nav button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-    }
-    .round-info {
-      position: absolute;
-      bottom: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      z-index: 10;
-    }
-    .username-label {
-      position: absolute;
-      top: 50px;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 10;
-    }
-    .username-entry {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,0,0,0.4);
-      padding: 4px 10px;
-      border-radius: 16px;
-    }
-    .username-entry img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-    }
-    .your-turn {
-      outline: 3px solid #00ffcc;
-      box-shadow: 0 0 15px #00ffcc;
-    }
+      overflow: hidden;
+    }.stream-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+.video-stream {
+  flex: 1;
+  background: #222;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+.top-bar, .bottom-bar {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  pointer-events: auto;
+}
+
+.top-bar {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+}
+
+.bottom-bar {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  align-items: center;
+}
+
+.nav-icon {
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+}
+
+.chat-box {
+  position: absolute;
+  left: 10px;
+  bottom: 100px;
+  width: 70%;
+  max-height: 30vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  pointer-events: auto;
+}
+
+.chat-message {
+  background: rgba(0,0,0,0.5);
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.round-timer {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  background: rgba(0,0,0,0.6);
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 16px;
+}
+
+.side-controls {
+  position: absolute;
+  right: 10px;
+  bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.side-button {
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.profile-labels {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.profile-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.5);
+  padding: 6px 12px;
+  border-radius: 16px;
+}
+
+.profile-entry img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
   </style>
 </head>
 <body>
-  <div class="video-container">
-    <video class="stream" autoplay muted></video>
-    <video class="stream" autoplay muted></video>
+  <div class="stream-container">
+    <video class="video-stream" autoplay muted loop src="user1.mp4"></video>
+    <video class="video-stream" autoplay muted loop src="user2.mp4"></video><div class="overlay">
+  <div class="top-bar">
+    <div class="nav-icon">🔴 LIVE</div>
+    <div class="nav-icon">👁️ 1.3k</div>
   </div>
-  <div class="overlay">
-    <div class="top-ui">
-      <div class="live-label">🔴 LIVE</div>
-      <div class="stats">👁️ 1.3k viewers</div>
+
+  <div class="profile-labels">
+    <div class="profile-entry">
+      <img src="profile1.jpg" alt="User1">
+      <span>@StarDancer</span>
     </div>
-    <div class="username-label">
-      <div class="username-entry"><img src="user1.jpg" alt="User1" /><span>@UserOne</span></div>
-      <div class="username-entry"><img src="user2.jpg" alt="User2" /><span>@UserTwo</span></div>
-    </div>
-    <div class="chat" id="chatBox">
-      <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
-      <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
-      <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
-    </div>
-    <div class="round-info">⏱️ 38s | Round 1 of 3</div>
-    <div class="bottom-ui">
-      <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
-    </div>
-    <div class="profile-ui" style="left: 10px;">
-      <div class="profile-circle" style="background-image: url('user1.jpg');"></div>
-      <button class="side-button" onclick="likeStream()">❤️</button>
-      <button class="side-button" onclick="shareStream()">🔗</button>
-      <button class="side-button" onclick="endStream()">✖️</button>
-    </div>
-    <div class="profile-ui" style="right: 10px;">
-      <div class="profile-circle" style="background-image: url('user2.jpg');"></div>
-      <button class="side-button" onclick="likeStream()">❤️</button>
-      <button class="side-button" onclick="shareStream()">🔗</button>
-      <button class="side-button" onclick="endStream()">✖️</button>
+    <div class="profile-entry">
+      <img src="profile2.jpg" alt="User2">
+      <span>@CyberWolf</span>
     </div>
   </div>
-  <div class="bottom-nav">
-    <button onclick="goHome()">🏠</button>
-    <button onclick="openChat()">💬</button>
-    <button onclick="openLeaderboard()">🏆</button>
-    <button onclick="openSettings()">⚙️</button>
+
+  <div class="chat-box">
+    <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
+    <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
+    <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
   </div>
-  <script>
-    function sendGift() {
-      alert('Gift Sent!');
-    }
-    function likeStream() {
-      alert('Liked!');
-    }
-    function shareStream() {
-      alert('Share popup opened.');
-    }
-    function endStream() {
-      alert('Stream Ended.');
-    }
-    function goHome() {
-      alert('Returning to Home.');
-    }
-    function openChat() {
-      alert('Opening Chat.');
-    }
-    function openLeaderboard() {
-      alert('Showing Leaderboard.');
-    }
-    function openSettings() {
-      alert('Opening Settings.');
-    }
-  </script>
+
+  <div class="side-controls">
+    <div class="side-button">❤️</div>
+    <div class="side-button">🔗</div>
+    <div class="side-button">✖️</div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-icon">🔍</div>
+    <div class="nav-icon">🎁</div>
+    <div class="nav-icon">💬</div>
+    <div class="nav-icon">🏆</div>
+  </div>
+
+  <div class="round-timer">
+    Round 1 of 3 | 38s
+  </div>
+</div>
+
+  </div>
 </body>
-  </html>
+</html>
