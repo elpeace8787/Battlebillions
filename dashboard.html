@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -138,65 +137,54 @@
 <body>
   <div class="stream-container">
     <!-- Self video feed -->
-    <video class="video-stream" id="myVideo" autoplay muted playsinline></video>
+    <video class="video-stream" id="myVideo" autoplay muted playsinline></video><!-- Opponent or secondary video placeholder -->
+<video class="video-stream" autoplay muted loop src="user2.mp4"></video>
 
-    <!-- Opponent or secondary video placeholder -->
-    <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
-
-    <div class="overlay">
-      <!-- Top bar -->
-      <div class="top-bar">
-        <div class="nav-icon">🔴 LIVE</div>
-        <div class="nav-icon">👁️ 1.3k</div>
-      </div>
-
-      <!-- Rank display -->
-      <div class="rank-box" id="rankBox">Rank: 0</div>
-
-      <!-- Chat -->
-      <div class="chat-box" id="chatBox">
-        <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
-        <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
-        <div class="chat-message"><strong>@Echo87:</strong> Just voted!</div>
-      </div>
-
-      <!-- Side controls -->
-      <div class="side-controls">
-        <div class="side-button" onclick="upvote()">👍</div>
-        <div class="side-button">🔗</div>
-        <div class="side-button">✖️</div>
-      </div>
-
-      <!-- Bottom nav -->
-      <div class="bottom-bar">
-        <div class="nav-icon">🏠</div>
-        <div class="nav-icon">🔍</div>
-        <div class="nav-icon">📊</div>
-        <div class="nav-icon">💬</div>
-        <div class="nav-icon">🏆</div>
-      </div>
-
-      <!-- Round timer -->
-      <div class="round-timer" id="roundTimer">
-        Round 1 of 3 | 38s
-      </div>
-
-      <!-- Profile names -->
-      <div class="profile-labels">
-        <div class="profile-entry">
-          <img src="https://i.pravatar.cc/28?u=user1" />
-          <span>You</span>
-        </div>
-        <div class="profile-entry">
-          <img src="https://i.pravatar.cc/28?u=user2" />
-          <span>Rival</span>
-        </div>
-      </div>
-    </div>
+<div class="overlay">
+  <div class="top-bar">
+    <div class="nav-icon">🔴 LIVE</div>
+    <div class="nav-icon">👁️ 1.3k</div>
   </div>
 
-  <script>
-    // Rank logic: Each upvote = +1 rank
+  <div class="rank-box" id="rankBox">Rank: 0</div>
+
+  <div class="chat-box" id="chatBox">
+    <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
+    <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
+    <div class="chat-message"><strong>@Echo87:</strong> Just voted!</div>
+  </div>
+
+  <div class="side-controls">
+    <div class="side-button" onclick="upvote()">👍</div>
+    <div class="side-button">🔗</div>
+    <div class="side-button">✖️</div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-icon">🔍</div>
+    <div class="nav-icon">📊</div>
+    <div class="nav-icon">💬</div>
+    <div class="nav-icon">🏆</div>
+  </div>
+
+  <div class="round-timer" id="roundTimer">
+    Round 1 of 3 | 38s
+  </div>
+
+  <div class="profile-labels">
+    <div class="profile-entry">
+      <img src="https://i.pravatar.cc/28?u=user1" />
+      <span>You</span>
+    </div>
+    <div class="profile-entry">
+      <img src="https://i.pravatar.cc/28?u=user2" />
+      <span>Rival</span>
+    </div>
+  </div>
+</div>
+
+  </div>  <script>
     let rank = 0;
     const rankBox = document.getElementById('rankBox');
 
@@ -210,7 +198,6 @@
       chatBox.appendChild(msg);
     }
 
-    // Enable self camera/mic
     const myVideo = document.getElementById('myVideo');
 
     async function enableMedia() {
@@ -226,8 +213,6 @@
       }
     }
 
-    // Start local media on load
     window.onload = enableMedia;
-  </script>
-</body>
-                                    </html>
+  </script></body>
+</html>
