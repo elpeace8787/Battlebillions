@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -102,62 +103,71 @@
     }
     .round-timer {
       position: absolute;
-      bottom: 50%;
+      bottom: 80px;
       left: 50%;
-      transform: translate(-50%, 50%);
+      transform: translateX(-50%);
       background: rgba(0,0,0,0.6);
       padding: 10px 20px;
       border-radius: 25px;
       font-size: 16px;
+      transition: box-shadow 0.4s ease;
+    }
+    .glow {
+      box-shadow: 0 0 18px 8px rgba(255, 215, 0, 0.7);
     }
   </style>
 </head>
 <body>
   <div class="stream-container">
     <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-    <video class="video-stream" autoplay muted loop src="user2.mp4"></video><div class="overlay">
-  <div class="top-bar">
-    <div class="nav-icon">🔴 LIVE</div>
-    <div class="nav-icon">👁️ 1.3k</div>
-  </div>
+    <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
+    
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon">🔴 LIVE</div>
+        <div class="nav-icon">👁️ 1.3k</div>
+      </div>
 
-  <div class="profile-labels">
-    <div class="profile-entry">
-      <img src="user1.jpg" alt="User 1">
-      <span>@You</span>
+      <div class="profile-labels">
+        <div class="profile-entry">
+          <img src="user1.jpg" alt="User 1">
+          <span>@You</span>
+        </div>
+        <div class="profile-entry">
+          <img src="user2.jpg" alt="User 2">
+          <span>@Opponent</span>
+        </div>
+      </div>
+
+      <div class="side-controls left">
+        <div class="side-button" onclick="goHome()">🏠</div>
+        <div class="side-button" onclick="searchBattle()">🔍</div>
+        <div class="side-button" onclick="logout()">🚪</div>
+      </div>
+
+      <div class="side-controls right">
+        <div class="side-button" onclick="openProfile()">👤</div>
+        <div class="side-button" onclick="openLeaderboard()">🏆</div>
+        <div class="side-button" onclick="openBattleFeed()">📺</div>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="nav-icon" onclick="goHome()">🏠</div>
+        <div class="nav-icon" onclick="searchBattle()">🔍</div>
+        <div class="nav-icon" onclick="openLeaderboard()">🏆</div>
+        <div class="nav-icon" onclick="openProfile()">👤</div>
+        <div class="nav-icon" onclick="openBattleFeed()">📺</div>
+      </div>
+
+      <div class="round-timer" id="roundTimer">
+        Round 1 of 3 | 60s
+      </div>
     </div>
-    <div class="profile-entry">
-      <img src="user2.jpg" alt="User 2">
-      <span>@Opponent</span>
-    </div>
   </div>
 
-  <div class="side-controls left">
-    <div class="side-button" onclick="goHome()">🏠</div>
-    <div class="side-button" onclick="searchBattle()">🔍</div>
-    <div class="side-button" onclick="logout()">🚪</div>
-  </div>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
 
-  <div class="side-controls right">
-    <div class="side-button" onclick="openProfile()">👤</div>
-    <div class="side-button" onclick="openLeaderboard()">🏆</div>
-    <div class="side-button" onclick="openBattleFeed()">📺</div>
-  </div>
-
-  <div class="bottom-bar">
-    <div class="nav-icon" onclick="goHome()">🏠</div>
-    <div class="nav-icon" onclick="searchBattle()">🔍</div>
-    <div class="nav-icon" onclick="openLeaderboard()">🏆</div>
-    <div class="nav-icon" onclick="openProfile()">👤</div>
-    <div class="nav-icon" onclick="openBattleFeed()">📺</div>
-  </div>
-
-  <div class="round-timer" id="roundTimer">
-    Round 1 of 3 | 60s
-  </div>
-</div>
-
-  </div>  <script>
+  <script>
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -176,22 +186,31 @@
     function openLeaderboard() { alert('Opening Leaderboard'); }
     function openBattleFeed() { alert('Opening Battle Feed'); }
 
-    // Round switching logic
     let round = 1;
     let timeLeft = 60;
     const timerDisplay = document.getElementById('roundTimer');
+    const sound = document.getElementById('roundEndSound');
+
+    function triggerGlow() {
+      timerDisplay.classList.add('glow');
+      setTimeout(() => timerDisplay.classList.remove('glow'), 1500);
+    }
 
     function startRoundTimer() {
       const interval = setInterval(() => {
         timeLeft--;
         timerDisplay.innerText = `Round ${round} of 3 | ${timeLeft}s`;
+
         if (timeLeft === 0) {
+          sound.play();
           if (round < 3) {
             round++;
             timeLeft = 60;
+            triggerGlow();
           } else {
             clearInterval(interval);
-            timerDisplay.innerText = 'Battle Over';
+            timerDisplay.innerText = '🔥 Battle Over 🔥';
+            triggerGlow();
           }
         }
       }, 1000);
@@ -201,5 +220,6 @@
       startCamera();
       startRoundTimer();
     }
-  </script></body>
+  </script>
+</body>
 </html>
