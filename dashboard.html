@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions Live Battle</title>
+  <title>BattleBillions Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: #fff;
+      font-family: 'Inter', sans-serif;
+      background-color: #000;
+      color: white;
       overflow-x: hidden;
     }
 
@@ -17,52 +18,52 @@
       background: #111;
       padding: 1rem;
       text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
-      border-bottom: 2px solid #222;
+      font-size: 1.6rem;
+      font-family: 'Orbitron', sans-serif;
       letter-spacing: 1px;
+      border-bottom: 2px solid #222;
     }
 
-    .battle-container {
+    .battle-streams {
       display: flex;
-      height: 88vh;
       width: 100%;
+      height: 50vh;
     }
 
     .stream {
       flex: 1;
-      background: #000;
-      position: relative;
       overflow: hidden;
+      position: relative;
     }
 
-    video {
+    .stream video {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
     .battle-feed {
-      height: 100vh;
-      overflow-y: auto;
       padding: 1rem;
+      max-height: 44vh;
+      overflow-y: auto;
       background: #111;
     }
 
-    .battle-item {
-      background: #222;
-      margin-bottom: 1rem;
+    .battle-card {
+      background: #1a1a1a;
+      border-radius: 12px;
       padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 6px rgba(255,255,255,0.08);
+      margin-bottom: 1rem;
+      box-shadow: 0 0 10px rgba(0,255,200,0.05);
     }
 
-    .battle-item h3 {
-      margin: 0 0 0.4rem;
-      font-size: 1.1rem;
+    .battle-card h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: #00ffcc;
     }
 
-    .battle-item p {
+    .battle-card p {
       margin: 0;
       font-size: 0.9rem;
       color: #ccc;
@@ -75,7 +76,7 @@
       background: #000;
       display: flex;
       justify-content: space-around;
-      padding: 12px 0;
+      padding: 10px 0;
       border-top: 1px solid #222;
       z-index: 999;
     }
@@ -89,7 +90,7 @@
     }
 
     @media (max-width: 768px) {
-      .battle-container {
+      .battle-streams {
         flex-direction: column;
         height: auto;
       }
@@ -97,39 +98,35 @@
       .stream {
         height: 45vh;
       }
-
-      .bottom-nav button {
-        font-size: 20px;
-      }
     }
   </style>
 </head>
 <body>
 
-  <header>🔥 BattleBillions LIVE 🔥</header>
+  <header>🔥 BattleBillions - Live Battles</header>
 
-  <!-- Dual Live Battle Streams -->
-  <section class="battle-container">
+  <!-- Live Stream Section -->
+  <div class="battle-streams">
     <div class="stream">
       <video autoplay muted loop playsinline>
         <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
+        Your browser does not support video.
       </video>
     </div>
     <div class="stream">
       <video autoplay muted loop playsinline>
         <source src="https://www.w3schools.com/html/movie.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
+        Your browser does not support video.
       </video>
     </div>
-  </section>
+  </div>
 
-  <!-- Battle Scroll Feed -->
-  <section class="battle-feed" id="battleFeed">
-    <!-- Dynamic battles will be injected here -->
-  </section>
+  <!-- Followed Battles Scroll Feed -->
+  <div class="battle-feed" id="battleFeed">
+    <!-- Scroll feed items will load here -->
+  </div>
 
-  <!-- Bottom Navigation -->
+  <!-- Bottom Nav Bar -->
   <div class="bottom-nav">
     <button onclick="goTo('dashboard.html')">🏠</button>
     <button onclick="goTo('battle.html')">⚔️</button>
@@ -143,33 +140,31 @@
       window.location.href = page;
     }
 
-    // Infinite scroll logic for mock battles
+    // Infinite Scroll Battle Feed
     const battleFeed = document.getElementById('battleFeed');
     let battleCount = 0;
 
     function loadBattles() {
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 4; i++) {
         battleCount++;
-        const div = document.createElement('div');
-        div.className = 'battle-item';
-        div.innerHTML = `
+        const card = document.createElement('div');
+        card.className = 'battle-card';
+        card.innerHTML = `
           <h3>🔥 Battle #${battleCount}</h3>
-          <p>@Player${battleCount} vs @Challenger${battleCount}</p>
+          <p>@Player${battleCount} vs @Rival${battleCount}</p>
         `;
-        battleFeed.appendChild(div);
+        battleFeed.appendChild(card);
       }
     }
 
-    // Initial load
+    // Load initial and auto-load on scroll
     loadBattles();
-
-    // Load more on scroll
     battleFeed.addEventListener('scroll', () => {
-      if (battleFeed.scrollTop + battleFeed.clientHeight >= battleFeed.scrollHeight - 5) {
+      if (battleFeed.scrollTop + battleFeed.clientHeight >= battleFeed.scrollHeight - 10) {
         loadBattles();
       }
     });
   </script>
 
 </body>
-</html>
+  </html>
