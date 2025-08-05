@@ -232,14 +232,14 @@
       <!-- Side Controls Left -->
       <div class="side-controls left">
         <div class="side-button" onclick="sendCheer()">🔥</div>
-        <div class="side-button" onclick="shareStream()">🔗</div>
+        <div class="side-button" onclick="searchBattle()">🔍</div>
         <div class="side-button" onclick="endStream()">✖️</div>
       </div>
 
       <!-- Side Controls Right -->
       <div class="side-controls right">
         <div class="side-button" onclick="sendCheer()">🔥</div>
-        <div class="side-button" onclick="shareStream()">🔗</div>
+        <div class="side-button" onclick="openLeaderboard()">🏆</div>
         <div class="side-button" onclick="endStream()">✖️</div>
       </div>
 
@@ -271,15 +271,6 @@
       document.getElementById("chatBox").appendChild(msg);
     }
 
-    function shareStream() {
-      alert("Link copied!");
-    }
-
-    function endStream() {
-      alert("Stream Ended");
-      location.reload();
-    }
-
     function sendMessage() {
       const input = document.getElementById("chatInput");
       const msg = input.value.trim();
@@ -292,7 +283,20 @@
         document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
       }
     }
+
+    function endStream() {
+      alert("Stream ended.");
+      location.reload();
+    }
+
+    function searchBattle() {
+      alert("Search function activated.");
+    }
+
+    function openLeaderboard() {
+      alert("Opening leaderboard...");
+    }
   </script>
 
 </body>
-</html>
+          </html>
