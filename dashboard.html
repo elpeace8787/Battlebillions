@@ -22,7 +22,7 @@
     }
     video.video-stream {
       flex: 1;
-      object-fit: contain; /* Changed from cover */
+      object-fit: cover;
       background-color: black;
       width: 50%;
       height: 100%;
@@ -63,12 +63,8 @@
       gap: 10px;
       pointer-events: auto;
     }
-    .side-controls.left {
-      left: 10px;
-    }
-    .side-controls.right {
-      right: 10px;
-    }
+    .side-controls.left { left: 10px; }
+    .side-controls.right { right: 10px; }
     .side-button {
       width: 40px;
       height: 40px;
@@ -116,13 +112,30 @@
     .glow {
       box-shadow: 0 0 18px 8px rgba(255, 215, 0, 0.7);
     }
+    #startBattleBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: red;
+      color: white;
+      font-size: 20px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      z-index: 10;
+      pointer-events: auto;
+    }
   </style>
 </head>
 <body>
   <div class="stream-container">
     <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
     <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
-    
+
+    <button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
+
     <div class="overlay">
       <div class="top-bar">
         <div class="nav-icon">🔴 LIVE</div>
@@ -161,7 +174,7 @@
       </div>
 
       <div class="round-timer" id="roundTimer">
-        Round 1 of 3 | 60s
+        Waiting to start...
       </div>
     </div>
   </div>
@@ -177,12 +190,10 @@
         });
         const video = document.getElementById('localVideo');
         video.srcObject = stream;
-        video.onloadedmetadata = () => {
-          video.play();
-        };
+        video.onloadedmetadata = () => video.play();
       } catch (err) {
         console.error('Camera error:', err);
-        alert('Please allow camera/mic permissions');
+        alert('Please allow camera and microphone access to stream.');
       }
     }
 
@@ -207,7 +218,6 @@
       const interval = setInterval(() => {
         timeLeft--;
         timerDisplay.innerText = `Round ${round} of 3 | ${timeLeft}s`;
-
         if (timeLeft === 0) {
           sound.play();
           if (round < 3) {
@@ -223,9 +233,15 @@
       }, 1000);
     }
 
+    function startBattle() {
+      document.getElementById('startBattleBtn').style.display = 'none';
+      timerDisplay.innerText = `Round ${round} of 3 | ${timeLeft}s`;
+      triggerGlow();
+      startRoundTimer();
+    }
+
     window.onload = () => {
       startCamera();
-      startRoundTimer();
     };
   </script>
 </body>
