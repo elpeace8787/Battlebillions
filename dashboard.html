@@ -10,9 +10,9 @@
       padding: 0;
       font-family: 'Inter', sans-serif;
       background: #000;
-      overflow: hidden;
       height: 100vh;
       width: 100vw;
+      overflow-y: scroll;
     }
     .video-container {
       display: flex;
@@ -101,19 +101,17 @@
     }
     .profile-ui {
       position: absolute;
-      top: 100px;
+      bottom: 160px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.5rem;
       z-index: 3;
       pointer-events: auto;
     }
-    .left-profile { left: 10px; }
-    .right-profile { right: 10px; }
     .profile-circle {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background-size: cover;
       border: 2px solid white;
@@ -121,11 +119,11 @@
     .side-button {
       background: rgba(255,255,255,0.1);
       color: white;
-      font-size: 1rem;
+      font-size: 1.1rem;
       border: none;
       border-radius: 50%;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -190,88 +188,39 @@
 </head>
 <body>
   <div class="video-container">
-    <video class="stream" autoplay muted playsinline id="stream1"></video>
-    <video class="stream" autoplay muted playsinline id="stream2"></video>
+    <video class="stream" autoplay muted></video>
+    <video class="stream" autoplay muted></video>
   </div>
   <div class="overlay">
     <div class="top-ui">
-      <div class="live-label">LIVE</div>
+      <div class="live-label">🔴 LIVE</div>
       <div class="stats">👁️ 1.3k viewers</div>
     </div>
     <div class="username-label">
-      <div class="username-entry"><img src="avatar1.jpg" /><span>@StarDancer</span></div>
-      <div class="username-entry"><img src="avatar2.jpg" /><span>@CyberWolf</span></div>
+      <div class="username-entry">
+        <img src="https://via.placeholder.com/28" alt="User 1" />
+        <span>@StarDancer</span>
+      </div>
+      <div class="username-entry">
+        <img src="https://via.placeholder.com/28" alt="User 2" />
+        <span>@CyberWolf</span>
+      </div>
     </div>
     <div class="chat" id="chatBox">
       <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
       <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
       <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
     </div>
-    <div class="round-info" id="roundInfo">Round 1 • 38s</div>
+    <div class="round-info">Round 1 • 00:38</div>
     <div class="bottom-ui">
       <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
     </div>
   </div>
-  <div class="profile-ui left-profile">
-    <div class="profile-circle" style="background-image: url('avatar1.jpg')"></div>
-    <button class="side-button" onclick="likeStream()">❤️</button>
-    <button class="side-button" onclick="shareStream()">🔗</button>
-    <button class="side-button" onclick="endStream()">✖️</button>
-  </div>
-  <div class="profile-ui right-profile">
-    <div class="profile-circle" style="background-image: url('avatar2.jpg')"></div>
-    <button class="side-button" onclick="likeStream()">❤️</button>
-    <button class="side-button" onclick="shareStream()">🔗</button>
-    <button class="side-button" onclick="endStream()">✖️</button>
-  </div>
   <div class="bottom-nav">
-    <button onclick="location.href='dashboard.html'">🏠</button>
-    <button onclick="location.href='battle.html'">⚔️</button>
-    <button onclick="location.href='messages.html'">💬</button>
-    <button onclick="location.href='wallet.html'">💰</button>
-    <button onclick="location.href='leaderboard.html'">🏆</button>
-    <button onclick="location.href='settings.html'">⚙️</button>
+    <button onclick="goHome()">🏠</button>
+    <button onclick="goLeaderboard()">🏆</button>
+    <button onclick="goMessages()">💬</button>
+    <button onclick="goProfile()">👤</button>
   </div>
-  <script>
-    let round = 1;
-    let seconds = 38;
-    let isLeftTurn = true;function updateTimer() {
-  const roundInfo = document.getElementById('roundInfo');
-  roundInfo.innerText = `Round ${round} • ${seconds}s`;
-}
-
-function switchTurns() {
-  isLeftTurn = !isLeftTurn;
-  document.getElementById('stream1').classList.toggle('your-turn', isLeftTurn);
-  document.getElementById('stream2').classList.toggle('your-turn', !isLeftTurn);
-}
-
-function startBattle() {
-  updateTimer();
-  const interval = setInterval(() => {
-    seconds--;
-    updateTimer();
-    if (seconds <= 0) {
-      if (round >= 3) {
-        clearInterval(interval);
-        document.getElementById('roundInfo').innerText = 'Battle Over';
-      } else {
-        round++;
-        seconds = 38;
-        switchTurns();
-      }
-    }
-  }, 1000);
-  switchTurns();
-}
-
-function likeStream() { alert('Liked!'); }
-function shareStream() { alert('Shared!'); }
-function endStream() { alert('Stream Ended'); }
-function sendGift() { alert('Gift Sent!'); }
-
-window.onload = startBattle;
-
-  </script>
 </body>
-                                    </html>
+          </html>
