@@ -112,7 +112,7 @@
     .glow {
       box-shadow: 0 0 18px 8px rgba(255, 215, 0, 0.7);
     }
-    #startBattleBtn {
+    #startBattleBtn, #selectMusicBtn {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -127,6 +127,40 @@
       z-index: 10;
       pointer-events: auto;
     }
+    #startBattleBtn { display: none; }
+
+    #instrumentalList {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      border: 2px solid red;
+      border-radius: 10px;
+      padding: 20px;
+      z-index: 10;
+      display: none;
+      pointer-events: auto;
+    }
+
+    #instrumentalList select {
+      width: 250px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    #instrumentalList button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: red;
+      color: white;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -134,8 +168,22 @@
     <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
     <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
 
+    <!-- Instrumental selection list -->
+    <div id="instrumentalList">
+      <select id="instrumentalSelect">
+        <option disabled selected>Select instrumental</option>
+        <option value="beat1.mp3">🔥 Classic Trap</option>
+        <option value="beat2.mp3">💥 Boom Bap</option>
+        <option value="beat3.mp3">🌊 Chill Vibes</option>
+        <option value="beat4.mp3">⚡ Fast Flow</option>
+      </select>
+      <button onclick="chooseInstrumental()">Confirm</button>
+    </div>
+
+    <!-- Start Battle Button -->
     <button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
 
+    <!-- Top UI -->
     <div class="overlay">
       <div class="top-bar">
         <div class="nav-icon">🔴 LIVE</div>
@@ -174,12 +222,13 @@
       </div>
 
       <div class="round-timer" id="roundTimer">
-        Waiting to start...
+        Select your instrumental to begin...
       </div>
     </div>
   </div>
 
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
+  <audio id="battleTrack" controls hidden></audio>
 
   <script>
     async function startCamera() {
@@ -204,10 +253,11 @@
     function openLeaderboard() { alert('Opening Leaderboard'); }
     function openBattleFeed() { alert('Opening Battle Feed'); }
 
-    let round = 1;
-    let timeLeft = 60;
     const timerDisplay = document.getElementById('roundTimer');
     const sound = document.getElementById('roundEndSound');
+    const battleTrack = document.getElementById('battleTrack');
+    let round = 1;
+    let timeLeft = 60;
 
     function triggerGlow() {
       timerDisplay.classList.add('glow');
@@ -233,8 +283,19 @@
       }, 1000);
     }
 
+    function chooseInstrumental() {
+      const selected = document.getElementById('instrumentalSelect').value;
+      if (selected) {
+        document.getElementById('instrumentalList').style.display = 'none';
+        document.getElementById('startBattleBtn').style.display = 'block';
+        battleTrack.src = selected;
+        battleTrack.load();
+      }
+    }
+
     function startBattle() {
       document.getElementById('startBattleBtn').style.display = 'none';
+      battleTrack.play();
       timerDisplay.innerText = `Round ${round} of 3 | ${timeLeft}s`;
       triggerGlow();
       startRoundTimer();
@@ -242,6 +303,7 @@
 
     window.onload = () => {
       startCamera();
+      document.getElementById('instrumentalList').style.display = 'block';
     };
   </script>
 </body>
