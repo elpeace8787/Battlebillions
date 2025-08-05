@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BattleBillions - Dual Live Battle</title>
@@ -10,130 +9,82 @@
       padding: 0;
       font-family: 'Inter', sans-serif;
       background: #000;
+      overflow: hidden;
       height: 100vh;
       width: 100vw;
-      overflow: hidden;
     }
     .video-container {
       display: flex;
       width: 100vw;
       height: 100vh;
+      position: relative;
     }
     video.stream {
       width: 50vw;
       height: 100vh;
       object-fit: cover;
+      transition: box-shadow 0.5s ease;
     }
-    .nav-top, .nav-bottom {
-      position: absolute;
-      width: 100%;
-      height: 40px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      z-index: 10;
-    }
-    .nav-bottom {
-      bottom: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-    }
-    .nav-top {
-      top: 0;
-    }
-    .nav-top button, .nav-bottom button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
+    .highlight {
+      box-shadow: 0 0 25px 10px rgba(0, 255, 204, 0.7);
     }
     .overlay {
       position: absolute;
-      top: 40px;
+      top: 0;
       left: 0;
       width: 100vw;
-      height: calc(100vh - 80px);
+      height: 100vh;
       z-index: 2;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 0 1rem;
       box-sizing: border-box;
       pointer-events: none;
     }
-    .live-header {
+    .top-ui, .bottom-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 5px;
+      padding: 6px 12px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+      z-index: 3;
+      pointer-events: auto;
     }
-    .live-label {
-      background: red;
+    .bottom-nav {
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+      position: absolute;
+      bottom: 0;
+      width: 100vw;
+      justify-content: space-around;
+    }
+    .nav-icon {
+      font-size: 22px;
       color: white;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      animation: blink 1s infinite;
+      background: none;
+      border: none;
+      cursor: pointer;
     }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .stats {
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-    }
-    .competitor-profiles {
+    .competitor-ui {
       display: flex;
-      justify-content: space-between;
-      padding: 0 10px;
+      justify-content: space-around;
       align-items: center;
+      margin-top: 48px;
+      z-index: 4;
     }
     .competitor {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      text-align: center;
       color: white;
     }
     .competitor img {
-      width: 32px;
-      height: 32px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       border: 2px solid white;
-    }
-    .round-timer {
-      position: absolute;
-      bottom: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      padding: 6px 20px;
-      border-radius: 20px;
-      font-size: 14px;
-      z-index: 10;
-    }
-    .vote-buttons {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-    }
-    .vote-buttons button {
-      background-color: #222;
-      color: white;
-      border: 1px solid white;
-      border-radius: 20px;
-      padding: 8px 16px;
-      cursor: pointer;
+      margin-bottom: 4px;
     }
     .chat {
       position: absolute;
-      bottom: 100px;
+      bottom: 160px;
       left: 10px;
       width: 70%;
       max-height: 30vh;
@@ -145,11 +96,38 @@
       pointer-events: auto;
     }
     .chat-message {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
       padding: 5px 10px;
       border-radius: 12px;
       font-size: 0.8rem;
-      color: #fff;
+    }
+    .vote-container {
+      position: absolute;
+      bottom: 120px;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      z-index: 4;
+      pointer-events: auto;
+    }
+    .vote-container button {
+      background-color: #222;
+      color: white;
+      border: 1px solid white;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .round-timer {
+      position: absolute;
+      bottom: 190px;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 4;
     }
   </style>
 </head>
@@ -157,94 +135,100 @@
   <div class="video-container">
     <video id="stream1" class="stream" autoplay muted playsinline></video>
     <video id="stream2" class="stream" autoplay muted playsinline></video>
-  </div>  <div class="nav-top">
-    <button onclick="alert('Leaderboard')">🏆</button>
-    <button onclick="alert('Profile')">👤</button>
-  </div>  <div class="nav-bottom">
-    <button onclick="alert('Home')">🏠</button>
-    <button onclick="alert('Battle')">⚔️</button>
-    <button onclick="alert('Messages')">💬</button>
-    <button onclick="alert('Wallet')">💰</button>
-    <button onclick="alert('Settings')">⚙️</button>
   </div>  <div class="overlay">
-    <div class="live-header">
+    <div class="top-ui">
       <div class="live-label">🔴 LIVE</div>
       <div class="stats">👁️ 1.3k viewers</div>
-    </div><div class="competitor-profiles">
+    </div><div class="competitor-ui">
   <div class="competitor">
-    <img src="https://i.pravatar.cc/150?img=1" alt="TopDancer">
-    <span>@TopDancer</span>
+    <img src="https://i.pravatar.cc/150?img=5" alt="Competitor 1">
+    <div>@TopDancer</div>
   </div>
   <div class="competitor">
-    <img src="https://i.pravatar.cc/150?img=2" alt="BeatMaster">
-    <span>@BeatMaster</span>
+    <img src="https://i.pravatar.cc/150?img=6" alt="Competitor 2">
+    <div>@BeatMaster</div>
   </div>
 </div>
 
-<div class="vote-buttons">
+<div class="round-timer">
+  Round <span id="round">1</span>/3 ⏱ <span id="timer">47</span>s
+</div>
+
+<div class="chat" id="chatBox">
+  <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
+  <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
+  <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
+</div>
+
+<div class="vote-container">
   <button onclick="vote('topdancer')">🔥 Vote TopDancer</button>
   <button onclick="vote('beatmaster')">🔥 Vote BeatMaster</button>
 </div>
 
-  </div>  <div class="round-timer">
-    <span>Round: <span class="round-num">1</span>/3</span>
-    &nbsp;|&nbsp;
-    ⏱ <span class="timer">47</span>s
-  </div>  <div class="chat" id="chatBox">
-    <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
-    <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
-    <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
+<div class="bottom-nav">
+  <button class="nav-icon">🏠</button>
+  <button class="nav-icon">⚔️</button>
+  <button class="nav-icon">💬</button>
+  <button class="nav-icon">💰</button>
+  <button class="nav-icon">⚙️</button>
+</div>
+
   </div>  <script>
     const video1 = document.getElementById('stream1');
     const video2 = document.getElementById('stream2');
-    const chatBox = document.getElementById('chatBox');
-    const timerEl = document.querySelector('.timer');
-    const roundNumEl = document.querySelector('.round-num');
+    const timerEl = document.getElementById('timer');
+    const roundEl = document.getElementById('round');
 
-    let currentRound = 1;
+    async function startStreams() {
+      try {
+        const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video1.srcObject = stream1;
+        video2.srcObject = stream2;
+      } catch (e) {
+        alert("Camera permissions denied.");
+      }
+    }
+
+    function vote(user) {
+      const msg = document.createElement('div');
+      msg.className = 'chat-message';
+      msg.innerHTML = `<strong>@You:</strong> voted for ${user}`;
+      document.getElementById('chatBox').appendChild(msg);
+    }
+
+    let round = 1;
     const totalRounds = 3;
-    let isFirstPlayerTurn = true;
+    let timer = 47;
+    let isPlayerOne = true;
 
-    function startTurn(seconds) {
-      timerEl.textContent = seconds;
+    function startTimer() {
+      timer = 47;
+      timerEl.textContent = timer;
+      roundEl.textContent = round;
+
+      video1.classList.remove('highlight');
+      video2.classList.remove('highlight');
+      (isPlayerOne ? video1 : video2).classList.add('highlight');
+
       const interval = setInterval(() => {
-        seconds--;
-        timerEl.textContent = seconds;
-
-        if (seconds <= 0) {
+        timer--;
+        timerEl.textContent = timer;
+        if (timer <= 0) {
           clearInterval(interval);
-          setTimeout(() => {
-            if (!isFirstPlayerTurn) {
-              currentRound++;
-              roundNumEl.textContent = currentRound;
-            }
-            if (currentRound > totalRounds) {
-              timerEl.textContent = "0";
-              return;
-            }
-            isFirstPlayerTurn = !isFirstPlayerTurn;
-            startTurn(47);
-          }, 3000);
+          isPlayerOne = !isPlayerOne;
+          if (!isPlayerOne) round++;
+          if (round <= totalRounds) {
+            setTimeout(startTimer, 3000);
+          } else {
+            video1.classList.remove('highlight');
+            video2.classList.remove('highlight');
+          }
         }
       }, 1000);
     }
 
-    function vote(user) {
-      alert(`🔥 You voted for @${user}`);
-    }
-
-    async function startStreams() {
-      try {
-        const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        video1.srcObject = stream1;
-        video2.srcObject = stream2;
-      } catch (e) {
-        alert("Camera & mic permissions denied.");
-      }
-    }
-
     startStreams();
-    startTurn(47);
+    startTimer();
   </script></body>
-</html>
+    </html>
