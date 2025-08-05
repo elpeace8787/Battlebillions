@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -174,101 +175,71 @@
       color: white;
       cursor: pointer;
     }
-    .chat-box {
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 500px;
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      pointer-events: auto;
-    }
-    .chat-box input {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      margin-right: 10px;
-    }
-    .chat-box button {
-      background: red;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
   <div class="stream-container">
     <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-    <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video><div id="instrumentalList">
-  <select id="instrumentalSelect">
-    <option disabled selected>Select instrumental</option>
-    <option value="beat1.mp3">🔥 Classic Trap</option>
-    <option value="beat2.mp3">💥 Boom Bap</option>
-    <option value="beat3.mp3">🌊 Chill Vibes</option>
-    <option value="beat4.mp3">⚡ Fast Flow</option>
-  </select>
-  <button onclick="chooseInstrumental()">Confirm</button>
-</div>
+    <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
-<button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
-
-<div class="overlay">
-  <div class="top-bar">
-    <div class="nav-icon">🔴 LIVE</div>
-    <div class="nav-icon">👁️ 1.3k</div>
-  </div>
-
-  <div class="profile-labels">
-    <div class="profile-entry">
-      <img src="user1.jpg" alt="User 1">
-      <span>@You</span>
+    <div id="instrumentalList">
+      <select id="instrumentalSelect">
+        <option disabled selected>Select instrumental</option>
+        <option value="beat1.mp3">🔥 Classic Trap</option>
+        <option value="beat2.mp3">💥 Boom Bap</option>
+        <option value="beat3.mp3">🌊 Chill Vibes</option>
+        <option value="beat4.mp3">⚡ Fast Flow</option>
+      </select>
+      <button onclick="chooseInstrumental()">Confirm</button>
     </div>
-    <div class="profile-entry">
-      <img src="user2.jpg" alt="User 2">
-      <span>@Opponent</span>
+
+    <button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
+
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon">🔴 LIVE</div>
+        <div class="nav-icon">👁️ 1.3k</div>
+      </div>
+
+      <div class="profile-labels">
+        <div class="profile-entry">
+          <img src="user1.jpg" alt="User 1">
+          <span>@You</span>
+        </div>
+        <div class="profile-entry">
+          <img src="user2.jpg" alt="User 2">
+          <span>@Opponent</span>
+        </div>
+      </div>
+
+      <div class="side-controls left">
+        <div class="side-button" onclick="goHome()">🏠</div>
+        <div class="side-button" onclick="searchBattle()">🔍</div>
+        <div class="side-button" onclick="logout()">🚪</div>
+      </div>
+
+      <div class="side-controls right">
+        <div class="side-button" onclick="openProfile()">👤</div>
+        <div class="side-button" onclick="openLeaderboard()">🏆</div>
+        <div class="side-button" onclick="openBattleFeed()">📺</div>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="nav-icon" onclick="goHome()">🏠</div>
+        <div class="nav-icon" onclick="searchBattle()">🔍</div>
+        <div class="nav-icon" onclick="openLeaderboard()">🏆</div>
+        <div class="nav-icon" onclick="openProfile()">👤</div>
+        <div class="nav-icon" onclick="openBattleFeed()">📺</div>
+      </div>
+
+      <div class="round-timer" id="roundTimer">
+        Select your instrumental to begin...
+      </div>
     </div>
   </div>
 
-  <div class="side-controls left">
-    <div class="side-button" onclick="goHome()">🏠</div>
-    <div class="side-button" onclick="searchBattle()">🔍</div>
-    <div class="side-button" onclick="logout()">🚪</div>
-  </div>
-
-  <div class="side-controls right">
-    <div class="side-button" onclick="openProfile()">👤</div>
-    <div class="side-button" onclick="openLeaderboard()">🏆</div>
-    <div class="side-button" onclick="openBattleFeed()">📺</div>
-  </div>
-
-  <div class="bottom-bar">
-    <div class="nav-icon" onclick="goHome()">🏠</div>
-    <div class="nav-icon" onclick="searchBattle()">🔍</div>
-    <div class="nav-icon" onclick="openLeaderboard()">🏆</div>
-    <div class="nav-icon" onclick="openProfile()">👤</div>
-    <div class="nav-icon" onclick="openBattleFeed()">📺</div>
-  </div>
-
-  <div class="round-timer" id="roundTimer">
-    Select your instrumental to begin...
-  </div>
-
-  <div class="chat-box">
-    <input type="text" placeholder="Type a message...">
-    <button>Send</button>
-  </div>
-</div>
-
-  </div><audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio> <audio id="battleTrack" controls hidden></audio>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
+  <audio id="battleTrack" controls hidden></audio>
 
   <script>
     async function startCamera() {
@@ -354,5 +325,6 @@
       startCamera();
       document.getElementById('instrumentalList').style.display = 'block';
     };
-  </script></body>
-</html>
+  </script>
+</body>
+      </html>
