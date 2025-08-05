@@ -22,7 +22,8 @@
     }
     video.video-stream {
       flex: 1;
-      object-fit: cover;
+      object-fit: contain; /* Changed from cover */
+      background-color: black;
       width: 50%;
       height: 100%;
     }
@@ -170,9 +171,15 @@
   <script>
     async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: true
+        });
         const video = document.getElementById('localVideo');
         video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          video.play();
+        };
       } catch (err) {
         console.error('Camera error:', err);
         alert('Please allow camera/mic permissions');
@@ -219,7 +226,7 @@
     window.onload = () => {
       startCamera();
       startRoundTimer();
-    }
+    };
   </script>
 </body>
 </html>
