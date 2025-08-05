@@ -3,223 +3,181 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions - Final Battle Stream</title>
+  <title>TikTok Style Livestream</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-      background: #000;
-      height: 100vh;
-      overflow: hidden;
-      color: white;
-    }
-    .stream-container {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-      position: relative;
-    }
-    video.stream {
-      width: 50%;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
       height: 100%;
-      object-fit: cover;
+      background: #000;
+      font-family: 'Inter', sans-serif;
+      color: white;
+      overflow: hidden;
     }
-    .overlay {
-      position: absolute;
+    video {
+      position: fixed;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
-      top: 0;
-      left: 0;
+      object-fit: cover;
+      z-index: 0;
+    }
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
       z-index: 2;
       pointer-events: none;
     }
-    .top-bar, .bottom-bar {
+    .top-bar {
       position: absolute;
+      top: 0;
       width: 100%;
+      padding: 10px 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
       display: flex;
       justify-content: space-between;
-      padding: 10px 20px;
+      align-items: center;
       pointer-events: auto;
     }
-    .top-bar { top: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
-    .bottom-bar { bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); align-items: center; }
-    .nav-icon { font-size: 20px; cursor: pointer; color: white; }
+    .live-tag { color: red; font-weight: bold; }
+    .viewer-count { font-size: 14px; }
+
+    .profile {
+      position: absolute;
+      top: 50px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 12px;
+      border-radius: 20px;
+      pointer-events: auto;
+    }
+    .profile img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
     .chat-box {
       position: absolute;
-      left: 10px;
       bottom: 100px;
-      width: 70%;
-      max-height: 30vh;
+      left: 20px;
+      width: 60%;
+      max-height: 30%;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       pointer-events: auto;
     }
     .chat-message {
       background: rgba(0,0,0,0.5);
-      padding: 5px 10px;
-      border-radius: 12px;
-      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 14px;
     }
-    .side-controls {
+
+    .side-buttons {
       position: absolute;
-      right: 10px;
-      bottom: 120px;
+      right: 20px;
+      bottom: 140px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
       pointer-events: auto;
     }
     .side-button {
-      width: 40px;
-      height: 40px;
-      background: rgba(255,255,255,0.1);
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
+      background: rgba(255,255,255,0.1);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
       cursor: pointer;
     }
-    .profile-labels {
+
+    .bottom-nav {
       position: absolute;
-      top: 60px;
-      left: 0;
+      bottom: 0;
       width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 20px;
-    }
-    .profile-entry {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0,0,0,0.5);
-      padding: 6px 12px;
-      border-radius: 16px;
-    }
-    .profile-entry img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-    }
-    .round-timer {
-      position: absolute;
-      bottom: 50%;
-      left: 50%;
-      transform: translate(-50%, 50%);
-      background: rgba(0,0,0,0.6);
       padding: 10px 20px;
-      border-radius: 25px;
-      font-size: 16px;
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+      display: flex;
+      justify-content: space-around;
+      pointer-events: auto;
     }
-    .rank-glow {
-      animation: glow 1s ease-in-out infinite alternate;
-    }
-    @keyframes glow {
-      from { box-shadow: 0 0 5px #ff6, 0 0 10px #ff6; }
-      to   { box-shadow: 0 0 20px #ff0, 0 0 30px #ff0; }
+    .nav-icon {
+      font-size: 20px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="stream-container">
-    <video id="user1" class="stream" autoplay muted></video>
-    <video id="user2" class="stream" autoplay muted></video>
 
-    <div class="overlay">
-      <div class="top-bar">
-        <div class="nav-icon">🔴 LIVE</div>
-        <div class="nav-icon">👁️ 1.3k</div>
-      </div>
+  <video id="liveVideo" autoplay muted playsinline></video>
 
-      <div class="profile-labels">
-        <div class="profile-entry"><img src="user1.jpg" /><span>@AlphaOne</span></div>
-        <div class="profile-entry"><img src="user2.jpg" /><span>@EchoBlaze</span></div>
-      </div>
+  <div class="overlay">
+    <div class="top-bar">
+      <div class="live-tag">🔴 LIVE</div>
+      <div class="viewer-count">👁️ 1.3k</div>
+    </div>
 
-      <div class="round-timer" id="roundTimer">Round 1 of 3 | 38s</div>
+    <div class="profile">
+      <img src="https://i.pravatar.cc/150?img=3" alt="profile" />
+      <span>@FlameMaster</span>
+    </div>
 
-      <div class="chat-box" id="chatBox">
-        <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
-      </div>
+    <div class="chat-box" id="chatBox">
+      <div class="chat-message"><strong>@Star:</strong> 🔥🔥🔥</div>
+      <div class="chat-message"><strong>@Wolf:</strong> where u from?</div>
+    </div>
 
-      <div class="side-controls">
-        <div class="side-button" onclick="vote('@AlphaOne')">🔥</div>
-        <div class="side-button" onclick="navigateTo('leaderboard')">🏆</div>
-        <div class="side-button" onclick="endStream()">✖️</div>
-      </div>
+    <div class="side-buttons">
+      <div class="side-button" onclick="sendLike()">❤️</div>
+      <div class="side-button" onclick="shareStream()">🔗</div>
+      <div class="side-button" onclick="endStream()">✖️</div>
+    </div>
 
-      <div class="bottom-bar">
-        <div class="nav-icon" onclick="navigateTo('home')">🏠</div>
-        <div class="nav-icon" onclick="navigateTo('search')">🔍</div>
-        <div class="nav-icon" onclick="navigateTo('chat')">💬</div>
-        <div class="nav-icon" onclick="navigateTo('settings')">⚙️</div>
-      </div>
+    <div class="bottom-nav">
+      <div class="nav-icon" onclick="alert('Go Home')">🏠</div>
+      <div class="nav-icon" onclick="alert('Search')">🔍</div>
+      <div class="nav-icon" onclick="alert('Open Chat')">💬</div>
+      <div class="nav-icon" onclick="alert('Settings')">⚙️</div>
     </div>
   </div>
 
-  <audio id="rankUpSound" src="rankup.mp3" preload="auto"></audio>
-
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // Enable camera/mic
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        const video = document.getElementById('liveVideo');
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("Camera/Mic access denied.");
+        console.error(err);
+      });
 
-    let round = 1;
-    let seconds = 38;
-    let interval = setInterval(() => {
-      seconds--;
-      document.getElementById('roundTimer').textContent = `Round ${round} of 3 | ${seconds}s`;
-      if (seconds <= 0) {
-        if (round < 3) {
-          round++; seconds = 38;
-        } else {
-          clearInterval(interval);
-          document.getElementById('roundTimer').textContent = "Battle Ended";
-        }
-      }
-    }, 1000);
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-      document.getElementById('user1').srcObject = stream;
-    }).catch(e => console.error("Permission denied", e));
-
-    let ranks = { '@AlphaOne': 0, '@EchoBlaze': 0 };
-
-    function vote(user) {
-      ranks[user]++;
-      db.ref('ranks').set(ranks);
-      playRankUp(user);
+    function sendLike() {
+      const msg = document.createElement("div");
+      msg.className = "chat-message";
+      msg.innerHTML = `<strong>@You:</strong> ❤️`;
+      document.getElementById("chatBox").appendChild(msg);
     }
 
-    function playRankUp(user) {
-      const sound = document.getElementById('rankUpSound');
-      sound.play();
-      const target = user === '@AlphaOne' ? document.getElementById('user1') : document.getElementById('user2');
-      target.classList.add('rank-glow');
-      setTimeout(() => target.classList.remove('rank-glow'), 1500);
-    }
-
-    function navigateTo(page) {
-      alert("Navigate to: " + page); // Replace with real navigation
+    function shareStream() {
+      alert("Link copied!");
     }
 
     function endStream() {
       alert("Stream Ended");
+      window.location.reload();
     }
   </script>
 </body>
