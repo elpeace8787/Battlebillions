@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BattleBillions - TikTok Style Live</title>
+  <title>BattleBillions - Dual Live Battle</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body, html {
@@ -14,14 +14,15 @@
       height: 100vh;
       width: 100vw;
     }
-    video#liveStream {
-      position: absolute;
-      top: 0;
-      left: 0;
+    .video-container {
+      display: flex;
       width: 100vw;
       height: 100vh;
+    }
+    video.stream {
+      width: 50vw;
+      height: 100vh;
       object-fit: cover;
-      z-index: 0;
     }
     .overlay {
       position: absolute;
@@ -133,8 +134,10 @@
   </style>
 </head>
 <body>
-  <video id="liveStream" autoplay muted playsinline></video>
-  <div class="overlay">
+  <div class="video-container">
+    <video id="stream1" class="stream" autoplay muted playsinline></video>
+    <video id="stream2" class="stream" autoplay muted playsinline></video>
+  </div>  <div class="overlay">
     <div class="top-ui">
       <div class="live-label">🔴 LIVE</div>
       <div class="stats">👁️ 1.3k viewers</div>
@@ -154,13 +157,16 @@
     <button class="side-button" onclick="shareStream()">🔗</button>
     <button class="side-button" onclick="endStream()">✖️</button>
   </div>  <script>
-    const videoElement = document.getElementById('liveStream');
+    const video1 = document.getElementById('stream1');
+    const video2 = document.getElementById('stream2');
     const chatBox = document.getElementById('chatBox');
 
-    async function startStream() {
+    async function startStreams() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        videoElement.srcObject = stream;
+        const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        video1.srcObject = stream1;
+        video2.srcObject = stream2;
       } catch (e) {
         alert("Camera & mic permissions denied.");
       }
@@ -187,15 +193,16 @@
     }
 
     function endStream() {
-      const stream = videoElement.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        videoElement.srcObject = null;
-      }
-      alert("🔴 Live stream ended.");
+      [video1, video2].forEach(video => {
+        const stream = video.srcObject;
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          video.srcObject = null;
+        }
+      });
+      alert("🔴 Live streams ended.");
     }
 
-    // Auto-start stream
-    startStream();
+    startStreams();
   </script></body>
-</html>
+  </html>
