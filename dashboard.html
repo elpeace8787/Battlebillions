@@ -11,140 +11,154 @@
       font-family: 'Inter', sans-serif;
       background: #000;
       color: white;
-      overflow: hidden;
-    }.stream-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  position: relative;
-}
-
-.video-stream {
-  flex: 1;
-  background: #222;
-  object-fit: cover;
-}
-
-.overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-}
-
-.top-bar, .bottom-bar {
-  position: absolute;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 20px;
-  pointer-events: auto;
-}
-
-.top-bar {
-  top: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
-}
-
-.bottom-bar {
-  bottom: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-  align-items: center;
-}
-
-.nav-icon {
-  font-size: 22px;
-  color: white;
-  cursor: pointer;
-}
-
-.chat-box {
-  position: absolute;
-  left: 10px;
-  bottom: 100px;
-  width: 70%;
-  max-height: 30vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  pointer-events: auto;
-}
-
-.chat-message {
-  background: rgba(0,0,0,0.5);
-  padding: 5px 10px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-}
-
-.round-timer {
-  position: absolute;
-  bottom: 50%;
-  left: 50%;
-  transform: translate(-50%, 50%);
-  background: rgba(0,0,0,0.6);
-  padding: 10px 20px;
-  border-radius: 25px;
-  font-size: 16px;
-}
-
-.side-controls {
-  position: absolute;
-  right: 10px;
-  bottom: 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: auto;
-}
-
-.side-button {
-  width: 40px;
-  height: 40px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.profile-labels {
-  position: absolute;
-  top: 60px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-
-.profile-entry {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0,0,0,0.5);
-  padding: 6px 12px;
-  border-radius: 16px;
-}
-
-.profile-entry img {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-}
-
+      overflow-y: scroll;
+    }
+    .stream-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+    .video-stream {
+      flex: 1;
+      background: #222;
+      object-fit: cover;
+    }
+    .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    .top-bar, .bottom-bar {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+      pointer-events: auto;
+    }
+    .top-bar {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+    }
+    .bottom-bar {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      align-items: center;
+    }
+    .nav-icon {
+      font-size: 22px;
+      color: white;
+      cursor: pointer;
+    }
+    .chat-box {
+      position: absolute;
+      left: 10px;
+      bottom: 100px;
+      width: 70%;
+      max-height: 30vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      pointer-events: auto;
+    }
+    .chat-message {
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+    .round-timer {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      background: rgba(0,0,0,0.6);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 16px;
+    }
+    .side-controls {
+      position: absolute;
+      right: 10px;
+      bottom: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .side-button {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .profile-labels {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .profile-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 12px;
+      border-radius: 16px;
+    }
+    .profile-entry img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+    .gift-button {
+      position: absolute;
+      bottom: 160px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff0080;
+      color: white;
+      padding: 10px 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .your-turn {
+      outline: 3px solid #00ffcc;
+      box-shadow: 0 0 15px #00ffcc;
+    }
   </style>
 </head>
 <body>
   <div class="stream-container">
-    <video class="video-stream" autoplay muted loop src="user1.mp4"></video>
-    <video class="video-stream" autoplay muted loop src="user2.mp4"></video><div class="overlay">
-  <div class="top-bar">
-    <div class="nav-icon">🔴 LIVE</div>
-    <div class="nav-icon">👁️ 1.3k</div>
+    <video class="video-stream your-turn" autoplay muted loop src="user1.mp4"></video>
+    <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon">🔴 LIVE</div>
+        <div class="nav-icon">👁️ 1.3k</div>
+      </div><div class="profile-labels">
+    <div class="profile-entry">
+      <img src="user1.jpg" alt="User 1">
+      <span>@StarDancer</span>
+    </div>
+    <div class="profile-entry">
+      <img src="user2.jpg" alt="User 2">
+      <span>@CyberWolf</span>
+    </div>
   </div>
 
   <div class="chat-box">
@@ -158,6 +172,8 @@
     <div class="side-button">🔗</div>
     <div class="side-button">✖️</div>
   </div>
+
+  <button class="gift-button">🎁 Send Gift</button>
 
   <div class="bottom-bar">
     <div class="nav-icon">🏠</div>
