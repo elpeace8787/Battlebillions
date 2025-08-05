@@ -55,7 +55,7 @@
     .chat-box {
       position: absolute;
       left: 10px;
-      bottom: 100px;
+      bottom: 150px;
       width: 70%;
       max-height: 30vh;
       overflow-y: auto;
@@ -79,11 +79,12 @@
       padding: 10px 20px;
       border-radius: 25px;
       font-size: 16px;
+      z-index: 10;
     }
     .side-controls {
       position: absolute;
       right: 10px;
-      bottom: 100px;
+      bottom: 120px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -122,11 +123,11 @@
       height: 28px;
       border-radius: 50%;
     }
+    .your-turn {
+      outline: 3px solid #00ffcc;
+      box-shadow: 0 0 15px #00ffcc;
+    }
     .gift-button {
-      position: absolute;
-      bottom: 160px;
-      left: 50%;
-      transform: translateX(-50%);
       background: #ff0080;
       color: white;
       padding: 10px 18px;
@@ -134,31 +135,26 @@
       border: none;
       border-radius: 25px;
       cursor: pointer;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 90px;
       pointer-events: auto;
-    }
-    .your-turn {
-      outline: 3px solid #00ffcc;
-      box-shadow: 0 0 15px #00ffcc;
     }
   </style>
 </head>
 <body>
   <div class="stream-container">
-    <video class="video-stream your-turn" autoplay muted loop src="user1.mp4"></video>
-    <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
-    <div class="overlay">
-      <div class="top-bar">
-        <div class="nav-icon">🔴 LIVE</div>
-        <div class="nav-icon">👁️ 1.3k</div>
-      </div><div class="profile-labels">
-    <div class="profile-entry">
-      <img src="user1.jpg" alt="User 1">
-      <span>@StarDancer</span>
-    </div>
-    <div class="profile-entry">
-      <img src="user2.jpg" alt="User 2">
-      <span>@CyberWolf</span>
-    </div>
+    <video class="video-stream" autoplay muted playsinline id="user1"></video>
+    <video class="video-stream" autoplay muted playsinline id="user2"></video><div class="overlay">
+  <div class="top-bar">
+    <div class="nav-icon">🔴 LIVE</div>
+    <div class="nav-icon">👁️ 1.3k</div>
+  </div>
+
+  <div class="profile-labels">
+    <div class="profile-entry"><img src="user1.jpg" alt="User1"> @ChampionX</div>
+    <div class="profile-entry your-turn"><img src="user2.jpg" alt="User2"> @RhythmBeast</div>
   </div>
 
   <div class="chat-box">
@@ -166,6 +162,8 @@
     <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
     <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
   </div>
+
+  <div class="round-timer" id="roundInfo">Round 1 of 3 | 38s</div>
 
   <div class="side-controls">
     <div class="side-button">❤️</div>
@@ -176,18 +174,46 @@
   <button class="gift-button">🎁 Send Gift</button>
 
   <div class="bottom-bar">
-    <div class="nav-icon">🏠</div>
-    <div class="nav-icon">🔍</div>
-    <div class="nav-icon">🎁</div>
-    <div class="nav-icon">💬</div>
-    <div class="nav-icon">🏆</div>
-  </div>
-
-  <div class="round-timer">
-    Round 1 of 3 | 38s
+    <div class="nav-icon" onclick="goHome()">🏠</div>
+    <div class="nav-icon" onclick="search()">🔍</div>
+    <div class="nav-icon" onclick="openGifts()">🎁</div>
+    <div class="nav-icon" onclick="openChat()">💬</div>
+    <div class="nav-icon" onclick="openLeaderboard()">🏆</div>
   </div>
 </div>
 
-  </div>
-</body>
+  </div>  <script>
+    let round = 1;
+    let seconds = 38;
+
+    const roundInfo = document.getElementById('roundInfo');
+    const interval = setInterval(() => {
+      seconds--;
+      if (seconds <= 0) {
+        if (round < 3) {
+          round++;
+          seconds = 38;
+        } else {
+          clearInterval(interval);
+        }
+      }
+      roundInfo.textContent = `Round ${round} of 3 | ${seconds}s`;
+    }, 1000);
+
+    function goHome() {
+      alert("Go to home page");
+    }
+    function search() {
+      alert("Search page");
+    }
+    function openGifts() {
+      alert("Gift store");
+    }
+    function openChat() {
+      alert("Chat screen");
+    }
+    function openLeaderboard() {
+      alert("Leaderboard");
+    }
+  </script></body>
 </html>
