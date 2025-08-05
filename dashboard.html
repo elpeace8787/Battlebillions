@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BattleBillions - Advanced Dual Live Battle</title>
+  <title>BattleBillions - Dual Live Battle</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body, html {
@@ -35,58 +35,53 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      padding: 1rem;
+      box-sizing: border-box;
       pointer-events: none;
     }
-    .top-ui, .bottom-ui {
+    .top-ui, .bottom-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(0, 0, 0, 0.5);
       padding: 0.5rem 1rem;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-      z-index: 5;
+      z-index: 999;
     }
-    .bottom-ui {
-      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    .top-ui {
+      height: 40px;
+    }
+    .bottom-nav {
       position: absolute;
       bottom: 0;
       width: 100%;
-      flex-direction: column;
+      height: 50px;
     }
-    .live-label, .stats {
+    .live-label {
       background: red;
       color: white;
       padding: 0.3rem 0.6rem;
       border-radius: 20px;
       font-size: 0.9rem;
       font-weight: bold;
+      animation: blink 1s infinite;
     }
-    .competitor-info {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 2.5rem;
-      position: absolute;
-      width: 100%;
-      z-index: 3;
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
-    .competitor {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .stats {
+      background: rgba(0, 0, 0, 0.5);
       color: white;
-    }
-    .competitor img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      margin-bottom: 5px;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
     }
     .chat {
       position: absolute;
-      bottom: 160px;
+      bottom: 80px;
       left: 10px;
       width: 70%;
-      max-height: 30vh;
+      max-height: 40vh;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -99,9 +94,16 @@
       padding: 5px 10px;
       border-radius: 12px;
       font-size: 0.8rem;
-      color: white;
     }
-    .gift-button, .vote-button {
+    .bottom-ui {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      align-items: center;
+      justify-content: flex-end;
+      pointer-events: auto;
+    }
+    .gift-button {
       background: #ff0080;
       color: white;
       padding: 10px 18px;
@@ -109,34 +111,22 @@
       border: none;
       border-radius: 25px;
       cursor: pointer;
-      margin: 5px;
-    }
-    .vote-bar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin: 10px 0;
-    }
-    .round-timer {
-      font-size: 1rem;
-      font-weight: bold;
-      color: white;
-      background: rgba(0,0,0,0.6);
-      padding: 8px 14px;
-      border-radius: 20px;
-      margin-top: 8px;
     }
     .profile-ui {
       position: absolute;
-      right: 10px;
-      bottom: 100px;
+      top: 50px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1rem;
       z-index: 3;
       pointer-events: auto;
+    }
+    .profile-ui.left {
+      left: 10px;
+    }
+    .profile-ui.right {
+      right: 10px;
     }
     .profile-circle {
       width: 50px;
@@ -170,93 +160,80 @@
     <div class="top-ui">
       <div class="live-label">🔴 LIVE</div>
       <div class="stats">👁️ 1.3k viewers</div>
-    </div><div class="competitor-info">
-  <div class="competitor">
-    <img src="https://i.pravatar.cc/150?img=11" />
-    <span>@TopDancer</span>
+    </div>
+    <div class="chat" id="chatBox">
+      <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
+      <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
+      <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
+    </div>
+    <div class="bottom-ui">
+      <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
+    </div>
+    <div class="bottom-nav">
+      <button class="side-button" onclick="likeStream()">❤️</button>
+      <button class="side-button" onclick="shareStream()">🔗</button>
+      <button class="side-button" onclick="endStream()">✖️</button>
+    </div>
   </div>
-  <div class="competitor">
-    <img src="https://i.pravatar.cc/150?img=12" />
-    <span>@BeatMaster</span>
-  </div>
-</div>
-
-<div class="chat" id="chatBox">
-  <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
-  <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
-  <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
-</div>
-
-<div class="bottom-ui">
-  <div class="round-timer">Round 1 / 3 • ⏱ 47s</div>
-  <div class="vote-bar">
-    <button class="vote-button" onclick="vote('TopDancer')">🔥 TopDancer</button>
-    <button class="vote-button" onclick="vote('BeatMaster')">🔥 BeatMaster</button>
-  </div>
-  <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
-</div>
-
-  </div>  <div class="profile-ui">
+  <div class="profile-ui left">
     <div class="profile-circle"></div>
     <button class="side-button" onclick="likeStream()">❤️</button>
     <button class="side-button" onclick="shareStream()">🔗</button>
     <button class="side-button" onclick="endStream()">✖️</button>
-  </div>  <script>
+  </div>
+  <div class="profile-ui right">
+    <div class="profile-circle"></div>
+    <button class="side-button" onclick="likeStream()">❤️</button>
+    <button class="side-button" onclick="shareStream()">🔗</button>
+    <button class="side-button" onclick="endStream()">✖️</button>
+  </div>
+  <script>
     const video1 = document.getElementById('stream1');
     const video2 = document.getElementById('stream2');
-    const chatBox = document.getElementById('chatBox');
+    const chatBox = document.getElementById('chatBox');async function startStreams() {
+  try {
+    const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    video1.srcObject = stream1;
+    video2.srcObject = stream2;
+  } catch (e) {
+    alert("Camera & mic permissions denied.");
+  }
+}
 
-    async function startStreams() {
-      try {
-        const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        video1.srcObject = stream1;
-        video2.srcObject = stream2;
-      } catch (e) {
-        alert("Camera & mic permissions denied.");
-      }
+function sendGift() {
+  const msg = document.createElement('div');
+  msg.className = 'chat-message';
+  msg.innerHTML = '<strong>@You:</strong> 🎁 sent a gift!';
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function likeStream() {
+  const msg = document.createElement('div');
+  msg.className = 'chat-message';
+  msg.innerHTML = '<strong>@You:</strong> ❤️ liked the stream';
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function shareStream() {
+  alert("🔗 Share link copied to clipboard.");
+}
+
+function endStream() {
+  [video1, video2].forEach(video => {
+    const stream = video.srcObject;
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      video.srcObject = null;
     }
+  });
+  alert("🔴 Live streams ended.");
+}
 
-    function sendGift() {
-      const msg = document.createElement('div');
-      msg.className = 'chat-message';
-      msg.innerHTML = '<strong>@You:</strong> 🎁 sent a gift!';
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+startStreams();
 
-    function likeStream() {
-      const msg = document.createElement('div');
-      msg.className = 'chat-message';
-      msg.innerHTML = '<strong>@You:</strong> ❤️ liked the stream';
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function shareStream() {
-      navigator.clipboard.writeText(window.location.href);
-      alert("🔗 Share link copied to clipboard.");
-    }
-
-    function endStream() {
-      [video1, video2].forEach(video => {
-        const stream = video.srcObject;
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-          video.srcObject = null;
-        }
-      });
-      alert("🔴 Live streams ended.");
-    }
-
-    function vote(name) {
-      const msg = document.createElement('div');
-      msg.className = 'chat-message';
-      msg.innerHTML = `<strong>@You:</strong> voted for ${name}`;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    startStreams();
-  </script></body>
-  </html>
+  </script>
+</body>
+</html>
