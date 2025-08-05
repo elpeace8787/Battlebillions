@@ -18,7 +18,6 @@
       display: flex;
       width: 100vw;
       height: 100vh;
-      position: relative;
     }
     video.stream {
       width: 50vw;
@@ -35,7 +34,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 1rem;
+      padding: 0.5rem;
       box-sizing: border-box;
       pointer-events: none;
     }
@@ -43,25 +42,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 0.4rem 1rem;
       background: rgba(0, 0, 0, 0.5);
-      padding: 0.5rem 1rem;
-      z-index: 999;
+      border-radius: 10px;
     }
     .top-ui {
-      height: 40px;
+      margin-top: 5px;
     }
     .bottom-nav {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 50px;
+      margin-bottom: 5px;
+      z-index: 999;
     }
     .live-label {
       background: red;
       color: white;
-      padding: 0.3rem 0.6rem;
+      padding: 0.2rem 0.5rem;
       border-radius: 20px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       font-weight: bold;
       animation: blink 1s infinite;
     }
@@ -72,16 +69,16 @@
     .stats {
       background: rgba(0, 0, 0, 0.5);
       color: white;
-      padding: 0.3rem 0.8rem;
+      padding: 0.2rem 0.5rem;
       border-radius: 20px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
     .chat {
       position: absolute;
-      bottom: 80px;
+      bottom: 180px;
       left: 10px;
       width: 70%;
-      max-height: 40vh;
+      max-height: 30vh;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -91,14 +88,14 @@
     }
     .chat-message {
       background: rgba(0,0,0,0.4);
-      padding: 5px 10px;
-      border-radius: 12px;
-      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
     }
     .bottom-ui {
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
+      gap: 0.5rem;
       align-items: center;
       justify-content: flex-end;
       pointer-events: auto;
@@ -106,44 +103,64 @@
     .gift-button {
       background: #ff0080;
       color: white;
-      padding: 10px 18px;
+      padding: 8px 16px;
       font-weight: bold;
       border: none;
-      border-radius: 25px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .vote-buttons {
+      position: absolute;
+      bottom: 130px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      pointer-events: auto;
+    }
+    .vote-buttons button {
+      background-color: #222;
+      color: white;
+      border: 1px solid white;
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
       cursor: pointer;
     }
     .profile-ui {
       position: absolute;
-      top: 50px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1rem;
+      gap: 0.6rem;
       z-index: 3;
       pointer-events: auto;
     }
-    .profile-ui.left {
+    .profile-left {
       left: 10px;
+      top: 60px;
     }
-    .profile-ui.right {
+    .profile-right {
       right: 10px;
+      top: 60px;
     }
     .profile-circle {
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: url('https://i.pravatar.cc/150?img=3');
       background-size: cover;
-      border: 2px solid white;
+      border: 1.5px solid white;
     }
     .side-button {
       background: rgba(255,255,255,0.1);
       color: white;
-      font-size: 1.4rem;
+      font-size: 1rem;
       border: none;
       border-radius: 50%;
-      width: 45px;
-      height: 45px;
+      width: 35px;
+      height: 35px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -155,85 +172,90 @@
   <div class="video-container">
     <video id="stream1" class="stream" autoplay muted playsinline></video>
     <video id="stream2" class="stream" autoplay muted playsinline></video>
-  </div>
-  <div class="overlay">
+  </div>  <div class="overlay">
     <div class="top-ui">
       <div class="live-label">🔴 LIVE</div>
       <div class="stats">👁️ 1.3k viewers</div>
-    </div>
-    <div class="chat" id="chatBox">
-      <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
-      <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
-      <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
-    </div>
-    <div class="bottom-ui">
-      <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
-    </div>
-    <div class="bottom-nav">
-      <button class="side-button" onclick="likeStream()">❤️</button>
-      <button class="side-button" onclick="shareStream()">🔗</button>
-      <button class="side-button" onclick="endStream()">✖️</button>
-    </div>
-  </div>
-  <div class="profile-ui left">
+    </div><div class="vote-buttons">
+  <button onclick="vote('Player1')">🔥 Vote @Player1</button>
+  <button onclick="vote('Player2')">🔥 Vote @Player2</button>
+</div>
+
+<div class="chat" id="chatBox">
+  <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
+  <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
+  <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
+</div>
+
+<div class="bottom-ui">
+  <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
+</div>
+
+  </div>  <div class="profile-ui profile-left">
     <div class="profile-circle"></div>
     <button class="side-button" onclick="likeStream()">❤️</button>
     <button class="side-button" onclick="shareStream()">🔗</button>
     <button class="side-button" onclick="endStream()">✖️</button>
-  </div>
-  <div class="profile-ui right">
+  </div>  <div class="profile-ui profile-right">
     <div class="profile-circle"></div>
     <button class="side-button" onclick="likeStream()">❤️</button>
     <button class="side-button" onclick="shareStream()">🔗</button>
     <button class="side-button" onclick="endStream()">✖️</button>
-  </div>
-  <script>
+  </div>  <script>
     const video1 = document.getElementById('stream1');
     const video2 = document.getElementById('stream2');
-    const chatBox = document.getElementById('chatBox');async function startStreams() {
-  try {
-    const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    video1.srcObject = stream1;
-    video2.srcObject = stream2;
-  } catch (e) {
-    alert("Camera & mic permissions denied.");
-  }
-}
+    const chatBox = document.getElementById('chatBox');
 
-function sendGift() {
-  const msg = document.createElement('div');
-  msg.className = 'chat-message';
-  msg.innerHTML = '<strong>@You:</strong> 🎁 sent a gift!';
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function likeStream() {
-  const msg = document.createElement('div');
-  msg.className = 'chat-message';
-  msg.innerHTML = '<strong>@You:</strong> ❤️ liked the stream';
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function shareStream() {
-  alert("🔗 Share link copied to clipboard.");
-}
-
-function endStream() {
-  [video1, video2].forEach(video => {
-    const stream = video.srcObject;
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      video.srcObject = null;
+    async function startStreams() {
+      try {
+        const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        video1.srcObject = stream1;
+        video2.srcObject = stream2;
+      } catch (e) {
+        alert("Camera & mic permissions denied.");
+      }
     }
-  });
-  alert("🔴 Live streams ended.");
-}
 
-startStreams();
+    function sendGift() {
+      const msg = document.createElement('div');
+      msg.className = 'chat-message';
+      msg.innerHTML = '<strong>@You:</strong> 🎁 sent a gift!';
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-  </script>
-</body>
-</html>
+    function likeStream() {
+      const msg = document.createElement('div');
+      msg.className = 'chat-message';
+      msg.innerHTML = '<strong>@You:</strong> ❤️ liked the stream';
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function shareStream() {
+      alert("🔗 Share link copied to clipboard.");
+    }
+
+    function endStream() {
+      [video1, video2].forEach(video => {
+        const stream = video.srcObject;
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          video.srcObject = null;
+        }
+      });
+      alert("🔴 Live streams ended.");
+    }
+
+    function vote(player) {
+      const msg = document.createElement('div');
+      msg.className = 'chat-message';
+      msg.innerHTML = `<strong>@You:</strong> 🔥 voted for ${player}`;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    startStreams();
+  </script></body>
+        </html>
