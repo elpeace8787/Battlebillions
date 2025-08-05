@@ -23,10 +23,6 @@
       width: 50vw;
       height: 100vh;
       object-fit: cover;
-      transition: box-shadow 0.5s ease;
-    }
-    .glow {
-      box-shadow: 0 0 30px 10px #00ffcc !important;
     }
     .overlay {
       position: absolute;
@@ -38,47 +34,46 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 0.5rem 1rem;
+      padding: 1rem;
       box-sizing: border-box;
       pointer-events: none;
     }
-    .top-ui, .bottom-nav {
+    .top-ui {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 0.3rem 0.8rem;
-      border-radius: 15px;
-      font-size: 0.9rem;
-      pointer-events: auto;
     }
-    .top-ui {
-      height: 40px;
-    }
-    .bottom-nav {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      justify-content: space-around;
-      z-index: 3;
-    }
-    .bottom-nav button {
-      background: none;
-      border: none;
+    .live-label {
+      background: red;
       color: white;
-      font-size: 18px;
-      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .stats {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
     }
     .chat {
       position: absolute;
-      bottom: 80px;
+      bottom: 180px;
       left: 10px;
-      width: 65%;
-      max-height: 35vh;
+      width: 70%;
+      max-height: 30vh;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
+      z-index: 3;
       pointer-events: auto;
     }
     .chat-message {
@@ -87,23 +82,13 @@
       border-radius: 12px;
       font-size: 0.8rem;
     }
-    .vote-buttons {
-      position: absolute;
-      bottom: 140px;
-      width: 100%;
+    .bottom-ui {
       display: flex;
-      justify-content: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 0.8rem;
+      align-items: center;
+      justify-content: flex-end;
       pointer-events: auto;
-    }
-    .vote-buttons button {
-      background-color: #222;
-      color: white;
-      border: 1px solid white;
-      border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 14px;
-      cursor: pointer;
     }
     .gift-button {
       background: #ff0080;
@@ -116,180 +101,177 @@
     }
     .profile-ui {
       position: absolute;
+      top: 100px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.4rem;
       z-index: 3;
       pointer-events: auto;
     }
-    .left-profile-ui {
-      left: 10px;
-      top: 60px;
-    }
-    .right-profile-ui {
-      right: 10px;
-      top: 60px;
-    }
+    .left-profile { left: 10px; }
+    .right-profile { right: 10px; }
     .profile-circle {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      background: url('https://i.pravatar.cc/150?img=3');
       background-size: cover;
       border: 2px solid white;
     }
     .side-button {
       background: rgba(255,255,255,0.1);
       color: white;
-      font-size: 1.2rem;
+      font-size: 1rem;
       border: none;
       border-radius: 50%;
-      width: 35px;
-      height: 35px;
+      width: 34px;
+      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
     }
-    .timer-rounds {
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0));
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      z-index: 999;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .round-info {
       position: absolute;
-      bottom: 60px;
+      bottom: 70px;
       left: 50%;
       transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
       color: white;
-      font-size: 1rem;
-      background: rgba(0,0,0,0.5);
-      padding: 6px 14px;
-      border-radius: 15px;
-      font-weight: bold;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      z-index: 10;
+    }
+    .username-label {
+      position: absolute;
+      top: 50px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 10;
+    }
+    .username-entry {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.4);
+      padding: 4px 10px;
+      border-radius: 16px;
+    }
+    .username-entry img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+    .your-turn {
+      outline: 3px solid #00ffcc;
+      box-shadow: 0 0 15px #00ffcc;
     }
   </style>
 </head>
 <body>
   <div class="video-container">
-    <video id="stream1" class="stream" autoplay muted playsinline></video>
-    <video id="stream2" class="stream" autoplay muted playsinline></video>
+    <video class="stream" autoplay muted playsinline id="stream1"></video>
+    <video class="stream" autoplay muted playsinline id="stream2"></video>
   </div>
   <div class="overlay">
     <div class="top-ui">
-      <div class="live-label">🔴 LIVE</div>
+      <div class="live-label">LIVE</div>
       <div class="stats">👁️ 1.3k viewers</div>
+    </div>
+    <div class="username-label">
+      <div class="username-entry"><img src="avatar1.jpg" /><span>@StarDancer</span></div>
+      <div class="username-entry"><img src="avatar2.jpg" /><span>@CyberWolf</span></div>
     </div>
     <div class="chat" id="chatBox">
       <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
       <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
       <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
     </div>
-    <div class="vote-buttons">
-      <button onclick="vote('Player 1')">🔥 Vote Player 1</button>
-      <button onclick="vote('Player 2')">🔥 Vote Player 2</button>
+    <div class="round-info" id="roundInfo">Round 1 • 38s</div>
+    <div class="bottom-ui">
+      <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
     </div>
-    <div class="timer-rounds">
-      Round <span id="roundNum">1</span>/3 • ⏱ <span id="timer">38</span>s
-    </div>
-    <div class="bottom-nav">
-      <button onclick="alert('Dashboard')">🏠</button>
-      <button onclick="alert('Battle')">⚔️</button>
-      <button onclick="alert('Messages')">💬</button>
-      <button onclick="alert('Wallet')">💰</button>
-      <button onclick="alert('Settings')">⚙️</button>
-    </div>
-  </div>  <div class="profile-ui left-profile-ui">
-    <div class="profile-circle"></div>
+  </div>
+  <div class="profile-ui left-profile">
+    <div class="profile-circle" style="background-image: url('avatar1.jpg')"></div>
     <button class="side-button" onclick="likeStream()">❤️</button>
     <button class="side-button" onclick="shareStream()">🔗</button>
     <button class="side-button" onclick="endStream()">✖️</button>
   </div>
-  <div class="profile-ui right-profile-ui">
-    <div class="profile-circle"></div>
+  <div class="profile-ui right-profile">
+    <div class="profile-circle" style="background-image: url('avatar2.jpg')"></div>
     <button class="side-button" onclick="likeStream()">❤️</button>
     <button class="side-button" onclick="shareStream()">🔗</button>
     <button class="side-button" onclick="endStream()">✖️</button>
-  </div>  <script>
-    const video1 = document.getElementById('stream1');
-    const video2 = document.getElementById('stream2');
-    const chatBox = document.getElementById('chatBox');
-    const timerEl = document.getElementById('timer');
-    const roundNumEl = document.getElementById('roundNum');
-
-    let currentRound = 1;
-    const totalRounds = 3;
+  </div>
+  <div class="bottom-nav">
+    <button onclick="location.href='dashboard.html'">🏠</button>
+    <button onclick="location.href='battle.html'">⚔️</button>
+    <button onclick="location.href='messages.html'">💬</button>
+    <button onclick="location.href='wallet.html'">💰</button>
+    <button onclick="location.href='leaderboard.html'">🏆</button>
+    <button onclick="location.href='settings.html'">⚙️</button>
+  </div>
+  <script>
+    let round = 1;
     let seconds = 38;
-    let isFirstPlayerTurn = true;
+    let isLeftTurn = true;function updateTimer() {
+  const roundInfo = document.getElementById('roundInfo');
+  roundInfo.innerText = `Round ${round} • ${seconds}s`;
+}
 
-    function startTurn() {
-      timerEl.textContent = seconds;
-      if (isFirstPlayerTurn) {
-        video1.classList.add('glow');
-        video2.classList.remove('glow');
+function switchTurns() {
+  isLeftTurn = !isLeftTurn;
+  document.getElementById('stream1').classList.toggle('your-turn', isLeftTurn);
+  document.getElementById('stream2').classList.toggle('your-turn', !isLeftTurn);
+}
+
+function startBattle() {
+  updateTimer();
+  const interval = setInterval(() => {
+    seconds--;
+    updateTimer();
+    if (seconds <= 0) {
+      if (round >= 3) {
+        clearInterval(interval);
+        document.getElementById('roundInfo').innerText = 'Battle Over';
       } else {
-        video2.classList.add('glow');
-        video1.classList.remove('glow');
-      }
-
-      const interval = setInterval(() => {
-        seconds--;
-        timerEl.textContent = seconds;
-        if (seconds <= 0) {
-          clearInterval(interval);
-          setTimeout(() => {
-            if (!isFirstPlayerTurn) {
-              currentRound++;
-              roundNumEl.textContent = currentRound;
-            }
-            if (currentRound > totalRounds) {
-              video1.classList.remove('glow');
-              video2.classList.remove('glow');
-              return;
-            }
-            seconds = 38;
-            isFirstPlayerTurn = !isFirstPlayerTurn;
-            startTurn();
-          }, 2000);
-        }
-      }, 1000);
-    }
-
-    function likeStream() {
-      const msg = document.createElement('div');
-      msg.className = 'chat-message';
-      msg.innerHTML = '<strong>@You:</strong> ❤️ liked the stream';
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function shareStream() {
-      alert("🔗 Share link copied to clipboard.");
-    }
-
-    function endStream() {
-      [video1, video2].forEach(video => {
-        const stream = video.srcObject;
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-          video.srcObject = null;
-        }
-      });
-      alert("🔴 Live streams ended.");
-    }
-
-    function vote(user) {
-      alert(`🔥 You voted for ${user}`);
-    }
-
-    async function startStreams() {
-      try {
-        const stream1 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        const stream2 = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        video1.srcObject = stream1;
-        video2.srcObject = stream2;
-      } catch (e) {
-        alert("Camera & mic permissions denied.");
+        round++;
+        seconds = 38;
+        switchTurns();
       }
     }
+  }, 1000);
+  switchTurns();
+}
 
-    startStreams();
-    startTurn();
-  </script></body>
-        </html>
+function likeStream() { alert('Liked!'); }
+function shareStream() { alert('Shared!'); }
+function endStream() { alert('Stream Ended'); }
+function sendGift() { alert('Gift Sent!'); }
+
+window.onload = startBattle;
+
+  </script>
+</body>
+                                    </html>
