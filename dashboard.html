@@ -18,12 +18,14 @@
       padding: 1rem;
       text-align: center;
       font-size: 1.5rem;
+      font-weight: bold;
       border-bottom: 2px solid #222;
+      letter-spacing: 1px;
     }
 
     .battle-container {
       display: flex;
-      height: 90vh;
+      height: 88vh;
       width: 100%;
     }
 
@@ -31,6 +33,7 @@
       flex: 1;
       background: #000;
       position: relative;
+      overflow: hidden;
     }
 
     video {
@@ -50,19 +53,39 @@
       background: #222;
       margin-bottom: 1rem;
       padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(255,255,255,0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 6px rgba(255,255,255,0.08);
     }
 
     .battle-item h3 {
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.4rem;
       font-size: 1.1rem;
     }
 
     .battle-item p {
       margin: 0;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: #ccc;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #000;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      border-top: 1px solid #222;
+      z-index: 999;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
     }
 
     @media (max-width: 768px) {
@@ -74,6 +97,10 @@
       .stream {
         height: 45vh;
       }
+
+      .bottom-nav button {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
@@ -81,30 +108,45 @@
 
   <header>🔥 BattleBillions LIVE 🔥</header>
 
+  <!-- Dual Live Battle Streams -->
   <section class="battle-container">
-    <div class="stream" id="stream1">
-      <video id="video1" autoplay muted loop>
+    <div class="stream">
+      <video autoplay muted loop playsinline>
         <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>
-    <div class="stream" id="stream2">
-      <video id="video2" autoplay muted loop>
+    <div class="stream">
+      <video autoplay muted loop playsinline>
         <source src="https://www.w3schools.com/html/movie.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>
   </section>
 
+  <!-- Battle Scroll Feed -->
   <section class="battle-feed" id="battleFeed">
-    <!-- Infinite scroll content will be loaded here -->
+    <!-- Dynamic battles will be injected here -->
   </section>
 
-  <script>
-    // Simulate loading more battles (fake for now)
-    const battleFeed = document.getElementById('battleFeed');
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button onclick="goTo('dashboard.html')">🏠</button>
+    <button onclick="goTo('battle.html')">⚔️</button>
+    <button onclick="goTo('messages.html')">💬</button>
+    <button onclick="goTo('wallet.html')">💰</button>
+    <button onclick="goTo('settings.html')">⚙️</button>
+  </div>
 
+  <script>
+    function goTo(page) {
+      window.location.href = page;
+    }
+
+    // Infinite scroll logic for mock battles
+    const battleFeed = document.getElementById('battleFeed');
     let battleCount = 0;
+
     function loadBattles() {
       for (let i = 0; i < 5; i++) {
         battleCount++;
@@ -112,20 +154,22 @@
         div.className = 'battle-item';
         div.innerHTML = `
           <h3>🔥 Battle #${battleCount}</h3>
-          <p>Competitor A vs Competitor B</p>
+          <p>@Player${battleCount} vs @Challenger${battleCount}</p>
         `;
         battleFeed.appendChild(div);
       }
     }
 
+    // Initial load
     loadBattles();
 
-    // Infinite scroll logic
+    // Load more on scroll
     battleFeed.addEventListener('scroll', () => {
       if (battleFeed.scrollTop + battleFeed.clientHeight >= battleFeed.scrollHeight - 5) {
         loadBattles();
       }
     });
   </script>
+
 </body>
 </html>
