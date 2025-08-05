@@ -3,217 +3,257 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Battle Feed – Battlebillions</title>
-  <link rel="stylesheet" href="shared.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>BattleBillions - Dual Live Battle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      background: #0e0e0e;
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-    }
-
-    .header {
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      background: #1a1a1a;
-      border-bottom: 1px solid #333;
-    }
-
-    .search-filter {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 15px;
-      background: #1c1c1c;
-    }
-
-    .search-filter input,
-    .search-filter select {
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      background: #2a2a2a;
-      color: #fff;
-      margin: 5px;
-      width: 90%;
-    }
-
-    .feed {
-      padding: 15px;
-      padding-bottom: 90px; /* space for nav */
-    }
-
-    .battle-card {
-      background: #1a1a1a;
-      border-radius: 12px;
-      margin-bottom: 20px;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: white;
       overflow: hidden;
-      box-shadow: 0 0 12px rgba(255, 153, 0, 0.1);
+    }
+    .stream-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
       position: relative;
     }
-
-    .battle-video {
-      width: 100%;
-      height: auto;
-      display: block;
+    video.video-stream {
+      flex: 1;
+      object-fit: cover;
+      width: 50%;
+      height: 100%;
     }
-
-    .profile-pics {
+    .overlay {
       position: absolute;
-      bottom: 12px;
-      left: 12px;
-      display: flex;
-      gap: 8px;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
     }
-
-    .profile-pics img {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 2px solid #ff9900;
-      animation: float 3s infinite ease-in-out;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-      100% { transform: translateY(0); }
-    }
-
-    .comments {
-      padding: 10px 15px;
-      border-top: 1px solid #333;
-    }
-
-    .comments input {
+    .top-bar, .bottom-bar {
+      position: absolute;
       width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      background: #2c2c2c;
-      color: #fff;
-      border: none;
-    }
-
-    .category-tags {
       display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 10px 0;
+      justify-content: space-between;
+      padding: 10px 20px;
+      pointer-events: auto;
     }
-
-    .category-tags button {
-      background: #2a2a2a;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 20px;
-      color: #ccc;
-      font-size: 13px;
-      cursor: pointer;
-      transition: 0.2s;
+    .top-bar {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
     }
-
-    .category-tags button:hover {
-      background: #ff9900;
-      color: #121212;
-    }
-
-    /* Bottom Nav */
-    .bottom-nav {
-      position: fixed;
+    .bottom-bar {
       bottom: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      align-items: center;
+    }
+    .nav-icon {
+      font-size: 22px;
+      color: white;
+      cursor: pointer;
+    }
+    .chat-box {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-height: 25vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      pointer-events: auto;
+      align-items: center;
+    }
+    .chat-message {
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+    .chat-input {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      display: flex;
+      pointer-events: auto;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+    }
+    .chat-input button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border-radius: 20px;
+      background: #ff0080;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .side-controls.left, .side-controls.right {
+      position: absolute;
+      bottom: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .side-controls.left {
+      left: 10px;
+    }
+    .side-controls.right {
+      right: 10px;
+    }
+    .side-button {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .profile-labels {
+      position: absolute;
+      top: 60px;
       left: 0;
       width: 100%;
-      background: #111;
-      border-top: 2px solid #333;
       display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      z-index: 999;
+      justify-content: space-between;
+      padding: 0 20px;
     }
-
-    .bottom-nav button {
-      background: none;
-      border: none;
-      font-size: 26px;
-      color: #fff;
-      cursor: pointer;
-      transition: 0.2s ease-in-out;
+    .profile-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 12px;
+      border-radius: 16px;
     }
-
-    .bottom-nav button:hover {
-      color: #ff9900;
-      transform: scale(1.2);
+    .profile-entry img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+    .round-timer {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      background: rgba(0,0,0,0.6);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
+  <div class="stream-container">
+    <!-- Live Webcam Feed -->
+    <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+    
+    <!-- Placeholder for opponent -->
+    <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
 
-  <div class="header">🔥 Battle Feed</div>
-
-  <div class="search-filter">
-    <input type="text" placeholder="Search battles..." />
-    <select>
-      <option value="">Filter by Category</option>
-      <option value="music">🎵 Music</option>
-      <option value="dance">💃 Dance</option>
-      <option value="freestyle">🎤 Freestyle</option>
-    </select>
-  </div>
-
-  <div class="category-tags">
-    <button>#Music</button>
-    <button>#Dance</button>
-    <button>#Freestyle</button>
-    <button>#Viral</button>
-    <button>#New</button>
-  </div>
-
-  <div class="feed">
-
-    <!-- Battle Reel 1 -->
-    <div class="battle-card">
-      <video class="battle-video" src="videos/battle1.mp4" controls autoplay muted loop></video>
-      <div class="profile-pics">
-        <img src="avatars/user1.png" alt="Competitor 1">
-        <img src="avatars/user2.png" alt="Competitor 2">
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon">🔴 LIVE</div>
+        <div class="nav-icon">👁️ 1.3k</div>
       </div>
-      <div class="comments">
-        <input type="text" placeholder="Drop a comment..." />
+
+      <div class="profile-labels">
+        <div class="profile-entry">
+          <img src="user1.jpg" alt="User 1">
+          <span>@You</span>
+        </div>
+        <div class="profile-entry">
+          <img src="user2.jpg" alt="User 2">
+          <span>@Opponent</span>
+        </div>
+      </div>
+
+      <div class="chat-box" id="chatBox">
+        <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
+        <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
+        <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
+      </div>
+
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+
+      <div class="side-controls left">
+        <div class="side-button" onclick="goHome()">🏠</div>
+        <div class="side-button" onclick="searchBattle()">🔍</div>
+        <div class="side-button" onclick="logout()">🚪</div>
+      </div>
+
+      <div class="side-controls right">
+        <div class="side-button" onclick="openProfile()">👤</div>
+        <div class="side-button" onclick="openLeaderboard()">🏆</div>
+        <div class="side-button" onclick="openBattleFeed()">📺</div>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="nav-icon">🏠</div>
+        <div class="nav-icon">🔍</div>
+        <div class="nav-icon">🎁</div>
+        <div class="nav-icon">💬</div>
+        <div class="nav-icon">🏆</div>
+      </div>
+
+      <div class="round-timer">
+        Round 1 of 3 | 38s
       </div>
     </div>
-
-    <!-- Battle Reel 2 -->
-    <div class="battle-card">
-      <video class="battle-video" src="videos/battle2.mp4" controls autoplay muted loop></video>
-      <div class="profile-pics">
-        <img src="avatars/user3.png" alt="Competitor A">
-        <img src="avatars/user4.png" alt="Competitor B">
-      </div>
-      <div class="comments">
-        <input type="text" placeholder="Say something 🔥..." />
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Bottom Emoji Nav Bar -->
-  <div class="bottom-nav">
-    <button onclick="goTo('dashboard.html')">🏠</button>
-    <button onclick="goTo('battle.html')">⚔️</button>
-    <button onclick="goTo('messages.html')">💬</button>
-    <button onclick="goTo('wallet.html')">💰</button>
-    <button onclick="goTo('settings.html')">⚙️</button>
   </div>
 
   <script>
-    function goTo(page) {
-      window.location.href = page;
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const video = document.getElementById('localVideo');
+        video.srcObject = stream;
+      } catch (err) {
+        console.error('Camera error:', err);
+        alert('Please allow camera/mic permissions');
+      }
     }
-  </script>
 
+    startCamera();
+
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+      const chatBox = document.getElementById('chatBox');
+      const div = document.createElement('div');
+      div.className = 'chat-message';
+      div.innerHTML = `<strong>@You:</strong> ${msg}`;
+      chatBox.appendChild(div);
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Placeholder navigation logic
+    function goHome() { alert('Home clicked'); }
+    function searchBattle() { alert('Search clicked'); }
+    function logout() { alert('Logging out...'); }
+    function openProfile() { alert('Opening Profile'); }
+    function openLeaderboard() { alert('Opening Leaderboard'); }
+    function openBattleFeed() { alert('Opening Battle Feed'); }
+  </script>
 </body>
 </html>
