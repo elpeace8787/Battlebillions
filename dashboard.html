@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BattleBillions - Live Battle Arena</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600&display=swap');
     
     * {
       margin: 0;
@@ -14,7 +14,7 @@
     }
 
     body {
-      font-family: 'Orbitron', monospace;
+      font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #16213e 100%);
       color: #fff;
       overflow-x: hidden;
@@ -59,6 +59,51 @@
       }
     }
 
+    /* Top Navigation */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .trophy-icon {
+      font-size: 26px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .trophy-icon:hover {
+      transform: scale(1.2);
+    }
+
+    .profile-btn {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(45deg, #ff0080, #00ffff);
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: pointer;
+      animation: profileFloat 3s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    @keyframes profileFloat {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+      100% { transform: translateY(0px); }
+    }
+
     /* Header with glowing effects */
     header {
       background: linear-gradient(90deg, #ff0080, #7928ca, #0070f3);
@@ -67,12 +112,14 @@
       padding: 1.5rem;
       text-align: center;
       font-size: 2.5rem;
+      font-family: 'Orbitron', monospace;
       font-weight: 900;
       border-bottom: 3px solid #00ffff;
       box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
       position: relative;
       z-index: 10;
       text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+      margin-top: 70px;
     }
 
     @keyframes gradientFlow {
@@ -96,12 +143,23 @@
       50% { opacity: 1; }
     }
 
+    /* Dashboard title for battle feed page */
+    .dashboard-title {
+      text-align: center;
+      padding: 90px 0 20px;
+      font-size: 22px;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: 0 0 15px #00ffff;
+      color: #00ffff;
+    }
+
     /* Main battle container */
     .battle-arena {
       display: flex;
-      height: calc(100vh - 120px);
+      height: calc(100vh - 190px);
       position: relative;
       z-index: 5;
+      margin-top: 70px;
     }
 
     .stream-container {
@@ -193,15 +251,130 @@
       }
     }
 
-    /* Battle feed sidebar */
+    /* Battle feed for dashboard */
     .battle-feed {
+      margin-bottom: 90px;
+      padding: 10px;
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+    }
+
+    .battle-card {
+      background: linear-gradient(135deg, rgba(17, 17, 17, 0.9), rgba(34, 34, 34, 0.9));
+      border-radius: 16px;
+      margin-bottom: 24px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      position: relative;
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .battle-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 255, 255, 0.2);
+      border-color: #00ffff;
+    }
+
+    .battle-category {
+      text-align: center;
+      font-size: 14px;
+      color: #00ffcc;
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-shadow: 0 0 10px #00ffcc;
+    }
+
+    .competitor-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .battle-videos {
+      display: flex;
+      gap: 8px;
+      position: relative;
+    }
+
+    .battle-videos video {
+      width: 48%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .highlight {
+      border: 2px solid #00ffcc !important;
+      box-shadow: 0 0 20px #00ffcc;
+    }
+
+    .flag-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+
+    .flag-bar img {
+      width: 28px;
+      height: 18px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .flag-bar img:hover {
+      transform: scale(1.2);
+      box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+    }
+
+    .round-timer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .vote-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 12px;
+      gap: 10px;
+    }
+
+    .vote-buttons button {
+      background: linear-gradient(135deg, rgba(255, 0, 128, 0.2), rgba(0, 255, 255, 0.2));
+      color: white;
+      border: 1px solid #00ffff;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+    }
+
+    .vote-buttons button:hover {
+      background: linear-gradient(135deg, rgba(255, 0, 128, 0.4), rgba(0, 255, 255, 0.4));
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+    }
+
+    /* Battle feed sidebar */
+    .battle-feed-sidebar {
       width: 400px;
       background: linear-gradient(180deg, rgba(26, 10, 46, 0.9), rgba(22, 33, 62, 0.9));
       backdrop-filter: blur(20px);
       border-left: 2px solid #00ffff;
       padding: 20px;
       overflow-y: auto;
-      height: calc(100vh - 120px);
+      height: calc(100vh - 190px);
       position: relative;
     }
 
@@ -300,6 +473,145 @@
       50% { transform: scale(1.2); }
     }
 
+    /* Navigation pages */
+    .nav-page {
+      display: none;
+      padding: 20px;
+      margin-bottom: 100px;
+      margin-top: 70px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .nav-page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-header {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00ffff;
+      text-shadow: 0 0 15px #00ffff;
+    }
+
+    .page-content {
+      background: linear-gradient(135deg, rgba(26, 10, 46, 0.8), rgba(22, 33, 62, 0.8));
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, rgba(26, 10, 46, 0.95), rgba(22, 33, 62, 0.95));
+      backdrop-filter: blur(20px);
+      border-top: 2px solid #00ffff;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 15px 20px;
+      z-index: 1000;
+      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .bottom-nav button {
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bottom-nav button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: radial-gradient(circle, rgba(0, 255, 255, 0.3), transparent);
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    .bottom-nav button:hover::before {
+      width: 100px;
+      height: 100px;
+    }
+
+    .bottom-nav button:hover {
+      transform: translateY(-5px);
+      border-color: #00ffff;
+      box-shadow: 0 10px 25px rgba(0, 255, 255, 0.3);
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+    }
+
+    .bottom-nav button:active {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+    }
+
+    .bottom-nav button.active {
+      background: linear-gradient(135deg, #00ffff, #ff0080);
+      border-color: #fff;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+      animation: activeGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes activeGlow {
+      0%, 100% { 
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+      }
+      50% { 
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), 0 0 40px rgba(255, 0, 128, 0.4);
+      }
+    }
+
+    /* Loading animation */
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .loading-dot {
+      width: 8px;
+      height: 8px;
+      background: #00ffff;
+      border-radius: 50%;
+      margin: 0 3px;
+      animation: loadingBounce 1.4s ease-in-out infinite both;
+    }
+
+    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes loadingBounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
     /* Responsive design */
     @media (max-width: 1024px) {
       .battle-arena {
@@ -307,7 +619,7 @@
         height: auto;
       }
       
-      .battle-feed {
+      .battle-feed-sidebar {
         width: 100%;
         height: 300px;
         border-left: none;
@@ -337,49 +649,48 @@
       .competitor-stats {
         font-size: 0.8rem;
       }
+
+      .bottom-nav {
+        padding: 10px 15px;
+      }
+      
+      .bottom-nav button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+      
+      .battle-arena {
+        margin-bottom: 80px;
+      }
+
+      .dashboard-title {
+        padding: 70px 0 20px;
+        font-size: 18px;
+      }
     }
 
     /* Scrollbar styling */
-    .battle-feed::-webkit-scrollbar {
+    .battle-feed::-webkit-scrollbar,
+    .battle-feed-sidebar::-webkit-scrollbar {
       width: 8px;
     }
 
-    .battle-feed::-webkit-scrollbar-track {
+    .battle-feed::-webkit-scrollbar-track,
+    .battle-feed-sidebar::-webkit-scrollbar-track {
       background: rgba(0, 0, 0, 0.3);
       border-radius: 10px;
     }
 
-    .battle-feed::-webkit-scrollbar-thumb {
+    .battle-feed::-webkit-scrollbar-thumb,
+    .battle-feed-sidebar::-webkit-scrollbar-thumb {
       background: linear-gradient(45deg, #ff0080, #00ffff);
       border-radius: 10px;
     }
 
-    .battle-feed::-webkit-scrollbar-thumb:hover {
+    .battle-feed::-webkit-scrollbar-thumb:hover,
+    .battle-feed-sidebar::-webkit-scrollbar-thumb:hover {
       background: linear-gradient(45deg, #ff0080, #7928ca);
-    }
-
-    /* Loading animation */
-    .loading {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .loading-dot {
-      width: 8px;
-      height: 8px;
-      background: #00ffff;
-      border-radius: 50%;
-      margin: 0 3px;
-      animation: loadingBounce 1.4s ease-in-out infinite both;
-    }
-
-    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
-    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
-
-    @keyframes loadingBounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1); }
     }
   </style>
 </head>
@@ -387,12 +698,19 @@
   <!-- Animated background particles -->
   <div class="particles" id="particles"></div>
 
-  <header>
-    <div class="header-glow"></div>
-    ⚡ BATTLEBILLIONS ARENA ⚡
-  </header>
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="trophy-icon" onclick="navigateToPage('leaderboard')">🏆</div>
+    <div class="profile-btn" onclick="navigateToPage('profile')">👤</div>
+  </div>
 
-  <main class="battle-arena">
+  <!-- Battle Arena Page (Live Streaming) -->
+  <main class="battle-arena" id="battleArena">
+    <header>
+      <div class="header-glow"></div>
+      ⚡ BATTLEBILLIONS ARENA ⚡
+    </header>
+
     <section class="stream-container">
       <div class="stream">
         <video id="video1" autoplay muted loop>
@@ -437,7 +755,7 @@
       </div>
     </section>
 
-    <aside class="battle-feed" id="battleFeed">
+    <aside class="battle-feed-sidebar" id="battleFeedSidebar">
       <div class="feed-header">🏆 LIVE BATTLES</div>
       <div id="battleList">
         <!-- Battle items will be loaded here -->
@@ -450,202 +768,99 @@
     </aside>
   </main>
 
-  <script>
-    // Create animated background particles
-    function createParticles() {
-      const particlesContainer = document.getElementById('particles');
-      const particleCount = 50;
+  <!-- Dashboard Page (Battle Feed) -->
+  <div id="dashboardPage" class="nav-page active">
+    <div class="dashboard-title">🔥 Battles You Follow</div>
+    
+    <div class="battle-feed" id="battleFeed">
+      <div class="battle-card" id="battleCardTemplate">
+        <div class="battle-category">🎵 Music</div>
 
-      for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 20 + 's';
-        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
-        
-        // Random colors for particles
-        const colors = ['#00ffff', '#ff0080', '#7928ca', '#0070f3'];
-        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-        particle.style.boxShadow = `0 0 10px ${particle.style.background}`;
-        
-        particlesContainer.appendChild(particle);
-      }
-    }
-
-    // Battle data generator
-    const battleTypes = [
-      '🔥 EPIC SHOWDOWN',
-      '⚡ LIGHTNING BATTLE',
-      '💎 DIAMOND CLASH',
-      '🚀 ROCKET DUEL',
-      '🌟 STAR WARS',
-      '💀 DEATH MATCH',
-      '🏆 CHAMPIONSHIP',
-      '🎯 SNIPER ELITE',
-      '🔊 BASS BATTLE',
-      '🎮 GAMING ARENA'
-    ];
-
-    const competitors = [
-      'NEXUS WARRIOR', 'CYBER PHANTOM', 'NEON STRIKER', 'QUANTUM RAGE',
-      'DIGITAL STORM', 'PLASMA KNIGHT', 'VOLT CRUSHER', 'NANO DESTROYER',
-      'HYPER BEAST', 'SHADOW BLADE', 'COSMIC FURY', 'TECH TITAN',
-      'LASER WOLF', 'CHROME VIPER', 'PIXEL HUNTER', 'DATA GHOST'
-    ];
-
-    const prizes = ['$50K', '$100K', '$250K', '$500K', '$1M', '$2.5M'];
-
-    let battleCount = 0;
-    const battleList = document.getElementById('battleList');
-    const loading = document.getElementById('loading');
-
-    function generateBattle() {
-      battleCount++;
-      const type = battleTypes[Math.floor(Math.random() * battleTypes.length)];
-      const comp1 = competitors[Math.floor(Math.random() * competitors.length)];
-      const comp2 = competitors[Math.floor(Math.random() * competitors.length)];
-      const prize = prizes[Math.floor(Math.random() * prizes.length)];
-      const viewers = Math.floor(Math.random() * 50000) + 1000;
-      const isLive = Math.random() > 0.3;
-
-      return {
-        id: battleCount,
-        type,
-        competitors: [comp1, comp2],
-        prize,
-        viewers: viewers.toLocaleString(),
-        isLive,
-        timestamp: new Date().toLocaleTimeString()
-      };
-    }
-
-    function createBattleElement(battle) {
-      const div = document.createElement('div');
-      div.className = 'battle-item';
-      div.innerHTML = `
-        <div class="battle-title">${battle.type} #${battle.id}</div>
-        <div class="battle-details">
-          ${battle.competitors[0]} vs ${battle.competitors[1]}
+        <div class="competitor-info">
+          <span>@TopDancer</span>
+          <span>vs</span>
+          <span>@BeatMaster</span>
         </div>
-        <div class="battle-meta">
-          <span>💰 ${battle.prize}</span>
-          <span>👥 ${battle.viewers}</span>
-          ${battle.isLive ? '<span class="live-indicator"><span class="live-dot"></span>LIVE</span>' : ''}
+
+        <div class="round-timer">
+          <span>Round: <span class="round-num">1</span>/3</span>
+          <span>⏱ <span class="timer">47</span>s</span>
         </div>
-      `;
 
-      // Add click animation
-      div.addEventListener('click', () => {
-        div.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          div.style.transform = 'translateY(-5px)';
-        }, 100);
-      });
+        <div class="battle-videos">
+          <video class="video1" src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay muted loop></video>
+          <video class="video2" src="https://www.w3schools.com/html/movie.mp4" autoplay muted loop></video>
+        </div>
 
-      return div;
-    }
+        <div class="flag-bar">
+          <div style="width: 28px; height: 18px; background: linear-gradient(to right, #ff0000, #ffffff, #0000ff); border-radius: 4px; cursor: pointer;" onclick="navigateToPage('leaderboard', 'US')"></div>
+          <div style="width: 28px; height: 18px; background: linear-gradient(45deg, #ff0000, #ffffff, #0000ff); border-radius: 4px; cursor: pointer;" onclick="navigateToPage('leaderboard', 'UK')"></div>
+        </div>
 
-    function loadBattles(count = 6) {
-      loading.style.display = 'flex';
-      
-      setTimeout(() => {
-        for (let i = 0; i < count; i++) {
-          const battle = generateBattle();
-          const battleElement = createBattleElement(battle);
-          battleList.appendChild(battleElement);
-          
-          // Animate in
-          setTimeout(() => {
-            battleElement.style.opacity = '0';
-            battleElement.style.transform = 'translateY(20px)';
-            battleElement.style.transition = 'all 0.5s ease';
-            
-            requestAnimationFrame(() => {
-              battleElement.style.opacity = '1';
-              battleElement.style.transform = 'translateY(0)';
-            });
-          }, i * 100);
-        }
-        
-        loading.style.display = 'none';
-      }, 800);
-    }
+        <div class="vote-buttons">
+          <button onclick="vote('topdancer')">🔥 Vote TopDancer</button>
+          <button onclick="vote('beatmaster')">🔥 Vote BeatMaster</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Infinite scroll
-    const battleFeed = document.getElementById('battleFeed');
-    battleFeed.addEventListener('scroll', () => {
-      if (battleFeed.scrollTop + battleFeed.clientHeight >= battleFeed.scrollHeight - 100) {
-        if (loading.style.display === 'none') {
-          loadBattles(4);
-        }
-      }
-    });
+  <!-- Other Navigation Pages -->
+  <div id="messagesPage" class="nav-page">
+    <div class="page-header">💬 MESSAGES</div>
+    <div class="page-content">
+      <h3>Battle Communications</h3>
+      <div style="margin-top: 20px;">
+        <div class="battle-item">
+          <div class="battle-title">🔥 NEXUS WARRIOR</div>
+          <div class="battle-details">Challenge accepted! Ready for epic showdown!</div>
+          <div class="battle-meta">
+            <span>2 min ago</span>
+            <span style="color: #00ff00;">●</span>
+          </div>
+        </div>
+        <div class="battle-item">
+          <div class="battle-title">⚡ CYBER PHANTOM</div>
+          <div class="battle-details">GG! That was an intense battle. Rematch?</div>
+          <div class="battle-meta">
+            <span>5 min ago</span>
+            <span style="color: #ffff00;">●</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Auto-refresh battles
-    setInterval(() => {
-      if (Math.random() > 0.7 && battleList.children.length > 0) {
-        const randomIndex = Math.floor(Math.random() * Math.min(3, battleList.children.length));
-        const newBattle = generateBattle();
-        const newElement = createBattleElement(newBattle);
-        
-        newElement.style.opacity = '0';
-        newElement.style.transform = 'translateX(-20px)';
-        newElement.style.transition = 'all 0.5s ease';
-        
-        battleList.insertBefore(newElement, battleList.children[randomIndex]);
-        
-        requestAnimationFrame(() => {
-          newElement.style.opacity = '1';
-          newElement.style.transform = 'translateX(0)';
-        });
-      }
-    }, 5000);
+  <div id="walletPage" class="nav-page">
+    <div class="page-header">💰 WALLET</div>
+    <div class="page-content">
+      <h3>Battle Earnings & Transactions</h3>
+      <div style="margin-top: 20px;">
+        <div class="stat-item" style="margin: 15px 0; display: block; font-size: 1.2rem;">
+          💎 Balance: $15,750.43
+        </div>
+        <div class="battle-item">
+          <div class="battle-title">🏆 Victory Reward</div>
+          <div class="battle-details">Epic Showdown #1247</div>
+          <div class="battle-meta">
+            <span>+$500.00</span>
+            <span style="color: #00ff00;">RECEIVED</span>
+          </div>
+        </div>
+        <div class="battle-item">
+          <div class="battle-title">⚡ Lightning Battle</div>
+          <div class="battle-details">Entry Fee</div>
+          <div class="battle-meta">
+            <span>-$50.00</span>
+            <span style="color: #ff6600;">PAID</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Update competitor stats periodically
-    setInterval(() => {
-      const statItems = document.querySelectorAll('.stat-item');
-      statItems.forEach(item => {
-        if (item.textContent.includes('💰')) {
-          const currentValue = parseFloat(item.textContent.replace(/[💰$M]/g, ''));
-          const newValue = currentValue + (Math.random() - 0.5) * 0.2;
-          item.textContent = `💰 $${newValue.toFixed(1)}M`;
-          
-          // Flash effect
-          item.style.background = 'rgba(0, 255, 0, 0.3)';
-          setTimeout(() => {
-            item.style.background = 'rgba(0, 255, 255, 0.2)';
-          }, 300);
-        }
-      });
-    }, 3000);
-
-    // Initialize
-    createParticles();
-    loadBattles(8);
-
-    // Add some dynamic visual effects
-    document.addEventListener('mousemove', (e) => {
-      const cursor = document.createElement('div');
-      cursor.style.position = 'fixed';
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
-      cursor.style.width = '4px';
-      cursor.style.height = '4px';
-      cursor.style.background = '#00ffff';
-      cursor.style.borderRadius = '50%';
-      cursor.style.pointerEvents = 'none';
-      cursor.style.zIndex = '1000';
-      cursor.style.opacity = '0.7';
-      cursor.style.transition = 'all 0.5s ease';
-      
-      document.body.appendChild(cursor);
-      
-      setTimeout(() => {
-        cursor.style.opacity = '0';
-        cursor.style.transform = 'scale(2)';
-        setTimeout(() => cursor.remove(), 500);
-      }, 100);
-    });
-  </script>
-</body>
-      </html>
+  <div id="settingsPage" class="nav-page">
+    <div class="page-header">⚙️ SETTINGS</div>
+    <div class="page-content">
+      <h3>Arena Configuration</h3>
+      <div style="margin-top:
