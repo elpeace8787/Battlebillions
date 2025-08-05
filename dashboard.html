@@ -141,13 +141,20 @@
 
     .side-controls {
       position: absolute;
-      right: 10px;
       bottom: 140px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       pointer-events: auto;
       z-index: 3;
+    }
+
+    .side-controls.left {
+      left: 10px;
+    }
+
+    .side-controls.right {
+      right: 10px;
     }
 
     .side-button {
@@ -222,7 +229,15 @@
         </div>
       </div>
 
-      <div class="side-controls">
+      <!-- Side Controls Left -->
+      <div class="side-controls left">
+        <div class="side-button" onclick="sendCheer()">🔥</div>
+        <div class="side-button" onclick="shareStream()">🔗</div>
+        <div class="side-button" onclick="endStream()">✖️</div>
+      </div>
+
+      <!-- Side Controls Right -->
+      <div class="side-controls right">
         <div class="side-button" onclick="sendCheer()">🔥</div>
         <div class="side-button" onclick="shareStream()">🔗</div>
         <div class="side-button" onclick="endStream()">✖️</div>
