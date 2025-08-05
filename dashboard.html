@@ -101,7 +101,7 @@
     }
     .profile-ui {
       position: absolute;
-      bottom: 160px;
+      top: 100px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -114,6 +114,7 @@
       height: 32px;
       border-radius: 50%;
       background-size: cover;
+      background-position: center;
       border: 2px solid white;
     }
     .side-button {
@@ -197,30 +198,62 @@
       <div class="stats">👁️ 1.3k viewers</div>
     </div>
     <div class="username-label">
-      <div class="username-entry">
-        <img src="https://via.placeholder.com/28" alt="User 1" />
-        <span>@StarDancer</span>
-      </div>
-      <div class="username-entry">
-        <img src="https://via.placeholder.com/28" alt="User 2" />
-        <span>@CyberWolf</span>
-      </div>
+      <div class="username-entry"><img src="user1.jpg" alt="User1" /><span>@UserOne</span></div>
+      <div class="username-entry"><img src="user2.jpg" alt="User2" /><span>@UserTwo</span></div>
     </div>
     <div class="chat" id="chatBox">
       <div class="chat-message"><strong>@StarDancer:</strong> That move 🔥</div>
       <div class="chat-message"><strong>@CyberWolf:</strong> Where you from?</div>
       <div class="chat-message"><strong>@Echo87:</strong> 🎁 sent a gift!</div>
     </div>
-    <div class="round-info">Round 1 • 00:38</div>
+    <div class="round-info">⏱️ 38s | Round 1 of 3</div>
     <div class="bottom-ui">
       <button class="gift-button" onclick="sendGift()">🎁 Send Gift</button>
+    </div>
+    <div class="profile-ui" style="left: 10px;">
+      <div class="profile-circle" style="background-image: url('user1.jpg');"></div>
+      <button class="side-button" onclick="likeStream()">❤️</button>
+      <button class="side-button" onclick="shareStream()">🔗</button>
+      <button class="side-button" onclick="endStream()">✖️</button>
+    </div>
+    <div class="profile-ui" style="right: 10px;">
+      <div class="profile-circle" style="background-image: url('user2.jpg');"></div>
+      <button class="side-button" onclick="likeStream()">❤️</button>
+      <button class="side-button" onclick="shareStream()">🔗</button>
+      <button class="side-button" onclick="endStream()">✖️</button>
     </div>
   </div>
   <div class="bottom-nav">
     <button onclick="goHome()">🏠</button>
-    <button onclick="goLeaderboard()">🏆</button>
-    <button onclick="goMessages()">💬</button>
-    <button onclick="goProfile()">👤</button>
+    <button onclick="openChat()">💬</button>
+    <button onclick="openLeaderboard()">🏆</button>
+    <button onclick="openSettings()">⚙️</button>
   </div>
+  <script>
+    function sendGift() {
+      alert('Gift Sent!');
+    }
+    function likeStream() {
+      alert('Liked!');
+    }
+    function shareStream() {
+      alert('Share popup opened.');
+    }
+    function endStream() {
+      alert('Stream Ended.');
+    }
+    function goHome() {
+      alert('Returning to Home.');
+    }
+    function openChat() {
+      alert('Opening Chat.');
+    }
+    function openLeaderboard() {
+      alert('Showing Leaderboard.');
+    }
+    function openSettings() {
+      alert('Opening Settings.');
+    }
+  </script>
 </body>
-          </html>
+  </html>
