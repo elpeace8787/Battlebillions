@@ -14,21 +14,18 @@
       font-family: 'Orbitron', sans-serif;
       overflow: hidden;
     }
-
     .search-icon {
       position: fixed;
       top: 10px;
       left: 10px;
       z-index: 20;
-      font-size: 24px;
+      font-size: 18px;
       color: #0ff;
-      background: rgba(0, 255, 255, 0.1);
-      padding: 6px 10px;
-      border-radius: 12px;
+      background: rgba(0,255,255,0.1);
+      padding: 8px;
+      border-radius: 50%;
       border: 1px solid #0ff;
-      cursor: pointer;
     }
-
     .battle-swipe-container {
       display: flex;
       overflow-x: auto;
@@ -36,7 +33,6 @@
       height: 100vh;
       width: 100vw;
     }
-
     .battle-arena {
       flex: 0 0 100%;
       scroll-snap-align: start;
@@ -46,7 +42,6 @@
       position: relative;
       height: 100vh;
     }
-
     .audience-top, .audience-bottom {
       display: flex;
       justify-content: center;
@@ -54,7 +49,6 @@
       padding: 6px;
       z-index: 5;
     }
-
     .audience-seat {
       width: 48px;
       height: 48px;
@@ -64,13 +58,11 @@
       background-position: center;
       cursor: pointer;
     }
-
     .battle-content {
       flex: 1;
       display: flex;
       height: 100%;
     }
-
     .video-half {
       flex: 1;
       position: relative;
@@ -78,13 +70,11 @@
       flex-direction: column;
       justify-content: space-between;
     }
-
     video {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-
     .competitor-info {
       position: absolute;
       top: 12px;
@@ -96,22 +86,18 @@
       border-radius: 20px;
       z-index: 3;
     }
-
     .video-half.left .competitor-info { left: 12px; }
     .video-half.right .competitor-info { right: 12px; }
-
     .competitor-info img {
       width: 30px;
       height: 30px;
       border-radius: 50%;
       border: 1px solid #0ff;
     }
-
     .competitor-info span {
       font-size: 14px;
       color: #0ff;
     }
-
     .vote-btn {
       position: absolute;
       bottom: 20px;
@@ -124,10 +110,8 @@
       font-size: 14px;
       z-index: 3;
     }
-
     .video-half.left .vote-btn { left: 12px; }
     .video-half.right .vote-btn { right: 12px; }
-
     .side-nav {
       position: fixed;
       top: 50%;
@@ -138,10 +122,8 @@
       z-index: 10;
       transition: opacity 0.4s;
     }
-
     .side-nav.left { left: 8px; }
     .side-nav.right { right: 8px; }
-
     .side-nav button {
       background: rgba(0,255,255,0.1);
       border: 1px solid #0ff;
@@ -151,9 +133,7 @@
       color: #0ff;
       cursor: pointer;
     }
-
     .hidden { opacity: 0; }
-
     .chat-container {
       position: absolute;
       bottom: 120px;
@@ -171,25 +151,20 @@
       animation: fadeIn 2s forwards;
       z-index: 999;
     }
-
     @keyframes fadeIn {
       to { opacity: 1; }
     }
-
     .chat-messages {
       max-height: 120px;
       overflow-y: auto;
       font-size: 12px;
       padding-right: 6px;
     }
-
     .chat-messages div { margin-bottom: 4px; }
-
     .chat-input {
       display: flex;
       gap: 6px;
     }
-
     .chat-input input {
       flex: 1;
       padding: 6px;
@@ -199,7 +174,6 @@
       background: #111;
       color: white;
     }
-
     .chat-input button {
       padding: 6px 10px;
       font-size: 12px;
@@ -209,15 +183,16 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     @media (max-width: 768px) {
       .competitor-info span { font-size: 12px; }
       .vote-btn { font-size: 12px; padding: 6px 10px; }
       .chat-input input, .chat-input button { font-size: 12px; }
+      .search-icon { font-size: 16px; padding: 6px; }
     }
   </style>
 </head>
 <body>
+
   <div class="search-icon">🔍</div>
 
   <div class="side-nav left" id="leftNav">
@@ -232,8 +207,44 @@
   </div>
 
   <div class="battle-swipe-container" id="battleSwipe">
-    <!-- Arena code remains the same -->
-    <!-- Copy your two battle arenas here from your current working code -->
+    <!-- Arena 1 -->
+    <div class="battle-arena">
+      <div class="audience-top">
+        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+      <div class="battle-content">
+        <div class="video-half left">
+          <video autoplay muted loop src="user1.mp4"></video>
+          <div class="competitor-info">
+            <img src="user1.jpg" />
+            <span>@Alpha</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+        <div class="video-half right">
+          <video autoplay muted loop src="user2.mp4"></video>
+          <div class="competitor-info">
+            <img src="user2.jpg" />
+            <span>@Omega</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+      </div>
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages1"></div>
+        <div class="chat-input">
+          <input type="text" id="chatInput1" placeholder="Type a message..." />
+          <button onclick="sendMessage('chatInput1', 'chatMessages1')">Send</button>
+        </div>
+      </div>
+      <div class="audience-bottom">
+        <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -241,7 +252,6 @@
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
     let lastScroll = 0;
-
     main.addEventListener('scroll', () => {
       let currentScroll = main.scrollLeft;
       if (currentScroll > lastScroll) {
