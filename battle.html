@@ -1,8 +1,8 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BattleBillions Viewer Experience</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BattleBillions - Viewer Experience</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,135 +13,117 @@
       color: white;
       overflow: hidden;
     }
-    .viewer-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      grid-template-rows: auto 1fr auto;
-      grid-template-areas:
-        "top top top"
-        "left center right"
-        "bottom bottom bottom";
+    .stream-container {
+      display: flex;
       height: 100vh;
       width: 100vw;
-      gap: 10px;
-    }
-    .video-box {
       position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(0, 255, 255, 0.2);
     }
-    video {
-      width: 100%;
-      height: 100%;
+    video.video-stream {
+      flex: 1;
       object-fit: cover;
-      filter: brightness(0.9) contrast(1.2);
+      background-color: black;
+      width: 50%;
+      height: 100%;
+      filter: brightness(0.85) contrast(1.2) saturate(1.4);
+      border: 1px solid rgba(0,255,255,0.2);
     }
-    .viewer-feed {
-      grid-area: center;
+    .overlay, .audience-cam {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .audience-cam {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       gap: 10px;
+      position: absolute;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
     }
-    .reaction-cam {
-      width: 160px;
-      height: 100px;
-      border-radius: 8px;
-      border: 1px solid #0ff;
-      box-shadow: 0 0 10px #0ff;
-      overflow: hidden;
+    .audience-cam video {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid #0ff;
+      box-shadow: 0 0 10px rgba(0,255,255,0.5);
     }
-    .top-bar, .bottom-bar {
-      grid-area: top;
-      background: rgba(0, 255, 255, 0.1);
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 20px;
-      backdrop-filter: blur(10px);
-    }
-    .bottom-bar {
-      grid-area: bottom;
-      background: rgba(0, 255, 255, 0.05);
-      border-top: 1px solid rgba(0,255,255,0.3);
-      align-items: center;
-    }
-    .voting-btn {
-      font-size: 18px;
-      padding: 8px 16px;
-      background: rgba(0,255,255,0.2);
-      border: 1px solid #0ff;
-      border-radius: 6px;
+    .vote-btn {
+      position: absolute;
+      bottom: 20px;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      border-radius: 50%;
+      border: 2px solid #0ff;
+      background: rgba(0,255,255,0.1);
       color: #0ff;
       cursor: pointer;
-      transition: all 0.2s ease;
+      box-shadow: 0 0 10px rgba(0,255,255,0.4);
+      pointer-events: auto;
     }
-    .voting-btn:hover {
-      background: rgba(0,255,255,0.35);
-    }
-    .chat-container {
-      display: flex;
-      align-items: center;
+    .vote-left { left: 20px; }
+    .vote-right { right: 20px; }
+    .chat-box {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
       background: rgba(0, 0, 0, 0.4);
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #0ff;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      pointer-events: auto;
     }
-    .chat-input {
+    .chat-box input {
       flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: white;
-      font-size: 14px;
-      padding: 6px;
+      background: black;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 10px;
+      border-radius: 6px;
     }
-    .send-btn {
-      margin-left: 10px;
+    .chat-box button {
       background: #0ff;
-      color: black;
       border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
+      padding: 10px 15px;
+      color: black;
+      border-radius: 6px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="viewer-container">
-    <div class="top-bar">
-      <div>🔴 LIVE</div>
-      <div>👁️ 2.3k Viewers</div>
-    </div><div style="grid-area: left" class="video-box">
-  <video src="user1.mp4" autoplay muted loop></video>
-  <button class="voting-btn" style="position: absolute; bottom: 10px; left: 10px;">🔥 Vote</button>
+  <div class="stream-container">
+    <video class="video-stream" id="leftVideo" autoplay muted loop src="user1.mp4"></video>
+    <video class="video-stream" id="rightVideo" autoplay muted loop src="user2.mp4"></video><div class="audience-cam">
+  <video autoplay muted loop src="audience1.mp4"></video>
+  <video autoplay muted loop src="audience2.mp4"></video>
+  <video autoplay muted loop src="audience3.mp4"></video>
 </div>
 
-<div class="viewer-feed">
-  <div class="reaction-cam">
-    <video src="viewer1.mp4" autoplay muted loop></video>
-  </div>
-  <div class="reaction-cam">
-    <video src="viewer2.mp4" autoplay muted loop></video>
-  </div>
-  <div class="reaction-cam">
-    <video src="viewer3.mp4" autoplay muted loop></video>
-  </div>
+<button class="vote-btn vote-left">🔥</button>
+<button class="vote-btn vote-right">🔥</button>
+
+<div class="chat-box">
+  <input type="text" id="chatInput" placeholder="Type your message...">
+  <button onclick="sendMessage()">Send</button>
 </div>
 
-<div style="grid-area: right" class="video-box">
-  <video src="user2.mp4" autoplay muted loop></video>
-  <button class="voting-btn" style="position: absolute; bottom: 10px; right: 10px;">🔥 Vote</button>
-</div>
-
-<div class="bottom-bar">
-  <div class="chat-container" style="flex: 1;">
-    <input class="chat-input" type="text" placeholder="Type your message..." />
-    <button class="send-btn">Send</button>
-  </div>
-</div>
-
-  </div>
-</body>
+  </div>  <script>
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value;
+      if (message.trim() !== '') {
+        console.log("Chat:", message);
+        input.value = '';
+      }
+    }
+  </script></body>
 </html>
