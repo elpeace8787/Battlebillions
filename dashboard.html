@@ -1,181 +1,210 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions - Dual Live Battle AI Edition</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>BattleBillions - Dual Live Battle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(to right, #000000, #020202);
-      color: white;
+      font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(circle at center, #0f0f0f 0%, #000000 100%);
       overflow: hidden;
     }
     .stream-container {
       display: flex;
-      height: 100vh;
       width: 100vw;
+      height: 100vh;
       position: relative;
     }
     video.video-stream {
-      flex: 1;
-      object-fit: cover;
-      background-color: black;
       width: 50%;
       height: 100%;
-      filter: hue-rotate(5deg) brightness(1.1);
-      animation: glowStream 6s infinite alternate ease-in-out;
+      object-fit: cover;
+      filter: brightness(1.05);
+      animation: screenPulse 7s infinite alternate;
     }
-    @keyframes glowStream {
-      from { filter: drop-shadow(0 0 4px #00ffff80); }
-      to { filter: drop-shadow(0 0 15px #ff00ff); }
+
+    @keyframes screenPulse {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.1); }
     }
+
     .overlay {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       pointer-events: none;
-      z-index: 2;
     }
+
     .top-bar, .bottom-bar {
       position: absolute;
       width: 100%;
       display: flex;
       justify-content: space-between;
-      padding: 10px 20px;
+      padding: 12px 24px;
       pointer-events: auto;
-      animation: fadeSlide 2s ease-in-out forwards;
+      z-index: 10;
     }
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    .top-bar {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent);
     }
-    .top-bar { top: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
-    .bottom-bar { bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); align-items: center; }
+
+    .bottom-bar {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+      align-items: center;
+    }
+
     .nav-icon {
       font-size: 20px;
       color: white;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: transform 0.2s ease, color 0.3s;
     }
+
     .nav-icon:hover {
-      transform: scale(1.2) rotate(2deg);
+      transform: scale(1.1);
+      color: #f0f0f0;
     }
+
     .side-controls.left, .side-controls.right {
       position: absolute;
-      bottom: 120px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+      bottom: 120px;
       pointer-events: auto;
+      z-index: 11;
     }
-    .side-controls.left { left: 10px; }
-    .side-controls.right { right: 10px; }
+
+    .side-controls.left { left: 16px; }
+    .side-controls.right { right: 16px; }
+
     .side-button {
-      width: 40px;
-      height: 40px;
-      background: rgba(255,255,255,0.1);
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.15);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 22px;
+      color: #fff;
       cursor: pointer;
-      box-shadow: 0 0 10px #00ffcc80;
-      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+      transition: background 0.3s, transform 0.2s;
+      animation: glowSpin 3s infinite linear;
     }
+
+    @keyframes glowSpin {
+      0% { box-shadow: 0 0 5px #ff4d4d; }
+      50% { box-shadow: 0 0 15px #ff4d4d; }
+      100% { box-shadow: 0 0 5px #ff4d4d; }
+    }
+
     .side-button:hover {
-      transform: scale(1.2);
-      background-color: rgba(0,255,255,0.3);
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.1);
     }
+
     .profile-labels {
       position: absolute;
-      top: 60px;
+      top: 64px;
       left: 0;
       width: 100%;
       display: flex;
       justify-content: space-between;
-      padding: 0 20px;
-      animation: fadeZoom 1.5s ease-in-out forwards;
+      padding: 0 24px;
+      z-index: 9;
     }
-    @keyframes fadeZoom {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
+
     .profile-entry {
       display: flex;
       align-items: center;
       gap: 10px;
       background: rgba(0,0,0,0.5);
-      padding: 6px 12px;
-      border-radius: 16px;
-      border: 1px solid #ff69b4;
-      box-shadow: inset 0 0 6px #ff1493a0;
+      padding: 8px 16px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      transition: transform 0.2s;
     }
+
+    .profile-entry:hover {
+      transform: scale(1.03);
+    }
+
     .profile-entry img {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
     }
+
     .round-timer {
       font-size: 18px;
       font-weight: bold;
       color: #fff;
       border: 2px solid #ff3c3c;
       border-radius: 30px;
-      padding: 8px 20px;
-      box-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
-      animation: pulse 2s infinite;
+      padding: 10px 24px;
+      box-shadow: 0 0 20px rgba(255, 60, 60, 0.6);
+      animation: fireAura 2s infinite;
     }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); box-shadow: 0 0 20px #ff3c3c; }
-      100% { transform: scale(1); }
+
+    @keyframes fireAura {
+      0% { transform: scale(1); box-shadow: 0 0 5px #ff3c3c; }
+      50% { transform: scale(1.05); box-shadow: 0 0 15px #ff5e5e; }
+      100% { transform: scale(1); box-shadow: 0 0 5px #ff3c3c; }
     }
   </style>
 </head>
 <body>
   <div class="stream-container">
     <video class="video-stream" id="leftStream" autoplay muted></video>
-    <video class="video-stream" id="rightStream" autoplay muted></video><div class="overlay">
-  <div class="top-bar">
-    <div class="nav-icon" onclick="logout()">Logout</div>
-    <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
-  </div>
+    <video class="video-stream" id="rightStream" autoplay muted></video>
 
-  <div class="bottom-bar">
-    <div class="nav-icon" onclick="goHome()">🏠</div>
-    <div class="round-timer" id="timer">01:00</div>
-    <div class="nav-icon" onclick="goProfile()">👤</div>
-  </div>
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon" onclick="logout()">Logout</div>
+        <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
+      </div>
 
-  <div class="side-controls left">
-    <div class="side-button" onclick="searchUsers()">🔍</div>
-    <div class="side-button" onclick="showLeaderboard()">🏆</div>
-  </div>
+      <div class="bottom-bar">
+        <div class="nav-icon" onclick="goHome()">🏠</div>
+        <div class="round-timer" id="timer">01:00</div>
+        <div class="nav-icon" onclick="goProfile()">👤</div>
+      </div>
 
-  <div class="side-controls right">
-    <div class="side-button" onclick="sendGift()">🎁</div>
-    <div class="side-button" onclick="reportUser()">🚨</div>
-  </div>
+      <div class="side-controls left">
+        <div class="side-button" onclick="searchUsers()">🔍</div>
+        <div class="side-button" onclick="showLeaderboard()">🏆</div>
+      </div>
 
-  <div class="profile-labels">
-    <div class="profile-entry">
-      <img src="https://via.placeholder.com/28" />
-      <span>Player One</span>
+      <div class="side-controls right">
+        <div class="side-button" onclick="sendGift()">🎁</div>
+        <div class="side-button" onclick="reportUser()">🚨</div>
+      </div>
+
+      <div class="profile-labels">
+        <div class="profile-entry">
+          <img src="https://via.placeholder.com/32" />
+          <span>Player One</span>
+        </div>
+        <div class="profile-entry">
+          <img src="https://via.placeholder.com/32" />
+          <span>Player Two</span>
+        </div>
+      </div>
     </div>
-    <div class="profile-entry">
-      <img src="https://via.placeholder.com/28" />
-      <span>Player Two</span>
-    </div>
   </div>
-</div>
 
-  </div>  <script>
+  <script>
     let timerSeconds = 60;
-    const timerDisplay = document.getElementById("timer");
+    let timerDisplay = document.getElementById("timer");
 
     function startBattle() {
       const interval = setInterval(() => {
@@ -184,20 +213,22 @@
         timerDisplay.textContent = `${min}:${sec}`;
         if (--timerSeconds < 0) {
           clearInterval(interval);
-          timerDisplay.textContent = "Battle Over";
+          timerDisplay.textContent = "🔥 Battle Over 🔥";
         }
       }, 1000);
     }
 
-    function logout() { console.log("[AI] Logging out..."); alert("Logging out..."); }
-    function goToBattleFeed() { console.log("[AI] Redirecting to Battle Feed..."); alert("Go to Battle Feed"); }
-    function goHome() { console.log("[AI] Going Home..."); alert("Home"); }
-    function goProfile() { console.log("[AI] Viewing Profile..."); alert("Profile"); }
-    function searchUsers() { console.log("[AI] Searching Users..."); alert("Search Users"); }
-    function showLeaderboard() { console.log("[AI] Displaying Leaderboard..."); alert("Leaderboard"); }
-    function sendGift() { console.log("[AI] Sending Gift..."); alert("Gift Sent"); }
-    function reportUser() { console.log("[AI] Reporting User..."); alert("User Reported"); }
+    // Placeholder AI-routing functions
+    function logout() { alert("Logging out..."); }
+    function goToBattleFeed() { alert("Redirect to Battle Feed"); }
+    function goHome() { alert("Returning Home..."); }
+    function goProfile() { alert("Opening Profile..."); }
+    function searchUsers() { alert("Searching opponents..."); }
+    function showLeaderboard() { alert("Loading Leaderboard..."); }
+    function sendGift() { alert("Gift sent!"); }
+    function reportUser() { alert("User flagged for review."); }
 
     window.onload = startBattle;
-  </script></body>
+  </script>
+</body>
 </html>
