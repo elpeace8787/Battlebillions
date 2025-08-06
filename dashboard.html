@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -12,218 +13,150 @@
       background: #000;
       color: white;
       overflow: hidden;
-    }.stream-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  position: relative;
-  background: radial-gradient(circle, #121212, #000);
-  animation: neonFlicker 6s infinite alternate;
-}
+    }
+    .stream-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+    video.video-stream {
+      flex: 1;
+      object-fit: cover;
+      background-color: black;
+      width: 50%;
+      height: 100%;
+    }
+    .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    .top-bar, .bottom-bar {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+      pointer-events: auto;
+    }
+    .top-bar {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+    }
+    .bottom-bar {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      align-items: center;
+    }
+    .nav-icon {
+      font-size: 20px;
+      color: white;
+      cursor: pointer;
+    }
+    .side-controls.left, .side-controls.right {
+      position: absolute;
+      bottom: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .side-controls.left { left: 10px; }
+    .side-controls.right { right: 10px; }
+    .side-button {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .profile-labels {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .profile-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 12px;
+      border-radius: 16px;
+    }
+    .profile-entry img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+    .round-timer {
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      border: 2px solid #ff3c3c;
+      border-radius: 30px;
+      padding: 8px 20px;
+      box-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
+      animation: pulse 2s infinite;
+    }
 
-@keyframes neonFlicker {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.07); }
-}
-
-video.video-stream {
-  flex: 1;
-  object-fit: cover;
-  background-color: black;
-  width: 50%;
-  height: 100%;
-  animation: slideInStream 1.5s ease forwards;
-}
-
-@keyframes slideInStream {
-  from { transform: scale(1.2) translateY(100px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-}
-
-.top-bar, .bottom-bar {
-  position: absolute;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 20px;
-  pointer-events: auto;
-  backdrop-filter: blur(4px);
-}
-
-.top-bar {
-  top: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
-  animation: fadeSlideDown 1.2s ease;
-}
-
-.bottom-bar {
-  bottom: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-  align-items: center;
-  animation: fadeSlideUp 1.2s ease;
-}
-
-@keyframes fadeSlideDown {
-  from { opacity: 0; transform: translateY(-30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.nav-icon {
-  font-size: 20px;
-  color: white;
-  cursor: pointer;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.nav-icon:hover {
-  transform: scale(1.15);
-  color: #ffde59;
-}
-
-.side-controls.left, .side-controls.right {
-  position: absolute;
-  bottom: 120px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: auto;
-  animation: glowSide 4s infinite ease-in-out;
-}
-
-@keyframes glowSide {
-  0%, 100% { filter: drop-shadow(0 0 4px #00f2ff); }
-  50% { filter: drop-shadow(0 0 12px #00f2ff); }
-}
-
-.side-controls.left { left: 10px; }
-.side-controls.right { right: 10px; }
-
-.side-button {
-  width: 40px;
-  height: 40px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.side-button:hover {
-  transform: scale(1.2);
-  background: rgba(255,255,255,0.2);
-}
-
-.profile-labels {
-  position: absolute;
-  top: 60px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20px;
-  animation: popIn 0.8s ease;
-}
-
-@keyframes popIn {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.profile-entry {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0,0,0,0.5);
-  padding: 6px 12px;
-  border-radius: 16px;
-  box-shadow: 0 0 10px rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
-}
-
-.profile-entry:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255,255,255,0.2);
-}
-
-.profile-entry img {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid white;
-}
-
-.round-timer {
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-  border: 2px solid #ff3c3c;
-  border-radius: 30px;
-  padding: 8px 20px;
-  box-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
-  background: rgba(255, 60, 60, 0.1);
-  animation: glowTimer 2s infinite ease-in-out;
-}
-
-@keyframes glowTimer {
-  0%, 100% { box-shadow: 0 0 10px rgba(255, 60, 60, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(255, 60, 60, 0.9); }
-}
-
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
   </style>
 </head>
 <body>
   <div class="stream-container">
     <video class="video-stream" id="leftStream" autoplay muted></video>
-    <video class="video-stream" id="rightStream" autoplay muted></video><div class="overlay">
-  <div class="top-bar">
-    <div class="nav-icon" onclick="logout()">Logout</div>
-    <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
-  </div>
+    <video class="video-stream" id="rightStream" autoplay muted></video>
 
-  <div class="bottom-bar">
-    <div class="nav-icon" onclick="goHome()">🏠</div>
-    <div class="round-timer" id="timer">01:00</div>
-    <div class="nav-icon" onclick="goProfile()">👤</div>
-  </div>
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon" onclick="logout()">Logout</div>
+        <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
+      </div>
 
-  <div class="side-controls left">
-    <div class="side-button" onclick="searchUsers()">🔍</div>
-    <div class="side-button" onclick="showLeaderboard()">🏆</div>
-  </div>
+      <div class="bottom-bar">
+        <div class="nav-icon" onclick="goHome()">🏠</div>
+        <div class="round-timer" id="timer">01:00</div>
+        <div class="nav-icon" onclick="goProfile()">👤</div>
+      </div>
 
-  <div class="side-controls right">
-    <div class="side-button" onclick="sendGift()">🎁</div>
-    <div class="side-button" onclick="reportUser()">🚨</div>
-  </div>
+      <div class="side-controls left">
+        <div class="side-button" onclick="searchUsers()">🔍</div>
+        <div class="side-button" onclick="showLeaderboard()">🏆</div>
+      </div>
 
-  <div class="profile-labels">
-    <div class="profile-entry">
-      <img src="https://via.placeholder.com/28" />
-      <span>Player One</span>
+      <div class="side-controls right">
+        <div class="side-button" onclick="sendGift()">🎁</div>
+        <div class="side-button" onclick="reportUser()">🚨</div>
+      </div>
+
+      <div class="profile-labels">
+        <div class="profile-entry">
+          <img src="https://via.placeholder.com/28" />
+          <span>Player One</span>
+        </div>
+        <div class="profile-entry">
+          <img src="https://via.placeholder.com/28" />
+          <span>Player Two</span>
+        </div>
+      </div>
     </div>
-    <div class="profile-entry">
-      <img src="https://via.placeholder.com/28" />
-      <span>Player Two</span>
-    </div>
   </div>
-</div>
 
-  </div>  <script>
+  <script>
     let timerSeconds = 60;
     let timerDisplay = document.getElementById("timer");
 
@@ -249,5 +182,6 @@ video.video-stream {
     function reportUser() { alert("User Reported"); }
 
     window.onload = startBattle;
-  </script></body>
-  </html>
+  </script>
+</body>
+</html>
