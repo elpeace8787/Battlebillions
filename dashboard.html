@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BattleBillions - Dual Live Battle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at top left, #0f0f0f, #000000);
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
       color: white;
       overflow: hidden;
     }
@@ -20,16 +20,18 @@
       height: 100vh;
       width: 100vw;
       position: relative;
-      backdrop-filter: blur(2px);
+      background: url('https://www.transparenttextures.com/patterns/cubes.png');
+      backdrop-filter: blur(10px);
     }
 
     video.video-stream {
       flex: 1;
       object-fit: cover;
-      background-color: #000;
+      background-color: black;
       width: 50%;
       height: 100%;
-      filter: brightness(0.95) contrast(1.05);
+      filter: brightness(0.85) contrast(1.2) saturate(1.4);
+      border: 1px solid rgba(0,255,255,0.2);
     }
 
     .overlay {
@@ -37,6 +39,7 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       pointer-events: none;
+      z-index: 10;
     }
 
     .top-bar, .bottom-bar {
@@ -44,35 +47,32 @@
       width: 100%;
       display: flex;
       justify-content: space-between;
-      padding: 6px 20px;
+      padding: 8px 20px;
       pointer-events: auto;
-      z-index: 100;
-      backdrop-filter: blur(6px);
+      z-index: 20;
+      background: rgba(0, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,255,255,0.3);
     }
 
-    .top-bar {
-      height: 40px;
-      top: 0;
-      background: rgba(0, 0, 0, 0.5);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
+    .top-bar { top: 0; height: 48px; }
     .bottom-bar {
       bottom: 0;
-      background: rgba(0, 0, 0, 0.4);
-      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0, 255, 255, 0.07);
+      border-top: 1px solid rgba(0,255,255,0.2);
       align-items: center;
     }
 
     .nav-icon {
       font-size: 18px;
-      color: #ccc;
-      transition: color 0.3s ease;
+      color: #0ff;
       cursor: pointer;
+      text-shadow: 0 0 5px #0ff;
+      transition: transform 0.3s;
     }
 
     .nav-icon:hover {
-      color: #fff;
+      transform: scale(1.1);
     }
 
     .side-controls.left, .side-controls.right {
@@ -80,30 +80,32 @@
       bottom: 140px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
       pointer-events: auto;
-      z-index: 100;
+      z-index: 30;
     }
 
     .side-controls.left { left: 15px; }
     .side-controls.right { right: 15px; }
 
     .side-button {
-      width: 44px;
-      height: 44px;
-      background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-      border: 1px solid rgba(255,255,255,0.05);
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid rgba(0, 255, 255, 0.3);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 24px;
+      color: #0ff;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
       cursor: pointer;
       transition: transform 0.3s;
     }
 
     .side-button:hover {
-      transform: scale(1.1);
+      transform: scale(1.15);
     }
 
     .profile-labels {
@@ -114,42 +116,43 @@
       display: flex;
       justify-content: space-between;
       padding: 0 20px;
-      z-index: 99;
+      z-index: 40;
     }
 
     .profile-entry {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: rgba(20,20,20,0.6);
-      padding: 6px 14px;
+      background: rgba(0,255,255,0.1);
+      padding: 6px 16px;
       border-radius: 30px;
+      border: 1px solid rgba(0,255,255,0.3);
+      box-shadow: 0 0 10px rgba(0,255,255,0.2);
       animation: floatUpDown 4s ease-in-out infinite;
-      box-shadow: 0 0 8px rgba(255,255,255,0.05);
     }
 
     .profile-entry img {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       animation: floatLeftRight 6s ease-in-out infinite;
-      filter: drop-shadow(0 0 3px rgba(255,255,255,0.2));
+      box-shadow: 0 0 4px #0ff;
     }
 
     .profile-entry span {
       font-size: 15px;
-      color: #fff;
-      animation: floatUpDown 5s ease-in-out infinite;
+      color: #0ff;
+      text-shadow: 0 0 6px #0ff;
     }
 
     @keyframes floatUpDown {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
+      50% { transform: translateY(-5px); }
     }
 
     @keyframes floatLeftRight {
       0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(4px); }
+      50% { transform: translateX(6px); }
     }
 
     .round-timer {
@@ -157,23 +160,21 @@
       bottom: 120px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.6);
-      padding: 12px 24px;
-      border-radius: 30px;
+      background: rgba(0,255,255,0.1);
+      padding: 14px 30px;
+      border-radius: 40px;
       font-size: 18px;
       font-weight: bold;
       color: #fff;
-      border: 2px solid #ff3c3c;
-      box-shadow: 0 0 12px rgba(255, 60, 60, 0.5);
+      border: 2px solid #0ff;
+      box-shadow: 0 0 15px rgba(0,255,255,0.6);
       animation: pulse 2s infinite;
-      transition: all 0.3s ease-in-out;
-      z-index: 100;
+      z-index: 50;
     }
 
     .round-timer.animate {
-      animation: flicker 0.6s ease-in-out, pulse 2s infinite;
-      box-shadow: 0 0 20px rgba(255, 200, 0, 0.9);
-      background: rgba(255, 80, 0, 0.7);
+      background: rgba(0,255,200,0.2);
+      box-shadow: 0 0 20px rgba(0,255,200,0.8);
     }
 
     @keyframes pulse {
@@ -182,32 +183,28 @@
       100% { transform: translateX(-50%) scale(1); }
     }
 
-    @keyframes flicker {
-      0% { opacity: 0.6; }
-      50% { opacity: 1; }
-      100% { opacity: 0.6; }
-    }
-
-    #startBattleBtn, #selectMusicBtn {
+    #startBattleBtn {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: linear-gradient(145deg, #ff3c3c, #ff1c1c);
+      background: rgba(0,255,255,0.2);
+      border: 2px solid #0ff;
       color: white;
       font-size: 20px;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 30px;
+      padding: 16px 34px;
+      border-radius: 40px;
       cursor: pointer;
-      z-index: 10;
+      z-index: 999;
       pointer-events: auto;
-      box-shadow: 0 0 16px rgba(255,60,60,0.4);
-      transition: background 0.3s;
+      box-shadow: 0 0 20px rgba(0,255,255,0.5);
+      transition: all 0.3s ease;
+      display: none;
     }
 
     #startBattleBtn:hover {
-      background: #ff1c1c;
+      background: rgba(0,255,255,0.35);
+      transform: translate(-50%, -50%) scale(1.05);
     }
 
     #instrumentalList {
@@ -216,13 +213,13 @@
       left: 50%;
       transform: translate(-50%, -50%);
       background: #111;
-      border: 2px solid red;
-      border-radius: 10px;
+      border: 2px solid #0ff;
+      border-radius: 12px;
       padding: 20px;
-      z-index: 10;
+      z-index: 1000;
       display: none;
       pointer-events: auto;
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+      box-shadow: 0 0 20px rgba(0,255,255,0.4);
     }
 
     #instrumentalList select {
@@ -232,6 +229,8 @@
       border: none;
       font-size: 16px;
       margin-bottom: 10px;
+      background: #000;
+      color: #0ff;
     }
 
     #instrumentalList button {
@@ -239,8 +238,8 @@
       font-size: 16px;
       border: none;
       border-radius: 8px;
-      background-color: red;
-      color: white;
+      background-color: #0ff;
+      color: black;
       cursor: pointer;
     }
   </style>
@@ -365,11 +364,13 @@
 
     function chooseInstrumental() {
       const selected = document.getElementById('instrumentalSelect').value;
-      if (selected) {
+      if (selected && selected !== 'Select instrumental') {
         document.getElementById('instrumentalList').style.display = 'none';
         document.getElementById('startBattleBtn').style.display = 'block';
         battleTrack.src = selected;
         battleTrack.load();
+      } else {
+        alert('Please select an instrumental before starting.');
       }
     }
 
