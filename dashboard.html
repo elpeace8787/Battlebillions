@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -26,19 +25,16 @@
       filter: brightness(1.05);
       animation: screenPulse 7s infinite alternate;
     }
-
     @keyframes screenPulse {
       0% { filter: brightness(1); }
       100% { filter: brightness(1.1); }
     }
-
     .overlay {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       pointer-events: none;
     }
-
     .top-bar, .bottom-bar {
       position: absolute;
       width: 100%;
@@ -48,43 +44,36 @@
       pointer-events: auto;
       z-index: 10;
     }
-
     .top-bar {
       top: 0;
       background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent);
     }
-
     .bottom-bar {
       bottom: 0;
       background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
       align-items: center;
     }
-
     .nav-icon {
       font-size: 20px;
       color: white;
       cursor: pointer;
       transition: transform 0.2s ease, color 0.3s;
     }
-
     .nav-icon:hover {
       transform: scale(1.1);
       color: #f0f0f0;
     }
-
     .side-controls.left, .side-controls.right {
       position: absolute;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      bottom: 120px;
+      bottom: 140px;
       pointer-events: auto;
       z-index: 11;
     }
-
     .side-controls.left { left: 16px; }
     .side-controls.right { right: 16px; }
-
     .side-button {
       width: 48px;
       height: 48px;
@@ -100,18 +89,15 @@
       transition: background 0.3s, transform 0.2s;
       animation: glowSpin 3s infinite linear;
     }
-
     @keyframes glowSpin {
       0% { box-shadow: 0 0 5px #ff4d4d; }
       50% { box-shadow: 0 0 15px #ff4d4d; }
       100% { box-shadow: 0 0 5px #ff4d4d; }
     }
-
     .side-button:hover {
       background: rgba(255,255,255,0.25);
       transform: scale(1.1);
     }
-
     .profile-labels {
       position: absolute;
       top: 64px;
@@ -122,7 +108,6 @@
       padding: 0 24px;
       z-index: 9;
     }
-
     .profile-entry {
       display: flex;
       align-items: center;
@@ -133,17 +118,14 @@
       box-shadow: 0 0 10px rgba(255,255,255,0.1);
       transition: transform 0.2s;
     }
-
     .profile-entry:hover {
       transform: scale(1.03);
     }
-
     .profile-entry img {
       width: 32px;
       height: 32px;
       border-radius: 50%;
     }
-
     .round-timer {
       font-size: 18px;
       font-weight: bold;
@@ -154,55 +136,87 @@
       box-shadow: 0 0 20px rgba(255, 60, 60, 0.6);
       animation: fireAura 2s infinite;
     }
-
     @keyframes fireAura {
       0% { transform: scale(1); box-shadow: 0 0 5px #ff3c3c; }
       50% { transform: scale(1.05); box-shadow: 0 0 15px #ff5e5e; }
       100% { transform: scale(1); box-shadow: 0 0 5px #ff3c3c; }
+    }
+    .music-player {
+      position: absolute;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .battle-button {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff3c3c;
+      color: white;
+      font-size: 18px;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 12;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .battle-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #ff3c3c;
     }
   </style>
 </head>
 <body>
   <div class="stream-container">
     <video class="video-stream" id="leftStream" autoplay muted></video>
-    <video class="video-stream" id="rightStream" autoplay muted></video>
+    <video class="video-stream" id="rightStream" autoplay muted></video><div class="overlay">
+  <div class="top-bar">
+    <div class="nav-icon" onclick="logout()">Logout</div>
+    <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
+  </div>
 
-    <div class="overlay">
-      <div class="top-bar">
-        <div class="nav-icon" onclick="logout()">Logout</div>
-        <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
-      </div>
+  <div class="bottom-bar">
+    <div class="nav-icon" onclick="goHome()">🏠</div>
+    <div class="round-timer" id="timer">01:00</div>
+    <div class="nav-icon" onclick="goProfile()">👤</div>
+  </div>
 
-      <div class="bottom-bar">
-        <div class="nav-icon" onclick="goHome()">🏠</div>
-        <div class="round-timer" id="timer">01:00</div>
-        <div class="nav-icon" onclick="goProfile()">👤</div>
-      </div>
+  <div class="side-controls left">
+    <div class="side-button" onclick="searchUsers()">🔍</div>
+    <div class="side-button" onclick="showLeaderboard()">🏆</div>
+  </div>
 
-      <div class="side-controls left">
-        <div class="side-button" onclick="searchUsers()">🔍</div>
-        <div class="side-button" onclick="showLeaderboard()">🏆</div>
-      </div>
+  <div class="side-controls right">
+    <div class="side-button" onclick="sendGift()">🎁</div>
+    <div class="side-button" onclick="reportUser()">🚨</div>
+  </div>
 
-      <div class="side-controls right">
-        <div class="side-button" onclick="sendGift()">🎁</div>
-        <div class="side-button" onclick="reportUser()">🚨</div>
-      </div>
-
-      <div class="profile-labels">
-        <div class="profile-entry">
-          <img src="https://via.placeholder.com/32" />
-          <span>Player One</span>
-        </div>
-        <div class="profile-entry">
-          <img src="https://via.placeholder.com/32" />
-          <span>Player Two</span>
-        </div>
-      </div>
+  <div class="profile-labels">
+    <div class="profile-entry">
+      <img src="https://via.placeholder.com/32" />
+      <span>Player One</span>
+    </div>
+    <div class="profile-entry">
+      <img src="https://via.placeholder.com/32" />
+      <span>Player Two</span>
     </div>
   </div>
 
-  <script>
+  <div class="music-player">
+    <audio controls autoplay loop>
+      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <button class="battle-button" onclick="startBattle()">Start Battle</button>
+</div>
+
+  </div>  <script>
     let timerSeconds = 60;
     let timerDisplay = document.getElementById("timer");
 
@@ -218,7 +232,6 @@
       }, 1000);
     }
 
-    // Placeholder AI-routing functions
     function logout() { alert("Logging out..."); }
     function goToBattleFeed() { alert("Redirect to Battle Feed"); }
     function goHome() { alert("Returning Home..."); }
@@ -227,8 +240,5 @@
     function showLeaderboard() { alert("Loading Leaderboard..."); }
     function sendGift() { alert("Gift sent!"); }
     function reportUser() { alert("User flagged for review."); }
-
-    window.onload = startBattle;
-  </script>
-</body>
-</html>
+  </script></body>
+      </html>
