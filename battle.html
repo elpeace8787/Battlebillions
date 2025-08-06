@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -13,22 +14,21 @@
       font-family: 'Orbitron', sans-serif;
       overflow-x: hidden;
     }
-    .main-scroll {
-      overflow-y: auto;
+    .battle-swipe-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
       height: 100vh;
-      scroll-behavior: smooth;
     }
     .battle-arena {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
       position: relative;
       width: 100%;
       height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: height 0.4s ease;
-    }
-    .battle-arena.half-screen {
-      height: 50vh;
     }
     .audience-top, .audience-bottom {
       display: flex;
@@ -141,11 +141,6 @@
       z-index: 999;
       transition: all 0.3s ease;
     }
-    .battle-arena.half-screen .chat-container {
-      bottom: 60px;
-      width: 60%;
-      max-width: 300px;
-    }
     @keyframes fadeIn {
       to { opacity: 1; }
     }
@@ -191,16 +186,6 @@
       cursor: pointer;
       border: none;
     }
-    .battle-swipe-container {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      height: 100vh;
-    }
-    .battle-arena {
-      flex: 0 0 100%;
-      scroll-snap-align: start;
-    }
     @media (max-width: 768px) {
       .competitor-info span { font-size: 12px; }
       .vote-btn { font-size: 12px; padding: 6px 10px; }
@@ -219,55 +204,90 @@
     <button>💬</button>
     <button>⚙️</button>
   </div>
+
   <button class="toggle-mode-btn" onclick="toggleBattleView()">🌓</button>
-  <div class="battle-swipe-container" id="battleSwipe">
-    <!-- Repeatable battle arenas -->
-    <div class="battle-arena" id="battleArena1">
-      <div class="audience-top">
-        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
-      </div>
-      <div class="battle-content">
-        <div class="video-half left">
-          <video autoplay muted loop src="user1.mp4"></video>
-          <div class="competitor-info">
-            <img src="user1.jpg" />
-            <span>@Alpha</span>
-          </div>
-          <button class="vote-btn">Vote</button>
-        </div>
-        <div class="video-half right">
-          <video autoplay muted loop src="user2.mp4"></video>
-          <div class="competitor-info">
-            <img src="user2.jpg" />
-            <span>@Omega</span>
-          </div>
-          <button class="vote-btn">Vote</button>
-        </div>
-      </div>
-      <div class="chat-container" id="chat">
-        <div class="chat-messages" id="chatMessages"></div>
-        <div class="chat-input">
-          <input type="text" id="chatInput" placeholder="Type a message..." />
-          <button onclick="sendMessage()">Send</button>
-        </div>
-      </div>
-      <div class="audience-bottom">
-        <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
-      </div>
-    </div>
-    <!-- You can duplicate more battle-arena blocks here -->
-  </div>
+
+  <div class="battle-swipe-container" id="battleSwipe"></div>
+
   <script>
+    const battleSwipe = document.getElementById("battleSwipe");
+
+    const battleTemplate = (index) => `
+      <div class="battle-arena" id="battleArena${index}">
+        <div class="audience-top">
+          <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
+        </div>
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="user1.mp4"></video>
+            <div class="competitor-info">
+              <img src="user1.jpg" />
+              <span>@Alpha${index}</span>
+            </div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="user2.mp4"></video>
+            <div class="competitor-info">
+              <img src="user2.jpg" />
+              <span>@Omega${index}</span>
+            </div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages${index}"></div>
+          <div class="chat-input">
+            <input type="text" placeholder="Type a message..." />
+            <button onclick="sendMessage(${index})">Send</button>
+          </div>
+        </div>
+        <div class="audience-bottom">
+          <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
+        </div>
+      </div>
+    `;
+
+    for (let i = 1; i <= 5; i++) {
+      battleSwipe.innerHTML += battleTemplate(i);
+    }
+
+    function viewJoin(elem) {
+      const battleHalf = document.querySelectorAll('.video-half');
+      const rand = Math.floor(Math.random() * battleHalf.length);
+      const container = battleHalf[rand];
+      const imgURL = elem.style.backgroundImage;
+      container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
+    }
+
+    function sendMessage(index) {
+      const messages = document.getElementById("chatMessages" + index);
+      const input = messages.nextElementSibling.querySelector("input");
+      const msg = input.value.trim();
+      if (msg) {
+        const div = document.createElement("div");
+        div.textContent = "You: " + msg;
+        messages.appendChild(div);
+        input.value = "";
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    function toggleBattleView() {
+      document.querySelectorAll(".battle-arena").forEach(arena => {
+        arena.classList.toggle("half-screen");
+      });
+    }
+
     let lastScroll = 0;
-    const main = document.getElementById('battleSwipe');
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
-    main.addEventListener('scroll', () => {
-      let currentScroll = main.scrollLeft;
+    battleSwipe.addEventListener('scroll', () => {
+      let currentScroll = battleSwipe.scrollLeft;
       if (currentScroll > lastScroll) {
         leftNav.classList.add('hidden');
         rightNav.classList.add('hidden');
@@ -276,31 +296,7 @@
         rightNav.classList.remove('hidden');
       }
       lastScroll = currentScroll;
-    });function viewJoin(elem) {
-  const battleHalf = document.querySelectorAll('.video-half');
-  const rand = Math.floor(Math.random() * battleHalf.length);
-  const container = battleHalf[rand];
-  const imgURL = elem.style.backgroundImage;
-  container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
-}
-
-function sendMessage() {
-  const input = document.getElementById("chatInput");
-  const messages = document.getElementById("chatMessages");
-  const msg = input.value.trim();
-  if (msg) {
-    const div = document.createElement("div");
-    div.textContent = "You: " + msg;
-    messages.appendChild(div);
-    input.value = "";
-    messages.scrollTop = messages.scrollHeight;
-  }
-}
-
-function toggleBattleView() {
-  document.getElementById("battleArena1").classList.toggle("half-screen");
-}
-
+    });
   </script>
 </body>
-  </html>
+</html>
