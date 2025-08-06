@@ -14,18 +14,21 @@
       font-family: 'Orbitron', sans-serif;
       overflow: hidden;
     }
+
     .search-icon {
       position: fixed;
-      top: 12px;
-      left: 12px;
+      top: 10px;
+      left: 10px;
       z-index: 20;
-      font-size: 20px;
+      font-size: 24px;
       color: #0ff;
-      background: rgba(0,0,0,0.7);
-      border-radius: 50%;
-      padding: 8px;
+      background: rgba(0, 255, 255, 0.1);
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid #0ff;
       cursor: pointer;
     }
+
     .battle-swipe-container {
       display: flex;
       overflow-x: auto;
@@ -33,6 +36,7 @@
       height: 100vh;
       width: 100vw;
     }
+
     .battle-arena {
       flex: 0 0 100%;
       scroll-snap-align: start;
@@ -42,6 +46,7 @@
       position: relative;
       height: 100vh;
     }
+
     .audience-top, .audience-bottom {
       display: flex;
       justify-content: center;
@@ -49,6 +54,7 @@
       padding: 6px;
       z-index: 5;
     }
+
     .audience-seat {
       width: 48px;
       height: 48px;
@@ -58,11 +64,13 @@
       background-position: center;
       cursor: pointer;
     }
+
     .battle-content {
       flex: 1;
       display: flex;
       height: 100%;
     }
+
     .video-half {
       flex: 1;
       position: relative;
@@ -70,11 +78,13 @@
       flex-direction: column;
       justify-content: space-between;
     }
+
     video {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .competitor-info {
       position: absolute;
       top: 12px;
@@ -86,18 +96,22 @@
       border-radius: 20px;
       z-index: 3;
     }
+
     .video-half.left .competitor-info { left: 12px; }
     .video-half.right .competitor-info { right: 12px; }
+
     .competitor-info img {
       width: 30px;
       height: 30px;
       border-radius: 50%;
       border: 1px solid #0ff;
     }
+
     .competitor-info span {
       font-size: 14px;
       color: #0ff;
     }
+
     .vote-btn {
       position: absolute;
       bottom: 20px;
@@ -110,8 +124,10 @@
       font-size: 14px;
       z-index: 3;
     }
+
     .video-half.left .vote-btn { left: 12px; }
     .video-half.right .vote-btn { right: 12px; }
+
     .side-nav {
       position: fixed;
       top: 50%;
@@ -122,8 +138,10 @@
       z-index: 10;
       transition: opacity 0.4s;
     }
+
     .side-nav.left { left: 8px; }
     .side-nav.right { right: 8px; }
+
     .side-nav button {
       background: rgba(0,255,255,0.1);
       border: 1px solid #0ff;
@@ -133,7 +151,9 @@
       color: #0ff;
       cursor: pointer;
     }
+
     .hidden { opacity: 0; }
+
     .chat-container {
       position: absolute;
       bottom: 120px;
@@ -151,20 +171,25 @@
       animation: fadeIn 2s forwards;
       z-index: 999;
     }
+
     @keyframes fadeIn {
       to { opacity: 1; }
     }
+
     .chat-messages {
       max-height: 120px;
       overflow-y: auto;
       font-size: 12px;
       padding-right: 6px;
     }
+
     .chat-messages div { margin-bottom: 4px; }
+
     .chat-input {
       display: flex;
       gap: 6px;
     }
+
     .chat-input input {
       flex: 1;
       padding: 6px;
@@ -174,6 +199,7 @@
       background: #111;
       color: white;
     }
+
     .chat-input button {
       padding: 6px 10px;
       font-size: 12px;
@@ -183,6 +209,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     @media (max-width: 768px) {
       .competitor-info span { font-size: 12px; }
       .vote-btn { font-size: 12px; padding: 6px 10px; }
@@ -191,7 +218,6 @@
   </style>
 </head>
 <body>
-
   <div class="search-icon">🔍</div>
 
   <div class="side-nav left" id="leftNav">
@@ -206,9 +232,8 @@
   </div>
 
   <div class="battle-swipe-container" id="battleSwipe">
-    <!-- Battle arenas are inside here (same as before) -->
-    <!-- You already have two arenas in your code, kept unchanged here -->
-    <!-- ... (existing arenas) ... -->
+    <!-- Arena code remains the same -->
+    <!-- Copy your two battle arenas here from your current working code -->
   </div>
 
   <script>
@@ -216,6 +241,7 @@
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
     let lastScroll = 0;
+
     main.addEventListener('scroll', () => {
       let currentScroll = main.scrollLeft;
       if (currentScroll > lastScroll) {
