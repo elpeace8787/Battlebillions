@@ -1,151 +1,165 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions - Mobile Arena</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <title>BattleBillions - Scrollable Arenas</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
-      font-family: 'Orbitron', sans-serif;
       background: #000;
       color: white;
+      font-family: 'Arial', sans-serif;
       overflow-x: hidden;
     }
-    .arena-container {
+
+    .battle-scroll-container {
       display: flex;
       flex-direction: column;
-      gap: 30px;
-      padding: 12px;
+      gap: 50px;
+      padding: 20px 0;
     }
-    .battle-block {
+
+    .battle-arena {
       position: relative;
       width: 100%;
-      aspect-ratio: 9 / 16;
-      background: #111;
-      border-radius: 16px;
+      max-width: 100%;
+      height: 100vh;
       overflow: hidden;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
     }
-    .audience-top {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      padding: 8px;
-      background: rgba(255,255,255,0.02);
-    }
-    .audience-member {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: #333;
-      border: 1px solid #0ff;
-      box-shadow: 0 0 6px #0ff;
-    }
-    .video-wrapper {
-      display: flex;
-      width: 100%;
-      height: calc(100% - 48px);
-    }
-    .video-stream {
-      flex: 1;
-      background: #000;
-      object-fit: cover;
-      width: 50%;
-      height: 100%;
-    }
-    .chat-bar {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      display: flex;
-      gap: 8px;
-      z-index: 10;
-    }
-    .chat-bar input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 20px;
-      border: none;
-      outline: none;
-      background: rgba(255,255,255,0.1);
-      color: white;
-    }
-    .chat-bar button {
-      padding: 10px 16px;
-      border-radius: 20px;
-      background: #0ff;
-      border: none;
-      font-weight: bold;
-      color: black;
-    }
-    .vote-buttons {
+
+    .audience-row {
       position: absolute;
       top: 10px;
-      width: 100%;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      justify-content: space-between;
-      padding: 0 16px;
-      z-index: 5;
+      gap: 10px;
+      z-index: 10;
     }
-    .vote {
-      background: rgba(0,255,255,0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid #0ff;
-      font-size: 14px;
-      cursor: pointer;
+
+    .audience-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid #0ff;
+      object-fit: cover;
+      box-shadow: 0 0 8px rgba(0,255,255,0.5);
+      transition: transform 0.3s;
+    }
+
+    .audience-avatar:hover {
+      transform: scale(1.1);
+    }
+
+    .battle-video-area {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    video.battle-video {
+      flex: 1;
+      width: 50%;
+      height: 100%;
+      object-fit: cover;
+      border: 2px solid #0ff;
+    }
+
+    @media (max-width: 768px) {
+      .battle-video-area {
+        flex-direction: column;
+      }
+      video.battle-video {
+        width: 100%;
+        height: 50%;
+      }
+      .audience-row {
+        top: 5px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="arena-container">
-    <div class="battle-block">
-      <div class="audience-top">
-        <div class="audience-member"></div>
-        <div class="audience-member"></div>
-        <div class="audience-member"></div>
-        <div class="audience-member"></div>
-      </div>
-      <div class="video-wrapper">
-        <video class="video-stream" autoplay muted loop src="user1.mp4"></video>
-        <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
-      </div>
-      <div class="vote-buttons">
-        <div class="vote">🔥 Vote</div>
-        <div class="vote">🔥 Vote</div>
-      </div>
-      <div class="chat-bar">
-        <input type="text" placeholder="Type your hype..."/>
-        <button>Send</button>
-      </div>
-    </div>
-    <div class="battle-block">
-      <div class="audience-top">
-        <div class="audience-member"></div>
-        <div class="audience-member"></div>
-        <div class="audience-member"></div>
-      </div>
-      <div class="video-wrapper">
-        <video class="video-stream" autoplay muted loop src="user3.mp4"></video>
-        <video class="video-stream" autoplay muted loop src="user4.mp4"></video>
-      </div>
-      <div class="vote-buttons">
-        <div class="vote">🔥 Vote</div>
-        <div class="vote">🔥 Vote</div>
-      </div>
-      <div class="chat-bar">
-        <input type="text" placeholder="Type your hype..."/>
-        <button>Send</button>
-      </div>
-    </div>
+  <div class="battle-scroll-container" id="scrollContainer">
+    <!-- Arenas will be injected here by JS -->
   </div>
+
+  <script>
+    const sampleViewers = [
+      "https://randomuser.me/api/portraits/men/1.jpg",
+      "https://randomuser.me/api/portraits/women/2.jpg",
+      "https://randomuser.me/api/portraits/men/3.jpg",
+      "https://randomuser.me/api/portraits/women/4.jpg",
+      "https://randomuser.me/api/portraits/men/5.jpg",
+      "https://randomuser.me/api/portraits/women/6.jpg",
+      "https://randomuser.me/api/portraits/men/7.jpg",
+      "https://randomuser.me/api/portraits/women/8.jpg",
+      "https://randomuser.me/api/portraits/men/9.jpg"
+    ];
+
+    function createBattleArena(index) {
+      const arena = document.createElement('div');
+      arena.className = 'battle-arena';
+
+      const audienceRow = document.createElement('div');
+      audienceRow.className = 'audience-row';
+      audienceRow.id = `audience-${index}`;
+
+      for (let i = 0; i < 3; i++) {
+        const img = document.createElement('img');
+        img.className = 'audience-avatar';
+        img.src = sampleViewers[(i + index) % sampleViewers.length];
+        audienceRow.appendChild(img);
+      }
+
+      const videoArea = document.createElement('div');
+      videoArea.className = 'battle-video-area';
+
+      const video1 = document.createElement('video');
+      video1.className = 'battle-video';
+      video1.src = 'https://www.w3schools.com/html/mov_bbb.mp4';
+      video1.autoplay = true;
+      video1.loop = true;
+      video1.muted = true;
+
+      const video2 = document.createElement('video');
+      video2.className = 'battle-video';
+      video2.src = 'https://www.w3schools.com/html/movie.mp4';
+      video2.autoplay = true;
+      video2.loop = true;
+      video2.muted = true;
+
+      videoArea.appendChild(video1);
+      videoArea.appendChild(video2);
+      arena.appendChild(audienceRow);
+      arena.appendChild(videoArea);
+
+      return arena;
+    }
+
+    function rotateAudience(arenaIndex) {
+      const audienceRow = document.getElementById(`audience-${arenaIndex}`);
+      const avatars = audienceRow.querySelectorAll('.audience-avatar');
+      for (let i = 0; i < avatars.length; i++) {
+        const randIndex = Math.floor(Math.random() * sampleViewers.length);
+        avatars[i].src = sampleViewers[randIndex];
+      }
+    }
+
+    function setupArenas(count = 5) {
+      const container = document.getElementById('scrollContainer');
+      for (let i = 0; i < count; i++) {
+        const arena = createBattleArena(i);
+        container.appendChild(arena);
+        setInterval(() => rotateAudience(i), 9000);
+      }
+    }
+
+    window.onload = () => {
+      setupArenas(5);
+    };
+  </script>
 </body>
 </html>
