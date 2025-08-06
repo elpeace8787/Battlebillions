@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -50,7 +51,7 @@
       align-items: center;
     }
     .nav-icon {
-      font-size: 22px;
+      font-size: 20px;
       color: white;
       cursor: pointer;
     }
@@ -98,279 +99,89 @@
       border-radius: 50%;
     }
     .round-timer {
-      position: absolute;
-      bottom: 120px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.6);
-      padding: 12px 24px;
-      border-radius: 30px;
       font-size: 18px;
       font-weight: bold;
       color: #fff;
       border: 2px solid #ff3c3c;
-      box-shadow: 0 0 10px rgba(255, 60, 60, 0.5);
-      animation: pulse 2s infinite;
-      transition: all 0.3s ease-in-out;
-    }
-    .round-timer.animate {
-      animation: flicker 0.6s ease-in-out, pulse 2s infinite;
-      box-shadow: 0 0 20px rgba(255, 200, 0, 0.9);
-      background: rgba(255, 80, 0, 0.7);
-    }
-    @keyframes pulse {
-      0% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.05); }
-      100% { transform: translateX(-50%) scale(1); }
-    }
-    @keyframes flicker {
-      0% { opacity: 0.6; }
-      50% { opacity: 1; }
-      100% { opacity: 0.6; }
-    }
-    #startBattleBtn, #selectMusicBtn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: red;
-      color: white;
-      font-size: 20px;
-      padding: 15px 30px;
-      border: none;
       border-radius: 30px;
-      cursor: pointer;
-      z-index: 10;
-      pointer-events: auto;
+      padding: 8px 20px;
+      box-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
+      animation: pulse 2s infinite;
     }
-    #startBattleBtn { display: none; }
-    #instrumentalList {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111;
-      border: 2px solid red;
-      border-radius: 10px;
-      padding: 20px;
-      z-index: 10;
-      display: none;
-      pointer-events: auto;
-    }
-    #instrumentalList select {
-      width: 250px;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    #instrumentalList button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background-color: red;
-      color: white;
-      cursor: pointer;
-    }
-    #competitorList {
-      display: none;
-      position: absolute;
-      right: 10px;
-      top: 50px;
-      background: rgba(0,0,0,0.85);
-      border: 1px solid red;
-      border-radius: 10px;
-      padding: 10px;
-      width: 200px;
-      max-height: 70vh;
-      overflow-y: auto;
-      z-index: 20;
-    }
-    .competitor-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-    .competitor-item img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-    }
-    .competitor-item span {
-      font-size: 14px;
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
   </style>
 </head>
 <body>
   <div class="stream-container">
-    <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-    <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video><div id="instrumentalList">
-  <select id="instrumentalSelect">
-    <option disabled selected>Select instrumental</option>
-    <option value="beat1.mp3">🔥 Classic Trap</option>
-    <option value="beat2.mp3">💥 Boom Bap</option>
-    <option value="beat3.mp3">🌊 Chill Vibes</option>
-    <option value="beat4.mp3">⚡ Fast Flow</option>
-  </select>
-  <button onclick="chooseInstrumental()">Confirm</button>
-</div>
+    <video class="video-stream" id="leftStream" autoplay muted></video>
+    <video class="video-stream" id="rightStream" autoplay muted></video>
 
-<button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon" onclick="logout()">Logout</div>
+        <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
+      </div>
 
-<div class="overlay">
-  <div class="top-bar">
-    <div class="nav-icon">🔴 LIVE</div>
-    <div class="nav-icon">👁️ 1.3k</div>
-  </div>
+      <div class="bottom-bar">
+        <div class="nav-icon" onclick="goHome()">🏠</div>
+        <div class="round-timer" id="timer">01:00</div>
+        <div class="nav-icon" onclick="goProfile()">👤</div>
+      </div>
 
-  <div class="profile-labels">
-    <div class="profile-entry">
-      <img src="user1.jpg" alt="User 1">
-      <span>@You</span>
+      <div class="side-controls left">
+        <div class="side-button" onclick="searchUsers()">🔍</div>
+        <div class="side-button" onclick="showLeaderboard()">🏆</div>
+      </div>
+
+      <div class="side-controls right">
+        <div class="side-button" onclick="sendGift()">🎁</div>
+        <div class="side-button" onclick="reportUser()">🚨</div>
+      </div>
+
+      <div class="profile-labels">
+        <div class="profile-entry">
+          <img src="https://via.placeholder.com/28" />
+          <span>Player One</span>
+        </div>
+        <div class="profile-entry">
+          <img src="https://via.placeholder.com/28" />
+          <span>Player Two</span>
+        </div>
+      </div>
     </div>
-    <div class="profile-entry">
-      <img src="user2.jpg" alt="User 2">
-      <span>@Opponent</span>
-    </div>
   </div>
-
-  <div class="side-controls left">
-    <div class="side-button" onclick="goHome()">🏠</div>
-    <div class="side-button" onclick="searchBattle()">🔍</div>
-    <div class="side-button" onclick="logout()">🚪</div>
-  </div>
-
-  <div class="side-controls right">
-    <div class="side-button" onclick="openProfile()">👤</div>
-    <div class="side-button" onclick="openLeaderboard()">🏆</div>
-    <div class="side-button" onclick="openBattleFeed()">📺</div>
-  </div>
-
-  <div class="bottom-bar">
-    <div class="nav-icon" onclick="goHome()">🏠</div>
-    <div class="nav-icon" onclick="searchBattle()">🔍</div>
-    <div class="nav-icon" onclick="openLeaderboard()">🏆</div>
-    <div class="nav-icon" onclick="openProfile()">👤</div>
-    <div class="nav-icon" onclick="openBattleFeed()">📺</div>
-  </div>
-
-  <div class="round-timer" id="roundTimer">
-    Select your instrumental to begin...
-  </div>
-
-  <div id="competitorList"></div>
-</div>
-
-  </div><audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio> <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    const competitors = [
-      { name: '@LyricKing', avatar: 'user3.jpg' },
-      { name: '@BarQueen', avatar: 'user4.jpg' },
-      { name: '@FlowMaster', avatar: 'user5.jpg' },
-      { name: '@BeastRhyme', avatar: 'user6.jpg' },
-    ];
+    let timerSeconds = 60;
+    let timerDisplay = document.getElementById("timer");
 
-    function displayCompetitors() {
-      const container = document.getElementById('competitorList');
-      container.innerHTML = '';
-      competitors.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'competitor-item';
-        div.innerHTML = `<img src="${c.avatar}" /><span>${c.name}</span>`;
-        div.onclick = () => alert(`Challenged ${c.name}!`);
-        container.appendChild(div);
-      });
-      container.style.display = 'block';
-    }
-
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: true
-        });
-        document.getElementById('localVideo').srcObject = stream;
-      } catch (err) {
-        console.error('Camera error:', err);
-        alert('Please allow camera and mic access.');
-      }
-    }
-
-    function goHome() { alert('Home clicked'); }
-    function searchBattle() { alert('Search clicked'); }
-    function logout() { alert('Logging out...'); }
-    function openProfile() { alert('Opening Profile'); }
-    function openLeaderboard() { alert('Opening Leaderboard'); }
-    function openBattleFeed() { alert('Opening Battle Feed'); }
-
-    const timerDisplay = document.getElementById('roundTimer');
-    const sound = document.getElementById('roundEndSound');
-    const battleTrack = document.getElementById('battleTrack');
-    let round = 1;
-    let roundPart = 0;
-    let timeLeft = 33;
-
-    function triggerGlow() {
-      timerDisplay.classList.add('animate');
-      setTimeout(() => timerDisplay.classList.remove('animate'), 2000);
-    }
-
-    function runRoundPart() {
+    function startBattle() {
       const interval = setInterval(() => {
-        timerDisplay.innerText = `Round ${round} of 3 | ${(roundPart === 0 ? '@You' : '@Opponent')} | ${timeLeft}s`;
-        timeLeft--;
-
-        if (timeLeft < 0) {
+        let min = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+        let sec = (timerSeconds % 60).toString().padStart(2, '0');
+        timerDisplay.textContent = `${min}:${sec}`;
+        if (--timerSeconds < 0) {
           clearInterval(interval);
-          sound.play();
-
-          if (roundPart === 0) {
-            roundPart = 1;
-            timeLeft = 33;
-            timerDisplay.innerText = `Switching to Opponent...`;
-            setTimeout(runRoundPart, 6000);
-          } else {
-            if (round < 3) {
-              round++;
-              roundPart = 0;
-              timeLeft = 33;
-              timerDisplay.innerText = `Switching to Next Round...`;
-              setTimeout(runRoundPart, 6000);
-            } else {
-              timerDisplay.innerText = '🔥 Battle Over 🔥';
-              triggerGlow();
-              displayCompetitors();
-            }
-          }
+          timerDisplay.textContent = "Battle Over";
         }
       }, 1000);
     }
 
-    function chooseInstrumental() {
-      const selected = document.getElementById('instrumentalSelect').value;
-      if (selected) {
-        document.getElementById('instrumentalList').style.display = 'none';
-        document.getElementById('startBattleBtn').style.display = 'block';
-        battleTrack.src = selected;
-        battleTrack.load();
-      }
-    }
+    function logout() { alert("Logging out..."); }
+    function goToBattleFeed() { alert("Redirect to Battle Feed"); }
+    function goHome() { alert("Home Page"); }
+    function goProfile() { alert("Profile Page"); }
+    function searchUsers() { alert("Search Users"); }
+    function showLeaderboard() { alert("Leaderboard"); }
+    function sendGift() { alert("Gift Sent"); }
+    function reportUser() { alert("User Reported"); }
 
-    function startBattle() {
-      document.getElementById('startBattleBtn').style.display = 'none';
-      battleTrack.play();
-      triggerGlow();
-      runRoundPart();
-    }
-
-    window.onload = () => {
-      startCamera();
-      document.getElementById('instrumentalList').style.display = 'block';
-    };
-  </script></body>
-                             </html>
+    window.onload = startBattle;
+  </script>
+</body>
+</html>
