@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions - Full Arena View</title>
+  <title>BattleBillions - Arena with Nav</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -12,6 +12,37 @@
       color: white;
       font-family: 'Arial', sans-serif;
       overflow-x: hidden;
+    }
+
+    .side-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      z-index: 999;
+    }
+
+    .side-nav.left { left: 10px; }
+    .side-nav.right { right: 10px; }
+
+    .nav-item {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #0ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(0,255,255,0.6);
     }
 
     .battle-scroll-container {
@@ -49,13 +80,8 @@
       z-index: 10;
     }
 
-    .audience-left {
-      left: 8px;
-    }
-
-    .audience-right {
-      right: 8px;
-    }
+    .audience-left { left: 8px; }
+    .audience-right { right: 8px; }
 
     .audience-avatar {
       width: 40px;
@@ -81,35 +107,40 @@
     }
 
     @media (max-width: 768px) {
-      .battle-video-area {
-        flex-direction: column;
-      }
-      video.battle-video {
-        height: 50%;
-      }
-      .audience-row-side {
-        display: none;
-      }
+      .battle-video-area { flex-direction: column; }
+      video.battle-video { height: 50%; }
+      .audience-row-side, .side-nav { display: none; }
     }
   </style>
 </head>
 <body>
+
+  <div class="side-nav left" id="leftNav">
+    <div class="nav-item">🏠</div>
+    <div class="nav-item">🔥</div>
+    <div class="nav-item">🎵</div>
+  </div>
+
+  <div class="side-nav right" id="rightNav">
+    <div class="nav-item">💬</div>
+    <div class="nav-item">⚔️</div>
+    <div class="nav-item">🏆</div>
+  </div>
+
   <div class="battle-scroll-container" id="scrollContainer"></div>
 
   <script>
     const sampleViewers = [
-      "https://randomuser.me/api/portraits/men/10.jpg",
-      "https://randomuser.me/api/portraits/women/11.jpg",
-      "https://randomuser.me/api/portraits/men/12.jpg",
-      "https://randomuser.me/api/portraits/women/13.jpg",
-      "https://randomuser.me/api/portraits/men/14.jpg",
-      "https://randomuser.me/api/portraits/women/15.jpg",
-      "https://randomuser.me/api/portraits/men/16.jpg",
-      "https://randomuser.me/api/portraits/women/17.jpg",
-      "https://randomuser.me/api/portraits/men/18.jpg",
-      "https://randomuser.me/api/portraits/women/19.jpg",
-      "https://randomuser.me/api/portraits/men/20.jpg",
-      "https://randomuser.me/api/portraits/women/21.jpg"
+      "https://randomuser.me/api/portraits/men/1.jpg",
+      "https://randomuser.me/api/portraits/women/2.jpg",
+      "https://randomuser.me/api/portraits/men/3.jpg",
+      "https://randomuser.me/api/portraits/women/4.jpg",
+      "https://randomuser.me/api/portraits/men/5.jpg",
+      "https://randomuser.me/api/portraits/women/6.jpg",
+      "https://randomuser.me/api/portraits/men/7.jpg",
+      "https://randomuser.me/api/portraits/women/8.jpg",
+      "https://randomuser.me/api/portraits/men/9.jpg",
+      "https://randomuser.me/api/portraits/women/10.jpg"
     ];
 
     function createAvatar() {
@@ -130,9 +161,7 @@
       const row = document.createElement('div');
       row.className = type;
       row.id = id;
-      for (let i = 0; i < count; i++) {
-        row.appendChild(createAvatar());
-      }
+      for (let i = 0; i < count; i++) row.appendChild(createAvatar());
       return row;
     }
 
@@ -181,7 +210,7 @@
       });
     }
 
-    function setupArenas(count = 5) {
+    function setupArenas(count = 4) {
       const container = document.getElementById('scrollContainer');
       for (let i = 0; i < count; i++) {
         const arena = createBattleArena(i);
@@ -190,7 +219,16 @@
       }
     }
 
-    window.onload = () => setupArenas(4);
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+      const fade = (currentScroll > lastScrollTop);
+      document.getElementById('leftNav').style.opacity = fade ? '0' : '1';
+      document.getElementById('rightNav').style.opacity = fade ? '0' : '1';
+      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    }, false);
+
+    window.onload = () => setupArenas(5);
   </script>
 </body>
 </html>
