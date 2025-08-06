@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions - Scrollable Arenas</title>
+  <title>BattleBillions - 360° Arena</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -27,43 +27,57 @@
       max-width: 100%;
       height: 100vh;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
-    .audience-row {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
+    .audience-row-top,
+    .audience-row-bottom {
       display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 6px;
+      z-index: 10;
+    }
+
+    .audience-row-side {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
       gap: 10px;
       z-index: 10;
     }
 
+    .audience-left {
+      left: 6px;
+    }
+
+    .audience-right {
+      right: 6px;
+    }
+
     .audience-avatar {
-      width: 45px;
-      height: 45px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       border: 2px solid #0ff;
       object-fit: cover;
-      box-shadow: 0 0 8px rgba(0,255,255,0.5);
-      transition: transform 0.3s;
-    }
-
-    .audience-avatar:hover {
-      transform: scale(1.1);
+      box-shadow: 0 0 8px rgba(0,255,255,0.4);
     }
 
     .battle-video-area {
       display: flex;
       width: 100%;
       height: 100%;
+      position: relative;
     }
 
     video.battle-video {
       flex: 1;
-      width: 50%;
-      height: 100%;
       object-fit: cover;
+      height: 100%;
       border: 2px solid #0ff;
     }
 
@@ -72,19 +86,16 @@
         flex-direction: column;
       }
       video.battle-video {
-        width: 100%;
         height: 50%;
       }
-      .audience-row {
-        top: 5px;
+      .audience-row-side {
+        display: none;
       }
     }
   </style>
 </head>
 <body>
-  <div class="battle-scroll-container" id="scrollContainer">
-    <!-- Arenas will be injected here by JS -->
-  </div>
+  <div class="battle-scroll-container" id="scrollContainer"></div>
 
   <script>
     const sampleViewers = [
@@ -99,20 +110,39 @@
       "https://randomuser.me/api/portraits/men/9.jpg"
     ];
 
+    function createAvatar() {
+      const img = document.createElement('img');
+      img.className = 'audience-avatar';
+      img.src = sampleViewers[Math.floor(Math.random() * sampleViewers.length)];
+      return img;
+    }
+
+    function rotateAvatars(row) {
+      const avatars = row.querySelectorAll('.audience-avatar');
+      avatars.forEach(avatar => {
+        avatar.src = sampleViewers[Math.floor(Math.random() * sampleViewers.length)];
+      });
+    }
+
+    function createAudienceRow(type, id) {
+      const row = document.createElement('div');
+      row.className = type;
+      row.id = id;
+      const count = (type.includes('side')) ? 3 : 5;
+      for (let i = 0; i < count; i++) {
+        row.appendChild(createAvatar());
+      }
+      return row;
+    }
+
     function createBattleArena(index) {
       const arena = document.createElement('div');
       arena.className = 'battle-arena';
 
-      const audienceRow = document.createElement('div');
-      audienceRow.className = 'audience-row';
-      audienceRow.id = `audience-${index}`;
-
-      for (let i = 0; i < 3; i++) {
-        const img = document.createElement('img');
-        img.className = 'audience-avatar';
-        img.src = sampleViewers[(i + index) % sampleViewers.length];
-        audienceRow.appendChild(img);
-      }
+      const rowTop = createAudienceRow('audience-row-top', `top-${index}`);
+      const rowBottom = createAudienceRow('audience-row-bottom', `bottom-${index}`);
+      const colLeft = createAudienceRow('audience-row-side audience-left', `left-${index}`);
+      const colRight = createAudienceRow('audience-row-side audience-right', `right-${index}`);
 
       const videoArea = document.createElement('div');
       videoArea.className = 'battle-video-area';
@@ -133,19 +163,21 @@
 
       videoArea.appendChild(video1);
       videoArea.appendChild(video2);
-      arena.appendChild(audienceRow);
+
+      arena.appendChild(rowTop);
+      arena.appendChild(colLeft);
+      arena.appendChild(colRight);
       arena.appendChild(videoArea);
+      arena.appendChild(rowBottom);
 
       return arena;
     }
 
-    function rotateAudience(arenaIndex) {
-      const audienceRow = document.getElementById(`audience-${arenaIndex}`);
-      const avatars = audienceRow.querySelectorAll('.audience-avatar');
-      for (let i = 0; i < avatars.length; i++) {
-        const randIndex = Math.floor(Math.random() * sampleViewers.length);
-        avatars[i].src = sampleViewers[randIndex];
-      }
+    function rotateAll(index) {
+      ['top', 'bottom', 'left', 'right'].forEach(pos => {
+        const row = document.getElementById(`${pos}-${index}`);
+        if (row) rotateAvatars(row);
+      });
     }
 
     function setupArenas(count = 5) {
@@ -153,13 +185,11 @@
       for (let i = 0; i < count; i++) {
         const arena = createBattleArena(i);
         container.appendChild(arena);
-        setInterval(() => rotateAudience(i), 9000);
+        setInterval(() => rotateAll(i), 9000);
       }
     }
 
-    window.onload = () => {
-      setupArenas(5);
-    };
+    window.onload = () => setupArenas(4);
   </script>
 </body>
 </html>
