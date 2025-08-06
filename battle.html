@@ -1,374 +1,396 @@
-<!DOCTYPE html>  <html lang="en">  
-<head>  
-  <meta charset="UTF-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
-  <title>BattleBillions Viewer Mode</title>  
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">  
-  <style>  
-    * { margin: 0; padding: 0; box-sizing: border-box; }  
-    html, body {  
-      height: 100%;  
-      background: #000;  
-      color: white;  
-      font-family: 'Orbitron', sans-serif;  
-      overflow-x: hidden;  
-    }  .main-scroll {  
-  overflow-y: auto;  
-  height: 100vh;  
-  scroll-behavior: smooth;  
-}  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BattleBillions Viewer Mode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      background: #000;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
+    }
 
-.battle-arena {  
-  position: relative;  
-  width: 100%;  
-  height: 100vh;  
-  display: flex;  
-  flex-direction: column;  
-  justify-content: space-between;  
-  transition: height 0.4s ease;  
-}  
+    .main-scroll {
+      overflow-y: auto;
+      height: 100vh;
+      scroll-behavior: smooth;
+    }
 
-.battle-arena.half-screen {  
-  height: 50vh;  
-}  
+    .battle-arena {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: height 0.4s ease;
+    }
 
-.audience-top, .audience-bottom {  
-  display: flex;  
-  justify-content: center;  
-  gap: 10px;  
-  padding: 6px;  
-  z-index: 5;  
-}  
+    .audience-top, .audience-bottom {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 6px;
+      z-index: 5;
+    }
 
-.audience-seat {  
-  width: 48px;  
-  height: 48px;  
-  border-radius: 50%;  
-  border: 2px solid #0ff;  
-  background-size: cover;  
-  background-position: center;  
-  cursor: pointer;  
-}  
+    .audience-seat {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #0ff;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+    }
 
-.battle-content {  
-  flex: 1;  
-  display: flex;  
-  width: 100%;  
-  height: 100%;  
-}  
+    .battle-content {
+      flex: 1;
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
 
-.video-half {  
-  flex: 1;  
-  position: relative;  
-  display: flex;  
-  flex-direction: column;  
-  justify-content: space-between;  
-}  
+    .video-half {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-video {  
-  width: 100%;  
-  height: 100%;  
-  object-fit: cover;  
-}  
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.competitor-info {  
-  position: absolute;  
-  top: 12px;  
-  display: flex;  
-  align-items: center;  
-  gap: 8px;  
-  background: rgba(0,0,0,0.6);  
-  padding: 6px 12px;  
-  border-radius: 20px;  
-  z-index: 3;  
-}  
+    .competitor-info {
+      position: absolute;
+      top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 12px;
+      border-radius: 20px;
+      z-index: 3;
+    }
 
-.video-half.left .competitor-info { left: 12px; }  
-.video-half.right .competitor-info { right: 12px; }  
+    .video-half.left .competitor-info { left: 12px; }
+    .video-half.right .competitor-info { right: 12px; }
 
-.competitor-info img {  
-  width: 30px;  
-  height: 30px;  
-  border-radius: 50%;  
-  border: 1px solid #0ff;  
-}  
+    .competitor-info img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid #0ff;
+    }
 
-.competitor-info span {  
-  font-size: 14px;  
-  color: #0ff;  
-}  
+    .competitor-info span {
+      font-size: 14px;
+      color: #0ff;
+    }
 
-.vote-btn {  
-  position: absolute;  
-  bottom: 20px;  
-  padding: 8px 16px;  
-  border-radius: 30px;  
-  background: rgba(0,255,255,0.2);  
-  border: 1px solid #0ff;  
-  color: #fff;  
-  cursor: pointer;  
-  font-size: 14px;  
-  z-index: 3;  
-}  
+    .vote-btn {
+      position: absolute;
+      bottom: 20px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: rgba(0,255,255,0.2);
+      border: 1px solid #0ff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 3;
+    }
 
-.video-half.left .vote-btn { left: 12px; }  
-.video-half.right .vote-btn { right: 12px; }  
+    .video-half.left .vote-btn { left: 12px; }
+    .video-half.right .vote-btn { right: 12px; }
 
-.side-nav {  
-  position: fixed;  
-  top: 50%;  
-  transform: translateY(-50%);  
-  display: flex;  
-  flex-direction: column;  
-  gap: 14px;  
-  z-index: 10;  
-  transition: opacity 0.4s;  
-}  
+    .side-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+      transition: opacity 0.4s;
+    }
 
-.side-nav.left { left: 8px; }  
-.side-nav.right { right: 8px; }  
+    .side-nav.left { left: 8px; }
+    .side-nav.right { right: 8px; }
 
-.side-nav button {  
-  background: rgba(0,255,255,0.1);  
-  border: 1px solid #0ff;  
-  padding: 10px;  
-  border-radius: 50%;  
-  font-size: 18px;  
-  color: #0ff;  
-  cursor: pointer;  
-}  
+    .side-nav button {
+      background: rgba(0,255,255,0.1);
+      border: 1px solid #0ff;
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 18px;
+      color: #0ff;
+      cursor: pointer;
+    }
 
-.hidden { opacity: 0; }  
+    .hidden { opacity: 0; }
 
-.chat-container {  
-  position: absolute;  
-  bottom: 130px;  
-  left: 50%;  
-  transform: translateX(-50%);  
-  width: 70%;  
-  max-width: 360px;  
-  background: rgba(0,0,0,0.7);  
-  border-radius: 10px;  
-  padding: 8px;  
-  display: flex;  
-  flex-direction: column;  
-  gap: 4px;  
-  opacity: 0;  
-  animation: fadeIn 2s forwards;  
-  z-index: 999;  
-  transition: all 0.3s ease;  
-}  
+    .chat-container {
+      position: absolute;
+      bottom: 130px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      max-width: 360px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 10px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      z-index: 999;
+      transition: all 0.3s ease;
+    }
 
-.battle-arena.half-screen .chat-container {  
-  bottom: 60px;  
-  width: 60%;  
-  max-width: 300px;  
-}  
+    @keyframes fadeIn { to { opacity: 1; } }
 
-@keyframes fadeIn {  
-  to { opacity: 1; }  
-}  
+    .chat-messages {
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 12px;
+      padding-right: 6px;
+    }
 
-.chat-messages {  
-  max-height: 120px;  
-  overflow-y: auto;  
-  font-size: 12px;  
-  padding-right: 6px;  
-}  
+    .chat-messages div { margin-bottom: 4px; }
 
-.chat-messages div { margin-bottom: 4px; }  
+    .chat-input {
+      display: flex;
+      gap: 6px;
+    }
 
-.chat-input {  
-  display: flex;  
-  gap: 6px;  
-}  
+    .chat-input input {
+      flex: 1;
+      padding: 6px;
+      font-size: 12px;
+      border-radius: 8px;
+      border: 1px solid #0ff;
+      background: #111;
+      color: white;
+    }
 
-.chat-input input {  
-  flex: 1;  
-  padding: 6px;  
-  font-size: 12px;  
-  border-radius: 8px;  
-  border: 1px solid #0ff;  
-  background: #111;  
-  color: white;  
-}  
+    .chat-input button {
+      padding: 6px 10px;
+      font-size: 12px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-.chat-input button {  
-  padding: 6px 10px;  
-  font-size: 12px;  
-  background: #0ff;  
-  color: #000;  
-  border: none;  
-  border-radius: 8px;  
-  cursor: pointer;  
-}  
+    .toggle-mode-btn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 9999;
+      background: #0ff;
+      color: #000;
+      font-size: 20px;
+      border-radius: 50%;
+      padding: 14px;
+      cursor: pointer;
+      border: none;
+    }
 
-.toggle-mode-btn {  
-  position: fixed;  
-  bottom: 16px;  
-  right: 16px;  
-  z-index: 9999;  
-  background: #0ff;  
-  color: #000;  
-  font-size: 20px;  
-  border-radius: 50%;  
-  padding: 14px;  
-  cursor: pointer;  
-  border: none;  
-}  
+    .fullscreen-btn {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 9999;
+      background: #0ff;
+      color: #000;
+      font-size: 20px;
+      border-radius: 50%;
+      padding: 14px;
+      cursor: pointer;
+      border: none;
+    }
 
-.other-battles {  
-  display: none;  
-  padding: 16px;  
-  background: #111;  
-  border-top: 2px solid #0ff;  
-}  
+    .other-battles {
+      display: none;
+      padding: 16px;
+      background: #111;
+      border-top: 2px solid #0ff;
+    }
 
-.battle-arena.half-screen ~ .other-battles {  
-  display: flex;  
-  flex-wrap: wrap;  
-  gap: 12px;  
-  justify-content: center;  
-}  
+    .battle-arena.half-screen ~ .other-battles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
 
-.battle-card {  
-  width: 200px;  
-  background: #222;  
-  border: 1px solid #0ff;  
-  border-radius: 12px;  
-  overflow: hidden;  
-  text-align: center;  
-  color: #0ff;  
-  padding-bottom: 8px;  
-}  
+    .battle-card {
+      width: 200px;
+      background: #222;
+      border: 1px solid #0ff;
+      border-radius: 12px;
+      overflow: hidden;
+      text-align: center;
+      color: #0ff;
+      padding-bottom: 8px;
+    }
 
-.battle-card img {  
-  width: 100%;  
-  height: 120px;  
-  object-fit: cover;  
-}  
+    .battle-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
 
-.battle-card span {  
-  display: block;  
-  padding: 8px;  
-  font-size: 14px;  
-}  
+    .battle-card span {
+      display: block;
+      padding: 8px;
+      font-size: 14px;
+    }
 
-@media (max-width: 768px) {  
-  .competitor-info span { font-size: 12px; }  
-  .vote-btn { font-size: 12px; padding: 6px 10px; }  
-  .chat-input input, .chat-input button { font-size: 12px; }  
-}
+    @media (max-width: 768px) {
+      .competitor-info span { font-size: 12px; }
+      .vote-btn { font-size: 12px; padding: 6px 10px; }
+      .chat-input input, .chat-input button { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
 
-  </style>  
-</head>  
-<body>    <div class="side-nav left" id="leftNav">  
-    <button>👤</button>  
-    <button>📺</button>  
-    <button>🏆</button>  
-  </div>  
-  <div class="side-nav right" id="rightNav">  
-    <button>🏠</button>  
-    <button>💬</button>  
-    <button>⚙️</button>  
-  </div>  <button class="toggle-mode-btn" onclick="toggleBattleView()">🌓</button>
+  <div class="side-nav left" id="leftNav">
+    <button>👤</button>
+    <button>📺</button>
+    <button>🏆</button>
+  </div>
+  <div class="side-nav right" id="rightNav">
+    <button>🏠</button>
+    <button>💬</button>
+    <button>⚙️</button>
+  </div>
 
-  <div class="main-scroll" id="mainScroll">  
-    <div class="battle-arena" id="battleArena">  
-      <div class="audience-top">  
-        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>  
-        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>  
-        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>  
-      </div>  <div class="battle-content">  
-    <div class="video-half left">  
-      <video autoplay muted loop src="user1.mp4"></video>  
-      <div class="competitor-info">  
-        <img src="user1.jpg" />  
-        <span>@Alpha</span>  
-      </div>  
-      <button class="vote-btn">Vote</button>  
-    </div>  
-    <div class="video-half right">  
-      <video autoplay muted loop src="user2.mp4"></video>  
-      <div class="competitor-info">  
-        <img src="user2.jpg" />  
-        <span>@Omega</span>  
-      </div>  
-      <button class="vote-btn">Vote</button>  
-    </div>  
-  </div>  
+  <button class="toggle-mode-btn" onclick="toggleBattleView()">🌓</button>
+  <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
 
-  <div class="chat-container" id="chat">  
-    <div class="chat-messages" id="chatMessages"></div>  
-    <div class="chat-input">  
-      <input type="text" id="chatInput" placeholder="Type a message..." />  
-      <button onclick="sendMessage()">Send</button>  
-    </div>  
-  </div>  
+  <div class="main-scroll" id="mainScroll">
+    <div class="battle-arena" id="battleArena">
+      <div class="audience-top">
+        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
+      </div>
 
-  <div class="audience-bottom">  
-    <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>  
-    <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>  
-    <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>  
-  </div>  
-</div>  
+      <div class="battle-content">
+        <div class="video-half left">
+          <video autoplay muted loop src="user1.mp4"></video>
+          <div class="competitor-info">
+            <img src="user1.jpg" />
+            <span>@Alpha</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+        <div class="video-half right">
+          <video autoplay muted loop src="user2.mp4"></video>
+          <div class="competitor-info">
+            <img src="user2.jpg" />
+            <span>@Omega</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+      </div>
 
-<div class="other-battles">  
-  <div class="battle-card">  
-    <img src="battle1.jpg" />  
-    <span>@Nova vs @Zeta</span>  
-  </div>  
-  <div class="battle-card">  
-    <img src="battle2.jpg" />  
-    <span>@Knight vs @Sage</span>  
-  </div>  
-  <div class="battle-card">  
-    <img src="battle3.jpg" />  
-    <span>@Jet vs @Crimson</span>  
-  </div>  
-</div>
+      <div class="chat-container" id="chat">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Type a message..." />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
 
-  </div>    <script>  
-    let lastScroll = 0;  
-    const main = document.getElementById('mainScroll');  
-    const leftNav = document.getElementById('leftNav');  
-    const rightNav = document.getElementById('rightNav');  
-  
-    main.addEventListener('scroll', () => {  
-      let currentScroll = main.scrollTop;  
-      if (currentScroll > lastScroll) {  
-        leftNav.classList.add('hidden');  
-        rightNav.classList.add('hidden');  
-      } else {  
-        leftNav.classList.remove('hidden');  
-        rightNav.classList.remove('hidden');  
-      }  
-      lastScroll = currentScroll;  
-    });  
-  
-    function viewJoin(elem) {  
-      const battleHalf = document.querySelectorAll('.video-half');  
-      const rand = Math.floor(Math.random() * battleHalf.length);  
-      const container = battleHalf[rand];  
-      const imgURL = elem.style.backgroundImage;  
-      container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');  
-    }  
-  
-    function sendMessage() {  
-      const input = document.getElementById("chatInput");  
-      const messages = document.getElementById("chatMessages");  
-      const msg = input.value.trim();  
-      if (msg) {  
-        const div = document.createElement("div");  
-        div.textContent = "You: " + msg;  
-        messages.appendChild(div);  
-        input.value = "";  
-        messages.scrollTop = messages.scrollHeight;  
-      }  
-    }  
-  
-    function toggleBattleView() {  
-      document.getElementById("battleArena").classList.toggle("half-screen");  
-    }  
-  </script>  </body>  
+      <div class="audience-bottom">
+        <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+    </div>
+
+    <div class="other-battles">
+      <div class="battle-card">
+        <img src="battle1.jpg" />
+        <span>@Nova vs @Zeta</span>
+      </div>
+      <div class="battle-card">
+        <img src="battle2.jpg" />
+        <span>@Knight vs @Sage</span>
+      </div>
+      <div class="battle-card">
+        <img src="battle3.jpg" />
+        <span>@Jet vs @Crimson</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastScroll = 0;
+    const main = document.getElementById('mainScroll');
+    const leftNav = document.getElementById('leftNav');
+    const rightNav = document.getElementById('rightNav');
+
+    main.addEventListener('scroll', () => {
+      let currentScroll = main.scrollTop;
+      if (currentScroll > lastScroll) {
+        leftNav.classList.add('hidden');
+        rightNav.classList.add('hidden');
+      } else {
+        leftNav.classList.remove('hidden');
+        rightNav.classList.remove('hidden');
+      }
+      lastScroll = currentScroll;
+    });
+
+    function viewJoin(elem) {
+      const battleHalf = document.querySelectorAll('.video-half');
+      const rand = Math.floor(Math.random() * battleHalf.length);
+      const container = battleHalf[rand];
+      const imgURL = elem.style.backgroundImage;
+      container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const messages = document.getElementById("chatMessages");
+      const msg = input.value.trim();
+      if (msg) {
+        const div = document.createElement("div");
+        div.textContent = "You: " + msg;
+        messages.appendChild(div);
+        input.value = "";
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    function toggleBattleView() {
+      document.getElementById("battleArena").classList.toggle("half-screen");
+    }
+
+    function toggleFullscreen() {
+      const el = document.documentElement;
+      if (!document.fullscreenElement) {
+        el.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  </script>
+</body>
 </html>
