@@ -55,6 +55,7 @@
   display: flex;
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 .video-half {
@@ -71,8 +72,8 @@ video {
 .competitor-info {
   position: absolute;
   top: 50%;
-  right: 10px;
   transform: translateY(-50%);
+  right: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -97,8 +98,8 @@ video {
 .vote-btn {
   position: absolute;
   top: 50%;
-  left: 10px;
   transform: translateY(-50%);
+  left: 12px;
   padding: 8px 16px;
   border-radius: 30px;
   background: rgba(0,255,255,0.2);
@@ -152,7 +153,37 @@ video {
     <button>👤</button>
     <button>💬</button>
     <button>⚙️</button>
-  </div>  <div class="main-scroll" id="mainScroll"><!-- Arena content remains unchanged -->
+  </div>  <div class="main-scroll" id="mainScroll">
+    <div class="battle-arena">
+      <div class="audience-top">
+        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
+      </div><div class="battle-content">
+    <div class="video-half">
+      <video autoplay muted loop src="user1.mp4"></video>
+      <div class="vote-btn">Vote</div>
+      <div class="competitor-info">
+        <img src="user1.jpg" />
+        <span>@Alpha</span>
+      </div>
+    </div>
+    <div class="video-half">
+      <video autoplay muted loop src="user2.mp4"></video>
+      <div class="vote-btn">Vote</div>
+      <div class="competitor-info">
+        <img src="user2.jpg" />
+        <span>@Omega</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="audience-bottom">
+    <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
+    <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
+    <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
+  </div>
+</div>
 
   </div>  <script>
     let lastScroll = 0;
@@ -180,4 +211,4 @@ video {
       container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
     }
   </script></body>
-</html>
+          </html>
