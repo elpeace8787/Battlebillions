@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -17,220 +16,143 @@
       color: white;
       font-family: 'Orbitron', sans-serif;
       overflow-x: hidden;
-    }
+    }.main-scroll {
+  overflow-y: auto;
+  height: 100vh;
+  scroll-behavior: smooth;
+}
 
-    .main-scroll {
-      overflow-y: auto;
-      height: 100vh;
-      scroll-behavior: smooth;
-    }
+.battle-arena {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
 
-    .battle-arena {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
+.audience-top, .audience-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px;
+  z-index: 5;
+}
 
-    .audience-top, .audience-bottom {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 6px;
-      z-index: 5;
-    }
+.audience-seat {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #0ff;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+}
 
-    .audience-seat {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid #0ff;
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-    }
+.battle-content {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
 
-    .battle-content {
-      flex: 1;
-      display: flex;
-      width: 100%;
-      height: 100%;
-    }
+.video-half {
+  flex: 1;
+  position: relative;
+}
 
-    .video-half {
-      flex: 1;
-      position: relative;
-    }
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+.competitor-info {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 12px;
+  border-radius: 20px;
+  z-index: 3;
+}
 
-    .competitor-info {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,0,0,0.6);
-      padding: 6px 12px;
-      border-radius: 20px;
-      z-index: 3;
-    }
+.competitor-info img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #0ff;
+}
 
-    .competitor-info img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: 1px solid #0ff;
-    }
+.competitor-info span {
+  font-size: 14px;
+  color: #0ff;
+}
 
-    .competitor-info span {
-      font-size: 14px;
-      color: #0ff;
-    }
+.vote-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background: rgba(0,255,255,0.2);
+  border: 1px solid #0ff;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 3;
+}
 
-    .vote-btn {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      padding: 8px 16px;
-      border-radius: 30px;
-      background: rgba(0,255,255,0.2);
-      border: 1px solid #0ff;
-      color: #fff;
-      cursor: pointer;
-      font-size: 14px;
-      z-index: 3;
-    }
+.side-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 10;
+  transition: opacity 0.4s;
+}
 
-    .side-nav {
-      position: fixed;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      z-index: 10;
-      transition: opacity 0.4s;
-    }
+.side-nav.left {
+  left: 8px;
+}
 
-    .side-nav.left {
-      left: 8px;
-    }
+.side-nav.right {
+  right: 8px;
+}
 
-    .side-nav.right {
-      right: 8px;
-    }
+.side-nav button {
+  background: rgba(0,255,255,0.1);
+  border: 1px solid #0ff;
+  padding: 10px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: #0ff;
+  cursor: pointer;
+}
 
-    .side-nav button {
-      background: rgba(0,255,255,0.1);
-      border: 1px solid #0ff;
-      padding: 10px;
-      border-radius: 50%;
-      font-size: 18px;
-      color: #0ff;
-      cursor: pointer;
-    }
+.hidden {
+  opacity: 0;
+}
 
-    .hidden {
-      opacity: 0;
-    }
   </style>
 </head>
-<body>
-
-  <div class="side-nav left" id="leftNav">
+<body>  <div class="side-nav left" id="leftNav">
     <button>🏠</button>
     <button>📺</button>
     <button>🏆</button>
-  </div>
-
-  <div class="side-nav right" id="rightNav">
+  </div>  <div class="side-nav right" id="rightNav">
     <button>👤</button>
     <button>💬</button>
     <button>⚙️</button>
-  </div>
+  </div>  <div class="main-scroll" id="mainScroll"><!-- Arena blocks go here (already duplicated in original code) -->
 
-  <div class="main-scroll" id="mainScroll">
-    
-    <!-- Arena 1 -->
-    <div class="battle-arena">
-      <div class="audience-top">
-        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
-      </div>
-
-      <div class="battle-content">
-        <div class="video-half">
-          <video autoplay muted loop src="user1.mp4"></video>
-          <div class="competitor-info">
-            <img src="user1.jpg" />
-            <span>@Alpha</span>
-          </div>
-          <button class="vote-btn">Vote</button>
-        </div>
-        <div class="video-half">
-          <video autoplay muted loop src="user2.mp4"></video>
-          <div class="competitor-info">
-            <img src="user2.jpg" />
-            <span>@Omega</span>
-          </div>
-          <button class="vote-btn">Vote</button>
-        </div>
-      </div>
-
-      <div class="audience-bottom">
-        <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
-      </div>
-    </div>
-
-    <!-- Duplicate arenas for scroll -->
-    <div class="battle-arena">
-      <div class="audience-top">
-        <div class="audience-seat" style="background-image: url('viewer7.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer8.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer9.jpg')" onclick="viewJoin(this)"></div>
-      </div>
-
-      <div class="battle-content">
-        <div class="video-half">
-          <video autoplay muted loop src="user3.mp4"></video>
-          <div class="competitor-info">
-            <img src="user3.jpg" />
-            <span>@Nova</span>
-          </div>
-          <button class="vote-btn">Vote</button>
-        </div>
-        <div class="video-half">
-          <video autoplay muted loop src="user4.mp4"></video>
-          <div class="competitor-info">
-            <img src="user4.jpg" />
-            <span>@Rogue</span>
-          </div>
-          <button class="vote-btn">Vote</button>
-        </div>
-      </div>
-
-      <div class="audience-bottom">
-        <div class="audience-seat" style="background-image: url('viewer10.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer11.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer12.jpg')" onclick="viewJoin(this)"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
+  </div>  <script>
     let lastScroll = 0;
     const main = document.getElementById('mainScroll');
     const leftNav = document.getElementById('leftNav');
@@ -255,7 +177,5 @@
       const imgURL = elem.style.backgroundImage;
       container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
     }
-  </script>
-
-</body>
+  </script></body>
 </html>
