@@ -1,147 +1,188 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BattleBillions - Battle Feed Scroll</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BattleBillions - Fullscreen Battle Feed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
       font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background: #000;
       color: white;
-      overflow-y: scroll;
+      overflow-x: hidden;
     }.battle-feed {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 60px;
-  padding: 40px;
+  padding: 60px 0;
 }
 
-.battle-wrapper {
-  display: flex;
-  width: 90vw;
-  height: 400px;
-  border: 2px solid rgba(0, 255, 255, 0.3);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
-  border-radius: 16px;
-  overflow: hidden;
+.battle-arena {
   position: relative;
-  background: rgba(0,0,0,0.4);
-}
-
-.audience-cam {
-  width: 10%;
-  background: #111;
+  width: 100vw;
+  height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 24px;
-  border-right: 1px solid rgba(0, 255, 255, 0.2);
-  border-left: 1px solid rgba(0, 255, 255, 0.2);
+  align-items: center;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
 }
 
-.battle-screen {
-  flex: 1;
+.audience-top, .audience-bottom {
+  position: absolute;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,255,255,0.08);
+  z-index: 5;
+}
+.audience-top { top: 0; }
+.audience-bottom { bottom: 0; }
+
+.audience-left, .audience-right {
+  position: absolute;
+  width: 80px;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  background-color: black;
-  position: relative;
+  align-items: center;
+  background: rgba(0,255,255,0.08);
+  z-index: 5;
 }
+.audience-left { left: 0; }
+.audience-right { right: 0; }
 
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.85) contrast(1.2);
-}
-
-.vote-icon {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0,255,255,0.2);
+.viewer-cam {
+  width: 60px;
+  height: 60px;
+  background: #0ff;
   border-radius: 50%;
-  padding: 12px;
-  font-size: 20px;
-  cursor: pointer;
-  border: 1px solid #0ff;
+  margin: 6px;
+  box-shadow: 0 0 8px rgba(0,255,255,0.5);
 }
 
-.chat-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0,0,0,0.6);
-  padding: 8px;
+.battle-core {
+  position: relative;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 85%;
+  height: 85%;
+  background: #111;
+  box-shadow: 0 0 25px rgba(0,255,255,0.2);
+  border: 2px solid rgba(0,255,255,0.3);
+  z-index: 10;
 }
 
-.chat-bar input {
-  width: 80%;
-  padding: 10px;
+.video-stream {
+  flex: 1;
+  object-fit: cover;
   border: none;
-  border-radius: 20px;
-  background: #222;
+  width: 50%;
+  height: 100%;
+}
+
+.vote-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 26px;
+  background: rgba(0,255,255,0.2);
+  border: 2px solid #0ff;
+  border-radius: 50%;
+  padding: 10px;
   color: #0ff;
+  cursor: pointer;
+  z-index: 15;
+}
+.vote-left { left: 10px; }
+.vote-right { right: 10px; }
+
+.chat-box {
+  position: absolute;
+  bottom: 20px;
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
   font-size: 14px;
+  background: rgba(0,0,0,0.6);
+  color: #0ff;
+  outline: none;
+}
+
+.chat-send {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: #0ff;
+  color: black;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
 }
 
   </style>
 </head>
 <body>
   <div class="battle-feed">
-    <!-- Repeatable Battle Blocks -->
-    <div class="battle-wrapper">
-      <div class="audience-cam">🎥</div>
-      <div class="battle-screen">
-        <video src="user1.mp4" autoplay loop muted></video>
-        <div class="vote-icon">🔥</div>
-        <div class="chat-bar"><input type="text" placeholder="Chat for @User1" /></div>
+    <div class="battle-arena">
+      <div class="audience-top"> <div class="viewer-cam"></div> </div>
+      <div class="audience-left"> <div class="viewer-cam"></div><div class="viewer-cam"></div> </div>
+      <div class="battle-core">
+        <video class="video-stream" autoplay muted loop src="user1.mp4"></video>
+        <video class="video-stream" autoplay muted loop src="user2.mp4"></video>
+        <div class="vote-button vote-left">🔥</div>
+        <div class="vote-button vote-right">🔥</div>
+        <div class="chat-box">
+          <input class="chat-input" placeholder="Type to cheer or comment...">
+          <button class="chat-send">Send</button>
+        </div>
       </div>
-      <div class="battle-screen">
-        <video src="user2.mp4" autoplay loop muted></video>
-        <div class="vote-icon">🔥</div>
-        <div class="chat-bar"><input type="text" placeholder="Chat for @User2" /></div>
-      </div>
-      <div class="audience-cam">🎥</div>
-    </div><!-- Clone 2 -->
-<div class="battle-wrapper">
-  <div class="audience-cam">🎥</div>
-  <div class="battle-screen">
-    <video src="user3.mp4" autoplay loop muted></video>
-    <div class="vote-icon">🔥</div>
-    <div class="chat-bar"><input type="text" placeholder="Chat for @Nova" /></div>
+      <div class="audience-right"> <div class="viewer-cam"></div><div class="viewer-cam"></div> </div>
+      <div class="audience-bottom"> <div class="viewer-cam"></div> </div>
+    </div><div class="battle-arena">
+  <div class="audience-top"> <div class="viewer-cam"></div> </div>
+  <div class="audience-left"> <div class="viewer-cam"></div><div class="viewer-cam"></div> </div>
+  <div class="battle-core">
+    <video class="video-stream" autoplay muted loop src="user3.mp4"></video>
+    <video class="video-stream" autoplay muted loop src="user4.mp4"></video>
+    <div class="vote-button vote-left">🔥</div>
+    <div class="vote-button vote-right">🔥</div>
+    <div class="chat-box">
+      <input class="chat-input" placeholder="Type to cheer or comment...">
+      <button class="chat-send">Send</button>
+    </div>
   </div>
-  <div class="battle-screen">
-    <video src="user4.mp4" autoplay loop muted></video>
-    <div class="vote-icon">🔥</div>
-    <div class="chat-bar"><input type="text" placeholder="Chat for @Reign" /></div>
-  </div>
-  <div class="audience-cam">🎥</div>
+  <div class="audience-right"> <div class="viewer-cam"></div><div class="viewer-cam"></div> </div>
+  <div class="audience-bottom"> <div class="viewer-cam"></div> </div>
 </div>
 
-<!-- Clone 3 -->
-<div class="battle-wrapper">
-  <div class="audience-cam">🎥</div>
-  <div class="battle-screen">
-    <video src="user5.mp4" autoplay loop muted></video>
-    <div class="vote-icon">🔥</div>
-    <div class="chat-bar"><input type="text" placeholder="Chat for @Zen" /></div>
+<div class="battle-arena">
+  <div class="audience-top"> <div class="viewer-cam"></div> </div>
+  <div class="audience-left"> <div class="viewer-cam"></div><div class="viewer-cam"></div> </div>
+  <div class="battle-core">
+    <video class="video-stream" autoplay muted loop src="user5.mp4"></video>
+    <video class="video-stream" autoplay muted loop src="user6.mp4"></video>
+    <div class="vote-button vote-left">🔥</div>
+    <div class="vote-button vote-right">🔥</div>
+    <div class="chat-box">
+      <input class="chat-input" placeholder="Type to cheer or comment...">
+      <button class="chat-send">Send</button>
+    </div>
   </div>
-  <div class="battle-screen">
-    <video src="user6.mp4" autoplay loop muted></video>
-    <div class="vote-icon">🔥</div>
-    <div class="chat-bar"><input type="text" placeholder="Chat for @Lyric" /></div>
-  </div>
-  <div class="audience-cam">🎥</div>
+  <div class="audience-right"> <div class="viewer-cam"></div><div class="viewer-cam"></div> </div>
+  <div class="audience-bottom"> <div class="viewer-cam"></div> </div>
 </div>
 
   </div>
 </body>
-  </html>
+                                     </html>
