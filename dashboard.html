@@ -1,16 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions - Dual Live Battle</title>
+  <title>BattleBillions - Dual Live Battle AI Edition</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
       font-family: 'Inter', sans-serif;
-      background: #000;
+      background: linear-gradient(to right, #000000, #020202);
       color: white;
       overflow: hidden;
     }
@@ -26,12 +25,19 @@
       background-color: black;
       width: 50%;
       height: 100%;
+      filter: hue-rotate(5deg) brightness(1.1);
+      animation: glowStream 6s infinite alternate ease-in-out;
+    }
+    @keyframes glowStream {
+      from { filter: drop-shadow(0 0 4px #00ffff80); }
+      to { filter: drop-shadow(0 0 15px #ff00ff); }
     }
     .overlay {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       pointer-events: none;
+      z-index: 2;
     }
     .top-bar, .bottom-bar {
       position: absolute;
@@ -40,20 +46,22 @@
       justify-content: space-between;
       padding: 10px 20px;
       pointer-events: auto;
+      animation: fadeSlide 2s ease-in-out forwards;
     }
-    .top-bar {
-      top: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .bottom-bar {
-      bottom: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-      align-items: center;
-    }
+    .top-bar { top: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
+    .bottom-bar { bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); align-items: center; }
     .nav-icon {
       font-size: 20px;
       color: white;
       cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .nav-icon:hover {
+      transform: scale(1.2) rotate(2deg);
     }
     .side-controls.left, .side-controls.right {
       position: absolute;
@@ -75,6 +83,12 @@
       justify-content: center;
       font-size: 20px;
       cursor: pointer;
+      box-shadow: 0 0 10px #00ffcc80;
+      transition: all 0.3s ease;
+    }
+    .side-button:hover {
+      transform: scale(1.2);
+      background-color: rgba(0,255,255,0.3);
     }
     .profile-labels {
       position: absolute;
@@ -84,6 +98,11 @@
       display: flex;
       justify-content: space-between;
       padding: 0 20px;
+      animation: fadeZoom 1.5s ease-in-out forwards;
+    }
+    @keyframes fadeZoom {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
     .profile-entry {
       display: flex;
@@ -92,6 +111,8 @@
       background: rgba(0,0,0,0.5);
       padding: 6px 12px;
       border-radius: 16px;
+      border: 1px solid #ff69b4;
+      box-shadow: inset 0 0 6px #ff1493a0;
     }
     .profile-entry img {
       width: 28px;
@@ -108,10 +129,9 @@
       box-shadow: 0 0 10px rgba(255, 60, 60, 0.6);
       animation: pulse 2s infinite;
     }
-
     @keyframes pulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      50% { transform: scale(1.08); box-shadow: 0 0 20px #ff3c3c; }
       100% { transform: scale(1); }
     }
   </style>
@@ -119,46 +139,43 @@
 <body>
   <div class="stream-container">
     <video class="video-stream" id="leftStream" autoplay muted></video>
-    <video class="video-stream" id="rightStream" autoplay muted></video>
-
-    <div class="overlay">
-      <div class="top-bar">
-        <div class="nav-icon" onclick="logout()">Logout</div>
-        <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
-      </div>
-
-      <div class="bottom-bar">
-        <div class="nav-icon" onclick="goHome()">🏠</div>
-        <div class="round-timer" id="timer">01:00</div>
-        <div class="nav-icon" onclick="goProfile()">👤</div>
-      </div>
-
-      <div class="side-controls left">
-        <div class="side-button" onclick="searchUsers()">🔍</div>
-        <div class="side-button" onclick="showLeaderboard()">🏆</div>
-      </div>
-
-      <div class="side-controls right">
-        <div class="side-button" onclick="sendGift()">🎁</div>
-        <div class="side-button" onclick="reportUser()">🚨</div>
-      </div>
-
-      <div class="profile-labels">
-        <div class="profile-entry">
-          <img src="https://via.placeholder.com/28" />
-          <span>Player One</span>
-        </div>
-        <div class="profile-entry">
-          <img src="https://via.placeholder.com/28" />
-          <span>Player Two</span>
-        </div>
-      </div>
-    </div>
+    <video class="video-stream" id="rightStream" autoplay muted></video><div class="overlay">
+  <div class="top-bar">
+    <div class="nav-icon" onclick="logout()">Logout</div>
+    <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
   </div>
 
-  <script>
+  <div class="bottom-bar">
+    <div class="nav-icon" onclick="goHome()">🏠</div>
+    <div class="round-timer" id="timer">01:00</div>
+    <div class="nav-icon" onclick="goProfile()">👤</div>
+  </div>
+
+  <div class="side-controls left">
+    <div class="side-button" onclick="searchUsers()">🔍</div>
+    <div class="side-button" onclick="showLeaderboard()">🏆</div>
+  </div>
+
+  <div class="side-controls right">
+    <div class="side-button" onclick="sendGift()">🎁</div>
+    <div class="side-button" onclick="reportUser()">🚨</div>
+  </div>
+
+  <div class="profile-labels">
+    <div class="profile-entry">
+      <img src="https://via.placeholder.com/28" />
+      <span>Player One</span>
+    </div>
+    <div class="profile-entry">
+      <img src="https://via.placeholder.com/28" />
+      <span>Player Two</span>
+    </div>
+  </div>
+</div>
+
+  </div>  <script>
     let timerSeconds = 60;
-    let timerDisplay = document.getElementById("timer");
+    const timerDisplay = document.getElementById("timer");
 
     function startBattle() {
       const interval = setInterval(() => {
@@ -172,16 +189,15 @@
       }, 1000);
     }
 
-    function logout() { alert("Logging out..."); }
-    function goToBattleFeed() { alert("Redirect to Battle Feed"); }
-    function goHome() { alert("Home Page"); }
-    function goProfile() { alert("Profile Page"); }
-    function searchUsers() { alert("Search Users"); }
-    function showLeaderboard() { alert("Leaderboard"); }
-    function sendGift() { alert("Gift Sent"); }
-    function reportUser() { alert("User Reported"); }
+    function logout() { console.log("[AI] Logging out..."); alert("Logging out..."); }
+    function goToBattleFeed() { console.log("[AI] Redirecting to Battle Feed..."); alert("Go to Battle Feed"); }
+    function goHome() { console.log("[AI] Going Home..."); alert("Home"); }
+    function goProfile() { console.log("[AI] Viewing Profile..."); alert("Profile"); }
+    function searchUsers() { console.log("[AI] Searching Users..."); alert("Search Users"); }
+    function showLeaderboard() { console.log("[AI] Displaying Leaderboard..."); alert("Leaderboard"); }
+    function sendGift() { console.log("[AI] Sending Gift..."); alert("Gift Sent"); }
+    function reportUser() { console.log("[AI] Reporting User..."); alert("User Reported"); }
 
     window.onload = startBattle;
-  </script>
-</body>
+  </script></body>
 </html>
