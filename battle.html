@@ -1,230 +1,214 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BattleBillions Arena</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BattleBillions - Battle Arenas</title>
   <style>
-    * {
+    body {
       margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }body {
-  font-family: 'Orbitron', sans-serif;
-  background: #000;
-  overflow-x: hidden;
-  color: white;
-}
-
-.arena-section {
-  height: 100vh;
+      background: #000;
+      font-family: 'Orbitron', sans-serif;
+      overflow-y: scroll;
+    }.arena-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  gap: 50px;
+  padding: 20px;
+}
+
+.arena {
   position: relative;
-}
-
-.audience-top, .audience-bottom {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-}
-
-.audience-top {
-  top: 10px;
-}
-
-.audience-bottom {
-  bottom: 10px;
-}
-
-.audience-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: white;
-  border: 2px solid #ff3c3c;
-  animation: pulseViewers 9s infinite alternate;
-}
-
-@keyframes pulseViewers {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.2); opacity: 1; }
-}
-
-.battle-container {
   width: 100vw;
+  max-width: 100%;
   height: 100vh;
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  flex-direction: column;
+  background: #000;
+  border: 2px solid #0ff;
+  overflow: hidden;
 }
 
-.battle-stream {
-  flex: 1;
-  height: 80vh;
-  background: #111;
-  border: 4px solid red;
-  border-radius: 12px;
+.video-wrapper {
   position: relative;
+  width: 100vw;
+  height: 90vh;
+  display: flex;
+}
+
+video {
+  flex: 1;
+  object-fit: cover;
+  height: 100%;
+  background: black;
+  border: none;
+}
+
+.audience-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px;
+  background: rgba(0, 255, 255, 0.07);
+  border-top: 1px solid rgba(0,255,255,0.3);
+  border-bottom: 1px solid rgba(0,255,255,0.3);
+}
+
+.seat {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-size: cover;
+  border: 2px solid #0ff;
+  cursor: pointer;
+}
+
+.vote-bar {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin-top: 10px;
 }
 
 .vote-btn {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ff3c3c;
-  border: none;
-  padding: 10px 20px;
-  color: white;
   font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.chat-box {
-  width: 90%;
-  max-width: 800px;
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-}
-
-.chat-box input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  font-size: 14px;
-}
-
-.chat-box button {
   padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #ff3c3c;
-  color: white;
+  border: 2px solid #0ff;
+  background: transparent;
+  color: #0ff;
   cursor: pointer;
 }
 
-.sidebar-left, .sidebar-right {
+.sidebar {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
+  width: 40px;
+  height: auto;
+  background: rgba(0,255,255,0.08);
+  border: 1px solid #0ff;
+  z-index: 50;
   opacity: 1;
-  transition: opacity 0.5s;
-  z-index: 5;
+  transition: opacity 0.5s ease;
 }
 
-.sidebar-left {
+.sidebar.left {
   left: 0;
 }
 
-.sidebar-right {
+.sidebar.right {
   right: 0;
 }
 
-.sidebar-icon {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+.chat-bar {
+  width: 100%;
+  text-align: center;
   padding: 10px;
-  margin: 6px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.hide-sidebar {
-  opacity: 0;
+  background: rgba(0, 255, 255, 0.1);
+  border-top: 1px solid #0ff;
+  font-size: 14px;
+  color: #0ff;
 }
 
 @media (max-width: 768px) {
-  .battle-container {
+  .video-wrapper {
     flex-direction: column;
   }
 
-  .battle-stream {
-    width: 90%;
-    height: 40vh;
-  }
-
-  .chat-box {
-    flex-direction: column;
+  .sidebar {
+    display: none;
   }
 }
 
   </style>
 </head>
 <body>
-  <div class="sidebar-left" id="leftBar">
-    <div class="sidebar-icon">🏠</div>
-    <div class="sidebar-icon">📺</div>
-    <div class="sidebar-icon">👤</div>
-  </div>
-  <div class="sidebar-right" id="rightBar">
-    <div class="sidebar-icon">🏆</div>
-    <div class="sidebar-icon">🔍</div>
-    <div class="sidebar-icon">🚪</div>
-  </div>  <div id="battles"></div>  <script>
-    const viewers = ["👩‍🎤", "🧔", "👩‍💻", "🧕", "🧑‍🎨", "👨‍🏫", "👩‍🏫", "🧑‍🚀", "👨‍🔧"];
+  <div class="sidebar left">⬅</div>
+  <div class="sidebar right">➡</div>  <div class="arena-container" id="arenas">
+    <!-- Arenas inserted dynamically -->
+  </div>  <div class="chat-bar">💬 Live Audience Chat Enabled</div>  <script>
+    const arenaData = [
+      { left: 'user1.mp4', right: 'user2.mp4' },
+      { left: 'user3.mp4', right: 'user4.mp4' },
+      { left: 'user5.mp4', right: 'user6.mp4' },
+    ];
 
-    function generateAudienceSeats() {
-      return viewers.sort(() => 0.5 - Math.random()).slice(0, 3).map(v => `<div class="audience-avatar">${v}</div>`).join('');
-    }
+    const audienceImages = [
+      'aud1.jpg', 'aud2.jpg', 'aud3.jpg', 'aud4.jpg', 'aud5.jpg', 'aud6.jpg'
+    ];
 
-    function generateArena(index) {
-      return `
-        <div class="arena-section">
-          <div class="audience-top">${generateAudienceSeats()}</div>
+    function createArena({ left, right }) {
+      const arena = document.createElement('div');
+      arena.className = 'arena';
 
-          <div class="battle-container">
-            <div class="battle-stream">
-              <video autoplay muted loop style="width: 100%; height: 100%; object-fit: cover;"></video>
-              <button class="vote-btn">Vote 🔥</button>
-            </div>
+      const audienceTop = document.createElement('div');
+      audienceTop.className = 'audience-bar';
+      for (let i = 0; i < 3; i++) {
+        const seat = document.createElement('div');
+        seat.className = 'seat';
+        seat.style.backgroundImage = `url(${audienceImages[i % audienceImages.length]})`;
+        seat.onclick = () => selectViewer(seat, arena);
+        audienceTop.appendChild(seat);
+      }
 
-            <div class="battle-stream">
-              <video autoplay muted loop style="width: 100%; height: 100%; object-fit: cover;"></video>
-              <button class="vote-btn">Vote 💥</button>
-            </div>
-          </div>
+      const videoWrapper = document.createElement('div');
+      videoWrapper.className = 'video-wrapper';
 
-          <div class="audience-bottom">${generateAudienceSeats()}</div>
+      const videoLeft = document.createElement('video');
+      videoLeft.src = left;
+      videoLeft.autoplay = true;
+      videoLeft.loop = true;
+      videoLeft.muted = true;
 
-          <div class="chat-box">
-            <input type="text" placeholder="Type your reaction..." />
-            <button>Send</button>
-          </div>
-        </div>
+      const videoRight = document.createElement('video');
+      videoRight.src = right;
+      videoRight.autoplay = true;
+      videoRight.loop = true;
+      videoRight.muted = true;
+
+      videoWrapper.appendChild(videoLeft);
+      videoWrapper.appendChild(videoRight);
+
+      const voteBar = document.createElement('div');
+      voteBar.className = 'vote-bar';
+      voteBar.innerHTML = `
+        <button class="vote-btn">🔥 Left</button>
+        <button class="vote-btn">🔥 Right</button>
       `;
+
+      arena.appendChild(audienceTop);
+      arena.appendChild(videoWrapper);
+      arena.appendChild(voteBar);
+
+      return arena;
     }
 
-    const container = document.getElementById("battles");
-    for (let i = 0; i < 5; i++) {
-      container.innerHTML += generateArena(i);
+    function selectViewer(seat, arena) {
+      const leftVid = arena.querySelector('video:nth-child(1)');
+      leftVid.src = seat.style.backgroundImage.replace('url("', '').replace('")', '').replace('.jpg', '.mp4');
     }
 
-    let lastScrollY = window.scrollY;
-    window.addEventListener("scroll", () => {
-      const current = window.scrollY;
-      const hidden = Math.abs(current - lastScrollY) > 10;
-      document.getElementById("leftBar").classList.toggle("hide-sidebar", hidden);
-      document.getElementById("rightBar").classList.toggle("hide-sidebar", hidden);
-      lastScrollY = current;
-    });
-
-    setInterval(() => {
-      document.querySelectorAll(".audience-top, .audience-bottom").forEach(el => {
-        el.innerHTML = generateAudienceSeats();
+    function rotateSeats() {
+      const seats = document.querySelectorAll('.seat');
+      seats.forEach(seat => {
+        const randomImg = audienceImages[Math.floor(Math.random() * audienceImages.length)];
+        seat.style.backgroundImage = `url(${randomImg})`;
       });
-    }, 9000);
+    }
+
+    setInterval(rotateSeats, 9000);
+
+    const arenasContainer = document.getElementById('arenas');
+    arenaData.forEach(data => arenasContainer.appendChild(createArena(data)));
+
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const current = window.scrollY;
+      const opacity = current > lastScroll ? 0 : 1;
+      document.querySelectorAll('.sidebar').forEach(bar => bar.style.opacity = opacity);
+      lastScroll = current;
+    });
   </script></body>
 </html>
