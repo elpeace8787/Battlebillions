@@ -29,7 +29,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-bottom: 20px;
 }
 
 .audience-top, .audience-bottom {
@@ -55,12 +54,14 @@
   display: flex;
   width: 100%;
   height: 100%;
-  position: relative;
 }
 
 .video-half {
   flex: 1;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 video {
@@ -71,8 +72,7 @@ video {
 
 .competitor-info {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 12px;
   right: 12px;
   display: flex;
   align-items: center;
@@ -97,8 +97,7 @@ video {
 
 .vote-btn {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 20px;
   left: 12px;
   padding: 8px 16px;
   border-radius: 30px;
@@ -145,7 +144,8 @@ video {
 
   </style>
 </head>
-<body>  <div class="side-nav left" id="leftNav">
+<body>
+  <div class="side-nav left" id="leftNav">
     <button>🏠</button>
     <button>📺</button>
     <button>🏆</button>
@@ -162,19 +162,19 @@ video {
       </div><div class="battle-content">
     <div class="video-half">
       <video autoplay muted loop src="user1.mp4"></video>
-      <div class="vote-btn">Vote</div>
       <div class="competitor-info">
         <img src="user1.jpg" />
         <span>@Alpha</span>
       </div>
+      <button class="vote-btn">Vote</button>
     </div>
     <div class="video-half">
       <video autoplay muted loop src="user2.mp4"></video>
-      <div class="vote-btn">Vote</div>
       <div class="competitor-info">
         <img src="user2.jpg" />
         <span>@Omega</span>
       </div>
+      <button class="vote-btn">Vote</button>
     </div>
   </div>
 
@@ -211,4 +211,4 @@ video {
       container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
     }
   </script></body>
-          </html>
+</html>
