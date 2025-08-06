@@ -1,23 +1,25 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BattleBillions Viewer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battle Arena View</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }
-    body {
-      background: #000;
-      font-family: 'Orbitron', sans-serif;
-      overflow-y: scroll;
-      color: white;
-    }.arena-container {
-  width: 100vw;
-  height: 100vh;
-  overflow-x: hidden;
+    }html, body {
+  height: 100%;
+  background: black;
+  overflow-y: scroll;
+  font-family: sans-serif;
+}
+
+.battle-container {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  padding: 40px 20px;
 }
 
 .battle-arena {
@@ -25,45 +27,40 @@
   width: 100vw;
   height: 100vh;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  background-color: black;
 }
 
-.battle-screens {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-}
-
-video.battle-video {
-  flex: 1;
-  object-fit: cover;
+.battle-video {
+  width: 49%;
   height: 100%;
+  object-fit: cover;
+  border: none;
 }
 
-.audience-bar {
+.audience-top {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 10px;
   width: 100%;
   display: flex;
   justify-content: center;
   gap: 12px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
 
 .audience-seat {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: 2px solid #0ff;
-  background-color: #111;
   overflow: hidden;
   cursor: pointer;
+  border: 2px solid white;
+  transition: transform 0.3s;
+}
+
+.audience-seat:hover {
+  transform: scale(1.1);
 }
 
 .audience-seat img {
@@ -72,95 +69,83 @@ video.battle-video {
   object-fit: cover;
 }
 
-.sidebar-nav {
+.side-nav {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  left: 10px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   z-index: 20;
   opacity: 1;
   transition: opacity 0.5s;
 }
 
-.sidebar-nav.fade {
-  opacity: 0;
-}
+.side-nav.left { left: 10px; }
+.side-nav.right { right: 10px; }
 
-.nav-btn {
-  background: #0ff;
+.side-btn {
+  width: 40px;
+  height: 40px;
+  background: white;
   color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 50%;
-  padding: 12px;
   font-size: 20px;
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
-  .audience-seat {
-    width: 40px;
-    height: 40px;
-  }
-  .nav-btn {
-    padding: 8px;
-    font-size: 16px;
-  }
-}
-
   </style>
 </head>
-<body>
-  <div class="arena-container" id="arenaContainer">
-    <!-- Dynamically generated battle arenas -->
-  </div>  <div class="sidebar-nav" id="sidebarNav">
-    <div class="nav-btn">🏠</div>
-    <div class="nav-btn">👤</div>
-    <div class="nav-btn">📺</div>
+<body>  <div class="side-nav left" id="sideLeft">
+    <div class="side-btn">🏠</div>
+    <div class="side-btn">🔍</div>
+    <div class="side-btn">📺</div>
+  </div>  <div class="side-nav right" id="sideRight">
+    <div class="side-btn">👤</div>
+    <div class="side-btn">🏆</div>
+    <div class="side-btn">⚙️</div>
+  </div>  <div class="battle-container">
+    <!-- Battle Arena #1 -->
+    <div class="battle-arena" id="arena1">
+      <div class="audience-top">
+        <div class="audience-seat" onclick="swapViewer('viewer1.jpg', 'arena1', 1)"><img src="viewer1.jpg"></div>
+        <div class="audience-seat" onclick="swapViewer('viewer2.jpg', 'arena1', 2)"><img src="viewer2.jpg"></div>
+        <div class="audience-seat" onclick="swapViewer('viewer3.jpg', 'arena1', 1)"><img src="viewer3.jpg"></div>
+      </div>
+      <video class="battle-video" id="arena1-left" autoplay loop muted src="battle1a.mp4"></video>
+      <video class="battle-video" id="arena1-right" autoplay loop muted src="battle1b.mp4"></video>
+    </div><!-- Battle Arena #2 -->
+<div class="battle-arena" id="arena2">
+  <div class="audience-top">
+    <div class="audience-seat" onclick="swapViewer('viewer4.jpg', 'arena2', 1)"><img src="viewer4.jpg"></div>
+    <div class="audience-seat" onclick="swapViewer('viewer5.jpg', 'arena2', 2)"><img src="viewer5.jpg"></div>
+    <div class="audience-seat" onclick="swapViewer('viewer6.jpg', 'arena2', 1)"><img src="viewer6.jpg"></div>
+  </div>
+  <video class="battle-video" id="arena2-left" autoplay loop muted src="battle2a.mp4"></video>
+  <video class="battle-video" id="arena2-right" autoplay loop muted src="battle2b.mp4"></video>
+</div>
+
   </div>  <script>
-    const arenaContainer = document.getElementById('arenaContainer');
-    const sidebar = document.getElementById('sidebarNav');
-    let scrollTimeout;
-
-    function createBattleArena(index) {
-      const arena = document.createElement('div');
-      arena.className = 'battle-arena';
-      arena.innerHTML = `
-        <div class="audience-bar" id="audienceBar${index}">
-          <div class="audience-seat" onclick="switchToViewer(this, ${index}, 0)"><img src="viewer1.jpg"></div>
-          <div class="audience-seat" onclick="switchToViewer(this, ${index}, 1)"><img src="viewer2.jpg"></div>
-          <div class="audience-seat" onclick="switchToViewer(this, ${index}, 2)"><img src="viewer3.jpg"></div>
-        </div>
-        <div class="battle-screens">
-          <video class="battle-video" autoplay loop muted id="battleLeft${index}" src="user1.mp4"></video>
-          <video class="battle-video" autoplay loop muted id="battleRight${index}" src="user2.mp4"></video>
-        </div>
-      `;
-      return arena;
+    function swapViewer(viewerImg, arenaId, side) {
+      const videoEl = document.getElementById(`${arenaId}-${side === 1 ? 'left' : 'right'}`);
+      const imgEl = document.createElement('img');
+      imgEl.src = viewerImg;
+      imgEl.style.width = '100%';
+      imgEl.style.height = '100%';
+      imgEl.style.objectFit = 'cover';
+      videoEl.replaceWith(imgEl);
     }
 
-    function switchToViewer(el, index, targetSide) {
-      const img = el.querySelector('img');
-      const video = document.getElementById(`battle${targetSide === 0 ? 'Left' : 'Right'}${index}`);
-      video.src = '';
-      setTimeout(() => {
-        video.poster = img.src;
-      }, 100);
-    }
-
-    function generateBattles() {
-      for (let i = 0; i < 5; i++) {
-        arenaContainer.appendChild(createBattleArena(i));
-      }
-    }
-
-    generateBattles();
-
-    window.addEventListener('scroll', () => {
-      sidebar.classList.add('fade');
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => sidebar.classList.remove('fade'), 1000);
-    });
+    let lastScrollTop = 0;
+    window.addEventListener("scroll", function() {
+      const st = window.pageYOffset || document.documentElement.scrollTop;
+      const fadeOut = st > lastScrollTop;
+      document.getElementById("sideLeft").style.opacity = fadeOut ? 0 : 1;
+      document.getElementById("sideRight").style.opacity = fadeOut ? 0 : 1;
+      lastScrollTop = st <= 0 ? 0 : st;
+    }, false);
   </script></body>
-      </html>
+</html>
