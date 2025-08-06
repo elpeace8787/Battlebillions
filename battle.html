@@ -160,6 +160,14 @@
       opacity: 0;
       animation: fadeIn 2s forwards;
       z-index: 999;
+      transition: all 0.3s ease;
+    }
+
+    .battle-arena.half-screen .chat-container {
+      bottom: 60px;
+      width: 60%;
+      max-width: 300px;
+      padding: 8px;
     }
 
     @keyframes fadeIn {
@@ -202,7 +210,6 @@
       cursor: pointer;
     }
 
-    /* Floating Toggle Button */
     .toggle-mode-btn {
       position: fixed;
       bottom: 16px;
@@ -217,7 +224,6 @@
       border: none;
     }
 
-    /* Mini battle list for YouTube-style scroll */
     .other-battles {
       display: none;
       padding: 16px;
@@ -254,12 +260,10 @@
       padding: 8px;
       font-size: 14px;
     }
-
   </style>
 </head>
 <body>
 
-  <!-- Side Nav -->
   <div class="side-nav left" id="leftNav">
     <button>👤</button>
     <button>📺</button>
@@ -271,10 +275,8 @@
     <button>⚙️</button>
   </div>
 
-  <!-- Full/Half Screen Toggle -->
   <button class="toggle-mode-btn" onclick="toggleBattleView()">🌓</button>
 
-  <!-- Main Scroll Container -->
   <div class="main-scroll" id="mainScroll">
     <div class="battle-arena" id="battleArena">
       <div class="audience-top">
@@ -302,7 +304,6 @@
         </div>
       </div>
 
-      <!-- Chat System -->
       <div class="chat-container" id="chat">
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input">
@@ -318,7 +319,6 @@
       </div>
     </div>
 
-    <!-- Scrollable Other Battles Section -->
     <div class="other-battles">
       <div class="battle-card">
         <img src="battle1.jpg" />
@@ -335,7 +335,6 @@
     </div>
   </div>
 
-  <!-- Scripts -->
   <script>
     let lastScroll = 0;
     const main = document.getElementById('mainScroll');
@@ -380,4 +379,4 @@
     }
   </script>
 </body>
-            </html>
+        </html>
