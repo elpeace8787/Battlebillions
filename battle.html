@@ -1,151 +1,261 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Battle Arena View</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BattleBillions Viewer Mode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }html, body {
-  height: 100%;
-  background: black;
-  overflow-y: scroll;
-  font-family: sans-serif;
-}
-
-.battle-container {
-  display: flex;
-  flex-direction: column;
-  gap: 60px;
-  padding: 40px 20px;
-}
-
-.battle-arena {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: black;
-}
-
-.battle-video {
-  width: 49%;
-  height: 100%;
-  object-fit: cover;
-  border: none;
-}
-
-.audience-top {
-  position: absolute;
-  top: 10px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  z-index: 10;
-}
-
-.audience-seat {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid white;
-  transition: transform 0.3s;
-}
-
-.audience-seat:hover {
-  transform: scale(1.1);
-}
-
-.audience-seat img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.side-nav {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  z-index: 20;
-  opacity: 1;
-  transition: opacity 0.5s;
-}
-
-.side-nav.left { left: 10px; }
-.side-nav.right { right: 10px; }
-
-.side-btn {
-  width: 40px;
-  height: 40px;
-  background: white;
-  color: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-  </style>
-</head>
-<body>  <div class="side-nav left" id="sideLeft">
-    <div class="side-btn">🏠</div>
-    <div class="side-btn">🔍</div>
-    <div class="side-btn">📺</div>
-  </div>  <div class="side-nav right" id="sideRight">
-    <div class="side-btn">👤</div>
-    <div class="side-btn">🏆</div>
-    <div class="side-btn">⚙️</div>
-  </div>  <div class="battle-container">
-    <!-- Battle Arena #1 -->
-    <div class="battle-arena" id="arena1">
-      <div class="audience-top">
-        <div class="audience-seat" onclick="swapViewer('viewer1.jpg', 'arena1', 1)"><img src="viewer1.jpg"></div>
-        <div class="audience-seat" onclick="swapViewer('viewer2.jpg', 'arena1', 2)"><img src="viewer2.jpg"></div>
-        <div class="audience-seat" onclick="swapViewer('viewer3.jpg', 'arena1', 1)"><img src="viewer3.jpg"></div>
-      </div>
-      <video class="battle-video" id="arena1-left" autoplay loop muted src="battle1a.mp4"></video>
-      <video class="battle-video" id="arena1-right" autoplay loop muted src="battle1b.mp4"></video>
-    </div><!-- Battle Arena #2 -->
-<div class="battle-arena" id="arena2">
-  <div class="audience-top">
-    <div class="audience-seat" onclick="swapViewer('viewer4.jpg', 'arena2', 1)"><img src="viewer4.jpg"></div>
-    <div class="audience-seat" onclick="swapViewer('viewer5.jpg', 'arena2', 2)"><img src="viewer5.jpg"></div>
-    <div class="audience-seat" onclick="swapViewer('viewer6.jpg', 'arena2', 1)"><img src="viewer6.jpg"></div>
-  </div>
-  <video class="battle-video" id="arena2-left" autoplay loop muted src="battle2a.mp4"></video>
-  <video class="battle-video" id="arena2-right" autoplay loop muted src="battle2b.mp4"></video>
-</div>
-
-  </div>  <script>
-    function swapViewer(viewerImg, arenaId, side) {
-      const videoEl = document.getElementById(`${arenaId}-${side === 1 ? 'left' : 'right'}`);
-      const imgEl = document.createElement('img');
-      imgEl.src = viewerImg;
-      imgEl.style.width = '100%';
-      imgEl.style.height = '100%';
-      imgEl.style.objectFit = 'cover';
-      videoEl.replaceWith(imgEl);
+    }
+    html, body {
+      height: 100%;
+      background: #000;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
     }
 
-    let lastScrollTop = 0;
-    window.addEventListener("scroll", function() {
-      const st = window.pageYOffset || document.documentElement.scrollTop;
-      const fadeOut = st > lastScrollTop;
-      document.getElementById("sideLeft").style.opacity = fadeOut ? 0 : 1;
-      document.getElementById("sideRight").style.opacity = fadeOut ? 0 : 1;
-      lastScrollTop = st <= 0 ? 0 : st;
-    }, false);
-  </script></body>
+    .main-scroll {
+      overflow-y: auto;
+      height: 100vh;
+      scroll-behavior: smooth;
+    }
+
+    .battle-arena {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .audience-top, .audience-bottom {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 6px;
+      z-index: 5;
+    }
+
+    .audience-seat {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #0ff;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+    }
+
+    .battle-content {
+      flex: 1;
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    .video-half {
+      flex: 1;
+      position: relative;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .competitor-info {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 12px;
+      border-radius: 20px;
+      z-index: 3;
+    }
+
+    .competitor-info img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid #0ff;
+    }
+
+    .competitor-info span {
+      font-size: 14px;
+      color: #0ff;
+    }
+
+    .vote-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: rgba(0,255,255,0.2);
+      border: 1px solid #0ff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 3;
+    }
+
+    .side-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+      transition: opacity 0.4s;
+    }
+
+    .side-nav.left {
+      left: 8px;
+    }
+
+    .side-nav.right {
+      right: 8px;
+    }
+
+    .side-nav button {
+      background: rgba(0,255,255,0.1);
+      border: 1px solid #0ff;
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 18px;
+      color: #0ff;
+      cursor: pointer;
+    }
+
+    .hidden {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="side-nav left" id="leftNav">
+    <button>🏠</button>
+    <button>📺</button>
+    <button>🏆</button>
+  </div>
+
+  <div class="side-nav right" id="rightNav">
+    <button>👤</button>
+    <button>💬</button>
+    <button>⚙️</button>
+  </div>
+
+  <div class="main-scroll" id="mainScroll">
+    
+    <!-- Arena 1 -->
+    <div class="battle-arena">
+      <div class="audience-top">
+        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+
+      <div class="battle-content">
+        <div class="video-half">
+          <video autoplay muted loop src="user1.mp4"></video>
+          <div class="competitor-info">
+            <img src="user1.jpg" />
+            <span>@Alpha</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+        <div class="video-half">
+          <video autoplay muted loop src="user2.mp4"></video>
+          <div class="competitor-info">
+            <img src="user2.jpg" />
+            <span>@Omega</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+      </div>
+
+      <div class="audience-bottom">
+        <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+    </div>
+
+    <!-- Duplicate arenas for scroll -->
+    <div class="battle-arena">
+      <div class="audience-top">
+        <div class="audience-seat" style="background-image: url('viewer7.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer8.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer9.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+
+      <div class="battle-content">
+        <div class="video-half">
+          <video autoplay muted loop src="user3.mp4"></video>
+          <div class="competitor-info">
+            <img src="user3.jpg" />
+            <span>@Nova</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+        <div class="video-half">
+          <video autoplay muted loop src="user4.mp4"></video>
+          <div class="competitor-info">
+            <img src="user4.jpg" />
+            <span>@Rogue</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+      </div>
+
+      <div class="audience-bottom">
+        <div class="audience-seat" style="background-image: url('viewer10.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer11.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer12.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let lastScroll = 0;
+    const main = document.getElementById('mainScroll');
+    const leftNav = document.getElementById('leftNav');
+    const rightNav = document.getElementById('rightNav');
+
+    main.addEventListener('scroll', () => {
+      let currentScroll = main.scrollTop;
+      if (currentScroll > lastScroll) {
+        leftNav.classList.add('hidden');
+        rightNav.classList.add('hidden');
+      } else {
+        leftNav.classList.remove('hidden');
+        rightNav.classList.remove('hidden');
+      }
+      lastScroll = currentScroll;
+    });
+
+    function viewJoin(elem) {
+      const battleHalf = document.querySelectorAll('.video-half');
+      const rand = Math.floor(Math.random() * battleHalf.length);
+      const container = battleHalf[rand];
+      const imgURL = elem.style.backgroundImage;
+      container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
+    }
+  </script>
+
+</body>
 </html>
