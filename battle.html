@@ -1,273 +1,272 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BattleBillions Viewer Mode</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }html, body {
-  height: 100%;
-  background: #000;
-  color: white;
-  font-family: 'Orbitron', sans-serif;
-  overflow-x: hidden;
-}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-.main-scroll {
-  overflow-y: auto;
-  height: 100vh;
-  scroll-behavior: smooth;
-}
+    html, body {
+      height: 100%;
+      background: #000;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
+    }
 
-.battle-arena {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+    .main-scroll {
+      overflow-y: auto;
+      height: 100vh;
+      scroll-behavior: smooth;
+    }
 
-.audience-top, .audience-bottom {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 6px;
-  z-index: 5;
-}
+    .battle-arena {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-.audience-seat {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid #0ff;
-  background-size: cover;
-  background-position: center;
-  cursor: pointer;
-}
+    .audience-top, .audience-bottom {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 6px;
+      z-index: 5;
+    }
 
-.battle-content {
-  flex: 1;
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
+    .audience-seat {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #0ff;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+    }
 
-.video-half {
-  flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+    .battle-content {
+      flex: 1;
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
 
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .video-half {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-.competitor-info {
-  position: absolute;
-  top: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0,0,0,0.6);
-  padding: 6px 12px;
-  border-radius: 20px;
-  z-index: 3;
-}
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-.video-half.left .competitor-info {
-  left: 12px;
-}
+    .competitor-info {
+      position: absolute;
+      top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 12px;
+      border-radius: 20px;
+      z-index: 3;
+    }
 
-.video-half.right .competitor-info {
-  right: 12px;
-}
+    .video-half.left .competitor-info { left: 12px; }
+    .video-half.right .competitor-info { right: 12px; }
 
-.competitor-info img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid #0ff;
-}
+    .competitor-info img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid #0ff;
+    }
 
-.competitor-info span {
-  font-size: 14px;
-  color: #0ff;
-}
+    .competitor-info span {
+      font-size: 14px;
+      color: #0ff;
+    }
 
-.vote-btn {
-  position: absolute;
-  bottom: 20px;
-  padding: 8px 16px;
-  border-radius: 30px;
-  background: rgba(0,255,255,0.2);
-  border: 1px solid #0ff;
-  color: #fff;
-  cursor: pointer;
-  font-size: 14px;
-  z-index: 3;
-}
+    .vote-btn {
+      position: absolute;
+      bottom: 20px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: rgba(0,255,255,0.2);
+      border: 1px solid #0ff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 3;
+    }
 
-.video-half.left .vote-btn {
-  left: 12px;
-}
+    .video-half.left .vote-btn { left: 12px; }
+    .video-half.right .vote-btn { right: 12px; }
 
-.video-half.right .vote-btn {
-  right: 12px;
-}
+    .side-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+      transition: opacity 0.4s;
+    }
 
-.side-nav {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  z-index: 10;
-  transition: opacity 0.4s;
-}
+    .side-nav.left { left: 8px; }
+    .side-nav.right { right: 8px; }
 
-.side-nav.left { left: 8px; }
-.side-nav.right { right: 8px; }
+    .side-nav button {
+      background: rgba(0,255,255,0.1);
+      border: 1px solid #0ff;
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 18px;
+      color: #0ff;
+      cursor: pointer;
+    }
 
-.side-nav button {
-  background: rgba(0,255,255,0.1);
-  border: 1px solid #0ff;
-  padding: 10px;
-  border-radius: 50%;
-  font-size: 18px;
-  color: #0ff;
-  cursor: pointer;
-}
+    .hidden { opacity: 0; }
 
-.hidden {
-  opacity: 0;
-}
+    .chat-container {
+      position: absolute;
+      bottom: 160px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 500px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid #0ff;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      z-index: 999;
+    }
 
-.chat-container {
-  position: absolute;
-  bottom: 160px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 500px;
-  background: rgba(0,0,0,0.7);
-  border: 1px solid #0ff;
-  border-radius: 12px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  opacity: 0;
-  animation: fadeIn 2s forwards;
-  z-index: 999;
-}
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
-}
+    .chat-messages {
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 13px;
+      padding-right: 6px;
+    }
 
-.chat-messages {
-  max-height: 150px;
-  overflow-y: auto;
-  font-size: 13px;
-  padding-right: 6px;
-}
+    .chat-messages div {
+      margin-bottom: 4px;
+    }
 
-.chat-messages div {
-  margin-bottom: 4px;
-}
+    .chat-input {
+      display: flex;
+      gap: 6px;
+    }
 
-.chat-input {
-  display: flex;
-  gap: 6px;
-}
+    .chat-input input {
+      flex: 1;
+      padding: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      border-radius: 8px;
+      border: 1px solid #0ff;
+      background: #111;
+      color: white;
+    }
 
-.chat-input input {
-  flex: 1;
-  padding: 6px;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 13px;
-  border-radius: 8px;
-  border: 1px solid #0ff;
-  background: #111;
-  color: white;
-}
-
-.chat-input button {
-  padding: 6px 12px;
-  font-size: 13px;
-  font-family: 'Orbitron', sans-serif;
-  background: #0ff;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
+    .chat-input button {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-family: 'Orbitron', sans-serif;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
-<body>  <div class="side-nav left" id="leftNav">
-    <button>🏠</button>
+<body>
+
+  <!-- Swapped Side Nav -->
+  <div class="side-nav left" id="leftNav">
+    <button>👤</button>
     <button>📺</button>
     <button>🏆</button>
   </div>
   <div class="side-nav right" id="rightNav">
-    <button>👤</button>
+    <button>🏠</button>
     <button>💬</button>
     <button>⚙️</button>
-  </div>  <div class="main-scroll" id="mainScroll">
+  </div>
+
+  <div class="main-scroll" id="mainScroll">
     <div class="battle-arena">
+
+      <!-- Audience Top -->
       <div class="audience-top">
         <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
         <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
         <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
-      </div><div class="battle-content">
-    <div class="video-half left">
-      <video autoplay muted loop src="user1.mp4"></video>
-      <div class="competitor-info">
-        <img src="user1.jpg" />
-        <span>@Alpha</span>
       </div>
-      <button class="vote-btn">Vote</button>
-    </div>
 
-    <div class="video-half right">
-      <video autoplay muted loop src="user2.mp4"></video>
-      <div class="competitor-info">
-        <img src="user2.jpg" />
-        <span>@Omega</span>
+      <!-- Battle Stream Area -->
+      <div class="battle-content">
+        <div class="video-half left">
+          <video autoplay muted loop src="user1.mp4"></video>
+          <div class="competitor-info">
+            <img src="user1.jpg" />
+            <span>@Alpha</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
+        <div class="video-half right">
+          <video autoplay muted loop src="user2.mp4"></video>
+          <div class="competitor-info">
+            <img src="user2.jpg" />
+            <span>@Omega</span>
+          </div>
+          <button class="vote-btn">Vote</button>
+        </div>
       </div>
-      <button class="vote-btn">Vote</button>
+
+      <!-- Chat System -->
+      <div class="chat-container" id="chat">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Type a message..." />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+      <!-- Audience Bottom -->
+      <div class="audience-bottom">
+        <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
+        <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
+      </div>
+
     </div>
   </div>
 
-  <div class="chat-container" id="chat">
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input">
-      <input type="text" id="chatInput" placeholder="Type a message..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-
-  <div class="audience-bottom">
-    <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
-    <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
-    <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
-  </div>
-</div>
-
-  </div>  <script>
+  <script>
     let lastScroll = 0;
     const main = document.getElementById('mainScroll');
     const leftNav = document.getElementById('leftNav');
@@ -305,5 +304,6 @@ video {
         messages.scrollTop = messages.scrollHeight;
       }
     }
-  </script></body>
-      </html>
+  </script>
+</body>
+</html>
