@@ -1,33 +1,31 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BattleBillions - Dual Live Battle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
-      font-family: 'Orbitron', sans-serif;
-      background: radial-gradient(circle at center, #0f0f0f 0%, #000000 100%);
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: white;
       overflow: hidden;
     }
     .stream-container {
       display: flex;
-      width: 100vw;
       height: 100vh;
+      width: 100vw;
       position: relative;
     }
     video.video-stream {
+      flex: 1;
+      object-fit: cover;
+      background-color: black;
       width: 50%;
       height: 100%;
-      object-fit: cover;
-      filter: brightness(1.05);
-      animation: screenPulse 7s infinite alternate;
-    }
-    @keyframes screenPulse {
-      0% { filter: brightness(1); }
-      100% { filter: brightness(1.1); }
     }
     .overlay {
       position: absolute;
@@ -40,205 +38,293 @@
       width: 100%;
       display: flex;
       justify-content: space-between;
-      padding: 12px 24px;
+      padding: 10px 20px;
       pointer-events: auto;
-      z-index: 10;
     }
     .top-bar {
       top: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
     }
     .bottom-bar {
       bottom: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
       align-items: center;
     }
     .nav-icon {
-      font-size: 20px;
+      font-size: 22px;
       color: white;
       cursor: pointer;
-      transition: transform 0.2s ease, color 0.3s;
-    }
-    .nav-icon:hover {
-      transform: scale(1.1);
-      color: #f0f0f0;
     }
     .side-controls.left, .side-controls.right {
       position: absolute;
+      bottom: 120px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      bottom: 140px;
+      gap: 10px;
       pointer-events: auto;
-      z-index: 11;
     }
-    .side-controls.left { left: 16px; }
-    .side-controls.right { right: 16px; }
+    .side-controls.left { left: 10px; }
+    .side-controls.right { right: 10px; }
     .side-button {
-      width: 48px;
-      height: 48px;
-      background: rgba(255,255,255,0.15);
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
-      color: #fff;
+      font-size: 20px;
       cursor: pointer;
-      backdrop-filter: blur(4px);
-      transition: background 0.3s, transform 0.2s;
-      animation: glowSpin 3s infinite linear;
-    }
-    @keyframes glowSpin {
-      0% { box-shadow: 0 0 5px #ff4d4d; }
-      50% { box-shadow: 0 0 15px #ff4d4d; }
-      100% { box-shadow: 0 0 5px #ff4d4d; }
-    }
-    .side-button:hover {
-      background: rgba(255,255,255,0.25);
-      transform: scale(1.1);
     }
     .profile-labels {
       position: absolute;
-      top: 64px;
+      top: 60px;
       left: 0;
       width: 100%;
       display: flex;
       justify-content: space-between;
-      padding: 0 24px;
-      z-index: 9;
+      padding: 0 20px;
     }
     .profile-entry {
       display: flex;
       align-items: center;
       gap: 10px;
       background: rgba(0,0,0,0.5);
-      padding: 8px 16px;
-      border-radius: 20px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.1);
-      transition: transform 0.2s;
-    }
-    .profile-entry:hover {
-      transform: scale(1.03);
+      padding: 6px 12px;
+      border-radius: 16px;
     }
     .profile-entry img {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
     }
     .round-timer {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 12px 24px;
+      border-radius: 30px;
       font-size: 18px;
       font-weight: bold;
       color: #fff;
       border: 2px solid #ff3c3c;
-      border-radius: 30px;
-      padding: 10px 24px;
-      box-shadow: 0 0 20px rgba(255, 60, 60, 0.6);
-      animation: fireAura 2s infinite;
+      box-shadow: 0 0 10px rgba(255, 60, 60, 0.5);
+      animation: pulse 2s infinite;
+      transition: all 0.3s ease-in-out;
     }
-    @keyframes fireAura {
-      0% { transform: scale(1); box-shadow: 0 0 5px #ff3c3c; }
-      50% { transform: scale(1.05); box-shadow: 0 0 15px #ff5e5e; }
-      100% { transform: scale(1); box-shadow: 0 0 5px #ff3c3c; }
+    .round-timer.animate {
+      animation: flicker 0.6s ease-in-out, pulse 2s infinite;
+      box-shadow: 0 0 20px rgba(255, 200, 0, 0.9);
+      background: rgba(255, 80, 0, 0.7);
     }
-    .music-player {
+    @keyframes pulse {
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.05); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+    @keyframes flicker {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    #startBattleBtn, #selectMusicBtn {
       position: absolute;
-      bottom: 70px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
+      background: red;
+      color: white;
+      font-size: 20px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
       z-index: 10;
       pointer-events: auto;
     }
-    .battle-button {
+    #startBattleBtn { display: none; }
+    #instrumentalList {
       position: absolute;
-      bottom: 20px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      background: #ff3c3c;
-      color: white;
-      font-size: 18px;
-      padding: 10px 30px;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      z-index: 12;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transform: translate(-50%, -50%);
+      background: #111;
+      border: 2px solid red;
+      border-radius: 10px;
+      padding: 20px;
+      z-index: 10;
+      display: none;
+      pointer-events: auto;
     }
-    .battle-button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px #ff3c3c;
+    #instrumentalList select {
+      width: 250px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    #instrumentalList button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: red;
+      color: white;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="stream-container">
-    <video class="video-stream" id="leftStream" autoplay muted></video>
-    <video class="video-stream" id="rightStream" autoplay muted></video><div class="overlay">
-  <div class="top-bar">
-    <div class="nav-icon" onclick="logout()">Logout</div>
-    <div class="nav-icon" onclick="goToBattleFeed()">Battle Feed</div>
-  </div>
+    <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+    <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
-  <div class="bottom-bar">
-    <div class="nav-icon" onclick="goHome()">🏠</div>
-    <div class="round-timer" id="timer">01:00</div>
-    <div class="nav-icon" onclick="goProfile()">👤</div>
-  </div>
-
-  <div class="side-controls left">
-    <div class="side-button" onclick="searchUsers()">🔍</div>
-    <div class="side-button" onclick="showLeaderboard()">🏆</div>
-  </div>
-
-  <div class="side-controls right">
-    <div class="side-button" onclick="sendGift()">🎁</div>
-    <div class="side-button" onclick="reportUser()">🚨</div>
-  </div>
-
-  <div class="profile-labels">
-    <div class="profile-entry">
-      <img src="https://via.placeholder.com/32" />
-      <span>Player One</span>
+    <div id="instrumentalList">
+      <select id="instrumentalSelect">
+        <option disabled selected>Select instrumental</option>
+        <option value="beat1.mp3">🔥 Classic Trap</option>
+        <option value="beat2.mp3">💥 Boom Bap</option>
+        <option value="beat3.mp3">🌊 Chill Vibes</option>
+        <option value="beat4.mp3">⚡ Fast Flow</option>
+      </select>
+      <button onclick="chooseInstrumental()">Confirm</button>
     </div>
-    <div class="profile-entry">
-      <img src="https://via.placeholder.com/32" />
-      <span>Player Two</span>
+
+    <button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
+
+    <div class="overlay">
+      <div class="top-bar">
+        <div class="nav-icon">🔴 LIVE</div>
+        <div class="nav-icon">👁️ 1.3k</div>
+      </div>
+
+      <div class="profile-labels">
+        <div class="profile-entry">
+          <img src="user1.jpg" alt="User 1">
+          <span>@You</span>
+        </div>
+        <div class="profile-entry">
+          <img src="user2.jpg" alt="User 2">
+          <span>@Opponent</span>
+        </div>
+      </div>
+
+      <div class="side-controls left">
+        <div class="side-button" onclick="goHome()">🏠</div>
+        <div class="side-button" onclick="searchBattle()">🔍</div>
+        <div class="side-button" onclick="logout()">🚪</div>
+      </div>
+
+      <div class="side-controls right">
+        <div class="side-button" onclick="openProfile()">👤</div>
+        <div class="side-button" onclick="openLeaderboard()">🏆</div>
+        <div class="side-button" onclick="openBattleFeed()">📺</div>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="nav-icon" onclick="goHome()">🏠</div>
+        <div class="nav-icon" onclick="searchBattle()">🔍</div>
+        <div class="nav-icon" onclick="openLeaderboard()">🏆</div>
+        <div class="nav-icon" onclick="openProfile()">👤</div>
+        <div class="nav-icon" onclick="openBattleFeed()">📺</div>
+      </div>
+
+      <div class="round-timer" id="roundTimer">
+        Select your instrumental to begin...
+      </div>
     </div>
   </div>
 
-  <div class="music-player">
-    <audio controls autoplay loop>
-      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-      Your browser does not support the audio element.
-    </audio>
-  </div>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
+  <audio id="battleTrack" controls hidden></audio>
 
-  <button class="battle-button" onclick="startBattle()">Start Battle</button>
-</div>
+  <script>
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: true
+        });
+        document.getElementById('localVideo').srcObject = stream;
+      } catch (err) {
+        console.error('Camera error:', err);
+        alert('Please allow camera and mic access.');
+      }
+    }
 
-  </div>  <script>
-    let timerSeconds = 60;
-    let timerDisplay = document.getElementById("timer");
+    function goHome() { alert('Home clicked'); }
+    function searchBattle() { alert('Search clicked'); }
+    function logout() { alert('Logging out...'); }
+    function openProfile() { alert('Opening Profile'); }
+    function openLeaderboard() { alert('Opening Leaderboard'); }
+    function openBattleFeed() { alert('Opening Battle Feed'); }
 
-    function startBattle() {
+    const timerDisplay = document.getElementById('roundTimer');
+    const sound = document.getElementById('roundEndSound');
+    const battleTrack = document.getElementById('battleTrack');
+    let round = 1;
+    let roundPart = 0;
+    let timeLeft = 33;
+
+    function triggerGlow() {
+      timerDisplay.classList.add('animate');
+      setTimeout(() => timerDisplay.classList.remove('animate'), 2000);
+    }
+
+    function runRoundPart() {
       const interval = setInterval(() => {
-        let min = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
-        let sec = (timerSeconds % 60).toString().padStart(2, '0');
-        timerDisplay.textContent = `${min}:${sec}`;
-        if (--timerSeconds < 0) {
+        timerDisplay.innerText = `Round ${round} of 3 | ${(roundPart === 0 ? '@You' : '@Opponent')} | ${timeLeft}s`;
+        timeLeft--;
+
+        if (timeLeft < 0) {
           clearInterval(interval);
-          timerDisplay.textContent = "🔥 Battle Over 🔥";
+          sound.play();
+
+          if (roundPart === 0) {
+            roundPart = 1;
+            timeLeft = 33;
+            timerDisplay.innerText = `Switching to Opponent...`;
+            setTimeout(runRoundPart, 6000);
+          } else {
+            if (round < 3) {
+              round++;
+              roundPart = 0;
+              timeLeft = 33;
+              timerDisplay.innerText = `Switching to Next Round...`;
+              setTimeout(runRoundPart, 6000);
+            } else {
+              timerDisplay.innerText = '🔥 Battle Over 🔥';
+              triggerGlow();
+            }
+          }
         }
       }, 1000);
     }
 
-    function logout() { alert("Logging out..."); }
-    function goToBattleFeed() { alert("Redirect to Battle Feed"); }
-    function goHome() { alert("Returning Home..."); }
-    function goProfile() { alert("Opening Profile..."); }
-    function searchUsers() { alert("Searching opponents..."); }
-    function showLeaderboard() { alert("Loading Leaderboard..."); }
-    function sendGift() { alert("Gift sent!"); }
-    function reportUser() { alert("User flagged for review."); }
-  </script></body>
-      </html>
+    function chooseInstrumental() {
+      const selected = document.getElementById('instrumentalSelect').value;
+      if (selected) {
+        document.getElementById('instrumentalList').style.display = 'none';
+        document.getElementById('startBattleBtn').style.display = 'block';
+        battleTrack.src = selected;
+        battleTrack.load();
+      }
+    }
+
+    function startBattle() {
+      document.getElementById('startBattleBtn').style.display = 'none';
+      battleTrack.play();
+      triggerGlow();
+      runRoundPart();
+    }
+
+    window.onload = () => {
+      startCamera();
+      document.getElementById('instrumentalList').style.display = 'block';
+    };
+  </script>
+</body>
+</html>
