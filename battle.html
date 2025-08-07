@@ -27,6 +27,32 @@
       color: #0ff;
     }
 
+    .round-label {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 20;
+      color: #0ff;
+    }
+
+    .timer-label {
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 20;
+      color: #0ff;
+    }
+
     .search-icon {
       position: fixed;
       top: 10px;
@@ -188,6 +214,8 @@
 
   <div class="search-icon">🔍</div>
   <div class="category-label" id="categoryLabel">ALL</div>
+  <div class="round-label" id="roundLabel">Round 1</div>
+  <div class="timer-label" id="timerLabel">60s</div>
 
   <div class="side-nav left" id="leftNav">
     <button>👤</button>
@@ -202,9 +230,7 @@
   </div>
 
   <div class="vertical-container" id="verticalContainer">
-    <!-- Categories -->
     <div class="horizontal-wrapper"> <!-- ALL -->
-      <!-- Duplicate arena sets here -->
       <div class="battle-arena">
         <div class="audience-top">
           <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
@@ -224,73 +250,6 @@
           </div>
         </div>
       </div>
-      <!-- Add more horizontal arenas as needed -->
-    </div>
-
-    <div class="horizontal-wrapper"> <!-- ART -->
-      <div class="battle-arena">
-        <div class="audience-top">
-          <div class="audience-seat" style="background-image: url('viewer7.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer8.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer9.jpg')" onclick="viewJoin(this)"></div>
-        </div>
-        <div class="battle-content">
-          <div class="video-half left">
-            <video autoplay muted loop src="user3.mp4"></video>
-            <div class="competitor-info"><img src="user3.jpg"><span>@Nova</span></div>
-            <button class="vote-btn">Vote</button>
-          </div>
-          <div class="video-half right">
-            <video autoplay muted loop src="user4.mp4"></video>
-            <div class="competitor-info"><img src="user4.jpg"><span>@Zion</span></div>
-            <button class="vote-btn">Vote</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="horizontal-wrapper"> <!-- FASHION -->
-      <div class="battle-arena">
-        <div class="audience-top">
-          <div class="audience-seat" style="background-image: url('viewer10.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer11.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer12.jpg')" onclick="viewJoin(this)"></div>
-        </div>
-        <div class="battle-content">
-          <div class="video-half left">
-            <video autoplay muted loop src="user5.mp4"></video>
-            <div class="competitor-info"><img src="user5.jpg"><span>@Solar</span></div>
-            <button class="vote-btn">Vote</button>
-          </div>
-          <div class="video-half right">
-            <video autoplay muted loop src="user6.mp4"></video>
-            <div class="competitor-info"><img src="user6.jpg"><span>@Luna</span></div>
-            <button class="vote-btn">Vote</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="horizontal-wrapper"> <!-- RAP BATTLE -->
-      <div class="battle-arena">
-        <div class="audience-top">
-          <div class="audience-seat" style="background-image: url('viewer13.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer14.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer15.jpg')" onclick="viewJoin(this)"></div>
-        </div>
-        <div class="battle-content">
-          <div class="video-half left">
-            <video autoplay muted loop src="user7.mp4"></video>
-            <div class="competitor-info"><img src="user7.jpg"><span>@Ghost</span></div>
-            <button class="vote-btn">Vote</button>
-          </div>
-          <div class="video-half right">
-            <video autoplay muted loop src="user8.mp4"></video>
-            <div class="competitor-info"><img src="user8.jpg"><span>@Blaze</span></div>
-            <button class="vote-btn">Vote</button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -300,9 +259,11 @@
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
     const categoryLabel = document.getElementById('categoryLabel');
+    const roundLabel = document.getElementById('roundLabel');
+    const timerLabel = document.getElementById('timerLabel');
     const categories = ['ALL', 'ART', 'FASHION', 'RAP'];
 
-    document.querySelectorAll('.horizontal-wrapper').forEach((wrapper, index) => {
+    document.querySelectorAll('.horizontal-wrapper').forEach((wrapper) => {
       wrapper.addEventListener('scroll', () => {
         leftNav.classList.add('hidden');
         rightNav.classList.add('hidden');
@@ -328,7 +289,29 @@
       const img = elem.style.backgroundImage.replace('url("', '').replace('")', '');
       target.poster = img;
     }
+
+    // Round and Timer logic
+    let round = 1;
+    let timer = 60;
+    let maxRounds = 3;
+    let timerInterval = setInterval(() => {
+      timer--;
+      if (timer > 0) {
+        timerLabel.innerText = `${timer}s`;
+      } else {
+        round++;
+        if (round > maxRounds) {
+          roundLabel.innerText = "Battle Over";
+          timerLabel.innerText = "0s";
+          clearInterval(timerInterval);
+        } else {
+          timer = 60;
+          roundLabel.innerText = `Round ${round}`;
+          timerLabel.innerText = `${timer}s`;
+        }
+      }
+    }, 1000);
   </script>
 
 </body>
-            </html>
+</html>
