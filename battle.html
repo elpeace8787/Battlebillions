@@ -148,6 +148,29 @@
     .video-half.left .vote-btn { left: 12px; }
     .video-half.right .vote-btn { right: 12px; }
 
+    .audience-section {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: #0ff;
+      z-index: 2;
+    }
+
+    .audience-avatars {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .audience-avatars img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+
     .side-nav {
       position: fixed;
       top: 50%;
@@ -211,8 +234,7 @@
   </div>
 
   <div class="vertical-container" id="verticalContainer">
-    <!-- CATEGORIES: ALL, ART, FASHION, RAP BATTLE -->
-    <!-- Repeat for each category with horizontal wrappers -->
+    <!-- CATEGORY: ALL -->
     <div class="horizontal-wrapper">
       <div class="battle-arena">
         <div class="battle-content">
@@ -220,81 +242,73 @@
             <video autoplay muted loop src="user1.mp4"></video>
             <div class="competitor-info"><img src="user1.jpg"><span>@Alpha</span></div>
             <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 239<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
           </div>
           <div class="video-half right">
             <video autoplay muted loop src="user2.mp4"></video>
             <div class="competitor-info"><img src="user2.jpg"><span>@Omega</span></div>
             <button class="vote-btn">Vote</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Duplicate arena for testing horizontal swipe -->
-      <div class="battle-arena">
-        <div class="battle-content">
-          <div class="video-half left">
-            <video autoplay muted loop src="user3.mp4"></video>
-            <div class="competitor-info"><img src="user3.jpg"><span>@Zeta</span></div>
-            <button class="vote-btn">Vote</button>
-          </div>
-          <div class="video-half right">
-            <video autoplay muted loop src="user4.mp4"></video>
-            <div class="competitor-info"><img src="user4.jpg"><span>@Sigma</span></div>
-            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 221<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- CATEGORY: ART -->
     <div class="horizontal-wrapper">
-      <!-- ART CATEGORY -->
       <div class="battle-arena">
         <div class="battle-content">
           <div class="video-half left">
             <video autoplay muted loop src="art1.mp4"></video>
             <div class="competitor-info"><img src="art1.jpg"><span>@BrushKing</span></div>
             <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 97<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
           </div>
           <div class="video-half right">
             <video autoplay muted loop src="art2.mp4"></video>
             <div class="competitor-info"><img src="art2.jpg"><span>@CanvasQueen</span></div>
             <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 105<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- CATEGORY: FASHION -->
     <div class="horizontal-wrapper">
-      <!-- FASHION CATEGORY -->
       <div class="battle-arena">
         <div class="battle-content">
           <div class="video-half left">
             <video autoplay muted loop src="fashion1.mp4"></video>
             <div class="competitor-info"><img src="fashion1.jpg"><span>@StyleIcon</span></div>
             <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 155<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
           </div>
           <div class="video-half right">
             <video autoplay muted loop src="fashion2.mp4"></video>
             <div class="competitor-info"><img src="fashion2.jpg"><span>@ThreadQueen</span></div>
             <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 144<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- CATEGORY: RAP BATTLE -->
     <div class="horizontal-wrapper">
-      <!-- RAP BATTLE CATEGORY -->
       <div class="battle-arena">
         <div class="battle-content">
           <div class="video-half left">
             <video autoplay muted loop src="rap1.mp4"></video>
             <div class="competitor-info"><img src="rap1.jpg"><span>@MicFlame</span></div>
             <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 312<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
           </div>
           <div class="video-half right">
             <video autoplay muted loop src="rap2.mp4"></video>
             <div class="competitor-info"><img src="rap2.jpg"><span>@LyricBeast</span></div>
             <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 333<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
           </div>
         </div>
       </div>
@@ -369,4 +383,4 @@
   </script>
 
 </body>
-              </html>
+  </html>
