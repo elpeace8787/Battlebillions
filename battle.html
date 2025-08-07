@@ -15,19 +15,10 @@
       overflow: hidden;
     }
 
-    .search-icon {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 20;
-      font-size: 18px;
-      color: #0ff;
-    }
-
     .vertical-container {
       height: 100vh;
       width: 100vw;
-      overflow-y: auto;
+      overflow-y: scroll;
       scroll-snap-type: y mandatory;
     }
 
@@ -36,7 +27,7 @@
       width: 100vw;
       height: 100vh;
       scroll-snap-align: start;
-      overflow-x: auto;
+      overflow-x: scroll;
       scroll-snap-type: x mandatory;
     }
 
@@ -115,7 +106,7 @@
 
     .vote-btn {
       position: absolute;
-      bottom: 20px;
+      bottom: 60px;
       padding: 8px 16px;
       border-radius: 30px;
       background: rgba(0,255,255,0.2);
@@ -128,6 +119,35 @@
 
     .video-half.left .vote-btn { left: 12px; }
     .video-half.right .vote-btn { right: 12px; }
+
+    .chat-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      gap: 8px;
+      z-index: 4;
+    }
+
+    .chat-bar input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 20px;
+      border: none;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .chat-bar button {
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: none;
+      background: #0ff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
     .side-nav {
       position: fixed;
@@ -158,13 +178,10 @@
     @media (max-width: 768px) {
       .competitor-info span { font-size: 12px; }
       .vote-btn { font-size: 12px; padding: 6px 10px; }
-      .search-icon { font-size: 16px; padding: 6px; }
     }
   </style>
 </head>
 <body>
-
-  <div class="search-icon">🔍</div>
 
   <div class="side-nav left" id="leftNav">
     <button>👤</button>
@@ -179,9 +196,7 @@
   </div>
 
   <div class="vertical-container" id="verticalContainer">
-    <!-- ROW 1 -->
     <div class="horizontal-wrapper">
-      <!-- Arena 1 -->
       <div class="battle-arena">
         <div class="audience-top">
           <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
@@ -196,6 +211,10 @@
               <span>@Alpha</span>
             </div>
             <button class="vote-btn">Vote</button>
+            <div class="chat-bar">
+              <input type="text" placeholder="Chat here...">
+              <button>Send</button>
+            </div>
           </div>
           <div class="video-half right">
             <video autoplay muted loop src="user2.mp4"></video>
@@ -204,78 +223,33 @@
               <span>@Omega</span>
             </div>
             <button class="vote-btn">Vote</button>
+            <div class="chat-bar">
+              <input type="text" placeholder="Chat here...">
+              <button>Send</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Arena 2 -->
-      <div class="battle-arena">
-        <div class="audience-top">
-          <div class="audience-seat" style="background-image: url('viewer7.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer8.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer9.jpg')" onclick="viewJoin(this)"></div>
-        </div>
-        <div class="battle-content">
-          <div class="video-half left">
-            <video autoplay muted loop src="user3.mp4"></video>
-            <div class="competitor-info">
-              <img src="user3.jpg" />
-              <span>@Nova</span>
-            </div>
-            <button class="vote-btn">Vote</button>
-          </div>
-          <div class="video-half right">
-            <video autoplay muted loop src="user4.mp4"></video>
-            <div class="competitor-info">
-              <img src="user4.jpg" />
-              <span>@Zion</span>
-            </div>
-            <button class="vote-btn">Vote</button>
-          </div>
-        </div>
-      </div>
-    </div>
+      <!-- Add more arenas here if needed -->
 
-    <!-- ROW 2 -->
-    <div class="horizontal-wrapper">
-      <!-- Arena 3 -->
-      <div class="battle-arena">
-        <div class="audience-top">
-          <div class="audience-seat" style="background-image: url('viewer13.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer14.jpg')" onclick="viewJoin(this)"></div>
-          <div class="audience-seat" style="background-image: url('viewer15.jpg')" onclick="viewJoin(this)"></div>
-        </div>
-        <div class="battle-content">
-          <div class="video-half left">
-            <video autoplay muted loop src="user5.mp4"></video>
-            <div class="competitor-info">
-              <img src="user5.jpg" />
-              <span>@Solar</span>
-            </div>
-            <button class="vote-btn">Vote</button>
-          </div>
-          <div class="video-half right">
-            <video autoplay muted loop src="user6.mp4"></video>
-            <div class="competitor-info">
-              <img src="user6.jpg" />
-              <span>@Luna</span>
-            </div>
-            <button class="vote-btn">Vote</button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
   <script>
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
-    let lastScrollX = 0;
 
-    document.querySelectorAll('.horizontal-wrapper').forEach(wrapper => {
+    let lastScrollX = 0;
+    let lastScrollY = 0;
+
+    const horizontalWrappers = document.querySelectorAll('.horizontal-wrapper');
+    const verticalContainer = document.getElementById('verticalContainer');
+
+    horizontalWrappers.forEach(wrapper => {
       wrapper.addEventListener('scroll', () => {
         let currentScrollX = wrapper.scrollLeft;
-        if (currentScrollX > lastScrollX) {
+        if (currentScrollX !== lastScrollX) {
           leftNav.classList.add('hidden');
           rightNav.classList.add('hidden');
         } else {
@@ -284,6 +258,18 @@
         }
         lastScrollX = currentScrollX;
       });
+    });
+
+    verticalContainer.addEventListener('scroll', () => {
+      let currentScrollY = verticalContainer.scrollTop;
+      if (currentScrollY !== lastScrollY) {
+        leftNav.classList.add('hidden');
+        rightNav.classList.add('hidden');
+      } else {
+        leftNav.classList.remove('hidden');
+        rightNav.classList.remove('hidden');
+      }
+      lastScrollY = currentScrollY;
     });
 
     function viewJoin(elem) {
@@ -295,4 +281,4 @@
     }
   </script>
 </body>
-</html>
+            </html>
