@@ -15,10 +15,31 @@
       overflow: hidden;
     }
 
+    .category-label {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,255,255,0.15);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 20;
+      color: #0ff;
+    }
+
+    .search-icon {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 20;
+      font-size: 18px;
+      color: #0ff;
+    }
+
     .vertical-container {
       height: 100vh;
       width: 100vw;
-      overflow-y: scroll;
+      overflow-y: auto;
       scroll-snap-type: y mandatory;
     }
 
@@ -27,7 +48,7 @@
       width: 100vw;
       height: 100vh;
       scroll-snap-align: start;
-      overflow-x: scroll;
+      overflow-x: auto;
       scroll-snap-type: x mandatory;
     }
 
@@ -106,7 +127,7 @@
 
     .vote-btn {
       position: absolute;
-      bottom: 60px;
+      bottom: 70px;
       padding: 8px 16px;
       border-radius: 30px;
       background: rgba(0,255,255,0.2);
@@ -119,35 +140,6 @@
 
     .video-half.left .vote-btn { left: 12px; }
     .video-half.right .vote-btn { right: 12px; }
-
-    .chat-bar {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      right: 10px;
-      display: flex;
-      gap: 8px;
-      z-index: 4;
-    }
-
-    .chat-bar input {
-      flex: 1;
-      padding: 8px;
-      border-radius: 20px;
-      border: none;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .chat-bar button {
-      padding: 8px 12px;
-      border-radius: 20px;
-      border: none;
-      background: #0ff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
 
     .side-nav {
       position: fixed;
@@ -175,13 +167,27 @@
 
     .hidden { opacity: 0; }
 
+    .chat-placeholder {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #888;
+      font-size: 12px;
+      z-index: 5;
+    }
+
     @media (max-width: 768px) {
       .competitor-info span { font-size: 12px; }
       .vote-btn { font-size: 12px; padding: 6px 10px; }
+      .search-icon { font-size: 16px; padding: 6px; }
     }
   </style>
 </head>
 <body>
+
+  <div class="search-icon">🔍</div>
+  <div class="category-label" id="categoryLabel">ALL</div>
 
   <div class="side-nav left" id="leftNav">
     <button>👤</button>
@@ -196,7 +202,9 @@
   </div>
 
   <div class="vertical-container" id="verticalContainer">
-    <div class="horizontal-wrapper">
+    <!-- Categories -->
+    <div class="horizontal-wrapper"> <!-- ALL -->
+      <!-- Duplicate arena sets here -->
       <div class="battle-arena">
         <div class="audience-top">
           <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
@@ -206,70 +214,111 @@
         <div class="battle-content">
           <div class="video-half left">
             <video autoplay muted loop src="user1.mp4"></video>
-            <div class="competitor-info">
-              <img src="user1.jpg" />
-              <span>@Alpha</span>
-            </div>
+            <div class="competitor-info"><img src="user1.jpg"><span>@Alpha</span></div>
             <button class="vote-btn">Vote</button>
-            <div class="chat-bar">
-              <input type="text" placeholder="Chat here...">
-              <button>Send</button>
-            </div>
           </div>
           <div class="video-half right">
             <video autoplay muted loop src="user2.mp4"></video>
-            <div class="competitor-info">
-              <img src="user2.jpg" />
-              <span>@Omega</span>
-            </div>
+            <div class="competitor-info"><img src="user2.jpg"><span>@Omega</span></div>
             <button class="vote-btn">Vote</button>
-            <div class="chat-bar">
-              <input type="text" placeholder="Chat here...">
-              <button>Send</button>
-            </div>
           </div>
         </div>
       </div>
+      <!-- Add more horizontal arenas as needed -->
+    </div>
 
-      <!-- Add more arenas here if needed -->
+    <div class="horizontal-wrapper"> <!-- ART -->
+      <div class="battle-arena">
+        <div class="audience-top">
+          <div class="audience-seat" style="background-image: url('viewer7.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer8.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer9.jpg')" onclick="viewJoin(this)"></div>
+        </div>
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="user3.mp4"></video>
+            <div class="competitor-info"><img src="user3.jpg"><span>@Nova</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="user4.mp4"></video>
+            <div class="competitor-info"><img src="user4.jpg"><span>@Zion</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div class="horizontal-wrapper"> <!-- FASHION -->
+      <div class="battle-arena">
+        <div class="audience-top">
+          <div class="audience-seat" style="background-image: url('viewer10.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer11.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer12.jpg')" onclick="viewJoin(this)"></div>
+        </div>
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="user5.mp4"></video>
+            <div class="competitor-info"><img src="user5.jpg"><span>@Solar</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="user6.mp4"></video>
+            <div class="competitor-info"><img src="user6.jpg"><span>@Luna</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizontal-wrapper"> <!-- RAP BATTLE -->
+      <div class="battle-arena">
+        <div class="audience-top">
+          <div class="audience-seat" style="background-image: url('viewer13.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer14.jpg')" onclick="viewJoin(this)"></div>
+          <div class="audience-seat" style="background-image: url('viewer15.jpg')" onclick="viewJoin(this)"></div>
+        </div>
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="user7.mp4"></video>
+            <div class="competitor-info"><img src="user7.jpg"><span>@Ghost</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="user8.mp4"></video>
+            <div class="competitor-info"><img src="user8.jpg"><span>@Blaze</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="chat-placeholder">💬 Chat feature coming soon...</div>
 
   <script>
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
+    const categoryLabel = document.getElementById('categoryLabel');
+    const categories = ['ALL', 'ART', 'FASHION', 'RAP BATTLE'];
 
-    let lastScrollX = 0;
-    let lastScrollY = 0;
-
-    const horizontalWrappers = document.querySelectorAll('.horizontal-wrapper');
-    const verticalContainer = document.getElementById('verticalContainer');
-
-    horizontalWrappers.forEach(wrapper => {
+    document.querySelectorAll('.horizontal-wrapper').forEach((wrapper, index) => {
       wrapper.addEventListener('scroll', () => {
-        let currentScrollX = wrapper.scrollLeft;
-        if (currentScrollX !== lastScrollX) {
-          leftNav.classList.add('hidden');
-          rightNav.classList.add('hidden');
-        } else {
+        leftNav.classList.add('hidden');
+        rightNav.classList.add('hidden');
+        clearTimeout(wrapper.hideTimeout);
+        wrapper.hideTimeout = setTimeout(() => {
           leftNav.classList.remove('hidden');
           rightNav.classList.remove('hidden');
-        }
-        lastScrollX = currentScrollX;
+        }, 1000);
       });
     });
 
-    verticalContainer.addEventListener('scroll', () => {
-      let currentScrollY = verticalContainer.scrollTop;
-      if (currentScrollY !== lastScrollY) {
-        leftNav.classList.add('hidden');
-        rightNav.classList.add('hidden');
-      } else {
-        leftNav.classList.remove('hidden');
-        rightNav.classList.remove('hidden');
-      }
-      lastScrollY = currentScrollY;
+    document.getElementById('verticalContainer').addEventListener('scroll', (e) => {
+      const scrollTop = e.target.scrollTop;
+      const containerHeight = window.innerHeight;
+      const verticalIndex = Math.round(scrollTop / containerHeight);
+      categoryLabel.innerText = categories[verticalIndex] || 'ALL';
     });
 
     function viewJoin(elem) {
@@ -280,5 +329,6 @@
       target.poster = img;
     }
   </script>
+
 </body>
             </html>
