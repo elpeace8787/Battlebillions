@@ -87,24 +87,6 @@
       justify-content: space-between;
     }
 
-    .audience-top {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 6px;
-      z-index: 5;
-    }
-
-    .audience-seat {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid #0ff;
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-    }
-
     .battle-content {
       flex: 1;
       display: flex;
@@ -232,8 +214,6 @@
   <div class="vertical-container" id="verticalContainer">
     <div class="horizontal-wrapper"> <!-- ALL -->
       <div class="battle-arena">
-        
-        </div>
         <div class="battle-content">
           <div class="video-half left">
             <video autoplay muted loop src="user1.mp4"></video>
@@ -279,35 +259,43 @@
       categoryLabel.innerText = categories[verticalIndex] || 'ALL';
     });
 
-    function viewJoin(elem) {
-      const videoHalves = document.querySelectorAll('.video-half');
-      const rand = Math.floor(Math.random() * videoHalves.length);
-      const target = videoHalves[rand].querySelector("video");
-      const img = elem.style.backgroundImage.replace('url("', '').replace('")', '');
-      target.poster = img;
-    }
-
-    // Round and Timer logic
+    // Round and Timer logic with 6s pause
     let round = 1;
     let timer = 60;
-    let maxRounds = 3;
-    let timerInterval = setInterval(() => {
-      timer--;
-      if (timer > 0) {
-        timerLabel.innerText = `${timer}s`;
-      } else {
-        round++;
-        if (round > maxRounds) {
-          roundLabel.innerText = "Battle Over";
-          timerLabel.innerText = "0s";
-          clearInterval(timerInterval);
-        } else {
-          timer = 60;
-          roundLabel.innerText = `Round ${round}`;
+    const maxRounds = 3;
+    let inPause = false;
+
+    const updateTimerUI = () => {
+      roundLabel.innerText = `Round ${round}`;
+      timerLabel.innerText = `${timer}s`;
+    };
+
+    const startTimer = () => {
+      updateTimerUI();
+      const interval = setInterval(() => {
+        if (timer > 0) {
+          timer--;
           timerLabel.innerText = `${timer}s`;
+        } else {
+          clearInterval(interval);
+          if (round < maxRounds) {
+            round++;
+            inPause = true;
+            timerLabel.innerText = "⏸ Pause...";
+            setTimeout(() => {
+              timer = 60;
+              inPause = false;
+              startTimer();
+            }, 6000);
+          } else {
+            roundLabel.innerText = "Battle Over";
+            timerLabel.innerText = "0s";
+          }
         }
-      }
-    }, 1000);
+      }, 1000);
+    };
+
+    startTimer();
   </script>
 
 </body>
