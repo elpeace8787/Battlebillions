@@ -84,7 +84,6 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
 
     .battle-content {
@@ -109,7 +108,7 @@
 
     .competitor-info {
       position: absolute;
-      top: 80px; /* moved down */
+      top: 80px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -212,7 +211,9 @@
   </div>
 
   <div class="vertical-container" id="verticalContainer">
-    <div class="horizontal-wrapper"> <!-- ALL -->
+    <!-- CATEGORIES: ALL, ART, FASHION, RAP BATTLE -->
+    <!-- Repeat for each category with horizontal wrappers -->
+    <div class="horizontal-wrapper">
       <div class="battle-arena">
         <div class="battle-content">
           <div class="video-half left">
@@ -223,6 +224,76 @@
           <div class="video-half right">
             <video autoplay muted loop src="user2.mp4"></video>
             <div class="competitor-info"><img src="user2.jpg"><span>@Omega</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Duplicate arena for testing horizontal swipe -->
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="user3.mp4"></video>
+            <div class="competitor-info"><img src="user3.jpg"><span>@Zeta</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="user4.mp4"></video>
+            <div class="competitor-info"><img src="user4.jpg"><span>@Sigma</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizontal-wrapper">
+      <!-- ART CATEGORY -->
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="art1.mp4"></video>
+            <div class="competitor-info"><img src="art1.jpg"><span>@BrushKing</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="art2.mp4"></video>
+            <div class="competitor-info"><img src="art2.jpg"><span>@CanvasQueen</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizontal-wrapper">
+      <!-- FASHION CATEGORY -->
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="fashion1.mp4"></video>
+            <div class="competitor-info"><img src="fashion1.jpg"><span>@StyleIcon</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="fashion2.mp4"></video>
+            <div class="competitor-info"><img src="fashion2.jpg"><span>@ThreadQueen</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizontal-wrapper">
+      <!-- RAP BATTLE CATEGORY -->
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="rap1.mp4"></video>
+            <div class="competitor-info"><img src="rap1.jpg"><span>@MicFlame</span></div>
+            <button class="vote-btn">Vote</button>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="rap2.mp4"></video>
+            <div class="competitor-info"><img src="rap2.jpg"><span>@LyricBeast</span></div>
             <button class="vote-btn">Vote</button>
           </div>
         </div>
@@ -238,7 +309,7 @@
     const categoryLabel = document.getElementById('categoryLabel');
     const roundLabel = document.getElementById('roundLabel');
     const timerLabel = document.getElementById('timerLabel');
-    const categories = ['ALL', 'ART', 'FASHION', 'RAP'];
+    const categories = ['ALL', 'ART', 'FASHION', 'RAP BATTLE'];
 
     document.querySelectorAll('.horizontal-wrapper').forEach((wrapper) => {
       wrapper.addEventListener('scroll', () => {
@@ -298,4 +369,4 @@
   </script>
 
 </body>
-  </html>
+              </html>
