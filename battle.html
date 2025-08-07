@@ -24,7 +24,7 @@
   border-radius: 50%;
 }
 
-.battle-swipe-container {
+.battle-vertical-container {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -33,13 +33,22 @@
   width: 100vw;
 }
 
+.battle-swipe-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  height: 100vh;
+  width: 100vw;
+}
+
 .battle-arena {
+  flex: 0 0 100%;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
   position: relative;
+  height: 100vh;
 }
 
 .audience-top, .audience-bottom {
@@ -148,73 +157,15 @@ video {
 
 .hidden { opacity: 0; }
 
-.chat-container {
-  position: absolute;
-  bottom: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70%;
-  max-width: 360px;
-  background: rgba(0,0,0,0.7);
-  border-radius: 10px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  opacity: 0;
-  animation: fadeIn 2s forwards;
-  z-index: 999;
-}
-
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-
-.chat-messages {
-  max-height: 120px;
-  overflow-y: auto;
-  font-size: 12px;
-  padding-right: 6px;
-}
-
-.chat-messages div { margin-bottom: 4px; }
-
-.chat-input {
-  display: flex;
-  gap: 6px;
-}
-
-.chat-input input {
-  flex: 1;
-  padding: 6px;
-  font-size: 12px;
-  border-radius: 8px;
-  background: #111;
-  color: white;
-  border: 1px solid #444;
-}
-
-.chat-input button {
-  padding: 6px 10px;
-  font-size: 12px;
-  background: #0ff;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
 @media (max-width: 768px) {
   .competitor-info span { font-size: 12px; }
   .vote-btn { font-size: 12px; padding: 6px 10px; }
-  .chat-input input, .chat-input button { font-size: 12px; }
   .search-icon { font-size: 16px; padding: 6px; }
 }
 
   </style>
 </head>
-<body>
-  <div class="search-icon">🔍</div>  <div class="side-nav left" id="leftNav">
+<body>  <div class="search-icon">🔍</div>  <div class="side-nav left" id="leftNav">
     <button>👤</button>
     <button>📺</button>
     <button>🏆</button>
@@ -222,93 +173,74 @@ video {
     <button>🏠</button>
     <button>💬</button>
     <button>⚙️</button>
-  </div>  <div class="battle-swipe-container" id="battleSwipe">
-    <div class="battle-arena">
-      <div class="audience-top">
-        <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer2.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer3.jpg')" onclick="viewJoin(this)"></div>
-      </div>
-      <div class="battle-content">
-        <div class="video-half left">
-          <video autoplay muted loop src="user1.mp4"></video>
-          <div class="competitor-info">
-            <img src="user1.jpg" />
-            <span>@Alpha</span>
+  </div>  <div class="battle-vertical-container" id="verticalSwipe">
+    <div class="battle-swipe-container" id="horizontalSwipe">
+      <div class="battle-arena">
+        <div class="audience-top">
+          <div class="audience-seat" style="background-image: url('viewer1.jpg')"></div>
+          <div class="audience-seat" style="background-image: url('viewer2.jpg')"></div>
+          <div class="audience-seat" style="background-image: url('viewer3.jpg')"></div>
+        </div>
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="user1.mp4"></video>
+            <div class="competitor-info">
+              <img src="user1.jpg" />
+              <span>@Alpha</span>
+            </div>
+            <button class="vote-btn">Vote</button>
           </div>
-          <button class="vote-btn">Vote</button>
-        </div>
-        <div class="video-half right">
-          <video autoplay muted loop src="user2.mp4"></video>
-          <div class="competitor-info">
-            <img src="user2.jpg" />
-            <span>@Omega</span>
+          <div class="video-half right">
+            <video autoplay muted loop src="user2.mp4"></video>
+            <div class="competitor-info">
+              <img src="user2.jpg" />
+              <span>@Omega</span>
+            </div>
+            <button class="vote-btn">Vote</button>
           </div>
-          <button class="vote-btn">Vote</button>
         </div>
-      </div>
-      <div class="chat-container">
-        <div class="chat-messages" id="chatMessages1"></div>
-        <div class="chat-input">
-          <input type="text" id="chatInput1" placeholder="Type a message..." />
-          <button onclick="sendMessage('chatInput1', 'chatMessages1')">Send</button>
+        <div class="audience-bottom">
+          <div class="audience-seat" style="background-image: url('viewer4.jpg')"></div>
+          <div class="audience-seat" style="background-image: url('viewer5.jpg')"></div>
+          <div class="audience-seat" style="background-image: url('viewer6.jpg')"></div>
         </div>
-      </div>
-      <div class="audience-bottom">
-        <div class="audience-seat" style="background-image: url('viewer4.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer5.jpg')" onclick="viewJoin(this)"></div>
-        <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
       </div>
     </div>
   </div>  <script>
-    const main = document.getElementById('battleSwipe');
+    const verticalSwipe = document.getElementById('verticalSwipe');
+    const horizontalSwipe = document.getElementById('horizontalSwipe');
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
-    let lastScrollY = 0;
 
-    main.addEventListener('scroll', () => {
-      let currentScrollY = main.scrollTop;
-      if (currentScrollY > lastScrollY) {
+    let lastScrollLeft = 0;
+    horizontalSwipe.addEventListener('scroll', () => {
+      const currentScroll = horizontalSwipe.scrollLeft;
+      if (currentScroll > lastScrollLeft) {
         leftNav.classList.add('hidden');
         rightNav.classList.add('hidden');
       } else {
         leftNav.classList.remove('hidden');
         rightNav.classList.remove('hidden');
       }
-      lastScrollY = currentScrollY;
+      lastScrollLeft = currentScroll;
     });
 
-    function sendMessage(inputId, messagesId) {
-      const input = document.getElementById(inputId);
-      const messages = document.getElementById(messagesId);
-      const msg = input.value.trim();
-      if (msg) {
-        const div = document.createElement("div");
-        div.textContent = "You: " + msg;
-        messages.appendChild(div);
-        input.value = "";
-        messages.scrollTop = messages.scrollHeight;
-      }
-    }
+    let startX = 0, startY = 0;
 
-    function viewJoin(elem) {
-      const battleHalf = document.querySelectorAll('.video-half');
-      const rand = Math.floor(Math.random() * battleHalf.length);
-      const container = battleHalf[rand];
-      const imgURL = elem.style.backgroundImage;
-      container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
-    }
-
-    let touchStartY = 0;
-    main.addEventListener("touchstart", e => {
-      touchStartY = e.touches[0].clientY;
+    verticalSwipe.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
     });
-    main.addEventListener("touchend", e => {
-      const touchEndY = e.changedTouches[0].clientY;
-      const deltaY = touchEndY - touchStartY;
-      if (Math.abs(deltaY) > 50) {
-        if (deltaY < 0) main.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-        else main.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+
+    verticalSwipe.addEventListener("touchend", e => {
+      const deltaX = e.changedTouches[0].clientX - startX;
+      const deltaY = e.changedTouches[0].clientY - startY;
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (deltaY < -30) verticalSwipe.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+        else if (deltaY > 30) verticalSwipe.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+      } else {
+        if (deltaX < -30) horizontalSwipe.scrollBy({ left: window.innerWidth, behavior: 'smooth' });
+        else if (deltaX > 30) horizontalSwipe.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
       }
     });
   </script></body>
