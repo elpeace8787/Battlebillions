@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -13,226 +12,217 @@
       color: white;
       font-family: 'Orbitron', sans-serif;
       overflow: hidden;
-    }
+    }.search-icon {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 20;
+  font-size: 18px;
+  color: #0ff;
+  background: none;
+  padding: 8px;
+  border-radius: 50%;
+}
 
-    .search-icon {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 20;
-      font-size: 18px;
-      color: #0ff;
-      background: none;
-      padding: 8px;
-      border-radius: 50%;
-    }
+.battle-swipe-container {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  height: 100vh;
+  width: 100vw;
+}
 
-    .battle-swipe-container {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      height: 100vh;
-      width: 100vw;
-    }
+.battle-arena {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  position: relative;
+}
 
-    .battle-arena {
-      flex: 0 0 100%;
-      scroll-snap-align: start;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      height: 100vh;
-    }
+.audience-top, .audience-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px;
+  z-index: 5;
+}
 
-    .audience-top, .audience-bottom {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 6px;
-      z-index: 5;
-    }
+.audience-seat {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #0ff;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+}
 
-    .audience-seat {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid #0ff;
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-    }
+.battle-content {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
 
-    .battle-content {
-      flex: 1;
-      display: flex;
-      height: 100%;
-    }
+.video-half {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-    .video-half {
-      flex: 1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+.competitor-info {
+  position: absolute;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 12px;
+  border-radius: 20px;
+  z-index: 3;
+}
 
-    .competitor-info {
-      position: absolute;
-      top: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,0,0,0.6);
-      padding: 6px 12px;
-      border-radius: 20px;
-      z-index: 3;
-    }
+.video-half.left .competitor-info { left: 12px; }
+.video-half.right .competitor-info { right: 12px; }
 
-    .video-half.left .competitor-info { left: 12px; }
-    .video-half.right .competitor-info { right: 12px; }
+.competitor-info img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
 
-    .competitor-info img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-    }
+.competitor-info span {
+  font-size: 14px;
+  color: #0ff;
+}
 
-    .competitor-info span {
-      font-size: 14px;
-      color: #0ff;
-    }
+.vote-btn {
+  position: absolute;
+  bottom: 20px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background: rgba(0,255,255,0.2);
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 3;
+  border: none;
+}
 
-    .vote-btn {
-      position: absolute;
-      bottom: 20px;
-      padding: 8px 16px;
-      border-radius: 30px;
-      background: rgba(0,255,255,0.2);
-      color: #fff;
-      cursor: pointer;
-      font-size: 14px;
-      z-index: 3;
-      border: none;
-    }
+.video-half.left .vote-btn { left: 12px; }
+.video-half.right .vote-btn { right: 12px; }
 
-    .video-half.left .vote-btn { left: 12px; }
-    .video-half.right .vote-btn { right: 12px; }
+.side-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 10;
+  transition: opacity 0.4s;
+}
 
-    .side-nav {
-      position: fixed;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      z-index: 10;
-      transition: opacity 0.4s;
-    }
+.side-nav.left { left: 8px; }
+.side-nav.right { right: 8px; }
 
-    .side-nav.left { left: 8px; }
-    .side-nav.right { right: 8px; }
+.side-nav button {
+  background: none;
+  padding: 10px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: #0ff;
+  cursor: pointer;
+  border: none;
+}
 
-    .side-nav button {
-      background: none;
-      padding: 10px;
-      border-radius: 50%;
-      font-size: 18px;
-      color: #0ff;
-      cursor: pointer;
-      border: none;
-    }
+.hidden { opacity: 0; }
 
-    .hidden { opacity: 0; }
+.chat-container {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  max-width: 360px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  animation: fadeIn 2s forwards;
+  z-index: 999;
+}
 
-    .chat-container {
-      position: absolute;
-      bottom: 120px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 70%;
-      max-width: 360px;
-      background: rgba(0,0,0,0.7);
-      border-radius: 10px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      z-index: 999;
-    }
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
+.chat-messages {
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 12px;
+  padding-right: 6px;
+}
 
-    .chat-messages {
-      max-height: 120px;
-      overflow-y: auto;
-      font-size: 12px;
-      padding-right: 6px;
-    }
+.chat-messages div { margin-bottom: 4px; }
 
-    .chat-messages div { margin-bottom: 4px; }
+.chat-input {
+  display: flex;
+  gap: 6px;
+}
 
-    .chat-input {
-      display: flex;
-      gap: 6px;
-    }
+.chat-input input {
+  flex: 1;
+  padding: 6px;
+  font-size: 12px;
+  border-radius: 8px;
+  background: #111;
+  color: white;
+  border: 1px solid #444;
+}
 
-    .chat-input input {
-      flex: 1;
-      padding: 6px;
-      font-size: 12px;
-      border-radius: 8px;
-      background: #111;
-      color: white;
-      border: 1px solid #444;
-    }
+.chat-input button {
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #0ff;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
-    .chat-input button {
-      padding: 6px 10px;
-      font-size: 12px;
-      background: #0ff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+@media (max-width: 768px) {
+  .competitor-info span { font-size: 12px; }
+  .vote-btn { font-size: 12px; padding: 6px 10px; }
+  .chat-input input, .chat-input button { font-size: 12px; }
+  .search-icon { font-size: 16px; padding: 6px; }
+}
 
-    @media (max-width: 768px) {
-      .competitor-info span { font-size: 12px; }
-      .vote-btn { font-size: 12px; padding: 6px 10px; }
-      .chat-input input, .chat-input button { font-size: 12px; }
-      .search-icon { font-size: 16px; padding: 6px; }
-    }
   </style>
 </head>
 <body>
-
-  <div class="search-icon">🔍</div>
-
-  <div class="side-nav left" id="leftNav">
+  <div class="search-icon">🔍</div>  <div class="side-nav left" id="leftNav">
     <button>👤</button>
     <button>📺</button>
     <button>🏆</button>
-  </div>
-
-  <div class="side-nav right" id="rightNav">
+  </div>  <div class="side-nav right" id="rightNav">
     <button>🏠</button>
     <button>💬</button>
     <button>⚙️</button>
-  </div>
-
-  <div class="battle-swipe-container" id="battleSwipe">
-    <!-- Arena 1 -->
+  </div>  <div class="battle-swipe-container" id="battleSwipe">
     <div class="battle-arena">
       <div class="audience-top">
         <div class="audience-seat" style="background-image: url('viewer1.jpg')" onclick="viewJoin(this)"></div>
@@ -270,25 +260,22 @@
         <div class="audience-seat" style="background-image: url('viewer6.jpg')" onclick="viewJoin(this)"></div>
       </div>
     </div>
-    <!-- Add more .battle-arena divs here for more battles -->
-  </div>
-
-  <script>
+  </div>  <script>
     const main = document.getElementById('battleSwipe');
     const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
-    let lastScroll = 0;
+    let lastScrollY = 0;
 
     main.addEventListener('scroll', () => {
-      let currentScroll = main.scrollLeft;
-      if (currentScroll > lastScroll) {
+      let currentScrollY = main.scrollTop;
+      if (currentScrollY > lastScrollY) {
         leftNav.classList.add('hidden');
         rightNav.classList.add('hidden');
       } else {
         leftNav.classList.remove('hidden');
         rightNav.classList.remove('hidden');
       }
-      lastScroll = currentScroll;
+      lastScrollY = currentScrollY;
     });
 
     function sendMessage(inputId, messagesId) {
@@ -312,28 +299,17 @@
       container.querySelector('video').poster = imgURL.replace('url("', '').replace('")', '');
     }
 
-    // Full swipe control (horizontal + vertical)
-    let startX = 0, startY = 0;
-
-    document.addEventListener("touchstart", e => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
+    let touchStartY = 0;
+    main.addEventListener("touchstart", e => {
+      touchStartY = e.touches[0].clientY;
     });
-
-    document.addEventListener("touchend", e => {
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
-      const deltaX = endX - startX;
-      const deltaY = endY - startY;
-
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX < -30) main.scrollBy({ left: window.innerWidth, behavior: "smooth" });
-        else if (deltaX > 30) main.scrollBy({ left: -window.innerWidth, behavior: "smooth" });
-      } else {
-        if (deltaY < -30) window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
-        else if (deltaY > 30) window.scrollBy({ top: -window.innerHeight, behavior: "smooth" });
+    main.addEventListener("touchend", e => {
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchEndY - touchStartY;
+      if (Math.abs(deltaY) > 50) {
+        if (deltaY < 0) main.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+        else main.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
       }
     });
-  </script>
-</body>
+  </script></body>
 </html>
