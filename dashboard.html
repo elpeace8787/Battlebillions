@@ -47,11 +47,40 @@
       100%{ transform: translateY(2%) translateX(1%); }
     }
 
-    .screen { position: absolute; inset: 0; display: none; }
-    .screen.active { display: block; }
+    /* ====== Global Chrome (always visible) ====== */
+    .app-topbar, .app-tabbar{
+      position:fixed; left:0; right:0; z-index:1000; background:rgba(17,18,20,.80);
+      backdrop-filter: blur(8px);
+      border-bottom:1px solid var(--stroke);
+    }
+    .app-topbar{ top:0; height:44px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.5px; }
+    .brand-badge{ width:22px; height:22px; border-radius:7px; background:#fff; color:#000; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; }
+    .top-right{ display:flex; gap:10px; align-items:center; }
+    .chip{ font-size:12px; color:var(--ink-2); padding:6px 10px; border:1px solid var(--stroke); border-radius:10px; background:rgba(255,255,255,.05); }
 
+    .app-tabbar{
+      bottom:0; height:58px; border-top:1px solid var(--stroke); border-bottom:none;
+      display:grid; grid-template-columns: repeat(5, 1fr);
+    }
+    .tab-btn{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      color:var(--ink-2); text-decoration:none; cursor:pointer; user-select:none;
+      transition: background .2s, transform .2s, color .2s;
+    }
+    .tab-btn:hover{ background:rgba(255,255,255,.05); color:var(--ink); }
+    .tab-btn.active{ background:rgba(255,255,255,.08); color:#fff; }
+    .tab-btn svg{ width:22px; height:22px; stroke:#fff; fill:none; opacity:.95; }
+    .tab-label{ font-size:11px; letter-spacing:.3px; }
+
+    /* ====== Layout for Screens ====== */
+    .app-shell{ position:fixed; inset:44px 0 58px 0; }
+    .screen { position:absolute; inset:0; display:none; }
+    .screen.active { display:block; }
+
+    /* ====== Battle Screen internals ====== */
     .stream-container {
-      display: flex; height: 100vh; width: 100vw; position: relative;
+      display:flex; height:100%; width:100%; position:relative;
       background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.06), transparent 60%);
       transition: filter 300ms ease, opacity 300ms ease, transform .6s ease;
     }
@@ -66,44 +95,7 @@
 
     .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 
-    .top-bar, .bottom-bar {
-      position: absolute; width: 100%;
-      display: flex; justify-content: space-between; align-items:center;
-      pointer-events: auto; z-index: 20;
-      background: rgba(17,18,20,.75);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--stroke);
-      box-shadow: var(--shadow);
-    }
-    .top-bar { top: 0; height: 40px; padding: 6px 14px; }
-    .bottom-bar { bottom: 0; padding: 8px 14px; border-top: 1px solid var(--stroke); border-bottom:none; gap: 16px; }
-
-    .nav-icon {
-      font-size: 14px; color: var(--ink-2); cursor: pointer; padding:8px 10px; border-radius:10px;
-      transition: transform 0.25s, background .2s, color .2s;
-    }
-    .nav-icon:hover { transform: translateY(-1px); background: rgba(255,255,255,.06); color: var(--ink); }
-
-    .side-controls.left, .side-controls.right {
-      position: absolute; bottom: 140px; display: flex; flex-direction: column; gap: 14px;
-      pointer-events: auto; z-index: 30;
-    }
-    .side-controls.left { left: 15px; }
-    .side-controls.right { right: 15px; }
-
-    .side-button {
-      width: 38px; height: 38px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid var(--stroke);
-      border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: var(--ink-2);
-      cursor: pointer; transition: transform 0.25s, background .2s, color .2s;
-      box-shadow: var(--shadow);
-    }
-    .side-button:hover { transform: translateY(-1px) scale(1.03); background: rgba(255,255,255,.1); color: var(--ink); }
-    .floating { animation: floatUpDown 3s ease-in-out infinite; }
-
-    .profile-labels { position: absolute; top: 48px; right: 20px; display: flex; justify-content: flex-end; z-index: 40; }
+    .profile-labels { position: absolute; top: 12px; right: 16px; display: flex; justify-content: flex-end; z-index: 40; }
     .profile-entry {
       display: flex; align-items: center; gap: 10px;
       background: rgba(255,255,255,.06); padding: 6px 14px; border-radius: 12px;
@@ -117,7 +109,7 @@
     @keyframes floatLeftRight { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
 
     .round-timer {
-      position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: rgba(255,255,255,.06); padding: 12px 26px; border-radius: 14px;
       font-size: 16px; font-weight: 700; color: var(--ink); border: 1px solid var(--stroke);
       box-shadow: var(--shadow); animation: pulse 2.4s infinite; z-index: 50;
@@ -126,7 +118,7 @@
     .round-timer.animate { background: rgba(255,255,255,.12); }
     @keyframes pulse { 0%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.03)} 100%{transform:translateX(-50%) scale(1)} }
 
-    /* Modals */
+    /* ====== Modal / Cards ====== */
     .modal {
       position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
       z-index: 1000; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); pointer-events: auto;
@@ -135,11 +127,10 @@
 
     .card {
       background: var(--bg-1); border: 1px solid var(--stroke); border-radius: 16px;
-      width: min(92vw, 760px); padding: 20px; box-shadow: var(--shadow);
+      width: min(92vw, 820px); padding: 20px; box-shadow: var(--shadow);
     }
     .card h2 { margin-bottom: 8px; color: var(--ink); font-size: 20px; text-align: center; }
     .slogan { margin: 8px auto 16px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--stroke); font-size: 12px; line-height: 1.6; color: var(--ink-3); text-align: center; }
-
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 12px; }
 
     .pill {
@@ -184,153 +175,190 @@
     /* Post-battle overlay */
     .post-modal { position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:1100; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
     .post-modal.show { display:flex; }
-    .post-card { background:var(--bg-1); border:1px solid var(--stroke); border-radius:16px; width:min(92vw,760px); padding:18px 20px; box-shadow: var(--shadow); }
+    .post-card { background:var(--bg-1); border:1px solid var(--stroke); border-radius:16px; width:min(92vw,820px); padding:18px 20px; box-shadow: var(--shadow); }
     .post-card h3 { color:var(--ink); text-align:center; margin-bottom:8px; }
     .post-actions { display:flex; gap:10px; justify-content:center; margin-top:12px; }
   </style>
 </head>
 <body>
-  <!-- SCREEN: BATTLE -->
-  <div class="screen active" id="screen-battle">
-    <div class="stream-container" id="streamContainer">
-      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-      <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
+  <!-- ====== SVG Icon Sprite (cool white) ====== -->
+  <svg width="0" height="0" style="position:absolute;opacity:0;">
+    <defs>
+      <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.6"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.6"/><path d="M10 11v3H8v2h8v-2h-2v-3" stroke-width="1.6"/></symbol>
+      <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="ic-user" viewBox="0 0 24 24"><path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Z" stroke-width="1.6"/><path d="M4 20.4a8 8 0 0 1 16 0" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12z" stroke-width="1.6"/><circle cx="12" cy="12" r="2.8" stroke-width="1.6"/></symbol>
+      <symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7-11-7z" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    </defs>
+  </svg>
 
-      <!-- CATEGORY PICKER -->
-      <div class="modal show" id="categoryModal" aria-modal="true" role="dialog">
-        <div class="card">
-          <h2>Pick a Category</h2>
-          <div class="slogan">
-            <div>1ST - <b>Defeat BILLIONS.</b></div>
-            <div>2ND - <b>Choose Your BATTLE.</b></div>
-            <div>3RD - <b>Defeat BILLIONS.</b></div>
-          </div>
-
-          <div class="grid" id="categoryGrid">
-            <!-- Core set -->
-            <button type="button" class="pill" data-cat="ART">ART</button>
-            <button type="button" class="pill" data-cat="AUTO">AUTO</button>
-            <button type="button" class="pill" data-cat="DEBAT">DEBAT</button>
-            <button type="button" class="pill" data-cat="FASHION">FASHION</button>
-            <button type="button" class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</button>
-            <button type="button" class="pill" data-cat="RAP">RAP</button>
-            <!-- Added set -->
-            <button type="button" class="pill" data-cat="DANCE">DANCE</button>
-            <button type="button" class="pill" data-cat="COMEDY">COMEDY</button>
-            <button type="button" class="pill" data-cat="GAMING">GAMING</button>
-            <button type="button" class="pill" data-cat="COOKING">COOKING</button>
-            <button type="button" class="pill" data-cat="FITNESS">FITNESS</button>
-            <button type="button" class="pill" data-cat="PHOTOGRAPHY">PHOTOGRAPHY</button>
-          </div>
-          <div class="actions">
-            <button class="btn secondary" id="cancelCat" type="button">Close</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- CATEGORY OPTIONS -->
-      <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
-        <div class="card">
-          <h2 id="optionsTitle">Category Options</h2>
-          <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
-          <div id="optionsBody"></div>
-          <div class="muted" id="optionsHint"></div>
-          <div class="actions" id="optionsActions" style="margin-top:12px;">
-            <button class="btn secondary" id="backBtn" type="button">Back</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Center button shown after option chosen -->
-      <button id="startBattleBtn" onclick="startBattle()">⚔️ BattleBillions</button>
-
-      <div class="overlay">
-        <div class="top-bar">
-          <div class="nav-icon">LIVE</div>
-          <div class="nav-icon" id="viewerCountTop">👁️ 1,300</div>
-        </div>
-
-        <div class="profile-labels" id="profileLabels">
-          <div class="profile-entry">
-            <img src="user2.jpg" id="opponentImage" alt="User 2">
-            <span id="opponentUsername">@Opponent</span>
-          </div>
-        </div>
-
-        <div class="side-controls left">
-          <div class="side-button floating" data-screen="profile">👤</div>
-          <div class="side-button" data-screen="dashboard">🔎</div>
-          <div class="side-button" data-screen="login">🚪</div>
-        </div>
-
-        <div class="side-controls right">
-          <div class="side-button" data-screen="home">🏠</div>
-          <div class="side-button" data-screen="leaderboard">🏆</div>
-          <div class="side-button" data-screen="battle">📺</div>
-        </div>
-
-        <div class="bottom-bar">
-          <div class="nav-icon" data-screen="profile">👤 Profile</div>
-          <div class="nav-icon" data-screen="dashboard">Dashboard</div>
-          <div class="nav-icon" data-screen="leaderboard">Leaderboard</div>
-          <div class="nav-icon" data-screen="home">Home</div>
-          <div class="nav-icon" data-screen="battle">Battle</div>
-        </div>
-
-        <div class="round-timer" id="roundTimer">Choose a category to begin…</div>
-      </div>
-
-      <!-- POST-BATTLE OVERLAY: category box + next opponent -->
-      <div class="post-modal" id="postBattleModal" aria-modal="true" role="dialog">
-        <div class="post-card">
-          <h3>Battle Over — What’s Next?</h3>
-          <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b> to keep battling.</p>
-          <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
-          <div class="post-actions">
-            <button class="btn secondary" id="postClose">Close</button>
-            <button class="btn" id="postKeepCat">Keep Current Category</button>
-            <button class="btn" id="postPickSub">Pick Subcategory</button>
-            <button class="btn" id="postNextOpponent">Next Opponent</button>
-          </div>
-        </div>
-      </div>
-      <!-- /POST-BATTLE OVERLAY -->
+  <!-- ====== Global Top Bar ====== -->
+  <header class="app-topbar">
+    <div class="brand">
+      <div class="brand-badge">BB</div>
+      <div>BattleBillions</div>
     </div>
-  </div>
+    <div class="top-right">
+      <div class="chip" id="viewerCountTop"><svg><use href="#ic-eye"/></svg>&nbsp;1,300</div>
+      <div class="chip">LIVE</div>
+    </div>
+  </header>
 
-  <!-- Other screens -->
-  <div class="screen" id="screen-home"><div class="placeholder"><div class="box"><h1>Home</h1><p>Use the nav to jump back to <b>Battle</b> — everything loads on this page.</p></div></div></div>
-  <div class="screen" id="screen-profile"><div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon. Click <b>Battle</b> to return.</p></div></div></div>
-  <div class="screen" id="screen-leaderboard"><div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here. Click <b>Battle</b> to return.</p></div></div></div>
-  <div class="screen" id="screen-dashboard"><div class="placeholder"><div class="box"><h1>Dashboard Explorer</h1><p>Search & discovery UI goes here. Click <b>Battle</b> to return.</p></div></div></div>
-  <div class="screen" id="screen-login"><div class="placeholder"><div class="box"><h1>Login</h1><p>Auth flow placeholder. Click <b>Battle</b> to return.</p></div></div></div>
+  <!-- ====== App Content Area ====== -->
+  <main class="app-shell">
+    <!-- SCREEN: BATTLE -->
+    <section class="screen active" id="screen-battle" data-route="battle">
+      <div class="stream-container" id="streamContainer">
+        <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+        <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
+        <!-- CATEGORY PICKER -->
+        <div class="modal show" id="categoryModal" aria-modal="true" role="dialog">
+          <div class="card">
+            <h2>Pick a Category</h2>
+            <div class="slogan">
+              <div>1ST - <b>Defeat BILLIONS.</b></div>
+              <div>2ND - <b>Choose Your BATTLE.</b></div>
+              <div>3RD - <b>Defeat BILLIONS.</b></div>
+            </div>
+
+            <div class="grid" id="categoryGrid">
+              <!-- Core set -->
+              <button type="button" class="pill" data-cat="ART">ART</button>
+              <button type="button" class="pill" data-cat="AUTO">AUTO</button>
+              <button type="button" class="pill" data-cat="DEBAT">DEBAT</button>
+              <button type="button" class="pill" data-cat="FASHION">FASHION</button>
+              <button type="button" class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</button>
+              <button type="button" class="pill" data-cat="RAP">RAP</button>
+              <!-- Added set -->
+              <button type="button" class="pill" data-cat="DANCE">DANCE</button>
+              <button type="button" class="pill" data-cat="COMEDY">COMEDY</button>
+              <button type="button" class="pill" data-cat="GAMING">GAMING</button>
+              <button type="button" class="pill" data-cat="COOKING">COOKING</button>
+              <button type="button" class="pill" data-cat="FITNESS">FITNESS</button>
+              <button type="button" class="pill" data-cat="PHOTOGRAPHY">PHOTOGRAPHY</button>
+              <!-- New / “missing” expansion -->
+              <button type="button" class="pill" data-cat="SINGING">SINGING</button>
+              <button type="button" class="pill" data-cat="POETRY">POETRY</button>
+              <button type="button" class="pill" data-cat="MAGIC">MAGIC</button>
+              <button type="button" class="pill" data-cat="SPORTS">SPORTS</button>
+              <button type="button" class="pill" data-cat="TECH">TECH</button>
+              <button type="button" class="pill" data-cat="EDU">EDUCATION</button>
+              <button type="button" class="pill" data-cat="FILM">FILM</button>
+              <button type="button" class="pill" data-cat="PODCAST">PODCAST</button>
+              <button type="button" class="pill" data-cat="BEAUTY">BEAUTY</button>
+              <button type="button" class="pill" data-cat="DIY">DIY</button>
+              <button type="button" class="pill" data-cat="ASMR">ASMR</button>
+              <button type="button" class="pill" data-cat="MEMES">MEMES</button>
+              <button type="button" class="pill" data-cat="TATTOO">TATTOO</button>
+            </div>
+            <div class="actions">
+              <button class="btn secondary" id="cancelCat" type="button">Close</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CATEGORY OPTIONS -->
+        <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
+          <div class="card">
+            <h2 id="optionsTitle">Category Options</h2>
+            <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
+            <div id="optionsBody"></div>
+            <div class="muted" id="optionsHint"></div>
+            <div class="actions" id="optionsActions" style="margin-top:12px;">
+              <button class="btn secondary" id="backBtn" type="button">Back</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center button shown after option chosen -->
+        <button id="startBattleBtn" onclick="startBattle()"><svg style="vertical-align:middle;"><use href="#ic-play"/></svg> &nbsp;BattleBillions</button>
+
+        <div class="overlay">
+          <div class="profile-labels" id="profileLabels">
+            <div class="profile-entry">
+              <img src="user2.jpg" id="opponentImage" alt="User 2">
+              <span id="opponentUsername">@Opponent</span>
+            </div>
+          </div>
+
+          <div class="round-timer" id="roundTimer">Choose a category to begin…</div>
+        </div>
+
+        <!-- POST-BATTLE OVERLAY: category box + next opponent -->
+        <div class="post-modal" id="postBattleModal" aria-modal="true" role="dialog">
+          <div class="post-card">
+            <h3>Battle Over — What’s Next?</h3>
+            <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b> to keep battling.</p>
+            <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
+            <div class="post-actions">
+              <button class="btn secondary" id="postClose">Close</button>
+              <button class="btn" id="postKeepCat">Keep Current Category</button>
+              <button class="btn" id="postPickSub">Pick Subcategory</button>
+              <button class="btn" id="postNextOpponent">Next Opponent</button>
+            </div>
+          </div>
+        </div>
+        <!-- /POST-BATTLE OVERLAY -->
+      </div>
+    </section>
+
+    <!-- Other screens (use global nav; no local nav needed) -->
+    <section class="screen" id="screen-home" data-route="home"><div class="placeholder"><div class="box"><h1>Home</h1><p>Everything runs as a single page. Use the tab bar to jump.</p></div></div></section>
+    <section class="screen" id="screen-dashboard" data-route="dashboard"><div class="placeholder"><div class="box"><h1>Dashboard Explorer</h1><p>Search & discovery flows render here. Same nav structure, same page.</p></div></div></section>
+    <section class="screen" id="screen-leaderboard" data-route="leaderboard"><div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div></section>
+    <section class="screen" id="screen-profile" data-route="profile"><div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon.</p></div></div></section>
+  </main>
+
+  <!-- ====== Global Bottom Tab Bar (shows on ALL pages) ====== -->
+  <nav class="app-tabbar" role="tablist" aria-label="Main">
+    <a class="tab-btn" data-screen="home" role="tab" aria-selected="false"><svg><use href="#ic-home"/></svg><span class="tab-label">Home</span></a>
+    <a class="tab-btn" data-screen="dashboard" role="tab" aria-selected="false"><svg><use href="#ic-search"/></svg><span class="tab-label">Explore</span></a>
+    <a class="tab-btn active" data-screen="battle" role="tab" aria-selected="true"><svg><use href="#ic-battle"/></svg><span class="tab-label">Battle</span></a>
+    <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false"><svg><use href="#ic-trophy"/></svg><span class="tab-label">Leaders</span></a>
+    <a class="tab-btn" data-screen="profile" role="tab" aria-selected="false"><svg><use href="#ic-user"/></svg><span class="tab-label">Profile</span></a>
+  </nav>
+
+  <!-- ====== Audio ====== -->
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
   <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    /* ========== SPA NAV ========== */
-    const screens = {
-      battle: document.getElementById('screen-battle'),
-      home: document.getElementById('screen-home'),
-      profile: document.getElementById('screen-profile'),
-      leaderboard: document.getElementById('screen-leaderboard'),
-      dashboard: document.getElementById('screen-dashboard'),
-      login: document.getElementById('screen-login'),
-    };
+    /* ====== SPA NAV (global; same structure on every page) ====== */
+    const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
+    const tabs = document.querySelectorAll('.tab-btn');
+
     function showScreen(name) {
-      Object.entries(screens).forEach(([key, el]) => {
-        if (key === name) el.classList.add('active'); else el.classList.remove('active');
+      Object.entries(screens).forEach(([key, el]) => el.classList.toggle('active', key === name));
+      tabs.forEach(t => {
+        const on = t.getAttribute('data-screen') === name;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
       });
     }
-    document.querySelectorAll('[data-screen]').forEach(el => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        showScreen(el.getAttribute('data-screen'));
-      });
-    });
+    tabs.forEach(el => el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = el.getAttribute('data-screen');
+      showScreen(target);
+      if (target !== 'battle') closeAllModals();
+    }));
 
-    /* ========== Battle & Category State ========== */
+    // Deep link by hash: #/route or #cat/<CAT>/<SUB?>
+    function routeFromHash(){
+      const h = location.hash;
+            if (h.startsWith('#/')) {
+        const r = h.slice(2);
+        if (screens[r]) showScreen(r);
+      } else if (h.startsWith('#cat/')) {
+        showScreen('battle');
+        parseHashAndOpen();
+      }
+    }
+    window.addEventListener('hashchange', routeFromHash);
+
+    /* ====== Battle & Category State ====== */
     let currentCategory = null;
     let chosenOptions = {};
     let chosenSub = null;
@@ -348,6 +376,19 @@
       COOKING: [{ video: "cook1.mp4", image: "cook1.jpg", username: "@SearMaster" }, { video: "cook2.mp4", image: "cook2.jpg", username: "@MiseEnPlace" }],
       FITNESS: [{ video: "fit1.mp4", image: "fit1.jpg", username: "@RepMachine" }, { video: "fit2.mp4", image: "fit2.jpg", username: "@HIITHero" }],
       PHOTOGRAPHY: [{ video: "photo1.mp4", image: "photo1.jpg", username: "@LensCraft" }, { video: "photo2.mp4", image: "photo2.jpg", username: "@FrameChaser" }],
+      SINGING: [{ video:"sing1.mp4", image:"sing1.jpg", username:"@VocalEdge" }, { video:"sing2.mp4", image:"sing2.jpg", username:"@Falsetto" }],
+      POETRY: [{ video:"poe1.mp4", image:"poe1.jpg", username:"@VerseKing" }, { video:"poe2.mp4", image:"poe2.jpg", username:"@Stanza" }],
+      MAGIC: [{ video:"mag1.mp4", image:"mag1.jpg", username:"@CardFlux" }, { video:"mag2.mp4", image:"mag2.jpg", username:"@IllusionX" }],
+      SPORTS: [{ video:"spo1.mp4", image:"spo1.jpg", username:"@ClutchTime" }, { video:"spo2.mp4", image:"spo2.jpg", username:"@GoatTalk" }],
+      TECH: [{ video:"tech1.mp4", image:"tech1.jpg", username:"@DevWizard" }, { video:"tech2.mp4", image:"tech2.jpg", username:"@ByteSmith" }],
+      EDU: [{ video:"edu1.mp4", image:"edu1.jpg", username:"@MindCoach" }, { video:"edu2.mp4", image:"edu2.jpg", username:"@LessonLab" }],
+      FILM: [{ video:"film1.mp4", image:"film1.jpg", username:"@CutMaster" }, { video:"film2.mp4", image:"film2.jpg", username:"@SceneLord" }],
+      PODCAST: [{ video:"pod1.mp4", image:"pod1.jpg", username:"@HotMic" }, { video:"pod2.mp4", image:"pod2.jpg", username:"@TalkFlow" }],
+      BEAUTY: [{ video:"bea1.mp4", image:"bea1.jpg", username:"@BlendQueen" }, { video:"bea2.mp4", image:"bea2.jpg", username:"@Contour" }],
+      DIY: [{ video:"diy1.mp4", image:"diy1.jpg", username:"@ToolTime" }, { video:"diy2.mp4", image:"diy2.jpg", username:"@Maker" }],
+      ASMR: [{ video:"asm1.mp4", image:"asm1.jpg", username:"@Whisper" }, { video:"asm2.mp4", image:"asm2.jpg", username:"@Tingle" }],
+      MEMES: [{ video:"mem1.mp4", image:"mem1.jpg", username:"@TemplateKing" }, { video:"mem2.mp4", image:"mem2.jpg", username:"@Dank" }],
+      TATTOO: [{ video:"tat1.mp4", image:"tat1.jpg", username:"@InkLord" }, { video:"tat2.mp4", image:"tat2.jpg", username:"@ShadeMaster" }],
     };
 
     const subLists = {
@@ -368,23 +409,27 @@
       COOKING: ['Plating','Street Food','Fine Dining','BBQ','Desserts'],
       FITNESS: ['Calisthenics','Powerlifting','HIIT','Functional','Endurance'],
       PHOTOGRAPHY: ['Portrait','Street','Landscape','Macro','Product'],
+      SINGING: ['R&B','Pop','Gospel','Opera','Freestyle'],
+      POETRY: ['Spoken Word','Haiku','Slam','Narrative','Freestyle'],
+      MAGIC: ['Cards','Coins','Mentalism','Stage','Close-up'],
+      SPORTS: ['Basketball','Football','Soccer','Boxing','Track'],
+      TECH: ['Coding','Gadgets','AI Demos','Hardware Mods','AR/VR'],
+      EDU: ['Math','Science','History','Language','Life Skills'],
+      FILM: ['Cinematography','Editing','VFX','Color','Directing'],
+      PODCAST: ['Interview','Debate','Solo','Roundtable','Live Call-in'],
+      BEAUTY: ['Makeup','Hair','Skin','Nails','FX'],
+      DIY: ['Woodwork','3D Print','Home Hack','Repair','Custom Build'],
+      ASMR: ['Tapping','Whisper','Keyboard','Crinkle','Brushing'],
+      MEMES: ['Trend Flip','Original Skit','Sound Remix','Green Screen','Duet'],
+      TATTOO: ['Linework','Black&Grey','Color','Neo-trad','Realism'],
     };
-
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
-        document.getElementById('localVideo').srcObject = stream;
-      } catch (err) {
-        console.error('Camera error:', err);
-      }
-    }
 
     const streamContainer = document.getElementById('streamContainer');
     const timerDisplay = document.getElementById('roundTimer');
     const sound = document.getElementById('roundEndSound');
     const battleTrack = document.getElementById('battleTrack');
     const opponentVideo = document.getElementById('opponentVideo');
-    theOpponentImage = document.getElementById('opponentImage');
+    const opponentImage = document.getElementById('opponentImage');
     const opponentUsername = document.getElementById('opponentUsername');
     const viewerCountTop = document.getElementById('viewerCountTop');
 
@@ -404,6 +449,8 @@
     const postKeepCat = document.getElementById('postKeepCat');
     const postPickSub = document.getElementById('postPickSub');
     const postNextOpponent = document.getElementById('postNextOpponent');
+
+    function closeAllModals(){ categoryModal.classList.remove('show'); optionsModal.classList.remove('show'); postModal.classList.remove('show'); }
 
     document.getElementById('cancelCat').onclick = () => {
       categoryModal.classList.remove('show');
@@ -471,7 +518,7 @@
       if (pool.length) {
         const random = pool[Math.floor(Math.random() * pool.length)];
         opponentVideo.src = random.video;
-        theOpponentImage.src = random.image;
+        opponentImage.src = random.image;
         opponentUsername.innerText = random.username;
       }
     }
@@ -516,6 +563,19 @@
           COOKING: "Choose your food focus.",
           FITNESS: "Choose your training style.",
           PHOTOGRAPHY: "Choose your shooting style.",
+          SINGING: "Pick your vocal lane.",
+          POETRY: "Pick your poetry style.",
+          MAGIC: "Pick your magic discipline.",
+          SPORTS: "Pick your sport lane.",
+          TECH: "Pick your tech demo lane.",
+          EDU: "Pick your teaching lane.",
+          FILM: "Pick your film craft.",
+          PODCAST: "Pick your podcast format.",
+          BEAUTY: "Pick your beauty lane.",
+          DIY: "Pick your build lane.",
+          ASMR: "Pick your trigger lane.",
+          MEMES: "Pick your meme lane.",
+          TATTOO: "Pick your tattoo style.",
         };
         optionsSubtitle.innerText = subtitleMap[cat] || "Choose an option.";
         items.forEach(label => {
@@ -550,12 +610,12 @@
       return btn;
     }
 
-    /* Deep link: #cat/<CAT>/<SUB?>  */
+    /* Deep link: #cat/<CAT>/<SUB?> or #/route */
     function updateHash(cat, sub) {
       const frag = `#cat/${encodeURIComponent(cat)}${sub?`/${encodeURIComponent(sub)}`:''}`;
       history.pushState({cat, sub}, '', frag);
     }
-    function clearHash(){ history.pushState({}, '', location.pathname + location.search); }
+    function clearHash(){ history.pushState({}, '', '#/battle'); }
 
     function parseHashAndOpen() {
       const m = location.hash.match(/^#cat\/([^\/]+)(?:\/([^\/]+))?/i);
@@ -572,8 +632,7 @@
         }, 0);
       }
     }
-    window.addEventListener('popstate', parseHashAndOpen);
-    window.addEventListener('hashchange', parseHashAndOpen);
+    window.addEventListener('popstate', () => { routeFromHash(); parseHashAndOpen(); });
 
     /* Round logic (3 rounds, 33s, 6s pause, dim during action) */
     let round = 1, roundPart = 0, timeLeft = 33;
@@ -633,7 +692,7 @@
       if (pool.length) {
         const random = pool[Math.floor(Math.random() * pool.length)];
         opponentVideo.src = random.video;
-        theOpponentImage.src = random.image;
+        opponentImage.src = random.image;
         opponentUsername.innerText = random.username;
       }
       setTimeout(() => {
@@ -669,15 +728,26 @@
     setInterval(()=>{
       const delta = Math.floor(Math.random()*13)-6; // -6..+6
       viewers = Math.max(0, viewers + delta);
-      viewerCountTop.textContent = `👁️ ${viewers.toLocaleString()}`;
+      viewerCountTop.innerHTML = `<svg style="width:16px;height:16px;vertical-align:-2px;"><use href="#ic-eye"/></svg>&nbsp;${viewers.toLocaleString()}`;
     }, 1600);
+
+    /* Camera */
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
+        document.getElementById('localVideo').srcObject = stream;
+      } catch (err) {
+        console.error('Camera error:', err);
+      }
+    }
 
     /* Init */
     window.onload = () => {
-      showScreen('battle');
+      showScreen('battle');              // default route
+      if (!location.hash) location.hash = '#/battle';
       startCamera();
       timerDisplay.innerText = "Choose a category to begin…";
-      setDim(false);
+      routeFromHash();
       parseHashAndOpen();
     };
   </script>
