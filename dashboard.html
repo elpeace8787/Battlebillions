@@ -21,7 +21,7 @@
       --bg-0:#0b0b0c; --bg-1:#111214; --bg-2:#15171a;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --stroke:#2a2d31; --accent:#ffffff; --accent-2:#1f1f22;
-      --shadow:0 10px 30px rgba(0,0,0,.45); --ring:0 0 0 3px rgba(255,255,255,.08);
+      --shadow:0 10px 30px rgba(0,0,0,.45); --ring:0 0 0 3px rgba(255,255,255,.12);
       --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -30,8 +30,7 @@
     html,body{height:100%}
     body{
       font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background:var(--bg-0); color:var(--ink); overflow:hidden;
-      letter-spacing:.2px;
+      background:var(--bg-0); color:var(--ink); overflow:hidden; letter-spacing:.2px;
     }
 
     /* Soft animated backdrop */
@@ -89,16 +88,6 @@
     .screen{position:absolute;inset:0;display:none}
     .screen.active{display:block}
 
-    /* ====== “3ILLIONS / 3ATTLES” screen positions ====== */
-    .corner-tag{
-      position:absolute;z-index:20;pointer-events:none;opacity:.08;letter-spacing:.12em;
-      font-weight:900;user-select:none;white-space:nowrap
-    }
-    .tag-battle{top:10px;right:16px;font-size:28px}
-    .tag-dashboard{top:10px;left:16px;font-size:28px}
-    /* Hidden by default; JS toggles visibility per screen */
-    .corner-tag{display:none}
-
     /* ====== Battle screen ====== */
     .stream-container{
       display:flex;height:100%;width:100%;position:relative;
@@ -110,10 +99,26 @@
     video.video-stream:last-child{border-right:none;border-left:1px solid var(--stroke)}
     .overlay{position:absolute;inset:0;pointer-events:none;z-index:10}
 
-    .profile-labels{position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40}
-    .profile-entry{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);padding:6px 14px;border-radius:12px;border:1px solid var(--stroke);box-shadow:var(--shadow)}
-    .profile-entry img{width:34px;height:34px;border-radius:10px}
-    .profile-entry span{font-size:14px;color:var(--ink-2)}
+    /* Opponent profile box (clickable, with faded 3ATTL33ILLIONS bg) */
+    .profile-labels{
+      position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;
+      pointer-events:auto; /* allow clicks despite overlay being none */
+    }
+    .profile-entry{
+      position:relative; display:flex; align-items:center; gap:10px;
+      background:rgba(255,255,255,.06); padding:6px 14px; border-radius:12px;
+      border:1px solid var(--stroke); box-shadow:var(--shadow); cursor:pointer;
+      overflow:hidden; text-decoration:none; color:inherit;
+    }
+    .profile-entry::before{
+      content:"3ATTL33ILLIONS";
+      position:absolute; inset:0; left:10px; top:50%;
+      transform:translateY(-50%);
+      font-weight:900; font-size:22px; letter-spacing:.15em;
+      color:#fff; opacity:.06; white-space:nowrap; pointer-events:none; z-index:0;
+    }
+    .profile-entry img{width:34px;height:34px;border-radius:10px;position:relative;z-index:1}
+    .profile-entry span{font-size:14px;color:var(--ink-2);position:relative;z-index:1}
 
     .round-timer{
       position:absolute;bottom:108px;left:50%;transform:translateX(-50%);
@@ -161,8 +166,6 @@
     .placeholder .box{border:1px solid var(--stroke);border-radius:16px;padding:24px 28px;background:var(--bg-1);max-width:720px;width:calc(100% - 40px);box-shadow:var(--shadow)}
     .placeholder h1{color:var(--ink);margin-bottom:8px}
     .placeholder p{color:var(--ink-3)}
-
-    /* Post-battle overlay */
     .post-modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)}
     .post-modal.show{display:flex}
     .post-card{background:var(--bg-1);border:1px solid var(--stroke);border-radius:16px;width:min(92vw,820px);padding:18px 20px;box-shadow:var(--shadow)}
@@ -212,10 +215,6 @@
 
   <!-- ====== Content ====== -->
   <main class="app-shell">
-    <!-- On-screen positioned words -->
-    <div class="corner-tag tag-battle" id="tagBattle">3ATTLES</div>
-    <div class="corner-tag tag-dashboard" id="tagDash">3ILLIONS</div>
-
     <!-- Battle -->
     <section class="screen active" id="screen-battle" data-route="battle">
       <div class="stream-container" id="streamContainer">
@@ -287,12 +286,14 @@
         </button>
 
         <div class="overlay">
+          <!-- Clickable opponent profile (routes to Profile screen) -->
           <div class="profile-labels" id="profileLabels">
-            <div class="profile-entry">
+            <a href="#/profile" class="profile-entry" id="opponentProfile" data-screen="profile" aria-label="Open opponent profile">
               <img src="user2.jpg" id="opponentImage" alt="User 2">
               <span id="opponentUsername">@Opponent</span>
-            </div>
+            </a>
           </div>
+
           <div class="round-timer" id="roundTimer">Tap “Choose Category” to begin…</div>
         </div>
 
@@ -324,15 +325,15 @@
       <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
     </section>
     <section class="screen" id="screen-profile" data-route="profile">
-      <div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon.</p></div></div>
+      <div class="placeholder"><div class="box"><h1>Profile</h1><p>Opponent profile opens here from the battle overlay.</p></div></div>
     </section>
   </main>
 
-  <!-- ====== Tab Bar (labels above icons) ====== -->
+  <!-- ====== Tab Bar ====== -->
   <nav class="app-tabbar" role="tablist" aria-label="Main">
     <a class="tab-btn" data-screen="home" role="tab" aria-selected="false">
       <span class="tab-label">Home</span>
-      <svg><use href="#ic-home"/></svg>
+        <svg><use href="#ic-home"/></svg>
     </a>
     <a class="tab-btn" data-screen="dashboard" role="tab" aria-selected="false" title="3ILLIONS">
       <span class="tab-label">3ILLIONS</span>
@@ -360,13 +361,6 @@
     /* ====== SPA Nav ====== */
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
-    const tagBattle = document.getElementById('tagBattle');
-    const tagDash = document.getElementById('tagDash');
-
-    function toggleCornerTags(route){
-      tagBattle.style.display = (route==='battle') ? 'block' : 'none';
-      tagDash.style.display = (route==='dashboard') ? 'block' : 'none';
-    }
 
     function showScreen(name){
       Object.entries(screens).forEach(([k,el])=>el.classList.toggle('active',k===name));
@@ -375,16 +369,18 @@
         t.classList.toggle('active',on);
         t.setAttribute('aria-selected',on?'true':'false');
       });
-      toggleCornerTags(name);
     }
 
-    tabs.forEach(el=>el.addEventListener('click',e=>{
+    // Global handler: anything with [data-screen] acts like a nav link (tabs + opponent box)
+    document.addEventListener('click',(e)=>{
+      const link = e.target.closest('[data-screen]');
+      if(!link) return;
       e.preventDefault();
-      const target=el.getAttribute('data-screen');
+      const target = link.getAttribute('data-screen');
       showScreen(target);
-      if(target!=='battle') closeAllModals();
-      if(!location.hash.startsWith('#cat/')) location.hash = '#/'+target;
-    }));
+      if (target!=='battle') closeAllModals();
+      if (!location.hash.startsWith('#cat/')) location.hash = '#/'+target;
+    });
 
     function routeFromHash(){
       const h=location.hash;
@@ -482,8 +478,7 @@
 
     const openCats=document.getElementById('openCats');
     openCats.addEventListener('click',()=>{
-      // Open modal and HIDE the button permanently (per your request)
-      openCats.style.display='none';
+      openCats.style.display='none';               // per request: disappear after tapped
       categoryModal.classList.add('show');
       categoryGrid.querySelector('.pill')?.focus();
       location.hash = '#/battle';
@@ -493,7 +488,6 @@
     document.getElementById('cancelCat').onclick=()=>{
       categoryModal.classList.remove('show');
       timerDisplay.textContent="Tap the start or switch screens.";
-      // Note: per spec, the Choose Category button stays hidden after first tap.
       clearHash();
     };
     document.getElementById('backBtn').onclick=()=>{
@@ -651,9 +645,7 @@
       startCamera();
       timerDisplay.textContent="Tap “Choose Category” to begin…";
       routeFromHash(); parseHashAndOpen();
-      toggleCornerTags('battle');
     };
   </script>
 </body>
-  </html>
-  
+</html>
