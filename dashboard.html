@@ -6,13 +6,45 @@
   <title>BattleBillions - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
+    /* ====== Minimalist Monochrome Theme ====== */
+    :root{
+      --bg-0:#0b0b0c;         /* page background */
+      --bg-1:#111214;         /* cards / modals */
+      --bg-2:#15171a;         /* bars */
+      --ink:#e9edf1;          /* primary text */
+      --ink-2:#cfd6dd;        /* secondary text */
+      --ink-3:#9aa3ad;        /* muted text */
+      --stroke:#2a2d31;       /* borders */
+      --accent:#ffffff;       /* action / buttons */
+      --accent-2:#1f1f22;     /* button text on light */
+      --shadow:0 10px 30px rgba(0,0,0,.45);
+      --ring:0 0 0 3px rgba(255,255,255,.08);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
       font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: white;
+      background: var(--bg-0);
+      color: var(--ink);
       overflow: hidden;
+    }
+
+    /* Soft animated backdrop */
+    body::before{
+      content:"";
+      position:fixed; inset:-20% -10%;
+      background:
+        radial-gradient(60% 40% at 70% 20%, rgba(255,255,255,.06), transparent 60%),
+        radial-gradient(50% 35% at 20% 70%, rgba(255,255,255,.04), transparent 60%),
+        linear-gradient(135deg, #0b0b0c 0%, #101114 60%, #0c0d10 100%);
+      filter: blur(30px) saturate(1);
+      animation: drift 18s ease-in-out infinite alternate;
+      z-index:-1;
+    }
+    @keyframes drift{
+      0%{ transform: translateY(-2%) translateX(-1%); }
+      100%{ transform: translateY(2%) translateX(1%); }
     }
 
     .screen { position: absolute; inset: 0; display: none; }
@@ -20,87 +52,93 @@
 
     .stream-container {
       display: flex; height: 100vh; width: 100vw; position: relative;
-      background: url('https://www.transparenttextures.com/patterns/cubes.png');
-      backdrop-filter: blur(10px);
-      transition: filter 300ms ease, opacity 300ms ease;
+      background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.06), transparent 60%);
+      transition: filter 300ms ease, opacity 300ms ease, transform .6s ease;
     }
-    .stream-container.dimmed { filter: brightness(0.6) contrast(0.9) saturate(0.9); }
+    .stream-container.dimmed { filter: brightness(0.75) contrast(0.95) saturate(0.95); }
 
     video.video-stream {
-      flex: 1; object-fit: cover; background-color: black; width: 50%; height: 100%;
-      filter: brightness(0.85) contrast(1.2) saturate(1.4);
-      border: 1px solid rgba(0,255,255,0.2);
+      flex: 1; object-fit: cover; background-color: #000; width: 50%; height: 100%;
+      filter: brightness(0.9) contrast(1.15) saturate(1.1);
+      border-right: 1px solid var(--stroke);
     }
+    video.video-stream:last-child{ border-right:none; border-left:1px solid var(--stroke); }
 
     .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 
     .top-bar, .bottom-bar {
       position: absolute; width: 100%;
-      display: flex; justify-content: space-between;
+      display: flex; justify-content: space-between; align-items:center;
       pointer-events: auto; z-index: 20;
-      background: rgba(0, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
+      background: rgba(17,18,20,.75);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
     }
-    .top-bar { top: 0; height: 36px; padding: 4px 12px; border-bottom: 1px solid rgba(0,255,255,0.3); }
-    .bottom-bar { bottom: 0; padding: 6px 12px; background: rgba(0, 255, 255, 0.07); border-top: 1px solid rgba(0,255,255,0.2); align-items: center; gap: 16px; }
+    .top-bar { top: 0; height: 40px; padding: 6px 14px; }
+    .bottom-bar { bottom: 0; padding: 8px 14px; border-top: 1px solid var(--stroke); border-bottom:none; gap: 16px; }
 
-    .nav-icon { font-size: 14px; color: #0ff; cursor: pointer; text-shadow: 0 0 5px #0ff; transition: transform 0.3s; }
-    .nav-icon:hover { transform: scale(1.1); }
+    .nav-icon {
+      font-size: 14px; color: var(--ink-2); cursor: pointer; padding:8px 10px; border-radius:10px;
+      transition: transform 0.25s, background .2s, color .2s;
+    }
+    .nav-icon:hover { transform: translateY(-1px); background: rgba(255,255,255,.06); color: var(--ink); }
 
     .side-controls.left, .side-controls.right {
-      position: absolute; bottom: 140px; display: flex; flex-direction: column; gap: 16px;
+      position: absolute; bottom: 140px; display: flex; flex-direction: column; gap: 14px;
       pointer-events: auto; z-index: 30;
     }
     .side-controls.left { left: 15px; }
     .side-controls.right { right: 15px; }
 
     .side-button {
-      width: 36px; height: 36px;
-      background: rgba(0, 255, 255, 0.1);
-      border: 1px solid rgba(0, 255, 255, 0.3);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: #0ff; box-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
-      cursor: pointer; transition: transform 0.3s;
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--stroke);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--ink-2);
+      cursor: pointer; transition: transform 0.25s, background .2s, color .2s;
+      box-shadow: var(--shadow);
     }
-    .side-button:hover { transform: scale(1.15); }
+    .side-button:hover { transform: translateY(-1px) scale(1.03); background: rgba(255,255,255,.1); color: var(--ink); }
     .floating { animation: floatUpDown 3s ease-in-out infinite; }
 
-    .profile-labels { position: absolute; top: 40px; right: 20px; display: flex; justify-content: flex-end; z-index: 40; }
+    .profile-labels { position: absolute; top: 48px; right: 20px; display: flex; justify-content: flex-end; z-index: 40; }
     .profile-entry {
-      display: flex; align-items: center; gap: 12px;
-      background: rgba(0,255,255,0.1); padding: 6px 16px; border-radius: 30px;
-      border: 1px solid rgba(0,255,255,0.3); box-shadow: 0 0 10px rgba(0,255,255,0.2);
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.06); padding: 6px 14px; border-radius: 12px;
+      border: 1px solid var(--stroke); box-shadow: var(--shadow);
       animation: floatUpDown 4s ease-in-out infinite;
     }
-    .profile-entry img { width: 34px; height: 34px; border-radius: 50%; animation: floatLeftRight 6s ease-in-out infinite; box-shadow: 0 0 4px #0ff; }
-    .profile-entry span { font-size: 15px; color: #0ff; text-shadow: 0 0 6px #0ff; }
+    .profile-entry img { width: 34px; height: 34px; border-radius: 10px; animation: floatLeftRight 6s ease-in-out infinite; box-shadow: var(--shadow); }
+    .profile-entry span { font-size: 14px; color: var(--ink-2); }
 
-    @keyframes floatUpDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-    @keyframes floatLeftRight { 0%,100%{transform:translateX(0)} 50%{transform:translateX(6px)} }
+    @keyframes floatUpDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+    @keyframes floatLeftRight { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
 
     .round-timer {
       position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,255,255,0.1); padding: 14px 30px; border-radius: 40px;
-      font-size: 18px; font-weight: bold; color: #fff; border: 2px solid #0ff;
-      box-shadow: 0 0 15px rgba(0,255,255,0.6); animation: pulse 2s infinite; z-index: 50;
+      background: rgba(255,255,255,.06); padding: 12px 26px; border-radius: 14px;
+      font-size: 16px; font-weight: 700; color: var(--ink); border: 1px solid var(--stroke);
+      box-shadow: var(--shadow); animation: pulse 2.4s infinite; z-index: 50;
       pointer-events: none; text-align: center;
     }
-    .round-timer.animate { background: rgba(0,255,200,0.2); box-shadow: 0 0 20px rgba(0,255,200,0.8); }
-    @keyframes pulse { 0%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.05)} 100%{transform:translateX(-50%) scale(1)} }
+    .round-timer.animate { background: rgba(255,255,255,.12); }
+    @keyframes pulse { 0%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.03)} 100%{transform:translateX(-50%) scale(1)} }
 
     /* Modals */
     .modal {
       position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-      z-index: 1000; background: rgba(0,0,0,0.45); backdrop-filter: blur(2px); pointer-events: auto;
+      z-index: 1000; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); pointer-events: auto;
     }
     .modal.show { display: flex; }
 
     .card {
-      background: #0b0b12; border: 2px solid #0ff; border-radius: 14px;
-      width: min(92vw, 680px); padding: 20px; box-shadow: 0 0 24px rgba(0,255,255,0.35);
+      background: var(--bg-1); border: 1px solid var(--stroke); border-radius: 16px;
+      width: min(92vw, 760px); padding: 20px; box-shadow: var(--shadow);
     }
-    .card h2 { margin-bottom: 10px; color: #0ff; font-size: 22px; text-align: center; }
-    .slogan { margin: 8px auto 18px; padding: 10px 12px; border-radius: 10px; background: rgba(0,255,255,0.08); border: 1px solid rgba(0,255,255,0.2); font-size: 13px; line-height: 1.6; color: #c8ffff; text-align: center; }
+    .card h2 { margin-bottom: 8px; color: var(--ink); font-size: 20px; text-align: center; }
+    .slogan { margin: 8px auto 16px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--stroke); font-size: 12px; line-height: 1.6; color: var(--ink-3); text-align: center; }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 12px; }
 
@@ -108,40 +146,46 @@
       display: flex; align-items: center; justify-content: center;
       min-height: 56px; width: 100%; padding: 10px 8px; text-align: center;
       white-space: normal; word-break: break-word; line-height: 1.2; font-size: 15px; letter-spacing: 0.4px;
-      background: rgba(0,255,255,0.08); border: 1px solid rgba(0,255,255,0.3);
-      border-radius: 10px; color: #0ff; cursor: pointer; user-select: none;
-      transition: transform .2s, background .2s, box-shadow .2s;
+      background: rgba(255,255,255,.06); border: 1px solid var(--stroke);
+      border-radius: 12px; color: var(--ink-2); cursor: pointer; user-select: none;
+      transition: transform .2s, background .2s, box-shadow .2s, color .2s;
     }
-    .pill:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,255,255,0.45); }
-    .pill:hover { transform: translateY(-2px); background: rgba(0,255,255,0.16); box-shadow: 0 0 8px rgba(0,255,255,0.25); }
-    .pill.active { background: rgba(0,255,255,0.26); box-shadow: 0 0 12px rgba(0,255,255,0.35) inset; }
+    .pill:focus-visible { outline: none; box-shadow: var(--ring); }
+    .pill:hover { transform: translateY(-2px); background: rgba(255,255,255,.1); color: var(--ink); }
+    .pill.active { background: rgba(255,255,255,.18); color: var(--ink); }
 
     .actions { margin-top: 16px; display: flex; justify-content: center; gap: 10px; }
-    .btn { background: #0ff; color: #001a1a; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 700; }
-    .btn.secondary { background: transparent; color: #0ff; border: 1px solid #0ff; }
+    .btn {
+      background: var(--accent); color: var(--accent-2); border: 1px solid var(--stroke);
+      border-radius: 12px; padding: 10px 16px; cursor: pointer; font-weight: 800;
+      transition: transform .2s, filter .2s;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(.9); }
+    .btn.secondary { background: transparent; color: var(--ink); }
 
-    .modal .sub-title { text-align: center; color: #7ffafa; margin-top: 6px; font-size: 14px; }
-    .muted { opacity: .8; font-size: 12px; margin-top: 10px; text-align:center; color:#9fecec; }
+    .modal .sub-title { text-align: center; color: var(--ink-3); margin-top: 6px; font-size: 13px; }
+    .muted { opacity: .8; font-size: 12px; margin-top: 10px; text-align:center; color: var(--ink-3); }
 
     #startBattleBtn {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: rgba(0,255,255,0.2); border: 2px solid #0ff; color: white; font-size: 20px;
-      padding: 16px 34px; border-radius: 40px; cursor: pointer;
-      z-index: 1200; pointer-events: auto; box-shadow: 0 0 20px rgba(0,255,255,0.5);
-      transition: all 0.3s ease; display: none;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateY(6px);
+      background: var(--accent); color: var(--accent-2);
+      border: 1px solid var(--stroke); font-size: 18px;
+      padding: 14px 28px; border-radius: 16px; cursor: pointer;
+      z-index: 1200; pointer-events: auto; box-shadow: var(--shadow);
+      transition: all 0.25s ease; display: none;
     }
-    #startBattleBtn:hover { background: rgba(0,255,255,0.35); transform: translate(-50%, -50%) scale(1.05); }
+    #startBattleBtn:hover { transform: translate(-50%, -50%) translateY(4px) scale(1.02); }
 
-    .placeholder { display:flex; align-items:center; justify-content:center; height:100%; width:100%; background: rgba(0,0,0,0.35); backdrop-filter: blur(6px); text-align:center; }
-    .placeholder .box { border:2px solid #0ff; border-radius:16px; padding:24px 28px; background:#0b0b12; max-width: 720px; width: calc(100% - 40px); box-shadow: 0 0 24px rgba(0,255,255,0.25); }
-    .placeholder h1 { color:#0ff; margin-bottom:8px; }
-    .placeholder p { color:#c8ffff; }
+    .placeholder { display:flex; align-items:center; justify-content:center; height:100%; width:100%; background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); text-align:center; }
+    .placeholder .box { border:1px solid var(--stroke); border-radius:16px; padding:24px 28px; background:var(--bg-1); max-width: 720px; width: calc(100% - 40px); box-shadow: var(--shadow); }
+    .placeholder h1 { color:var(--ink); margin-bottom:8px; }
+    .placeholder p { color:var(--ink-3); }
 
-    /* Post-battle overlay (uses same visual language as your modals) */
-    .post-modal { position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:1100; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+    /* Post-battle overlay */
+    .post-modal { position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:1100; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
     .post-modal.show { display:flex; }
-    .post-card { background:#0b0b12; border:2px solid #0ff; border-radius:14px; width:min(92vw,720px); padding:18px 20px; box-shadow:0 0 24px rgba(0,255,255,0.35); }
-    .post-card h3 { color:#0ff; text-align:center; margin-bottom:8px; }
+    .post-card { background:var(--bg-1); border:1px solid var(--stroke); border-radius:16px; width:min(92vw,760px); padding:18px 20px; box-shadow: var(--shadow); }
+    .post-card h3 { color:var(--ink); text-align:center; margin-bottom:8px; }
     .post-actions { display:flex; gap:10px; justify-content:center; margin-top:12px; }
   </style>
 </head>
@@ -163,15 +207,23 @@
           </div>
 
           <div class="grid" id="categoryGrid">
-            <button type="button" class="pill" tabindex="0" data-cat="ART" aria-controls="optionsModal" aria-expanded="false">ART</button>
-            <button type="button" class="pill" tabindex="0" data-cat="AUTO" aria-controls="optionsModal" aria-expanded="false">AUTO</button>
-            <button type="button" class="pill" tabindex="0" data-cat="DEBAT" aria-controls="optionsModal" aria-expanded="false">DEBAT</button>
-            <button type="button" class="pill" tabindex="0" data-cat="FASHION" aria-controls="optionsModal" aria-expanded="false">FASHION</button>
-            <button type="button" class="pill" tabindex="0" data-cat="INSTRUMENTS" aria-controls="optionsModal" aria-expanded="false">INSTRUMENTS</button>
-            <button type="button" class="pill" tabindex="0" data-cat="RAP" aria-controls="optionsModal" aria-expanded="false">RAP</button>
+            <!-- Core set -->
+            <button type="button" class="pill" data-cat="ART">ART</button>
+            <button type="button" class="pill" data-cat="AUTO">AUTO</button>
+            <button type="button" class="pill" data-cat="DEBAT">DEBAT</button>
+            <button type="button" class="pill" data-cat="FASHION">FASHION</button>
+            <button type="button" class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</button>
+            <button type="button" class="pill" data-cat="RAP">RAP</button>
+            <!-- Added set -->
+            <button type="button" class="pill" data-cat="DANCE">DANCE</button>
+            <button type="button" class="pill" data-cat="COMEDY">COMEDY</button>
+            <button type="button" class="pill" data-cat="GAMING">GAMING</button>
+            <button type="button" class="pill" data-cat="COOKING">COOKING</button>
+            <button type="button" class="pill" data-cat="FITNESS">FITNESS</button>
+            <button type="button" class="pill" data-cat="PHOTOGRAPHY">PHOTOGRAPHY</button>
           </div>
           <div class="actions">
-            <button class="btn secondary" id="cancelCat" type="button">Cancel</button>
+            <button class="btn secondary" id="cancelCat" type="button">Close</button>
           </div>
         </div>
       </div>
@@ -180,7 +232,7 @@
       <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
         <div class="card">
           <h2 id="optionsTitle">Category Options</h2>
-        <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
+          <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
           <div id="optionsBody"></div>
           <div class="muted" id="optionsHint"></div>
           <div class="actions" id="optionsActions" style="margin-top:12px;">
@@ -194,8 +246,8 @@
 
       <div class="overlay">
         <div class="top-bar">
-          <div class="nav-icon">🔴 LIVE</div>
-          <div class="nav-icon" id="viewerCountTop">👁️ 1.3k</div>
+          <div class="nav-icon">LIVE</div>
+          <div class="nav-icon" id="viewerCountTop">👁️ 1,300</div>
         </div>
 
         <div class="profile-labels" id="profileLabels">
@@ -207,7 +259,7 @@
 
         <div class="side-controls left">
           <div class="side-button floating" data-screen="profile">👤</div>
-          <div class="side-button" data-screen="dashboard">🔍</div>
+          <div class="side-button" data-screen="dashboard">🔎</div>
           <div class="side-button" data-screen="login">🚪</div>
         </div>
 
@@ -218,11 +270,11 @@
         </div>
 
         <div class="bottom-bar">
-          <div class="nav-icon" data-screen="profile">👤</div>
-          <div class="nav-icon" data-screen="dashboard">🔍</div>
-          <div class="nav-icon" data-screen="leaderboard">🏆</div>
-          <div class="nav-icon" data-screen="home">🏠</div>
-          <div class="nav-icon" data-screen="battle">📺</div>
+          <div class="nav-icon" data-screen="profile">👤 Profile</div>
+          <div class="nav-icon" data-screen="dashboard">Dashboard</div>
+          <div class="nav-icon" data-screen="leaderboard">Leaderboard</div>
+          <div class="nav-icon" data-screen="home">Home</div>
+          <div class="nav-icon" data-screen="battle">Battle</div>
         </div>
 
         <div class="round-timer" id="roundTimer">Choose a category to begin…</div>
@@ -231,8 +283,8 @@
       <!-- POST-BATTLE OVERLAY: category box + next opponent -->
       <div class="post-modal" id="postBattleModal" aria-modal="true" role="dialog">
         <div class="post-card">
-          <h3>🔥 Battle Over — What’s Next?</h3>
-          <p class="muted">Stay in your category or pick a new one. Then hit <b>Next Opponent</b> to keep battling.</p>
+          <h3>Battle Over — What’s Next?</h3>
+          <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b> to keep battling.</p>
           <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
           <div class="post-actions">
             <button class="btn secondary" id="postClose">Close</button>
@@ -248,10 +300,10 @@
 
   <!-- Other screens -->
   <div class="screen" id="screen-home"><div class="placeholder"><div class="box"><h1>Home</h1><p>Use the nav to jump back to <b>Battle</b> — everything loads on this page.</p></div></div></div>
-  <div class="screen" id="screen-profile"><div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon. Click 📺 to return to Battle.</p></div></div></div>
-  <div class="screen" id="screen-leaderboard"><div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here. Click 📺 to return to Battle.</p></div></div></div>
-  <div class="screen" id="screen-dashboard"><div class="placeholder"><div class="box"><h1>Dashboard Explorer</h1><p>Search & discovery UI goes here. Click 📺 to return to Battle.</p></div></div></div>
-  <div class="screen" id="screen-login"><div class="placeholder"><div class="box"><h1>Login</h1><p>Auth flow placeholder. Click 📺 to return to Battle.</p></div></div></div>
+  <div class="screen" id="screen-profile"><div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon. Click <b>Battle</b> to return.</p></div></div></div>
+  <div class="screen" id="screen-leaderboard"><div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here. Click <b>Battle</b> to return.</p></div></div></div>
+  <div class="screen" id="screen-dashboard"><div class="placeholder"><div class="box"><h1>Dashboard Explorer</h1><p>Search & discovery UI goes here. Click <b>Battle</b> to return.</p></div></div></div>
+  <div class="screen" id="screen-login"><div class="placeholder"><div class="box"><h1>Login</h1><p>Auth flow placeholder. Click <b>Battle</b> to return.</p></div></div></div>
 
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
   <audio id="battleTrack" controls hidden></audio>
@@ -289,7 +341,13 @@
       DEBAT: [{ video: "deb1.mp4", image: "deb1.jpg", username: "@LogicBlade" }, { video: "deb2.mp4", image: "deb2.jpg", username: "@VerbalVolt" }],
       FASHION: [{ video: "fashion2.mp4", image: "fashion2.jpg", username: "@RunwayRuler" }, { video: "fashion3.mp4", image: "fashion3.jpg", username: "@FitArchitect" }],
       INSTRUMENTS: [{ video: "inst1.mp4", image: "inst1.jpg", username: "@ChordSmith" }, { video: "inst2.mp4", image: "inst2.jpg", username: "@DrumOracle" }],
-      RAP: [{ video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" }, { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }]
+      RAP: [{ video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" }, { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }],
+      DANCE: [{ video: "dance1.mp4", image: "dance1.jpg", username: "@Footwork" }, { video: "dance2.mp4", image: "dance2.jpg", username: "@WaveLord" }],
+      COMEDY: [{ video: "comedy1.mp4", image: "comedy1.jpg", username: "@Punchliner" }, { video: "comedy2.mp4", image: "comedy2.jpg", username: "@CrowdKiller" }],
+      GAMING: [{ video: "game1.mp4", image: "game1.jpg", username: "@Clutch" }, { video: "game2.mp4", image: "game2.jpg", username: "@Headshot" }],
+      COOKING: [{ video: "cook1.mp4", image: "cook1.jpg", username: "@SearMaster" }, { video: "cook2.mp4", image: "cook2.jpg", username: "@MiseEnPlace" }],
+      FITNESS: [{ video: "fit1.mp4", image: "fit1.jpg", username: "@RepMachine" }, { video: "fit2.mp4", image: "fit2.jpg", username: "@HIITHero" }],
+      PHOTOGRAPHY: [{ video: "photo1.mp4", image: "photo1.jpg", username: "@LensCraft" }, { video: "photo2.mp4", image: "photo2.jpg", username: "@FrameChaser" }],
     };
 
     const subLists = {
@@ -299,11 +357,17 @@
       FASHION: ['Runway','Streetwear','Vintage','Upcycle','Styling'],
       INSTRUMENTS: ['Guitar','Piano','Violin','Drums','DJ'],
       RAP: [
-        {label:'🔥 Classic Trap', value:'beat1.mp3'},
-        {label:'💥 Boom Bap', value:'beat2.mp3'},
-        {label:'🌊 Chill Vibes', value:'beat3.mp3'},
-        {label:'⚡ Fast Flow', value:'beat4.mp3'},
-      ]
+        {label:'Classic Trap', value:'beat1.mp3'},
+        {label:'Boom Bap', value:'beat2.mp3'},
+        {label:'Chill Vibes', value:'beat3.mp3'},
+        {label:'Fast Flow', value:'beat4.mp3'},
+      ],
+      DANCE: ['Hip-Hop','Popping','Breaking','Contemporary','Freestyle'],
+      COMEDY: ['Stand-up','Improv','Sketch','Roast','Storytelling'],
+      GAMING: ['FPS','MOBA','Fighting','Speedrun','Battle Royale'],
+      COOKING: ['Plating','Street Food','Fine Dining','BBQ','Desserts'],
+      FITNESS: ['Calisthenics','Powerlifting','HIIT','Functional','Endurance'],
+      PHOTOGRAPHY: ['Portrait','Street','Landscape','Macro','Product'],
     };
 
     async function startCamera() {
@@ -312,7 +376,6 @@
         document.getElementById('localVideo').srcObject = stream;
       } catch (err) {
         console.error('Camera error:', err);
-        // no alert spam on mobile—graceful fallback
       }
     }
 
@@ -321,7 +384,7 @@
     const sound = document.getElementById('roundEndSound');
     const battleTrack = document.getElementById('battleTrack');
     const opponentVideo = document.getElementById('opponentVideo');
-    const opponentImage = document.getElementById('opponentImage');
+    theOpponentImage = document.getElementById('opponentImage');
     const opponentUsername = document.getElementById('opponentUsername');
     const viewerCountTop = document.getElementById('viewerCountTop');
 
@@ -379,7 +442,8 @@
         b.addEventListener('click', ()=>{
           currentCategory = cat; chosenSub=null;
           postModal.classList.remove('show');
-                    categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
+          categoryModal.classList.add('show');
+          categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
           openCategory(cat, true);
         });
         postCategoryGrid.appendChild(b);
@@ -407,7 +471,7 @@
       if (pool.length) {
         const random = pool[Math.floor(Math.random() * pool.length)];
         opponentVideo.src = random.video;
-        opponentImage.src = random.image;
+        theOpponentImage.src = random.image;
         opponentUsername.innerText = random.username;
       }
     }
@@ -432,20 +496,26 @@
             battleTrack.load();
             optionsModal.classList.remove('show');
             startBattleBtn.style.display = 'block';
-            timerDisplay.innerText = "🔥 Ready — tap BattleBillions to start!";
+            timerDisplay.innerText = "Ready — tap BattleBillions to start!";
             updateHash(cat, b.label);
             applyCategoryOpponent(cat);
           });
           wrapper.appendChild(btn);
         });
-        optionsHint.innerText = "Only RAP uses beats. Others don’t.";
+        optionsHint.innerText = "Only RAP uses instrumentals.";
       } else {
         const subtitleMap = {
           ART: "Choose your art style.",
           AUTO: "Choose your auto event.",
           DEBAT: "Choose your debate topic.",
           FASHION: "Choose your fashion lane.",
-          INSTRUMENTS: "Choose your instrument."
+          INSTRUMENTS: "Choose your instrument.",
+          DANCE: "Pick your dance style.",
+          COMEDY: "Pick a comedy format.",
+          GAMING: "Pick a gaming lane.",
+          COOKING: "Choose your food focus.",
+          FITNESS: "Choose your training style.",
+          PHOTOGRAPHY: "Choose your shooting style.",
         };
         optionsSubtitle.innerText = subtitleMap[cat] || "Choose an option.";
         items.forEach(label => {
@@ -454,20 +524,13 @@
             chosenOptions[cat.toLowerCase()] = label;
             optionsModal.classList.remove('show');
             startBattleBtn.style.display = 'block';
-            timerDisplay.innerText = "🔥 Ready — tap BattleBillions to start!";
+            timerDisplay.innerText = "Ready — tap BattleBillions to start!";
             updateHash(cat, label);
             applyCategoryOpponent(cat);
           });
           wrapper.appendChild(btn);
         });
-        const hints = {
-          ART: "No instrumental here — obviously.",
-          AUTO: "Rev up. No instrumental picker needed.",
-          DEBAT: "No beats — just bars of logic.",
-          FASHION: "Serving looks — no instrumental here.",
-          INSTRUMENTS: "Live performance mode — no beat selection here."
-        };
-        optionsHint.innerText = hints[cat] || '';
+        optionsHint.innerText = "";
       }
 
       optionsBody.appendChild(wrapper);
@@ -516,7 +579,7 @@
     let round = 1, roundPart = 0, timeLeft = 33;
     const maxRounds = 3;
     function setDim(active) { active ? streamContainer.classList.add('dimmed') : streamContainer.classList.remove('dimmed'); }
-    function triggerGlow() { timerDisplay.classList.add('animate'); setTimeout(() => timerDisplay.classList.remove('animate'), 2000); }
+    function triggerGlow() { timerDisplay.classList.add('animate'); setTimeout(() => timerDisplay.classList.remove('animate'), 1600); }
 
     function runRoundPart() {
       setDim(true);
@@ -538,12 +601,10 @@
               timerDisplay.innerText = `Switching to Next Round…`;
               setTimeout(runRoundPart, 6000);
             } else {
-              timerDisplay.innerText = '🔥 Battle Over — Great Work! 🔥';
+              timerDisplay.innerText = 'Battle Over — Great Work!';
               triggerGlow(); setDim(false);
-              // show post-battle overlay
               buildPostCats();
               postModal.classList.add('show');
-              // prep next opponent background
               loadRandomOpponent();
               startBattleBtn.style.display = 'block';
             }
@@ -572,12 +633,12 @@
       if (pool.length) {
         const random = pool[Math.floor(Math.random() * pool.length)];
         opponentVideo.src = random.video;
-        opponentImage.src = random.image;
+        theOpponentImage.src = random.image;
         opponentUsername.innerText = random.username;
       }
       setTimeout(() => {
-        timerDisplay.innerText = "🔥 New Opponent Ready — pick options or press BattleBillions!";
-      }, 1200);
+        timerDisplay.innerText = "New Opponent Ready — pick options or press BattleBillions!";
+      }, 900);
     }
 
     // Post-battle actions
@@ -586,12 +647,11 @@
       if(!currentCategory || !chosenSub){ postModal.classList.remove('show'); categoryModal.classList.add('show'); return; }
       postModal.classList.remove('show');
       startBattleBtn.style.display='block';
-      timerDisplay.innerText = "Tap BattleBillions to continue in same category.";
+      timerDisplay.innerText = "Tap BattleBillions to continue.";
     });
     postPickSub.addEventListener('click', ()=>{
       postModal.classList.remove('show');
       categoryModal.classList.add('show');
-      // preselect current cat
       if(currentCategory){
         categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===currentCategory));
         openCategory(currentCategory, true);
@@ -604,13 +664,13 @@
       timerDisplay.innerText = "Opponent switched. Tap BattleBillions to start!";
     });
 
-    /* Viewer count tick */
+    /* Viewer count tick (subtle) */
     let viewers = 1300;
     setInterval(()=>{
-      const delta = Math.floor(Math.random()*21)-10; // -10..+10
+      const delta = Math.floor(Math.random()*13)-6; // -6..+6
       viewers = Math.max(0, viewers + delta);
       viewerCountTop.textContent = `👁️ ${viewers.toLocaleString()}`;
-    }, 1500);
+    }, 1600);
 
     /* Init */
     window.onload = () => {
