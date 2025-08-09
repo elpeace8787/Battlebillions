@@ -3,186 +3,173 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions – Dashboard</title>
+  <title>BattleBillions - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%;font-family:'Orbitron',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;overflow:hidden}
-
-    :root{
-      --cyan:#0ff;
-      --glass:rgba(0,255,255,0.12);
-      --glass-strong:rgba(0,255,255,0.18);
-      --dim-overlay:rgba(0,0,0,0.55);
-      --light-overlay:rgba(0,255,200,0.10);
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: white;
+      overflow: hidden;
     }
 
-    /* Shared chrome */
-    .top-bar,.bottom-bar{
-      position:fixed;left:0;width:100%;display:flex;justify-content:space-between;align-items:center;
-      padding:6px 12px;background:rgba(0,255,255,0.08);backdrop-filter:blur(10px);z-index:50
+    /* Screens */
+    .screen { position: absolute; inset: 0; display: none; padding: 12px; }
+    .screen.active { display: block; }
+
+    /* Streams / Arena */
+    .stream-container {
+      display: flex; height: 100vh; width: 100vw; position: relative;
+      background: url('https://www.transparenttextures.com/patterns/cubes.png');
+      backdrop-filter: blur(10px);
+      transition: filter 300ms ease, opacity 300ms ease;
     }
-    .top-bar{top:0;border-bottom:1px solid rgba(0,255,255,0.25);height:40px}
-    .bottom-bar{bottom:0;border-top:1px solid rgba(0,255,255,0.2)}
-    .nav-icon{font-size:14px;color:var(--cyan);cursor:pointer;text-shadow:0 0 5px var(--cyan);padding:6px 10px;border-radius:10px;transition:.25s}
-    .nav-icon:hover{background:rgba(0,255,255,0.12);transform:translateY(-1px)}
+    .stream-container.dimmed { filter: brightness(0.6) contrast(0.9) saturate(0.9); }
 
-    .side-controls{position:fixed;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;z-index:40}
-    .side-controls.left{left:10px}
-    .side-controls.right{right:10px}
-    .side-button{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-      background:rgba(0,255,255,0.10);border:1px solid rgba(0,255,255,0.25);color:var(--cyan);cursor:pointer;transition:.25s}
-    .side-button:hover{transform:scale(1.08)}
-
-    /* Views (SPA) */
-    .view{position:absolute;inset:40px 0 48px 0; /* under top/bottom bars */ padding:16px;overflow:auto;display:none}
-    .view.active{display:block}
-
-    /* Home / slogans */
-    .slogan{
-      max-width:980px;margin:12px auto 18px auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:center
+    video.video-stream {
+      flex: 1; object-fit: cover; background-color: black; width: 50%; height: 100%;
+      filter: brightness(0.85) contrast(1.2) saturate(1.4);
+      border: 1px solid rgba(0,255,255,0.2);
     }
-    .slogan .chip{
-      background:var(--glass-strong);border:1px solid rgba(0,255,255,0.28);padding:8px 12px;border-radius:12px;
-      font-size:12px;letter-spacing:.5px;color:var(--cyan)
+
+    .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+
+    /* Bars */
+    .top-bar, .bottom-bar {
+      position: absolute; width: 100%;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: auto; z-index: 20;
+      background: rgba(0, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
     }
-    .panel{
-      max-width:1100px;margin:0 auto;background:rgba(0,0,0,0.35);border:1px solid rgba(0,255,255,0.2);
-      border-radius:16px;padding:16px 14px;box-shadow:0 0 18px rgba(0,255,255,0.15)
+    .top-bar { top: 0; height: 36px; padding: 4px 12px; border-bottom: 1px solid rgba(0,255,255,0.3); }
+    .bottom-bar { bottom: 0; padding: 6px 12px; gap: 16px; background: rgba(0, 255, 255, 0.07); border-top: 1px solid rgba(0,255,255,0.2); }
+
+    .nav-icon { font-size: 14px; color: #0ff; cursor: pointer; text-shadow: 0 0 5px #0ff; transition: transform 0.3s, background 0.2s; padding: 4px 8px; border-radius: 10px; }
+    .nav-icon:hover { transform: scale(1.05); background: rgba(0,255,255,0.1); }
+
+    /* Home */
+    .slogan { max-width: 980px; margin: 50px auto 18px auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .chip { background: rgba(0,255,255,0.15); border: 1px solid rgba(0,255,255,0.28); padding: 8px 12px; border-radius: 12px; font-size: 12px; letter-spacing: .5px; color: #0ff; }
+    .panel {
+      max-width: 1100px; margin: 0 auto; background: rgba(0,0,0,0.35); border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 16px; padding: 16px 14px; box-shadow: 0 0 18px rgba(0,255,255,0.15)
     }
-    .panel h2{font-size:18px;color:#e8feff;margin-bottom:10px;letter-spacing:.6px}
-    .cta-wrap{display:flex;justify-content:center;margin-top:16px}
-    .cta{
-      display:inline-block;padding:12px 22px;border-radius:24px;background:var(--cyan);color:#000;border:none;font-weight:700;
-      letter-spacing:.5px;cursor:pointer;box-shadow:0 0 16px rgba(0,255,255,0.5);transition:.2s
+    .panel h2 { font-size: 18px; color: #e8feff; margin-bottom: 10px; letter-spacing: .6px }
+    .cta-wrap { display: flex; justify-content: center; margin-top: 16px }
+    .cta {
+      display: inline-block; padding: 12px 22px; border-radius: 24px; background: #0ff; color: #000; border: none; font-weight: 700;
+      letter-spacing:.5px; cursor: pointer; box-shadow: 0 0 16px rgba(0,255,255,0.5); transition:.2s
     }
-    .cta:hover{transform:translateY(-1px)}
+    .cta:hover { transform: translateY(-1px) }
 
-    /* Dashboard / category picker */
-    .grid{
-      display:grid;gap:10px;
-      grid-template-columns:repeat(2,minmax(0,1fr)); /* mobile-safe */
+    /* Dashboard category + subcategory */
+    .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 10px; }
+    @media (min-width: 760px){ .grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (min-width: 1060px){ .grid { grid-template-columns: repeat(6, minmax(0,1fr)); } }
+
+    .pill {
+      position: relative; display: flex; align-items: center; justify-content: center; text-align: center;
+      min-height: 56px; padding: 10px 8px; border-radius: 14px; border: 1px solid rgba(0,255,255,0.28);
+      background: rgba(0,255,255,0.08); color: #dff; cursor: pointer; transition: .22s; line-height: 1.1;
     }
-    @media(min-width:720px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    @media(min-width:1040px){.grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+    .pill span { display: block; max-width: 100%; word-break: break-word; font-size: 14px; }
+    @media (min-width: 520px){ .pill span { font-size: 15px } }
+    .pill:hover { background: rgba(0,255,255,0.16); transform: translateY(-1px) }
+    .pill.active { outline: 2px solid #0ff; box-shadow: 0 0 12px rgba(0,255,255,0.45) }
 
-    .pill{
-      position:relative;display:flex;align-items:center;justify-content:center;text-align:center;
-      min-height:56px;padding:10px 8px;border-radius:14px;border:1px solid rgba(0,255,255,0.28);
-      background:rgba(0,255,255,0.06);color:#dff;cursor:pointer;transition:.22s;
-      line-height:1.1;
-    }
-    .pill span{display:block;max-width:100%;word-break:break-word;font-size:14px}
-    @media(min-width:520px){.pill span{font-size:15px}}
-    .pill:hover{background:rgba(0,255,255,0.16);transform:translateY(-1px)}
-    .pill.active{outline:2px solid var(--cyan);box-shadow:0 0 12px rgba(0,255,255,0.45)}
+    .subgrid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 10px; }
+    @media (min-width: 760px){ .subgrid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    .sub-note { margin: 8px 0 4px 2px; color: #aef; font-size: 12px; opacity: .9 }
 
-    .subgrid{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
-    @media(min-width:760px){.subgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    .sub-note{margin:10px 0 4px 2px;color:#aef;font-size:12px;opacity:.9}
-    .cta.secondary{display:none;margin-top:12px}
-    .cta.secondary.show{display:inline-block}
+    .cta.secondary { display: none; margin-top: 12px }
+    .cta.secondary.show { display: inline-block }
 
-    /* Arena view */
-    .stream-container{position:relative;width:100%;height:100%;display:flex}
-    video.video-stream{flex:1;object-fit:cover;width:50%;height:100%;background:#000;filter:brightness(.9) contrast(1.2) saturate(1.3)}
-    .arena-overlay{position:absolute;inset:0;pointer-events:none}
-    .arena-top{position:absolute;top:0;left:0;right:0;height:38px;padding:6px 12px;display:flex;justify-content:space-between;align-items:center;
-      background:rgba(0,255,255,0.08);border-bottom:1px solid rgba(0,255,255,0.2)}
-    .arena-chip{background:rgba(0,255,255,0.12);border:1px solid rgba(0,255,255,0.28);padding:6px 10px;border-radius:10px;color:var(--cyan);font-size:12px}
+    /* Arena overlay elements */
+    .arena-top { display: flex; justify-content: space-between; align-items: center; height: 36px; padding: 4px 12px;
+      background: rgba(0,255,255,0.1); border-bottom: 1px solid rgba(0,255,255,0.3); }
+    .arena-chip { background: rgba(0,255,255,0.12); border: 1px solid rgba(0,255,255,0.28); padding: 6px 10px; border-radius: 10px; color: #0ff; font-size: 12px }
 
-    .names{position:absolute;top:70px;left:0;right:0;display:flex;justify-content:space-between;padding:0 12px;gap:12px}
-    .name-pill{pointer-events:auto;background:rgba(0,0,0,0.55);padding:6px 10px;border-radius:14px;border:1px solid rgba(0,255,255,0.28);color:#e8feff;font-size:13px}
+    .names { position: absolute; top: 70px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 12px; gap: 12px; z-index: 12; }
+    .name-pill { pointer-events: auto; background: rgba(0,0,0,0.55); padding: 6px 10px; border-radius: 14px; border: 1px solid rgba(0,255,255,0.28); color: #e8feff; font-size: 13px }
 
-    .vote-btn{position:absolute;bottom:130px;padding:9px 16px;border-radius:30px;background:rgba(0,255,255,0.2);border:none;
-      color:#fff;font-size:15px;pointer-events:auto}
-    .vote-left{left:12px}
-    .vote-right{right:12px}
+    .vote-btn { position: absolute; bottom: 130px; padding: 9px 16px; border-radius: 30px; background: rgba(0,255,255,0.2); border: none; color: #fff; font-size: 15px; pointer-events: auto; z-index: 12 }
+    .vote-left { left: 12px }
+    .vote-right { right: 12px }
 
-    /* Live audience + chat button inline */
-    .audience-bar{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);min-width:260px;max-width:min(92%,560px);
-      display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 12px;border-radius:14px;
-      background:rgba(0,0,0,0.45);border:1px solid rgba(0,255,255,0.28)}
-    .aud-text{font-size:12px;color:var(--cyan)}
-    .aud-avatars{display:flex;gap:6px}
-    .aud-avatars img{width:20px;height:20px;border-radius:50%}
-    .chat-mini{pointer-events:auto;border:none;border-radius:999px;background:var(--cyan);color:#000;font-weight:700;padding:6px 10px;cursor:pointer}
+    .audience-bar { position: absolute; bottom: 78px; left: 50%; transform: translateX(-50%); min-width: 260px; max-width: min(92%, 560px);
+      display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 12px; border-radius: 14px; z-index: 12;
+      background: rgba(0,0,0,0.45); border: 1px solid rgba(0,255,255,0.28) }
+    .aud-text { font-size: 12px; color: #0ff }
+    .aud-avatars { display: flex; gap: 6px }
+    .aud-avatars img { width: 20px; height: 20px; border-radius: 50% }
+    .chat-mini { pointer-events: auto; border: none; border-radius: 999px; background: #0ff; color: #000; font-weight: 700; padding: 6px 10px; cursor: pointer }
 
-    /* Timer + round center pill */
-    .round-timer{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:28px;
-      background:rgba(0,255,255,0.12);border:2px solid var(--cyan);color:#fff;font-weight:700;box-shadow:0 0 15px rgba(0,255,255,0.5)}
-    .round-timer.animate{background:rgba(0,255,200,0.22);box-shadow:0 0 20px rgba(0,255,200,0.75)}
-
-    /* Cinematic lighting */
-    .cinema-dim::after{content:"";position:absolute;inset:0;background:var(--dim-overlay);pointer-events:none;z-index:2}
-    .cinema-light::after{content:"";position:absolute;inset:0;background:var(--light-overlay);pointer-events:none;z-index:2}
+    .round-timer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 18px; border-radius: 28px;
+      background: rgba(0,255,255,0.12); border: 2px solid #0ff; color: #fff; font-weight: 700; box-shadow: 0 0 15px rgba(0,255,255,0.5); z-index: 12 }
+    .round-timer.animate { background: rgba(0,255,200,0.22); box-shadow: 0 0 20px rgba(0,255,200,0.75) }
 
     /* Post-battle overlay */
-    .end-overlay{
-      position:absolute;inset:0;background:rgba(0,0,0,0.72);
-      display:none;align-items:center;justify-content:center;z-index:60;backdrop-filter:blur(4px)
+    .end-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 30; backdrop-filter: blur(4px) }
+    .end-card {
+      width: min(720px, 92%); background: rgba(0,0,0,0.6); border: 1px solid rgba(0,255,255,0.3);
+      border-radius: 16px; padding: 18px; box-shadow: 0 0 22px rgba(0,255,255,0.35)
     }
-    .end-card{
-      width:min(720px,92%);background:rgba(0,0,0,0.6);border:1px solid rgba(0,255,255,0.3);
-      border-radius:16px;padding:18px;box-shadow:0 0 22px rgba(0,255,255,0.35)
-    }
-    .end-card h3{font-size:18px;margin-bottom:10px;color:#e8feff}
-    .end-card .grid{margin-top:10px}
-    .end-actions{display:flex;gap:10px;justify-content:center;margin-top:14px}
-    .btn{padding:10px 16px;border-radius:20px;border:1px solid rgba(0,255,255,0.3);background:rgba(0,255,255,0.12);color:#fff;cursor:pointer}
-    .btn.primary{background:var(--cyan);color:#000;border:none;font-weight:700}
+    .end-card h3 { font-size: 18px; margin-bottom: 10px; color: #e8feff }
+    .end-card .grid { margin-top: 10px }
+    .end-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px }
+    .btn { padding: 10px 16px; border-radius: 20px; border: 1px solid rgba(0,255,255,0.3); background: rgba(0,255,255,0.12); color: #fff; cursor: pointer }
+    .btn.primary { background: #0ff; color: #000; border: none; font-weight: 700 }
 
-    /* Hidden utility */
-    .hidden{display:none!important}
+    /* Utility */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <!-- Global Nav Bars -->
-  <div class="top-bar">
-    <div class="nav-icon" data-nav="home">🏠 Home</div>
-    <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
-    <div class="nav-icon" data-nav="battle">📺 Battle</div>
-    <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
-    <div class="nav-icon" data-nav="profile">👤 Profile</div>
-  </div>
+  <!-- SCREEN: HOME -->
+  <section id="screen-home" class="screen active">
+    <div class="top-bar">
+      <div class="nav-icon" data-nav="home">🏠 Home</div>
+      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
+      <div class="nav-icon" data-nav="battle">📺 Battle</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
+      <div class="nav-icon" data-nav="profile">👤 Profile</div>
+    </div>
 
-  <div class="side-controls left">
-    <div class="side-button" data-nav="profile">👤</div>
-    <div class="side-button" data-nav="dashboard">🔍</div>
-    <div class="side-button" data-nav="home">🏠</div>
-  </div>
-  <div class="side-controls right">
-    <div class="side-button" data-nav="leaderboard">🏆</div>
-    <div class="side-button" data-nav="battle">📺</div>
-    <div class="side-button" data-nav="dashboard">🎛️</div>
-  </div>
-
-  <div class="bottom-bar">
-    <div class="nav-icon" data-nav="profile">👤</div>
-    <div class="nav-icon" data-nav="dashboard">🔍</div>
-    <div class="nav-icon" data-nav="leaderboard">🏆</div>
-    <div class="nav-icon" data-nav="home">🏠</div>
-    <div class="nav-icon" data-nav="battle">📺</div>
-  </div>
-
-  <!-- VIEWS -->
-  <!-- HOME -->
-  <section id="view-home" class="view active">
     <div class="slogan">
       <div class="chip">1ST – Defeat BILLIONS.</div>
       <div class="chip">2ND – Choose Your BATTLE.</div>
       <div class="chip">3RD – Defeat BILLIONS.</div>
     </div>
-    <div class="panel">
+
+    <div class="panel" style="margin-top: 10px;">
       <h2>Welcome to BattleBillions</h2>
-      <p style="opacity:.9;font-size:13px;margin-bottom:10px">Tap Dashboard to choose your battle category and jump in.</p>
+      <p style="opacity:.9;font-size:13px;margin-bottom:10px">Tap Dashboard to choose your category and jump in.</p>
       <div class="cta-wrap"><button class="cta" data-nav="dashboard">Go to Dashboard</button></div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="nav-icon" data-nav="profile">👤</div>
+      <div class="nav-icon" data-nav="dashboard">🔍</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆</div>
+      <div class="nav-icon" data-nav="home">🏠</div>
+      <div class="nav-icon" data-nav="battle">📺</div>
     </div>
   </section>
 
-  <!-- DASHBOARD: Category -> Subcategory -->
-  <section id="view-dashboard" class="view">
-    <div class="slogan">
+  <!-- SCREEN: DASHBOARD -->
+  <section id="screen-dashboard" class="screen">
+    <div class="top-bar">
+      <div class="nav-icon" data-nav="home">🏠 Home</div>
+      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
+      <div class="nav-icon" data-nav="battle">📺 Battle</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
+      <div class="nav-icon" data-nav="profile">👤 Profile</div>
+    </div>
+
+    <div class="slogan" style="margin-top: 44px;">
       <div class="chip">1ST – Defeat BILLIONS.</div>
       <div class="chip">2ND – Choose Your BATTLE.</div>
       <div class="chip">3RD – Defeat BILLIONS.</div>
@@ -190,30 +177,39 @@
 
     <div class="panel" id="cat-panel">
       <h2>Choose Category</h2>
-      <div class="grid" id="categoryGrid"><!-- Filled by JS --></div>
+      <div class="grid" id="categoryGrid"></div>
     </div>
 
-    <div class="panel hidden" id="subcat-panel">
+    <div class="panel hidden" id="subcat-panel" style="margin-top: 12px;">
       <h2 id="subcatTitle">Choose Subcategory</h2>
       <div class="sub-note" id="subcatNote"></div>
       <div class="subgrid" id="subcatGrid"></div>
-      <div class="cta-wrap">
-        <button id="startBattleBtn" class="cta">BattleBillions</button>
-      </div>
-      <div class="cta-wrap">
-        <button id="backToCategories" class="cta secondary">Back to Categories</button>
-      </div>
+      <div class="cta-wrap"><button id="startBattleBtn" class="cta">BattleBillions</button></div>
+      <div class="cta-wrap"><button id="backToCategories" class="cta secondary">Back to Categories</button></div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="nav-icon" data-nav="profile">👤</div>
+      <div class="nav-icon" data-nav="dashboard">🔍</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆</div>
+      <div class="nav-icon" data-nav="home">🏠</div>
+      <div class="nav-icon" data-nav="battle">📺</div>
     </div>
   </section>
 
-  <!-- BATTLE (Arena) -->
-  <section id="view-battle" class="view">
-    <div class="stream-container cinema-dim" id="arena">
+  <!-- SCREEN: BATTLE -->
+  <section id="screen-battle" class="screen">
+    <div class="stream-container dimmed" id="arena">
       <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
       <video class="video-stream" id="opponentVideo" autoplay muted loop></video>
 
-      <div class="arena-overlay">
-        <div class="arena-top">
+      <div class="overlay">
+        <div class="top-bar">
+          <div class="nav-icon">🔴 LIVE</div>
+          <div class="nav-icon" id="viewerCountTop">👁️ 0</div>
+        </div>
+
+        <div class="arena-top" style="position: absolute; top: 36px; left: 0; right: 0;">
           <div class="arena-chip" id="arenaCat">Category: —</div>
           <div class="arena-chip" id="arenaSub">Sub: —</div>
         </div>
@@ -229,9 +225,7 @@
         <div class="audience-bar">
           <span class="aud-text" id="audCount">Live Audience: 🔴 0</span>
           <div class="aud-avatars" id="audAvatars">
-            <img src="a1.jpg" alt="">
-            <img src="a2.jpg" alt="">
-            <img src="a3.jpg" alt="">
+            <img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt="">
           </div>
           <button class="chat-mini" id="chatBtn">💬 Chat</button>
         </div>
@@ -247,7 +241,7 @@
 
           <div class="panel" style="margin-top:12px;background:rgba(0,255,255,0.05)">
             <h2 style="margin-bottom:8px">Choose Category</h2>
-            <div class="grid" id="postCategoryGrid"><!-- Filled by JS --></div>
+            <div class="grid" id="postCategoryGrid"></div>
           </div>
 
           <div class="end-actions">
@@ -258,28 +252,430 @@
       </div>
     </div>
 
-    <!-- Audio -->
     <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
     <audio id="battleTrack" hidden></audio>
+
+    <div class="bottom-bar">
+      <div class="nav-icon" data-nav="profile">👤</div>
+      <div class="nav-icon" data-nav="dashboard">🔍</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆</div>
+      <div class="nav-icon" data-nav="home">🏠</div>
+      <div class="nav-icon" data-nav="battle">📺</div>
+    </div>
   </section>
 
-  <!-- LEADERBOARD -->
-  <section id="view-leaderboard" class="view">
-    <div class="panel">
+  <!-- SCREEN: LEADERBOARD -->
+  <section id="screen-leaderboard" class="screen">
+    <div class="top-bar">
+      <div class="nav-icon" data-nav="home">🏠 Home</div>
+      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
+      <div class="nav-icon" data-nav="battle">📺 Battle</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
+      <div class="nav-icon" data-nav="profile">👤 Profile</div>
+    </div>
+
+    <div class="panel" style="margin-top: 56px;">
       <h2>Leaderboard</h2>
       <p style="opacity:.85;font-size:13px">Top battlers will appear here.</p>
     </div>
-  </section>
 
-  <!-- PROFILE -->
-  <section id="view-profile" class="view">
-    <div class="panel">
-      <h2>Your Profile</h2>
-      <p style="opacity:.85;font-size:13px">Customize your handle, avatar, and settings.</p>
+    <div class="bottom-bar">
+      <div class="nav-icon" data-nav="profile">👤</div>
+      <div class="nav-icon" data-nav="dashboard">🔍</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆</div>
+      <div class="nav-icon" data-nav="home">🏠</div>
+      <div class="nav-icon" data-nav="battle">📺</div>
     </div>
   </section>
 
-  <!-- === PART 2 (Core JavaScript) WILL BE PASTED HERE === -->
-  <!-- === PART 3 (Extended Logic) WILL BE PASTED UNDER PART 2 === -->
+  <!-- SCREEN: PROFILE -->
+  <section id="screen-profile" class="screen">
+    <div class="top-bar">
+      <div class="nav-icon" data-nav="home">🏠 Home</div>
+      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
+      <div class="nav-icon" data-nav="battle">📺 Battle</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
+      <div class="nav-icon" data-nav="profile">👤 Profile</div>
+    </div>
+
+    <div class="panel" style="margin-top: 56px;">
+      <h2>Your Profile</h2>
+      <p style="opacity:.85;font-size:13px">Customize your handle, avatar, and settings.</p>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="nav-icon" data-nav="profile">👤</div>
+      <div class="nav-icon" data-nav="dashboard">🔍</div>
+      <div class="nav-icon" data-nav="leaderboard">🏆</div>
+      <div class="nav-icon" data-nav="home">🏠</div>
+      <div class="nav-icon" data-nav="battle">📺</div>
+    </div>
+  </section>
+
+  <script>
+    /* ---------------- SPA Router ---------------- */
+    const screens = {
+      home: document.getElementById('screen-home'),
+      dashboard: document.getElementById('screen-dashboard'),
+      battle: document.getElementById('screen-battle'),
+      leaderboard: document.getElementById('screen-leaderboard'),
+      profile: document.getElementById('screen-profile'),
+    };
+    function go(view){
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      (screens[view] || screens.home).classList.add('active');
+    }
+    document.querySelectorAll('[data-nav]').forEach(el=>{
+      el.addEventListener('click', ()=> go(el.getAttribute('data-nav')));
+    });
+
+    /* ----------- Category / Subcategory (no "ALL") ----------- */
+    const CATEGORY_MAP = {
+      ART:        { note: "Select an art discipline", sub: ["Painting","Digital","Sculpture","Graffiti","Photography","Mixed Media"] },
+      AUTO:       { note: "Select an auto discipline", sub: ["Drift","Build","Detail","Audio","Off-road","Showcase"] },
+      DEBAT:      { note: "Pick your debate arena",   sub: ["Politics","Tech","Sports","Culture","Open Debate"] },
+      FASHION:    { note: "Select a fashion lane",    sub: ["Runway","Streetwear","Styling","Thrifting","Design Sketch"] },
+      INSTRUMENTS:{ note: "Pick an instrument",        sub: ["Guitar","Piano","Drums","Violin","Bass","Brass"] },
+      RAP:        { note: "Pick your style",           sub: ["Boom Bap","Trap","Freestyle","Melodic","Battle Bars"] },
+    };
+
+    const categoryGrid = document.getElementById('categoryGrid');
+    const subPanel = document.getElementById('subcat-panel');
+    const subTitle = document.getElementById('subcatTitle');
+    const subNote = document.getElementById('subcatNote');
+    const subGrid = document.getElementById('subcatGrid');
+    const startBattleBtn = document.getElementById('startBattleBtn');
+    const backToCategories = document.getElementById('backToCategories');
+
+    let chosenCategory = null;
+    let chosenSub = null;
+
+    // Build categories
+    function buildCategories(targetGrid){
+      targetGrid.innerHTML = '';
+      for (const key of Object.keys(CATEGORY_MAP)){
+        const btn = document.createElement('button');
+        btn.className = 'pill';
+        btn.innerHTML = `<span>${key}</span>`;
+        btn.addEventListener('click', ()=>{
+          chosenCategory = key; chosenSub = null;
+          if (targetGrid === categoryGrid){
+            [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
+            btn.classList.add('active');
+            fillSubcats(key);
+          } else {
+            // Post-battle category box pick
+            chosenCategory = key;
+            chosenSub = null;
+            fillSubcats(key); // open subcat on dashboard so user can choose then start
+            go('dashboard');
+            document.getElementById('endOverlay').style.display = 'none';
+          }
+        });
+        targetGrid.appendChild(btn);
+      }
+    }
+    buildCategories(categoryGrid);
+
+    function fillSubcats(cat){
+      const cfg = CATEGORY_MAP[cat];
+      subTitle.textContent = `Choose ${cat} Subcategory`;
+      subNote.textContent = cfg.note;
+      subGrid.innerHTML = '';
+      cfg.sub.forEach(name=>{
+        const s = document.createElement('button');
+        s.className = 'pill';
+        s.innerHTML = `<span>${name}</span>`;
+        s.addEventListener('click', ()=>{
+          chosenSub = name;
+          [...subGrid.children].forEach(c=>c.classList.remove('active'));
+          s.classList.add('active');
+          startBattleBtn.classList.add('show');
+        });
+        subGrid.appendChild(s);
+      });
+      subPanel.classList.remove('hidden');
+      startBattleBtn.classList.remove('show');
+    }
+
+    backToCategories.addEventListener('click', ()=>{
+      chosenCategory = null; chosenSub = null;
+      subPanel.classList.add('hidden');
+      [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
+      startBattleBtn.classList.remove('show');
+    });
+
+    startBattleBtn.addEventListener('click', ()=>{
+      if(!chosenCategory || !chosenSub) return;
+      go('battle');
+      bootArena(chosenCategory, chosenSub);
+    });
+
+    /* -------------------- Arena Logic -------------------- */
+    const arenaEl = document.getElementById('arena');
+    const arenaCat = document.getElementById('arenaCat');
+    const arenaSub = document.getElementById('arenaSub');
+    const localVideo = document.getElementById('localVideo');
+    const opponentVideo = document.getElementById('opponentVideo');
+    const oppName = document.getElementById('oppName');
+    const roundTimer = document.getElementById('roundTimer');
+    const roundEndSound = document.getElementById('roundEndSound');
+    const battleTrack = document.getElementById('battleTrack');
+    const audCountEl = document.getElementById('audCount');
+
+    let chosenCategory = null;
+    let chosenSub = null;
+
+    // Build categories
+    function buildCategories(targetGrid){
+      targetGrid.innerHTML = '';
+      for (const key of Object.keys(CATEGORY_MAP)){
+        const btn = document.createElement('button');
+        btn.className = 'pill';
+        btn.innerHTML = `<span>${key}</span>`;
+        btn.addEventListener('click', ()=>{
+          chosenCategory = key; chosenSub = null;
+          if (targetGrid === categoryGrid){
+            [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
+            btn.classList.add('active');
+            fillSubcats(key);
+          } else {
+            // Post-battle category box pick
+            chosenCategory = key;
+            chosenSub = null;
+            fillSubcats(key); // open subcat on dashboard so user can choose then start
+            go('dashboard');
+            document.getElementById('endOverlay').style.display = 'none';
+          }
+        });
+        targetGrid.appendChild(btn);
+      }
+    }
+    buildCategories(categoryGrid);
+
+    function fillSubcats(cat){
+      const cfg = CATEGORY_MAP[cat];
+      subTitle.textContent = `Choose ${cat} Subcategory`;
+      subNote.textContent = cfg.note;
+      subGrid.innerHTML = '';
+      cfg.sub.forEach(name=>{
+        const s = document.createElement('button');
+        s.className = 'pill';
+        s.innerHTML = `<span>${name}</span>`;
+        s.addEventListener('click', ()=>{
+          chosenSub = name;
+          [...subGrid.children].forEach(c=>c.classList.remove('active'));
+          s.classList.add('active');
+          startBattleBtn.classList.add('show');
+        });
+        subGrid.appendChild(s);
+      });
+      subPanel.classList.remove('hidden');
+      startBattleBtn.classList.remove('show');
+    }
+
+    backToCategories.addEventListener('click', ()=>{
+      chosenCategory = null; chosenSub = null;
+      subPanel.classList.add('hidden');
+      [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
+      startBattleBtn.classList.remove('show');
+    });
+
+    startBattleBtn.addEventListener('click', ()=>{
+      if(!chosenCategory || !chosenSub) return;
+      go('battle');
+      bootArena(chosenCategory, chosenSub);
+    });
+
+    /* -------------------- Arena Logic -------------------- */
+    const arenaEl = document.getElementById('arena');
+    const arenaCat = document.getElementById('arenaCat');
+    const arenaSub = document.getElementById('arenaSub');
+    const localVideo = document.getElementById('localVideo');
+    const opponentVideo = document.getElementById('opponentVideo');
+    const oppName = document.getElementById('oppName');
+    const roundTimer = document.getElementById('roundTimer');
+    const roundEndSound = document.getElementById('roundEndSound');
+    const battleTrack = document.getElementById('battleTrack');
+    const audCountEl = document.getElementById('audCount');
+    const audAvatars = document.getElementById('audAvatars');
+    const viewerCountTop = document.getElementById('viewerCountTop');
+
+    const endOverlay = document.getElementById('endOverlay');
+    const postCategoryGrid = document.getElementById('postCategoryGrid');
+    const keepCategoryBtn = document.getElementById('keepCategoryBtn');
+    const nextOpponentBtn = document.getElementById('nextOpponentBtn');
+
+    // Opponent pools
+    const OPP_POOLS = {
+      ART:        [{user:'@BrushKing', video:'art2.mp4'}, {user:'@InkMage', video:'art3.mp4'}],
+      AUTO:       [{user:'@DriftLord', video:'auto1.mp4'}, {user:'@DetailDuke', video:'auto2.mp4'}],
+      DEBAT:      [{user:'@ArgueAI', video:'debat1.mp4'}, {user:'@PointGuard', video:'debat2.mp4'}],
+      FASHION:    [{user:'@RunwayRay', video:'fashion2.mp4'}, {user:'@FitGenius', video:'fashion3.mp4'}],
+      INSTRUMENTS:[{user:'@Guitarix', video:'inst1.mp4'}, {user:'@KeysNova', video:'inst2.mp4'}],
+      RAP:        [{user:'@MicFlame', video:'rap1.mp4'}, {user:'@LyricBeast', video:'rap2.mp4'}],
+    };
+
+    // Optional instrumentals for RAP
+    const INSTRUMENTALS = [
+      {label:'🔥 Classic Trap', src:'beat1.mp3'},
+      {label:'💥 Boom Bap', src:'beat2.mp3'},
+      {label:'🌊 Chill Vibes', src:'beat3.mp3'},
+      {label:'⚡ Fast Flow', src:'beat4.mp3'},
+    ];
+
+    // Round state
+    let round = 1, part = 0, timeLeft = 33, maxRounds = 3, timerHandle = null;
+
+    // Audience
+    let audienceCount = 0, audienceTick = null;
+
+    function setDim(on){ arenaEl.classList.toggle('dimmed', !!on); }
+
+    async function bootArena(cat, sub){
+      arenaCat.textContent = `Category: ${cat}`;
+      arenaSub.textContent = `Sub: ${sub}`;
+      endOverlay.style.display = 'none';
+      setDim(true);
+
+      // Opponent
+      const pool = OPP_POOLS[cat] || [{user:'@Opponent', video:'user2.mp4'}];
+      const rnd = pool[Math.floor(Math.random()*pool.length)];
+      oppName.textContent = rnd.user;
+      opponentVideo.src = rnd.video;
+
+      // Camera
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+        localVideo.srcObject = stream;
+      }catch(e){
+        localVideo.src = 'user1.mp4';
+        localVideo.muted = true; localVideo.loop = true; localVideo.play();
+      }
+
+      // Track (only RAP)
+      if(cat === 'RAP'){
+        const track = INSTRUMENTALS[Math.floor(Math.random()*INSTRUMENTALS.length)];
+        battleTrack.src = track.src;
+        try { await battleTrack.play(); } catch {}
+      } else {
+        battleTrack.pause();
+        battleTrack.currentTime = 0;
+      }
+
+      // Audience seed/ticker
+      seedAudience();
+      if(audienceTick) clearInterval(audienceTick);
+      audienceTick = setInterval(updateAudience, 1500);
+
+      // Start battle
+      resetRounds();
+      startRoundLoop();
+    }
+
+    function resetRounds(){
+      round = 1; part = 0; timeLeft = 33;
+      if(timerHandle) clearInterval(timerHandle);
+      roundTimer.textContent = 'Get Ready…';
+    }
+
+    function tickTimer(){
+      roundTimer.textContent = `Round ${round}/${maxRounds} | ${(part===0?'@You':'@Opponent')} | ${timeLeft}s`;
+      timeLeft--;
+      if(timeLeft < 0){
+        clearInterval(timerHandle);
+        roundEndSound.currentTime = 0;
+        roundEndSound.play();
+        if(part===0){
+          part=1;
+          pauseBetween('Switching to Opponent…');
+        }else{
+          if(round < maxRounds){
+            round++; part=0;
+            pauseBetween('Next Round Loading…');
+          }else{
+            finishBattle();
+          }
+        }
+      }
+    }
+
+    function startRoundLoop(){
+      setDim(true); // dim during action
+      tickTimer();
+      timerHandle = setInterval(tickTimer, 1000);
+    }
+
+    function pauseBetween(msg){
+      setDim(false); // light during pause
+      roundTimer.classList.add('animate');
+      roundTimer.textContent = `⏸ ${msg}`;
+      setTimeout(()=>{
+        roundTimer.classList.remove('animate');
+        timeLeft = 33;
+        setDim(true);
+        startRoundLoop();
+      }, 6000);
+    }
+
+    function finishBattle(){
+      setDim(false); // light at finish
+      roundTimer.classList.add('animate');
+      roundTimer.textContent = '🔥 Battle Over 🔥';
+      setTimeout(()=> roundTimer.classList.remove('animate'), 1200);
+
+      // Show end overlay with category box & Next Opponent
+      buildCategories(postCategoryGrid);
+      endOverlay.style.display = 'flex';
+    }
+
+    // Keep current category — just find a new opponent in same cat
+    keepCategoryBtn.addEventListener('click', ()=>{
+      endOverlay.style.display = 'none';
+      if(!chosenCategory || !chosenSub){ go('dashboard'); return; }
+      bootArena(chosenCategory, chosenSub);
+    });
+
+    // Next Opponent — stay in same cat/sub, swap rival
+    nextOpponentBtn.addEventListener('click', ()=>{
+      endOverlay.style.display = 'none';
+      if(!chosenCategory || !chosenSub){ go('dashboard'); return; }
+      bootArena(chosenCategory, chosenSub);
+    });
+
+    // Live audience
+    function seedAudience(){
+      audienceCount = 100 + Math.floor(Math.random()*250);
+      audCountEl.textContent = `Live Audience: 🔴 ${audienceCount}`;
+      viewerCountTop.textContent = `👁️ ${audienceCount}`;
+      // avatars
+      audAvatars.innerHTML = '';
+      ['a1.jpg','a2.jpg','a3.jpg','b1.jpg','b2.jpg','b3.jpg'].slice(0,3).forEach(src=>{
+        const i=document.createElement('img'); i.src = src; audAvatars.appendChild(i);
+      });
+    }
+    function updateAudience(){
+      const delta = Math.floor(Math.random()*9)-4; // -4..+4
+      audienceCount = Math.max(0, audienceCount + delta);
+      audCountEl.textContent = `Live Audience: 🔴 ${audienceCount}`;
+      viewerCountTop.textContent = `👁️ ${audienceCount}`;
+      if(Math.random()>0.7){
+        const img = document.createElement('img');
+        img.src = (Math.random()>0.5?'a':'b') + (1+Math.floor(Math.random()*3)) + '.jpg';
+        img.style.opacity = '0';
+        audAvatars.insertBefore(img, audAvatars.firstChild);
+        if(audAvatars.children.length>6) audAvatars.removeChild(audAvatars.lastChild);
+        requestAnimationFrame(()=>{ img.style.transition='opacity .35s'; img.style.opacity='1'; });
+      }
+    }
+
+    // Chat placeholder
+    document.getElementById('chatBtn').addEventListener('click', ()=>{
+      alert('Chat opens here (inline modal/drawer) — coming soon.');
+    });
+
+    // Start on Home
+    go('home');
+  </script>
 </body>
-    </html>
+</html>
