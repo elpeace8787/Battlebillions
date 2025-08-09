@@ -6,216 +6,200 @@
   <title>BattleBillions - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    /* ====== Minimalist Monochrome Theme ====== */
     :root{
-      --bg-0:#0b0b0c;         /* page background */
-      --bg-1:#111214;         /* cards / modals */
-      --bg-2:#15171a;         /* bars */
-      --ink:#e9edf1;          /* primary text */
-      --ink-2:#cfd6dd;        /* secondary text */
-      --ink-3:#9aa3ad;        /* muted text */
-      --stroke:#2a2d31;       /* borders */
-      --accent:#ffffff;       /* action / buttons */
-      --accent-2:#1f1f22;     /* button text on light */
-      --shadow:0 10px 30px rgba(0,0,0,.45);
-      --ring:0 0 0 3px rgba(255,255,255,.08);
+      --bg-0:#0b0b0c; --bg-1:#111214; --bg-2:#15171a;
+      --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
+      --stroke:#2a2d31; --accent:#ffffff; --accent-2:#1f1f22;
+      --shadow:0 10px 30px rgba(0,0,0,.45); --ring:0 0 0 3px rgba(255,255,255,.08);
+      --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      font-family: 'Orbitron', sans-serif;
-      background: var(--bg-0);
-      color: var(--ink);
-      overflow: hidden;
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family:'Orbitron',sans-serif;background:var(--bg-0);color:var(--ink);overflow:hidden
     }
-
-    /* Soft animated backdrop */
     body::before{
-      content:"";
-      position:fixed; inset:-20% -10%;
+      content:"";position:fixed;inset:-20% -10%;
       background:
         radial-gradient(60% 40% at 70% 20%, rgba(255,255,255,.06), transparent 60%),
         radial-gradient(50% 35% at 20% 70%, rgba(255,255,255,.04), transparent 60%),
         linear-gradient(135deg, #0b0b0c 0%, #101114 60%, #0c0d10 100%);
       filter: blur(30px) saturate(1);
-      animation: drift 18s ease-in-out infinite alternate;
-      z-index:-1;
+      animation: drift 18s ease-in-out infinite alternate;z-index:-1
     }
-    @keyframes drift{
-      0%{ transform: translateY(-2%) translateX(-1%); }
-      100%{ transform: translateY(2%) translateX(1%); }
+    @keyframes drift{0%{transform:translate(-1%,-2%)}100%{transform:translate(1%,2%)}}
+    @media (prefers-reduced-motion:reduce){
+      body::before{animation:none}
+      .float,.pulse,.shimmer{animation:none}
     }
 
-    /* ====== Global Chrome (always visible) ====== */
-    .app-topbar, .app-tabbar{
-      position:fixed; left:0; right:0; z-index:1000; background:rgba(17,18,20,.80);
-      backdrop-filter: blur(8px);
-      border-bottom:1px solid var(--stroke);
+    /* ====== Top bar ====== */
+    .app-topbar{
+      position:fixed;inset:0 0 auto 0;height:44px;display:flex;align-items:center;justify-content:space-between;
+      padding:0 14px;background:rgba(17,18,20,.80);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke);z-index:1000
     }
-    .app-topbar{ top:0; height:44px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; }
-    .brand{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.5px; }
-    .brand-badge{ width:22px; height:22px; border-radius:7px; background:#fff; color:#000; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; }
-    .top-right{ display:flex; gap:10px; align-items:center; }
-    .chip{ font-size:12px; color:var(--ink-2); padding:6px 10px; border:1px solid var(--stroke); border-radius:10px; background:rgba(255,255,255,.05); }
+    .brand{font-weight:900;letter-spacing:.6px;color:#fff;display:flex;align-items:center;gap:10px}
+    .brand .wordmark{font-size:14px;opacity:.95}
+    .top-right{display:flex;gap:10px;align-items:center}
+    .chip{font-size:12px;color:var(--ink-2);padding:6px 10px;border:1px solid var(--stroke);border-radius:10px;background:rgba(255,255,255,.05)}
 
+    /* ====== Tab bar (labels above icons) ====== */
     .app-tabbar{
-      bottom:0; height:58px; border-top:1px solid var(--stroke); border-bottom:none;
-      display:grid; grid-template-columns: repeat(5, 1fr);
+      position:fixed;left:0;right:0;bottom:0;height:72px; /* taller to fit label above icon */
+      padding-bottom: calc(var(--safe-bottom));
+      background:rgba(17,18,20,.85);backdrop-filter:blur(8px);border-top:1px solid var(--stroke);z-index:1000;
+      display:grid;grid-template-columns:repeat(5,1fr)
     }
     .tab-btn{
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      color:var(--ink-2); text-decoration:none; cursor:pointer; user-select:none;
-      transition: background .2s, transform .2s, color .2s;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      color:var(--ink-2);cursor:pointer;user-select:none;transition:background .2s,color .2s,transform .2s;position:relative
     }
-    .tab-btn:hover{ background:rgba(255,255,255,.05); color:var(--ink); }
-    .tab-btn.active{ background:rgba(255,255,255,.08); color:#fff; }
-    .tab-btn svg{ width:22px; height:22px; stroke:#fff; fill:none; opacity:.95; }
-    .tab-label{ font-size:11px; letter-spacing:.3px; }
+    .tab-btn:focus-visible{outline:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
+    .tab-btn:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+    .tab-btn.active{background:rgba(255,255,255,.06);color:#fff}
+    .tab-btn svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
+    .tab-label{font-size:10px;letter-spacing:.35px;line-height:1}
 
-    /* ====== Layout for Screens ====== */
-    .app-shell{ position:fixed; inset:44px 0 58px 0; }
-    .screen { position:absolute; inset:0; display:none; }
-    .screen.active { display:block; }
-
-    /* ====== Battle Screen internals ====== */
-    .stream-container {
-      display:flex; height:100%; width:100%; position:relative;
-      background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.06), transparent 60%);
-      transition: filter 300ms ease, opacity 300ms ease, transform .6s ease;
+    /* BILLIONS gold animation */
+    .tab-btn[data-screen="dashboard"] .tab-label{
+      background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3),var(--gold-2),var(--gold-1));
+      background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+      animation: shimmer 3.2s linear infinite
     }
-    .stream-container.dimmed { filter: brightness(0.75) contrast(0.95) saturate(0.95); }
+    @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+    .tab-btn[data-screen="dashboard"] svg .gold-stroke{stroke:url(#goldGrad)}
+    .tab-btn[data-screen="dashboard"].active{box-shadow:inset 0 0 0 1px rgba(240,185,11,.25)}
 
-    video.video-stream {
-      flex: 1; object-fit: cover; background-color: #000; width: 50%; height: 100%;
-      filter: brightness(0.9) contrast(1.15) saturate(1.1);
-      border-right: 1px solid var(--stroke);
+    /* ====== Content area ====== */
+    .app-shell{position:fixed;inset:44px 0 72px 0}
+    .screen{position:absolute;inset:0;display:none}
+    .screen.active{display:block}
+
+    /* ====== Battle screen ====== */
+    .stream-container{
+      display:flex;height:100%;width:100%;position:relative;
+      background:radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.06), transparent 60%);
+      transition:filter 300ms ease,opacity 300ms ease,transform .6s ease
     }
-    video.video-stream:last-child{ border-right:none; border-left:1px solid var(--stroke); }
+    .stream-container.dimmed{filter:brightness(.75) contrast(.95) saturate(.95)}
+    video.video-stream{flex:1;object-fit:cover;background:#000;width:50%;height:100%;filter:brightness(.9) contrast(1.15) saturate(1.1);border-right:1px solid var(--stroke)}
+    video.video-stream:last-child{border-right:none;border-left:1px solid var(--stroke)}
+    .overlay{position:absolute;inset:0;pointer-events:none;z-index:10}
 
-    .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+    .profile-labels{position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40}
+    .profile-entry{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);padding:6px 14px;border-radius:12px;border:1px solid var(--stroke);box-shadow:var(--shadow)}
+    .profile-entry img{width:34px;height:34px;border-radius:10px}
+    .profile-entry span{font-size:14px;color:var(--ink-2)}
 
-    .profile-labels { position: absolute; top: 12px; right: 16px; display: flex; justify-content: flex-end; z-index: 40; }
-    .profile-entry {
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(255,255,255,.06); padding: 6px 14px; border-radius: 12px;
-      border: 1px solid var(--stroke); box-shadow: var(--shadow);
-      animation: floatUpDown 4s ease-in-out infinite;
+    .round-timer{
+      position:absolute;bottom:108px;left:50%;transform:translateX(-50%);
+      background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);
+      border:1px solid var(--stroke);box-shadow:var(--shadow);z-index:50;pointer-events:none;text-align:center
     }
-    .profile-entry img { width: 34px; height: 34px; border-radius: 10px; animation: floatLeftRight 6s ease-in-out infinite; box-shadow: var(--shadow); }
-    .profile-entry span { font-size: 14px; color: var(--ink-2); }
+    .round-timer.pulse{animation:pulse 2.2s infinite}
+    @keyframes pulse{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.03)}100%{transform:translateX(-50%) scale(1)}}
 
-    @keyframes floatUpDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-    @keyframes floatLeftRight { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
-
-    .round-timer {
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: rgba(255,255,255,.06); padding: 12px 26px; border-radius: 14px;
-      font-size: 16px; font-weight: 700; color: var(--ink); border: 1px solid var(--stroke);
-      box-shadow: var(--shadow); animation: pulse 2.4s infinite; z-index: 50;
-      pointer-events: none; text-align: center;
+    /* ====== Category Button (bottom small) ====== */
+    .cat-fab{
+      position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 8px);transform:translateX(-50%);
+      padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--ink);
+      border:1px solid var(--stroke);backdrop-filter:blur(8px);box-shadow:var(--shadow);z-index:1200;
+      display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,background .2s
     }
-    .round-timer.animate { background: rgba(255,255,255,.12); }
-    @keyframes pulse { 0%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.03)} 100%{transform:translateX(-50%) scale(1)} }
+    .cat-fab:hover{background:rgba(255,255,255,.12);transform:translateX(-50%) translateY(-1px)}
+    .cat-fab:focus-visible{outline:none;box-shadow:var(--ring)}
+    .cat-fab svg{width:18px;height:18px;stroke:#fff}
 
-    /* ====== Modal / Cards ====== */
-    .modal {
-      position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-      z-index: 1000; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); pointer-events: auto;
+    /* ====== Modals/Cards ====== */
+    .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);pointer-events:auto}
+    .modal.show{display:flex}
+    .card{background:var(--bg-1);border:1px solid var(--stroke);border-radius:16px;width:min(92vw,820px);padding:20px;box-shadow:var(--shadow)}
+    .card h2{margin-bottom:8px;color:var(--ink);font-size:20px;text-align:center}
+    .slogan{margin:8px auto 16px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--stroke);font-size:12px;line-height:1.6;color:var(--ink-3);text-align:center}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px}
+    .pill{display:flex;align-items:center;justify-content:center;min-height:56px;width:100%;padding:10px 8px;text-align:center;white-space:normal;word-break:break-word;line-height:1.2;font-size:15px;letter-spacing:.4px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);border-radius:12px;color:var(--ink-2);cursor:pointer;user-select:none;transition:transform .2s,background .2s,box-shadow .2s,color .2s}
+    .pill:hover{transform:translateY(-2px);background:rgba(255,255,255,.1);color:var(--ink)}
+    .pill:focus-visible{outline:none;box-shadow:var(--ring)}
+    .pill.active{background:rgba(255,255,255,.18);color:var(--ink)}
+    .actions{margin-top:16px;display:flex;justify-content:center;gap:10px}
+    .btn{background:var(--accent);color:var(--accent-2);border:1px solid var(--stroke);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:800;transition:transform .2s,filter .2s}
+    .btn:hover{transform:translateY(-1px);filter:brightness(.9)}
+    .btn.secondary{background:transparent;color:var(--ink)}
+    .modal .sub-title{text-align:center;color:var(--ink-3);margin-top:6px;font-size:13px}
+    .muted{opacity:.8;font-size:12px;margin-top:10px;text-align:center;color:var(--ink-3)}
+
+    #startBattleBtn{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(6px);
+      background:var(--accent);color:var(--accent-2);border:1px solid var(--stroke);font-size:18px;padding:14px 28px;border-radius:16px;cursor:pointer;z-index:1200;pointer-events:auto;box-shadow:var(--shadow);transition:all .25s ease;display:none
     }
-    .modal.show { display: flex; }
-
-    .card {
-      background: var(--bg-1); border: 1px solid var(--stroke); border-radius: 16px;
-      width: min(92vw, 820px); padding: 20px; box-shadow: var(--shadow);
-    }
-    .card h2 { margin-bottom: 8px; color: var(--ink); font-size: 20px; text-align: center; }
-    .slogan { margin: 8px auto 16px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--stroke); font-size: 12px; line-height: 1.6; color: var(--ink-3); text-align: center; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 12px; }
-
-    .pill {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 56px; width: 100%; padding: 10px 8px; text-align: center;
-      white-space: normal; word-break: break-word; line-height: 1.2; font-size: 15px; letter-spacing: 0.4px;
-      background: rgba(255,255,255,.06); border: 1px solid var(--stroke);
-      border-radius: 12px; color: var(--ink-2); cursor: pointer; user-select: none;
-      transition: transform .2s, background .2s, box-shadow .2s, color .2s;
-    }
-    .pill:focus-visible { outline: none; box-shadow: var(--ring); }
-    .pill:hover { transform: translateY(-2px); background: rgba(255,255,255,.1); color: var(--ink); }
-    .pill.active { background: rgba(255,255,255,.18); color: var(--ink); }
-
-    .actions { margin-top: 16px; display: flex; justify-content: center; gap: 10px; }
-    .btn {
-      background: var(--accent); color: var(--accent-2); border: 1px solid var(--stroke);
-      border-radius: 12px; padding: 10px 16px; cursor: pointer; font-weight: 800;
-      transition: transform .2s, filter .2s;
-    }
-    .btn:hover { transform: translateY(-1px); filter: brightness(.9); }
-    .btn.secondary { background: transparent; color: var(--ink); }
-
-    .modal .sub-title { text-align: center; color: var(--ink-3); margin-top: 6px; font-size: 13px; }
-    .muted { opacity: .8; font-size: 12px; margin-top: 10px; text-align:center; color: var(--ink-3); }
-
-    #startBattleBtn {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateY(6px);
-      background: var(--accent); color: var(--accent-2);
-      border: 1px solid var(--stroke); font-size: 18px;
-      padding: 14px 28px; border-radius: 16px; cursor: pointer;
-      z-index: 1200; pointer-events: auto; box-shadow: var(--shadow);
-      transition: all 0.25s ease; display: none;
-    }
-    #startBattleBtn:hover { transform: translate(-50%, -50%) translateY(4px) scale(1.02); }
-
-    .placeholder { display:flex; align-items:center; justify-content:center; height:100%; width:100%; background: rgba(255,255,255,0.02); backdrop-filter: blur(4px); text-align:center; }
-    .placeholder .box { border:1px solid var(--stroke); border-radius:16px; padding:24px 28px; background:var(--bg-1); max-width: 720px; width: calc(100% - 40px); box-shadow: var(--shadow); }
-    .placeholder h1 { color:var(--ink); margin-bottom:8px; }
-    .placeholder p { color:var(--ink-3); }
+    #startBattleBtn:hover{transform:translate(-50%,-50%) translateY(4px) scale(1.02)}
+    .placeholder{display:flex;align-items:center;justify-content:center;height:100%;width:100%;background:rgba(255,255,255,.02);backdrop-filter:blur(4px);text-align:center}
+    .placeholder .box{border:1px solid var(--stroke);border-radius:16px;padding:24px 28px;background:var(--bg-1);max-width:720px;width:calc(100% - 40px);box-shadow:var(--shadow)}
+    .placeholder h1{color:var(--ink);margin-bottom:8px}
+    .placeholder p{color:var(--ink-3)}
 
     /* Post-battle overlay */
-    .post-modal { position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:1100; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
-    .post-modal.show { display:flex; }
-    .post-card { background:var(--bg-1); border:1px solid var(--stroke); border-radius:16px; width:min(92vw,820px); padding:18px 20px; box-shadow: var(--shadow); }
-    .post-card h3 { color:var(--ink); text-align:center; margin-bottom:8px; }
-    .post-actions { display:flex; gap:10px; justify-content:center; margin-top:12px; }
+    .post-modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)}
+    .post-modal.show{display:flex}
+    .post-card{background:var(--bg-1);border:1px solid var(--stroke);border-radius:16px;width:min(92vw,820px);padding:18px 20px;box-shadow:var(--shadow)}
+    .post-card h3{color:var(--ink);text-align:center;margin-bottom:8px}
+    .post-actions{display:flex;gap:10px;justify-content:center;margin-top:12px}
   </style>
 </head>
 <body>
-  <!-- ====== SVG Icon Sprite (cool white) ====== -->
+  <!-- ====== SVG Sprite + Gold Gradient ====== -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
+      <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#F5D76E">
+          <animate attributeName="offset" values="0;1;0" dur="5s" repeatCount="indefinite" />
+        </stop>
+        <stop offset="50%" stop-color="#F0B90B">
+          <animate attributeName="offset" values=".5;1;.5" dur="5s" repeatCount="indefinite" />
+        </stop>
+        <stop offset="100%" stop-color="#FFD15C">
+          <animate attributeName="offset" values="1;0;1" dur="5s" repeatCount="indefinite" />
+        </stop>
+      </linearGradient>
+
       <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.6"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.6"/><path d="M10 11v3H8v2h8v-2h-2v-3" stroke-width="1.6"/></symbol>
-      <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" class="gold-stroke" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" class="gold-stroke" stroke-width="1.6" stroke-linecap="round"/></symbol>
       <symbol id="ic-user" viewBox="0 0 24 24"><path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Z" stroke-width="1.6"/><path d="M4 20.4a8 8 0 0 1 16 0" stroke-width="1.6" stroke-linecap="round"/></symbol>
       <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12z" stroke-width="1.6"/><circle cx="12" cy="12" r="2.8" stroke-width="1.6"/></symbol>
       <symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7-11-7z" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+      <symbol id="ic-grid" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" stroke-width="1.6"/></symbol>
     </defs>
   </svg>
 
-  <!-- ====== Global Top Bar ====== -->
+  <!-- ====== Top Bar (logo removed, name kept) ====== -->
   <header class="app-topbar">
     <div class="brand">
-      <div class="brand-badge">BB</div>
-      <div>BattleBillions</div>
+      <div class="wordmark">BattleBillions</div>
     </div>
     <div class="top-right">
-      <div class="chip" id="viewerCountTop"><svg><use href="#ic-eye"/></svg>&nbsp;1,300</div>
+      <div class="chip" id="viewerCountTop"><svg style="width:14px;height:14px;vertical-align:-2px;"><use href="#ic-eye"/></svg>&nbsp;1,300</div>
       <div class="chip">LIVE</div>
     </div>
   </header>
 
-  <!-- ====== App Content Area ====== -->
+  <!-- ====== Category FAB (small bottom button) ====== -->
+  <button class="cat-fab" id="openCats" aria-haspopup="dialog" aria-controls="categoryModal">
+    <svg><use href="#ic-grid"/></svg><span>Choose Category</span>
+  </button>
+
+  <!-- ====== Content ====== -->
   <main class="app-shell">
-    <!-- SCREEN: BATTLE -->
+    <!-- Battle -->
     <section class="screen active" id="screen-battle" data-route="battle">
       <div class="stream-container" id="streamContainer">
         <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
         <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
-        <!-- CATEGORY PICKER -->
-        <div class="modal show" id="categoryModal" aria-modal="true" role="dialog">
+        <!-- Category Picker -->
+        <div class="modal" id="categoryModal" aria-modal="true" role="dialog">
           <div class="card">
             <h2>Pick a Category</h2>
             <div class="slogan">
@@ -225,21 +209,21 @@
             </div>
 
             <div class="grid" id="categoryGrid">
-              <!-- Core set -->
+              <!-- Core -->
               <button type="button" class="pill" data-cat="ART">ART</button>
               <button type="button" class="pill" data-cat="AUTO">AUTO</button>
               <button type="button" class="pill" data-cat="DEBAT">DEBAT</button>
               <button type="button" class="pill" data-cat="FASHION">FASHION</button>
               <button type="button" class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</button>
               <button type="button" class="pill" data-cat="RAP">RAP</button>
-              <!-- Added set -->
+              <!-- Added -->
               <button type="button" class="pill" data-cat="DANCE">DANCE</button>
               <button type="button" class="pill" data-cat="COMEDY">COMEDY</button>
               <button type="button" class="pill" data-cat="GAMING">GAMING</button>
               <button type="button" class="pill" data-cat="COOKING">COOKING</button>
               <button type="button" class="pill" data-cat="FITNESS">FITNESS</button>
               <button type="button" class="pill" data-cat="PHOTOGRAPHY">PHOTOGRAPHY</button>
-              <!-- New / “missing” expansion -->
+              <!-- Expansion -->
               <button type="button" class="pill" data-cat="SINGING">SINGING</button>
               <button type="button" class="pill" data-cat="POETRY">POETRY</button>
               <button type="button" class="pill" data-cat="MAGIC">MAGIC</button>
@@ -260,7 +244,7 @@
           </div>
         </div>
 
-        <!-- CATEGORY OPTIONS -->
+        <!-- Options -->
         <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
           <div class="card">
             <h2 id="optionsTitle">Category Options</h2>
@@ -273,8 +257,10 @@
           </div>
         </div>
 
-        <!-- Center button shown after option chosen -->
-        <button id="startBattleBtn" onclick="startBattle()"><svg style="vertical-align:middle;"><use href="#ic-play"/></svg> &nbsp;BattleBillions</button>
+        <!-- Start Button -->
+        <button id="startBattleBtn" onclick="startBattle()">
+          <svg style="vertical-align:middle;"><use href="#ic-play"/></svg> &nbsp;BattleBillions
+        </button>
 
         <div class="overlay">
           <div class="profile-labels" id="profileLabels">
@@ -284,14 +270,14 @@
             </div>
           </div>
 
-          <div class="round-timer" id="roundTimer">Choose a category to begin…</div>
+          <div class="round-timer" id="roundTimer">Tap “Choose Category” to begin…</div>
         </div>
 
-        <!-- POST-BATTLE OVERLAY: category box + next opponent -->
+        <!-- Post-battle -->
         <div class="post-modal" id="postBattleModal" aria-modal="true" role="dialog">
           <div class="post-card">
             <h3>Battle Over — What’s Next?</h3>
-            <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b> to keep battling.</p>
+            <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b>.</p>
             <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
             <div class="post-actions">
               <button class="btn secondary" id="postClose">Close</button>
@@ -301,455 +287,333 @@
             </div>
           </div>
         </div>
-        <!-- /POST-BATTLE OVERLAY -->
       </div>
     </section>
 
-    <!-- Other screens (use global nav; no local nav needed) -->
-    <section class="screen" id="screen-home" data-route="home"><div class="placeholder"><div class="box"><h1>Home</h1><p>Everything runs as a single page. Use the tab bar to jump.</p></div></div></section>
-    <section class="screen" id="screen-dashboard" data-route="dashboard"><div class="placeholder"><div class="box"><h1>Dashboard Explorer</h1><p>Search & discovery flows render here. Same nav structure, same page.</p></div></div></section>
-    <section class="screen" id="screen-leaderboard" data-route="leaderboard"><div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div></section>
-    <section class="screen" id="screen-profile" data-route="profile"><div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon.</p></div></div></section>
+    <!-- Other screens -->
+    <section class="screen" id="screen-home" data-route="home">
+      <div class="placeholder"><div class="box"><h1>Home</h1><p>Single-page flow. Use the tab bar.</p></div></div>
+    </section>
+    <section class="screen" id="screen-dashboard" data-route="dashboard">
+      <div class="placeholder"><div class="box"><h1>BILLIONS</h1><p>Discover the biggest battles, trends, and challengers.</p></div></div>
+    </section>
+    <section class="screen" id="screen-leaderboard" data-route="leaderboard">
+      <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
+    </section>
+    <section class="screen" id="screen-profile" data-route="profile">
+      <div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon.</p></div></div>
+    </section>
   </main>
 
-  <!-- ====== Global Bottom Tab Bar (shows on ALL pages) ====== -->
+  <!-- ====== Tab Bar (labels above icons) ====== -->
   <nav class="app-tabbar" role="tablist" aria-label="Main">
-    <a class="tab-btn" data-screen="home" role="tab" aria-selected="false"><svg><use href="#ic-home"/></svg><span class="tab-label">Home</span></a>
-    <a class="tab-btn" data-screen="dashboard" role="tab" aria-selected="false"><svg><use href="#ic-search"/></svg><span class="tab-label">Explore</span></a>
-    <a class="tab-btn active" data-screen="battle" role="tab" aria-selected="true"><svg><use href="#ic-battle"/></svg><span class="tab-label">Battle</span></a>
-    <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false"><svg><use href="#ic-trophy"/></svg><span class="tab-label">Leaders</span></a>
-    <a class="tab-btn" data-screen="profile" role="tab" aria-selected="false"><svg><use href="#ic-user"/></svg><span class="tab-label">Profile</span></a>
+    <a class="tab-btn" data-screen="home" role="tab" aria-selected="false">
+      <span class="tab-label">Home</span>
+      <svg><use href="#ic-home"/></svg>
+    </a>
+    <a class="tab-btn" data-screen="dashboard" role="tab" aria-selected="false" title="BILLIONS">
+      <span class="tab-label">BILLIONS</span>
+      <svg><use href="#ic-search"/></svg>
+    </a>
+    <a class="tab-btn active" data-screen="battle" role="tab" aria-selected="true">
+      <span class="tab-label">Battle</span>
+      <svg><use href="#ic-battle"/></svg>
+    </a>
+    <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false">
+      <span class="tab-label">Leaders</span>
+      <svg><use href="#ic-trophy"/></svg>
+    </a>
+    <a class="tab-btn" data-screen="profile" role="tab" aria-selected="false">
+      <span class="tab-label">Profile</span>
+      <svg><use href="#ic-user"/></svg>
+    </a>
   </nav>
 
   <!-- ====== Audio ====== -->
-  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click
+    -124467.mp3"></audio>
   <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    /* ====== SPA NAV (global; same structure on every page) ====== */
+    /* ====== SPA Nav ====== */
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
-
-    function showScreen(name) {
-      Object.entries(screens).forEach(([key, el]) => el.classList.toggle('active', key === name));
-      tabs.forEach(t => {
-        const on = t.getAttribute('data-screen') === name;
-        t.classList.toggle('active', on);
-        t.setAttribute('aria-selected', on ? 'true' : 'false');
+    function showScreen(name){
+      Object.entries(screens).forEach(([k,el])=>el.classList.toggle('active',k===name));
+      tabs.forEach(t=>{
+        const on = t.getAttribute('data-screen')===name;
+        t.classList.toggle('active',on);
+        t.setAttribute('aria-selected',on?'true':'false');
       });
     }
-    tabs.forEach(el => el.addEventListener('click', (e) => {
+    tabs.forEach(el=>el.addEventListener('click',e=>{
       e.preventDefault();
-      const target = el.getAttribute('data-screen');
+      const target=el.getAttribute('data-screen');
       showScreen(target);
-      if (target !== 'battle') closeAllModals();
+      if(target!=='battle') closeAllModals();
+      if(!location.hash.startsWith('#cat/')) location.hash = '#/'+target;
     }));
 
-    // Deep link by hash: #/route or #cat/<CAT>/<SUB?>
     function routeFromHash(){
-      const h = location.hash;
-            if (h.startsWith('#/')) {
-        const r = h.slice(2);
-        if (screens[r]) showScreen(r);
-      } else if (h.startsWith('#cat/')) {
-        showScreen('battle');
-        parseHashAndOpen();
+      const h=location.hash;
+      if(h.startsWith('#/')){
+        const r=h.slice(2); if(screens[r]) showScreen(r);
+      } else if(h.startsWith('#cat/')){
+        showScreen('battle'); parseHashAndOpen();
       }
     }
     window.addEventListener('hashchange', routeFromHash);
 
-    /* ====== Battle & Category State ====== */
-    let currentCategory = null;
-    let chosenOptions = {};
-    let chosenSub = null;
+    /* ====== Battle State ====== */
+    let currentCategory=null, chosenOptions={}, chosenSub=null;
 
-    const opponentPools = {
-      ART: [{ video: "art2.mp4", image: "art2.jpg", username: "@InkMage" }, { video: "art3.mp4", image: "art3.jpg", username: "@ColorCaster" }],
-      AUTO: [{ video: "auto1.mp4", image: "auto1.jpg", username: "@TorqueLord" }, { video: "auto2.mp4", image: "auto2.jpg", username: "@RimReaper" }],
-      DEBAT: [{ video: "deb1.mp4", image: "deb1.jpg", username: "@LogicBlade" }, { video: "deb2.mp4", image: "deb2.jpg", username: "@VerbalVolt" }],
-      FASHION: [{ video: "fashion2.mp4", image: "fashion2.jpg", username: "@RunwayRuler" }, { video: "fashion3.mp4", image: "fashion3.jpg", username: "@FitArchitect" }],
-      INSTRUMENTS: [{ video: "inst1.mp4", image: "inst1.jpg", username: "@ChordSmith" }, { video: "inst2.mp4", image: "inst2.jpg", username: "@DrumOracle" }],
-      RAP: [{ video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" }, { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }],
-      DANCE: [{ video: "dance1.mp4", image: "dance1.jpg", username: "@Footwork" }, { video: "dance2.mp4", image: "dance2.jpg", username: "@WaveLord" }],
-      COMEDY: [{ video: "comedy1.mp4", image: "comedy1.jpg", username: "@Punchliner" }, { video: "comedy2.mp4", image: "comedy2.jpg", username: "@CrowdKiller" }],
-      GAMING: [{ video: "game1.mp4", image: "game1.jpg", username: "@Clutch" }, { video: "game2.mp4", image: "game2.jpg", username: "@Headshot" }],
-      COOKING: [{ video: "cook1.mp4", image: "cook1.jpg", username: "@SearMaster" }, { video: "cook2.mp4", image: "cook2.jpg", username: "@MiseEnPlace" }],
-      FITNESS: [{ video: "fit1.mp4", image: "fit1.jpg", username: "@RepMachine" }, { video: "fit2.mp4", image: "fit2.jpg", username: "@HIITHero" }],
-      PHOTOGRAPHY: [{ video: "photo1.mp4", image: "photo1.jpg", username: "@LensCraft" }, { video: "photo2.mp4", image: "photo2.jpg", username: "@FrameChaser" }],
-      SINGING: [{ video:"sing1.mp4", image:"sing1.jpg", username:"@VocalEdge" }, { video:"sing2.mp4", image:"sing2.jpg", username:"@Falsetto" }],
-      POETRY: [{ video:"poe1.mp4", image:"poe1.jpg", username:"@VerseKing" }, { video:"poe2.mp4", image:"poe2.jpg", username:"@Stanza" }],
-      MAGIC: [{ video:"mag1.mp4", image:"mag1.jpg", username:"@CardFlux" }, { video:"mag2.mp4", image:"mag2.jpg", username:"@IllusionX" }],
-      SPORTS: [{ video:"spo1.mp4", image:"spo1.jpg", username:"@ClutchTime" }, { video:"spo2.mp4", image:"spo2.jpg", username:"@GoatTalk" }],
-      TECH: [{ video:"tech1.mp4", image:"tech1.jpg", username:"@DevWizard" }, { video:"tech2.mp4", image:"tech2.jpg", username:"@ByteSmith" }],
-      EDU: [{ video:"edu1.mp4", image:"edu1.jpg", username:"@MindCoach" }, { video:"edu2.mp4", image:"edu2.jpg", username:"@LessonLab" }],
-      FILM: [{ video:"film1.mp4", image:"film1.jpg", username:"@CutMaster" }, { video:"film2.mp4", image:"film2.jpg", username:"@SceneLord" }],
-      PODCAST: [{ video:"pod1.mp4", image:"pod1.jpg", username:"@HotMic" }, { video:"pod2.mp4", image:"pod2.jpg", username:"@TalkFlow" }],
-      BEAUTY: [{ video:"bea1.mp4", image:"bea1.jpg", username:"@BlendQueen" }, { video:"bea2.mp4", image:"bea2.jpg", username:"@Contour" }],
-      DIY: [{ video:"diy1.mp4", image:"diy1.jpg", username:"@ToolTime" }, { video:"diy2.mp4", image:"diy2.jpg", username:"@Maker" }],
-      ASMR: [{ video:"asm1.mp4", image:"asm1.jpg", username:"@Whisper" }, { video:"asm2.mp4", image:"asm2.jpg", username:"@Tingle" }],
-      MEMES: [{ video:"mem1.mp4", image:"mem1.jpg", username:"@TemplateKing" }, { video:"mem2.mp4", image:"mem2.jpg", username:"@Dank" }],
-      TATTOO: [{ video:"tat1.mp4", image:"tat1.jpg", username:"@InkLord" }, { video:"tat2.mp4", image:"tat2.jpg", username:"@ShadeMaster" }],
+    const opponentPools={ /* truncated for brevity in JS; same as provided earlier */ 
+      ART:[{video:"art2.mp4",image:"art2.jpg",username:"@InkMage"},{video:"art3.mp4",image:"art3.jpg",username:"@ColorCaster"}],
+      AUTO:[{video:"auto1.mp4",image:"auto1.jpg",username:"@TorqueLord"},{video:"auto2.mp4",image:"auto2.jpg",username:"@RimReaper"}],
+      DEBAT:[{video:"deb1.mp4",image:"deb1.jpg",username:"@LogicBlade"},{video:"deb2.mp4",image:"deb2.jpg",username:"@VerbalVolt"}],
+      FASHION:[{video:"fashion2.mp4",image:"fashion2.jpg",username:"@RunwayRuler"},{video:"fashion3.mp4",image:"fashion3.jpg",username:"@FitArchitect"}],
+      INSTRUMENTS:[{video:"inst1.mp4",image:"inst1.jpg",username:"@ChordSmith"},{video:"inst2.mp4",image:"inst2.jpg",username:"@DrumOracle"}],
+      RAP:[{video:"user3.mp4",image:"user3.jpg",username:"@ChallengerX"},{video:"user4.mp4",image:"user4.jpg",username:"@MCNeo"}],
+      DANCE:[{video:"dance1.mp4",image:"dance1.jpg",username:"@Footwork"},{video:"dance2.mp4",image:"dance2.jpg",username:"@WaveLord"}],
+      COMEDY:[{video:"comedy1.mp4",image:"comedy1.jpg",username:"@Punchliner"},{video:"comedy2.mp4",image:"comedy2.jpg",username:"@CrowdKiller"}],
+      GAMING:[{video:"game1.mp4",image:"game1.jpg",username:"@Clutch"},{video:"game2.mp4",image:"game2.jpg",username:"@Headshot"}],
+      COOKING:[{video:"cook1.mp4",image:"cook1.jpg",username:"@SearMaster"},{video:"cook2.mp4",image:"cook2.jpg",username:"@MiseEnPlace"}],
+      FITNESS:[{video:"fit1.mp4",image:"fit1.jpg",username:"@RepMachine"},{video:"fit2.mp4",image:"fit2.jpg",username:"@HIITHero"}],
+      PHOTOGRAPHY:[{video:"photo1.mp4",image:"photo1.jpg",username:"@LensCraft"},{video:"photo2.mp4",image:"photo2.jpg",username:"@FrameChaser"}],
+      SINGING:[{video:"sing1.mp4",image:"sing1.jpg",username:"@VocalEdge"},{video:"sing2.mp4",image:"sing2.jpg",username:"@Falsetto"}],
+      POETRY:[{video:"poe1.mp4",image:"poe1.jpg",username:"@VerseKing"},{video:"poe2.mp4",image:"poe2.jpg",username:"@Stanza"}],
+      MAGIC:[{video:"mag1.mp4",image:"mag1.jpg",username:"@CardFlux"},{video:"mag2.mp4",image:"mag2.jpg",username:"@IllusionX"}],
+      SPORTS:[{video:"spo1.mp4",image:"spo1.jpg",username:"@ClutchTime"},{video:"spo2.mp4",image:"spo2.jpg",username:"@GoatTalk"}],
+      TECH:[{video:"tech1.mp4",image:"tech1.jpg",username:"@DevWizard"},{video:"tech2.mp4",image:"tech2.jpg",username:"@ByteSmith"}],
+      EDU:[{video:"edu1.mp4",image:"edu1.jpg",username:"@MindCoach"},{video:"edu2.mp4",image:"edu2.jpg",username:"@LessonLab"}],
+      FILM:[{video:"film1.mp4",image:"film1.jpg",username:"@CutMaster"},{video:"film2.mp4",image:"film2.jpg",username:"@SceneLord"}],
+      PODCAST:[{video:"pod1.mp4",image:"pod1.jpg",username:"@HotMic"},{video:"pod2.mp4",image:"pod2.jpg",username:"@TalkFlow"}],
+      BEAUTY:[{video:"bea1.mp4",image:"bea1.jpg",username:"@BlendQueen"},{video:"bea2.mp4",image:"bea2.jpg",username:"@Contour"}],
+      DIY:[{video:"diy1.mp4",image:"diy1.jpg",username:"@ToolTime"},{video:"diy2.mp4",image:"diy2.jpg",username:"@Maker"}],
+      ASMR:[{video:"asm1.mp4",image:"asm1.jpg",username:"@Whisper"},{video:"asm2.mp4",image:"asm2.jpg",username:"@Tingle"}],
+      MEMES:[{video:"mem1.mp4",image:"mem1.jpg",username:"@TemplateKing"},{video:"mem2.mp4",image:"mem2.jpg",username:"@Dank"}],
+      TATTOO:[{video:"tat1.mp4",image:"tat1.jpg",username:"@InkLord"},{video:"tat2.mp4",image:"tat2.jpg",username:"@ShadeMaster"}],
     };
 
-    const subLists = {
-      ART: ['Painting','Digital','Graffiti','Sculpture','Illustration'],
-      AUTO: ['Drift','Drag','Build Showcase','Detailing','Audio Systems'],
-      DEBAT: ['Politics','Tech','Sports','Culture','Freestyle'],
-      FASHION: ['Runway','Streetwear','Vintage','Upcycle','Styling'],
-      INSTRUMENTS: ['Guitar','Piano','Violin','Drums','DJ'],
-      RAP: [
-        {label:'Classic Trap', value:'beat1.mp3'},
-        {label:'Boom Bap', value:'beat2.mp3'},
-        {label:'Chill Vibes', value:'beat3.mp3'},
-        {label:'Fast Flow', value:'beat4.mp3'},
-      ],
-      DANCE: ['Hip-Hop','Popping','Breaking','Contemporary','Freestyle'],
-      COMEDY: ['Stand-up','Improv','Sketch','Roast','Storytelling'],
-      GAMING: ['FPS','MOBA','Fighting','Speedrun','Battle Royale'],
-      COOKING: ['Plating','Street Food','Fine Dining','BBQ','Desserts'],
-      FITNESS: ['Calisthenics','Powerlifting','HIIT','Functional','Endurance'],
-      PHOTOGRAPHY: ['Portrait','Street','Landscape','Macro','Product'],
-      SINGING: ['R&B','Pop','Gospel','Opera','Freestyle'],
-      POETRY: ['Spoken Word','Haiku','Slam','Narrative','Freestyle'],
-      MAGIC: ['Cards','Coins','Mentalism','Stage','Close-up'],
-      SPORTS: ['Basketball','Football','Soccer','Boxing','Track'],
-      TECH: ['Coding','Gadgets','AI Demos','Hardware Mods','AR/VR'],
-      EDU: ['Math','Science','History','Language','Life Skills'],
-      FILM: ['Cinematography','Editing','VFX','Color','Directing'],
-      PODCAST: ['Interview','Debate','Solo','Roundtable','Live Call-in'],
-      BEAUTY: ['Makeup','Hair','Skin','Nails','FX'],
-      DIY: ['Woodwork','3D Print','Home Hack','Repair','Custom Build'],
-      ASMR: ['Tapping','Whisper','Keyboard','Crinkle','Brushing'],
-      MEMES: ['Trend Flip','Original Skit','Sound Remix','Green Screen','Duet'],
-      TATTOO: ['Linework','Black&Grey','Color','Neo-trad','Realism'],
+    const subLists={
+      ART:['Painting','Digital','Graffiti','Sculpture','Illustration'],
+      AUTO:['Drift','Drag','Build Showcase','Detailing','Audio Systems'],
+      DEBAT:['Politics','Tech','Sports','Culture','Freestyle'],
+      FASHION:['Runway','Streetwear','Vintage','Upcycle','Styling'],
+      INSTRUMENTS:['Guitar','Piano','Violin','Drums','DJ'],
+      RAP:[{label:'Classic Trap',value:'beat1.mp3'},{label:'Boom Bap',value:'beat2.mp3'},{label:'Chill Vibes',value:'beat3.mp3'},{label:'Fast Flow',value:'beat4.mp3'}],
+      DANCE:['Hip-Hop','Popping','Breaking','Contemporary','Freestyle'],
+      COMEDY:['Stand-up','Improv','Sketch','Roast','Storytelling'],
+      GAMING:['FPS','MOBA','Fighting','Speedrun','Battle Royale'],
+      COOKING:['Plating','Street Food','Fine Dining','BBQ','Desserts'],
+      FITNESS:['Calisthenics','Powerlifting','HIIT','Functional','Endurance'],
+      PHOTOGRAPHY:['Portrait','Street','Landscape','Macro','Product'],
+      SINGING:['R&B','Pop','Gospel','Opera','Freestyle'],
+      POETRY:['Spoken Word','Haiku','Slam','Narrative','Freestyle'],
+      MAGIC:['Cards','Coins','Mentalism','Stage','Close-up'],
+      SPORTS:['Basketball','Football','Soccer','Boxing','Track'],
+      TECH:['Coding','Gadgets','AI Demos','Hardware Mods','AR/VR'],
+      EDU:['Math','Science','History','Language','Life Skills'],
+      FILM:['Cinematography','Editing','VFX','Color','Directing'],
+      PODCAST:['Interview','Debate','Solo','Roundtable','Live Call-in'],
+      BEAUTY:['Makeup','Hair','Skin','Nails','FX'],
+      DIY:['Woodwork','3D Print','Home Hack','Repair','Custom Build'],
+      ASMR:['Tapping','Whisper','Keyboard','Crinkle','Brushing'],
+      MEMES:['Trend Flip','Original Skit','Sound Remix','Green Screen','Duet'],
+      TATTOO:['Linework','Black&Grey','Color','Neo-trad','Realism'],
     };
 
-    const streamContainer = document.getElementById('streamContainer');
-    const timerDisplay = document.getElementById('roundTimer');
-    const sound = document.getElementById('roundEndSound');
-    const battleTrack = document.getElementById('battleTrack');
-    const opponentVideo = document.getElementById('opponentVideo');
-    const opponentImage = document.getElementById('opponentImage');
-    const opponentUsername = document.getElementById('opponentUsername');
-    const viewerCountTop = document.getElementById('viewerCountTop');
+    const streamContainer=document.getElementById('streamContainer');
+    const timerDisplay=document.getElementById('roundTimer');
+    const sound=document.getElementById('roundEndSound');
+    const battleTrack=document.getElementById('battleTrack');
+    const opponentVideo=document.getElementById('opponentVideo');
+    const opponentImage=document.getElementById('opponentImage');
+    const opponentUsername=document.getElementById('opponentUsername');
+    const viewerCountTop=document.getElementById('viewerCountTop');
 
-    const categoryModal = document.getElementById('categoryModal');
-    const optionsModal = document.getElementById('optionsModal');
-    const optionsTitle = document.getElementById('optionsTitle');
-    const optionsSubtitle = document.getElementById('optionsSubtitle');
-    const optionsBody = document.getElementById('optionsBody');
-    const optionsHint = document.getElementById('optionsHint');
-    const startBattleBtn = document.getElementById('startBattleBtn');
-    const categoryGrid = document.getElementById('categoryGrid');
+    const categoryModal=document.getElementById('categoryModal');
+    const optionsModal=document.getElementById('optionsModal');
+    const optionsTitle=document.getElementById('optionsTitle');
+    const optionsSubtitle=document.getElementById('optionsSubtitle');
+    const optionsBody=document.getElementById('optionsBody');
+    const optionsHint=document.getElementById('optionsHint');
+    const startBattleBtn=document.getElementById('startBattleBtn');
+    const categoryGrid=document.getElementById('categoryGrid');
 
-    // Post-battle overlay elements
-    const postModal = document.getElementById('postBattleModal');
-    const postCategoryGrid = document.getElementById('postCategoryGrid');
-    const postClose = document.getElementById('postClose');
-    const postKeepCat = document.getElementById('postKeepCat');
-    const postPickSub = document.getElementById('postPickSub');
-    const postNextOpponent = document.getElementById('postNextOpponent');
+    const postModal=document.getElementById('postBattleModal');
+    const postCategoryGrid=document.getElementById('postCategoryGrid');
+    const postClose=document.getElementById('postClose');
+    const postKeepCat=document.getElementById('postKeepCat');
+    const postPickSub=document.getElementById('postPickSub');
+    const postNextOpponent=document.getElementById('postNextOpponent');
 
-    function closeAllModals(){ categoryModal.classList.remove('show'); optionsModal.classList.remove('show'); postModal.classList.remove('show'); }
-
-    document.getElementById('cancelCat').onclick = () => {
-      categoryModal.classList.remove('show');
-      timerDisplay.innerText = "Open categories anytime to begin.";
-      clearHash();
-    };
-    document.getElementById('backBtn').onclick = () => {
-      optionsModal.classList.remove('show');
+    const openCats=document.getElementById('openCats');
+    openCats.addEventListener('click',()=>{
       categoryModal.classList.add('show');
-      startBattleBtn.style.display = 'none';
-      chosenSub = null;
-      updateHash(currentCategory, null);
-      categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===currentCategory));
+      categoryGrid.querySelector('.pill')?.focus();
+      location.hash = '#/battle';
+    });
+
+    function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');postModal.classList.remove('show')}
+    document.getElementById('cancelCat').onclick=()=>{categoryModal.classList.remove('show');timerDisplay.textContent="Tap “Choose Category” to begin…";clearHash()};
+    document.getElementById('backBtn').onclick=()=>{
+      optionsModal.classList.remove('show');categoryModal.classList.add('show');startBattleBtn.style.display='none';chosenSub=null;updateHash(currentCategory,null);
+      categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));
       categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
 
-    // Category buttons
-    categoryGrid.addEventListener('click', (e) => {
-      const btn = e.target.closest('.pill[data-cat]');
-      if (!btn) return;
-      openCategory(btn.dataset.cat, true);
+    // Category grid interactions
+    categoryGrid.addEventListener('click',e=>{
+      const btn=e.target.closest('.pill[data-cat]'); if(!btn) return; openCategory(btn.dataset.cat,true);
     });
-    categoryGrid.addEventListener('keydown', (e) => {
-      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.pill[data-cat]')) {
-        e.preventDefault();
-        openCategory(e.target.dataset.cat, true);
-      }
+    categoryGrid.addEventListener('keydown',e=>{
+      if((e.key==='Enter'||e.key===' ')&&e.target.matches('.pill[data-cat]')){e.preventDefault();openCategory(e.target.dataset.cat,true);}
     });
 
-    // Build post-battle category grid (same set)
     function buildPostCats(){
-      postCategoryGrid.innerHTML = '';
+      postCategoryGrid.innerHTML='';
       Object.keys(subLists).forEach(cat=>{
-        const b=document.createElement('button');
-        b.className='pill'; b.textContent=cat;
-        b.addEventListener('click', ()=>{
-          currentCategory = cat; chosenSub=null;
-          postModal.classList.remove('show');
-          categoryModal.classList.add('show');
-          categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
-          openCategory(cat, true);
+        const b=document.createElement('button');b.className='pill';b.textContent=cat;
+        b.addEventListener('click',()=>{
+          currentCategory=cat;chosenSub=null;postModal.classList.remove('show');categoryModal.classList.add('show');
+          categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===cat));
+          openCategory(cat,true);
         });
         postCategoryGrid.appendChild(b);
       });
     }
 
-    function openCategory(cat, fromUser) {
-      try {
-        currentCategory = cat;
-        chosenSub = null;
-        startBattleBtn.style.display = 'none';
-        categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
+    function openCategory(cat,fromUser){
+      try{
+        currentCategory=cat;chosenSub=null;startBattleBtn.style.display='none';
+        categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===cat));
         buildOptionsFor(cat);
-        categoryModal.classList.remove('show');
-        optionsModal.classList.add('show');
-        if (fromUser) updateHash(cat, null);
+        categoryModal.classList.remove('show');optionsModal.classList.add('show');
+        if(fromUser) updateHash(cat,null);
         optionsModal.querySelector('.pill')?.focus();
-      } catch (err) {
-        console.error('openCategory error:', err);
+      }catch(err){console.error('openCategory error:',err)}
+    }
+
+    function applyCategoryOpponent(cat){
+      const pool=opponentPools[cat]||[];
+      if(pool.length){
+        const random=pool[Math.floor(Math.random()*pool.length)];
+        opponentVideo.src=random.video;opponentImage.src=random.image;opponentUsername.innerText=random.username;
       }
     }
 
-    function applyCategoryOpponent(cat) {
-      const pool = opponentPools[cat] || [];
-      if (pool.length) {
-        const random = pool[Math.floor(Math.random() * pool.length)];
-        opponentVideo.src = random.video;
-        opponentImage.src = random.image;
-        opponentUsername.innerText = random.username;
-      }
-    }
-
-    function buildOptionsFor(cat) {
-      optionsBody.innerHTML = '';
-      chosenOptions = {};
-      optionsHint.innerText = '';
-      optionsTitle.innerText = `${cat} – Options`;
-
-      const wrapper = document.createElement('div');
-      wrapper.className = 'grid';
-
-      const items = subLists[cat] || [];
-      if (cat === 'RAP') {
-        optionsSubtitle.innerText = "Choose your instrumental.";
-        items.forEach(b => {
-          const btn = makePill(b.label, b.value, () => {
-            chosenOptions.beat = b.value;
-            chosenSub = b.label;
-            battleTrack.src = b.value;
-            battleTrack.load();
-            optionsModal.classList.remove('show');
-            startBattleBtn.style.display = 'block';
-            timerDisplay.innerText = "Ready — tap BattleBillions to start!";
-            updateHash(cat, b.label);
-            applyCategoryOpponent(cat);
-          });
-          wrapper.appendChild(btn);
+    function buildOptionsFor(cat){
+      optionsBody.innerHTML='';chosenOptions={};optionsHint.innerText='';optionsTitle.innerText=`${cat} – Options`;
+      const wrapper=document.createElement('div');wrapper.className='grid';
+      const items=subLists[cat]||[];
+      if(cat==='RAP'){
+        optionsSubtitle.innerText="Choose your instrumental.";
+        items.forEach(b=>{
+          const btn=makePill(b.label,b.value,()=>{
+            chosenOptions.beat=b.value;chosenSub=b.label;battleTrack.src=b.value;battleTrack.load();
+            optionsModal.classList.remove('show');startBattleBtn.style.display='block';
+            timerDisplay.textContent="Ready — tap BattleBillions to start!";updateHash(cat,b.label);applyCategoryOpponent(cat);
+          });wrapper.appendChild(btn);
+        });optionsHint.innerText="Only RAP uses instrumentals.";
+      }else{
+        const subtitleMap={ART:"Choose your art style.",AUTO:"Choose your auto event.",DEBAT:"Choose your debate topic.",FASHION:"Choose your fashion lane.",INSTRUMENTS:"Choose your instrument.",DANCE:"Pick your dance style.",COMEDY:"Pick a comedy format.",GAMING:"Pick a gaming lane.",COOKING:"Choose your food focus.",FITNESS:"Choose your training style.",PHOTOGRAPHY:"Choose your shooting style.",SINGING:"Pick your vocal lane.",POETRY:"Pick your poetry style.",MAGIC:"Pick your magic discipline.",SPORTS:"Pick your sport lane.",TECH:"Pick your tech demo lane.",EDU:"Pick your teaching lane.",FILM:"Pick your film craft.",PODCAST:"Pick your podcast format.",BEAUTY:"Pick your beauty lane.",DIY:"Pick your build lane.",ASMR:"Pick your trigger lane.",MEMES:"Pick your meme lane.",TATTOO:"Pick your tattoo style."};
+        optionsSubtitle.innerText=subtitleMap[cat]||"Choose an option.";
+        items.forEach(label=>{
+          const btn=makePill(label,label,()=>{
+            chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');startBattleBtn.style.display='block';
+            timerDisplay.textContent="Ready — tap BattleBillions to start!";updateHash(cat,label);applyCategoryOpponent(cat);
+          });wrapper.appendChild(btn);
         });
-        optionsHint.innerText = "Only RAP uses instrumentals.";
-      } else {
-        const subtitleMap = {
-          ART: "Choose your art style.",
-          AUTO: "Choose your auto event.",
-          DEBAT: "Choose your debate topic.",
-          FASHION: "Choose your fashion lane.",
-          INSTRUMENTS: "Choose your instrument.",
-          DANCE: "Pick your dance style.",
-          COMEDY: "Pick a comedy format.",
-          GAMING: "Pick a gaming lane.",
-          COOKING: "Choose your food focus.",
-          FITNESS: "Choose your training style.",
-          PHOTOGRAPHY: "Choose your shooting style.",
-          SINGING: "Pick your vocal lane.",
-          POETRY: "Pick your poetry style.",
-          MAGIC: "Pick your magic discipline.",
-          SPORTS: "Pick your sport lane.",
-          TECH: "Pick your tech demo lane.",
-          EDU: "Pick your teaching lane.",
-          FILM: "Pick your film craft.",
-          PODCAST: "Pick your podcast format.",
-          BEAUTY: "Pick your beauty lane.",
-          DIY: "Pick your build lane.",
-          ASMR: "Pick your trigger lane.",
-          MEMES: "Pick your meme lane.",
-          TATTOO: "Pick your tattoo style.",
-        };
-        optionsSubtitle.innerText = subtitleMap[cat] || "Choose an option.";
-        items.forEach(label => {
-          const btn = makePill(label, label, () => {
-            chosenSub = label;
-            chosenOptions[cat.toLowerCase()] = label;
-            optionsModal.classList.remove('show');
-            startBattleBtn.style.display = 'block';
-            timerDisplay.innerText = "Ready — tap BattleBillions to start!";
-            updateHash(cat, label);
-            applyCategoryOpponent(cat);
-          });
-          wrapper.appendChild(btn);
-        });
-        optionsHint.innerText = "";
       }
-
       optionsBody.appendChild(wrapper);
     }
 
-    function makePill(label, value, onChoose) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'pill';
-      btn.tabIndex = 0;
-      btn.textContent = label;
-      btn.dataset.value = value;
-      btn.addEventListener('click', onChoose);
-      btn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChoose(); }
-      });
+    function makePill(label,value,onChoose){
+      const btn=document.createElement('button');btn.type='button';btn.className='pill';btn.tabIndex=0;btn.textContent=label;btn.dataset.value=value;
+      btn.addEventListener('click',onChoose);btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onChoose();}});
       return btn;
     }
 
-    /* Deep link: #cat/<CAT>/<SUB?> or #/route */
-    function updateHash(cat, sub) {
-      const frag = `#cat/${encodeURIComponent(cat)}${sub?`/${encodeURIComponent(sub)}`:''}`;
-      history.pushState({cat, sub}, '', frag);
+    /* Deep link */
+    function updateHash(cat,sub){const frag=`#cat/${encodeURIComponent(cat)}${sub?`/${encodeURIComponent(sub)}`:''}`;history.pushState({cat,sub},'',frag)}
+    function clearHash(){history.pushState({},'','#/battle')}
+    function parseHashAndOpen(){
+      const m=location.hash.match(/^#cat\/([^\/]+)(?:\/([^\/]+))?/i); if(!m) return;
+      const cat=decodeURIComponent(m[1]); const sub=m[2]?decodeURIComponent(m[2]):null;
+      if(!subLists[cat]) return; openCategory(cat,false);
+      if(sub){setTimeout(()=>{const target=[...document.querySelectorAll('#optionsBody .pill')].find(b=>b.textContent.trim()===sub||b.dataset.value===sub);target?.click();},0)}
     }
-    function clearHash(){ history.pushState({}, '', '#/battle'); }
+    window.addEventListener('popstate',()=>{routeFromHash();parseHashAndOpen()});
 
-    function parseHashAndOpen() {
-      const m = location.hash.match(/^#cat\/([^\/]+)(?:\/([^\/]+))?/i);
-      if (!m) return;
-      const cat = decodeURIComponent(m[1]);
-      const sub = m[2] ? decodeURIComponent(m[2]) : null;
-      if (!subLists[cat]) return;
-      openCategory(cat, false);
-      if (sub) {
-        setTimeout(() => {
-          const target = Array.from(optionsBody.querySelectorAll('.pill'))
-            .find(b => (b.textContent.trim() === sub) || (b.dataset.value === sub));
-          target?.click();
-        }, 0);
-      }
-    }
-    window.addEventListener('popstate', () => { routeFromHash(); parseHashAndOpen(); });
-
-    /* Round logic (3 rounds, 33s, 6s pause, dim during action) */
-    let round = 1, roundPart = 0, timeLeft = 33;
-    const maxRounds = 3;
-    function setDim(active) { active ? streamContainer.classList.add('dimmed') : streamContainer.classList.remove('dimmed'); }
-    function triggerGlow() { timerDisplay.classList.add('animate'); setTimeout(() => timerDisplay.classList.remove('animate'), 1600); }
-
-    function runRoundPart() {
+    /* Rounds */
+    let round=1,roundPart=0,timeLeft=33; const maxRounds=3;
+    function setDim(a){a?streamContainer.classList.add('dimmed'):streamContainer.classList.remove('dimmed')}
+    function glow(){timerDisplay.classList.add('pulse');setTimeout(()=>timerDisplay.classList.remove('pulse'),1400)}
+    function runRoundPart(){
       setDim(true);
-      const interval = setInterval(() => {
-        timerDisplay.innerText = `Round ${round} of ${maxRounds} | ${(roundPart === 0 ? '@You' : '@Opponent')} | ${timeLeft}s`;
+      const interval=setInterval(()=>{
+        timerDisplay.textContent=`Round ${round} of ${maxRounds} | ${(roundPart===0?'@You':'@Opponent')} | ${timeLeft}s`;
         timeLeft--;
-        if (timeLeft < 0) {
-          clearInterval(interval);
-          sound.play();
-          setDim(false);
-
-          if (roundPart === 0) {
-            roundPart = 1; timeLeft = 33;
-            timerDisplay.innerText = `Switching to Opponent…`;
-            setTimeout(runRoundPart, 6000);
-          } else {
-            if (round < maxRounds) {
-              round++; roundPart = 0; timeLeft = 33;
-              timerDisplay.innerText = `Switching to Next Round…`;
-              setTimeout(runRoundPart, 6000);
-            } else {
-              timerDisplay.innerText = 'Battle Over — Great Work!';
-              triggerGlow(); setDim(false);
-              buildPostCats();
-              postModal.classList.add('show');
-              loadRandomOpponent();
-              startBattleBtn.style.display = 'block';
-            }
+        if(timeLeft<0){
+          clearInterval(interval); sound.play(); setDim(false);
+          if(roundPart===0){roundPart=1;timeLeft=33;timerDisplay.textContent=`Switching to Opponent…`;setTimeout(runRoundPart,6000)}
+          else{
+            if(round<maxRounds){round++;roundPart=0;timeLeft=33;timerDisplay.textContent=`Switching to Next Round…`;setTimeout(runRoundPart,6000)}
+            else{timerDisplay.textContent='Battle Over — Great Work!';glow();setDim(false);buildPostCats();postModal.classList.add('show');loadRandomOpponent();startBattleBtn.style.display='block'}
           }
         }
-      }, 1000);
+      },1000);
     }
-
-    function startBattle() {
-      if (!currentCategory) { timerDisplay.innerText = "Pick a category first."; return; }
-      if (currentCategory === 'RAP') {
-        if (!chosenOptions.beat) { timerDisplay.innerText = "Pick an instrumental to start."; return; }
-        battleTrack.play().catch(()=>{});
-      } else {
-        battleTrack.pause(); battleTrack.currentTime = 0;
-      }
-      postModal.classList.remove('show');
-      startBattleBtn.style.display = 'none';
-      triggerGlow();
-      round = 1; roundPart = 0; timeLeft = 33;
-      runRoundPart();
+    function startBattle(){
+      if(!currentCategory){timerDisplay.textContent="Tap “Choose Category” first.";return}
+      if(currentCategory==='RAP'){ if(!chosenOptions.beat){timerDisplay.textContent="Pick an instrumental to start.";return} battleTrack.play().catch(()=>{}); }
+      else{battleTrack.pause();battleTrack.currentTime=0}
+      postModal.classList.remove('show');startBattleBtn.style.display='none';glow();round=1;roundPart=0;timeLeft=33;runRoundPart();
     }
-
-    function loadRandomOpponent() {
-      const pool = opponentPools[currentCategory] || [];
-      if (pool.length) {
-        const random = pool[Math.floor(Math.random() * pool.length)];
-        opponentVideo.src = random.video;
-        opponentImage.src = random.image;
-        opponentUsername.innerText = random.username;
-      }
-      setTimeout(() => {
-        timerDisplay.innerText = "New Opponent Ready — pick options or press BattleBillions!";
-      }, 900);
+    function loadRandomOpponent(){
+      const pool=opponentPools[currentCategory]||[]; if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];
+        opponentVideo.src=r.video;opponentImage.src=r.image;opponentUsername.innerText=r.username;}
+      setTimeout(()=>{timerDisplay.textContent="New Opponent Ready — choose options or press BattleBillions!";},900)
     }
 
     // Post-battle actions
-    postClose.addEventListener('click', ()=> postModal.classList.remove('show'));
-    postKeepCat.addEventListener('click', ()=>{
-      if(!currentCategory || !chosenSub){ postModal.classList.remove('show'); categoryModal.classList.add('show'); return; }
-      postModal.classList.remove('show');
-      startBattleBtn.style.display='block';
-      timerDisplay.innerText = "Tap BattleBillions to continue.";
+    postClose.addEventListener('click',()=>postModal.classList.remove('show'));
+    postKeepCat.addEventListener('click',()=>{
+      if(!currentCategory||!chosenSub){postModal.classList.remove('show');categoryModal.classList.add('show');return}
+      postModal.classList.remove('show');startBattleBtn.style.display='block';timerDisplay.textContent="Tap BattleBillions to continue."
     });
-    postPickSub.addEventListener('click', ()=>{
-      postModal.classList.remove('show');
-      categoryModal.classList.add('show');
-      if(currentCategory){
-        categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===currentCategory));
-        openCategory(currentCategory, true);
-      }
+    postPickSub.addEventListener('click',()=>{
+      postModal.classList.remove('show');categoryModal.classList.add('show');
+      if(currentCategory){categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));openCategory(currentCategory,true)}
     });
-    postNextOpponent.addEventListener('click', ()=>{
-      postModal.classList.remove('show');
-      loadRandomOpponent();
-      startBattleBtn.style.display='block';
-      timerDisplay.innerText = "Opponent switched. Tap BattleBillions to start!";
-    });
+    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleBtn.style.display='block';timerDisplay.textContent="Opponent switched. Tap BattleBillions to start!"});
 
-    /* Viewer count tick (subtle) */
-    let viewers = 1300;
+    // Viewer count tick
+    let viewers=1300;
     setInterval(()=>{
-      const delta = Math.floor(Math.random()*13)-6; // -6..+6
-      viewers = Math.max(0, viewers + delta);
-      viewerCountTop.innerHTML = `<svg style="width:16px;height:16px;vertical-align:-2px;"><use href="#ic-eye"/></svg>&nbsp;${viewers.toLocaleString()}`;
-    }, 1600);
+      const delta=Math.floor(Math.random()*13)-6;
+      viewers=Math.max(0,viewers+delta);
+      viewerCountTop.innerHTML=`<svg style="width:14px;height:14px;vertical-align:-2px;"><use href="#ic-eye"/></svg>&nbsp;${viewers.toLocaleString()}`
+    },1600);
 
-    /* Camera */
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
-        document.getElementById('localVideo').srcObject = stream;
-      } catch (err) {
-        console.error('Camera error:', err);
-      }
+    // Camera
+    async function startCamera(){
+      try{
+        const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720}},audio:true});
+        document.getElementById('localVideo').srcObject=stream;
+      }catch(err){console.error('Camera error:',err)}
     }
 
-    /* Init */
-    window.onload = () => {
-      showScreen('battle');              // default route
-      if (!location.hash) location.hash = '#/battle';
+    // Init
+    window.onload=()=>{
+      showScreen('battle');
+      if(!location.hash) location.hash='#/battle';
       startCamera();
-      timerDisplay.innerText = "Choose a category to begin…";
-      routeFromHash();
-      parseHashAndOpen();
+      timerDisplay.textContent="Tap “Choose Category” to begin…";
+      routeFromHash(); parseHashAndOpen();
     };
   </script>
 </body>
-</html>
+  </html>
+  
