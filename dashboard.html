@@ -15,11 +15,9 @@
       overflow: hidden;
     }
 
-    /* Screens */
-    .screen { position: absolute; inset: 0; display: none; padding: 12px; }
+    .screen { position: absolute; inset: 0; display: none; }
     .screen.active { display: block; }
 
-    /* Streams / Arena */
     .stream-container {
       display: flex; height: 100vh; width: 100vw; position: relative;
       background: url('https://www.transparenttextures.com/patterns/cubes.png');
@@ -36,646 +34,592 @@
 
     .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 
-    /* Bars */
     .top-bar, .bottom-bar {
       position: absolute; width: 100%;
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; justify-content: space-between;
       pointer-events: auto; z-index: 20;
       background: rgba(0, 255, 255, 0.1);
       backdrop-filter: blur(10px);
     }
     .top-bar { top: 0; height: 36px; padding: 4px 12px; border-bottom: 1px solid rgba(0,255,255,0.3); }
-    .bottom-bar { bottom: 0; padding: 6px 12px; gap: 16px; background: rgba(0, 255, 255, 0.07); border-top: 1px solid rgba(0,255,255,0.2); }
+    .bottom-bar { bottom: 0; padding: 6px 12px; background: rgba(0, 255, 255, 0.07); border-top: 1px solid rgba(0,255,255,0.2); align-items: center; gap: 16px; }
 
-    .nav-icon { font-size: 14px; color: #0ff; cursor: pointer; text-shadow: 0 0 5px #0ff; transition: transform 0.3s, background 0.2s; padding: 4px 8px; border-radius: 10px; }
-    .nav-icon:hover { transform: scale(1.05); background: rgba(0,255,255,0.1); }
+    .nav-icon { font-size: 14px; color: #0ff; cursor: pointer; text-shadow: 0 0 5px #0ff; transition: transform 0.3s; }
+    .nav-icon:hover { transform: scale(1.1); }
 
-    /* Home */
-    .slogan { max-width: 980px; margin: 50px auto 18px auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .chip { background: rgba(0,255,255,0.15); border: 1px solid rgba(0,255,255,0.28); padding: 8px 12px; border-radius: 12px; font-size: 12px; letter-spacing: .5px; color: #0ff; }
-    .panel {
-      max-width: 1100px; margin: 0 auto; background: rgba(0,0,0,0.35); border: 1px solid rgba(0,255,255,0.2);
-      border-radius: 16px; padding: 16px 14px; box-shadow: 0 0 18px rgba(0,255,255,0.15)
+    .side-controls.left, .side-controls.right {
+      position: absolute; bottom: 140px; display: flex; flex-direction: column; gap: 16px;
+      pointer-events: auto; z-index: 30;
     }
-    .panel h2 { font-size: 18px; color: #e8feff; margin-bottom: 10px; letter-spacing: .6px }
-    .cta-wrap { display: flex; justify-content: center; margin-top: 16px }
-    .cta {
-      display: inline-block; padding: 12px 22px; border-radius: 24px; background: #0ff; color: #000; border: none; font-weight: 700;
-      letter-spacing:.5px; cursor: pointer; box-shadow: 0 0 16px rgba(0,255,255,0.5); transition:.2s
-    }
-    .cta:hover { transform: translateY(-1px) }
+    .side-controls.left { left: 15px; }
+    .side-controls.right { right: 15px; }
 
-    /* Dashboard category + subcategory */
-    .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 10px; }
-    @media (min-width: 760px){ .grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    @media (min-width: 1060px){ .grid { grid-template-columns: repeat(6, minmax(0,1fr)); } }
+    .side-button {
+      width: 36px; height: 36px;
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #0ff; box-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+      cursor: pointer; transition: transform 0.3s;
+    }
+    .side-button:hover { transform: scale(1.15); }
+    .floating { animation: floatUpDown 3s ease-in-out infinite; }
+
+    .profile-labels { position: absolute; top: 40px; right: 20px; display: flex; justify-content: flex-end; z-index: 40; }
+    .profile-entry {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(0,255,255,0.1); padding: 6px 16px; border-radius: 30px;
+      border: 1px solid rgba(0,255,255,0.3); box-shadow: 0 0 10px rgba(0,255,255,0.2);
+      animation: floatUpDown 4s ease-in-out infinite;
+    }
+    .profile-entry img { width: 34px; height: 34px; border-radius: 50%; animation: floatLeftRight 6s ease-in-out infinite; box-shadow: 0 0 4px #0ff; }
+    .profile-entry span { font-size: 15px; color: #0ff; text-shadow: 0 0 6px #0ff; }
+
+    @keyframes floatUpDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+    @keyframes floatLeftRight { 0%,100%{transform:translateX(0)} 50%{transform:translateX(6px)} }
+
+    .round-timer {
+      position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,255,255,0.1); padding: 14px 30px; border-radius: 40px;
+      font-size: 18px; font-weight: bold; color: #fff; border: 2px solid #0ff;
+      box-shadow: 0 0 15px rgba(0,255,255,0.6); animation: pulse 2s infinite; z-index: 50;
+      pointer-events: none; text-align: center;
+    }
+    .round-timer.animate { background: rgba(0,255,200,0.2); box-shadow: 0 0 20px rgba(0,255,200,0.8); }
+    @keyframes pulse { 0%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.05)} 100%{transform:translateX(-50%) scale(1)} }
+
+    /* Modals */
+    .modal {
+      position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+      z-index: 1000; background: rgba(0,0,0,0.45); backdrop-filter: blur(2px); pointer-events: auto;
+    }
+    .modal.show { display: flex; }
+
+    .card {
+      background: #0b0b12; border: 2px solid #0ff; border-radius: 14px;
+      width: min(92vw, 680px); padding: 20px; box-shadow: 0 0 24px rgba(0,255,255,0.35);
+    }
+    .card h2 { margin-bottom: 10px; color: #0ff; font-size: 22px; text-align: center; }
+    .slogan { margin: 8px auto 18px; padding: 10px 12px; border-radius: 10px; background: rgba(0,255,255,0.08); border: 1px solid rgba(0,255,255,0.2); font-size: 13px; line-height: 1.6; color: #c8ffff; text-align: center; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 12px; }
 
     .pill {
-      position: relative; display: flex; align-items: center; justify-content: center; text-align: center;
-      min-height: 56px; padding: 10px 8px; border-radius: 14px; border: 1px solid rgba(0,255,255,0.28);
-      background: rgba(0,255,255,0.08); color: #dff; cursor: pointer; transition: .22s; line-height: 1.1;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 56px; width: 100%; padding: 10px 8px; text-align: center;
+      white-space: normal; word-break: break-word; line-height: 1.2; font-size: 15px; letter-spacing: 0.4px;
+      background: rgba(0,255,255,0.08); border: 1px solid rgba(0,255,255,0.3);
+      border-radius: 10px; color: #0ff; cursor: pointer; user-select: none;
+      transition: transform .2s, background .2s, box-shadow .2s;
     }
-    .pill span { display: block; max-width: 100%; word-break: break-word; font-size: 14px; }
-    @media (min-width: 520px){ .pill span { font-size: 15px } }
-    .pill:hover { background: rgba(0,255,255,0.16); transform: translateY(-1px) }
-    .pill.active { outline: 2px solid #0ff; box-shadow: 0 0 12px rgba(0,255,255,0.45) }
+    .pill:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,255,255,0.45); }
+    .pill:hover { transform: translateY(-2px); background: rgba(0,255,255,0.16); box-shadow: 0 0 8px rgba(0,255,255,0.25); }
+    .pill.active { background: rgba(0,255,255,0.26); box-shadow: 0 0 12px rgba(0,255,255,0.35) inset; }
 
-    .subgrid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0,1fr)); margin-top: 10px; }
-    @media (min-width: 760px){ .subgrid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    .sub-note { margin: 8px 0 4px 2px; color: #aef; font-size: 12px; opacity: .9 }
+    .actions { margin-top: 16px; display: flex; justify-content: center; gap: 10px; }
+    .btn { background: #0ff; color: #001a1a; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 700; }
+    .btn.secondary { background: transparent; color: #0ff; border: 1px solid #0ff; }
 
-    .cta.secondary { display: none; margin-top: 12px }
-    .cta.secondary.show { display: inline-block }
+    .modal .sub-title { text-align: center; color: #7ffafa; margin-top: 6px; font-size: 14px; }
+    .muted { opacity: .8; font-size: 12px; margin-top: 10px; text-align:center; color:#9fecec; }
 
-    /* Arena overlay elements */
-    .arena-top { display: flex; justify-content: space-between; align-items: center; height: 36px; padding: 4px 12px;
-      background: rgba(0,255,255,0.1); border-bottom: 1px solid rgba(0,255,255,0.3); }
-    .arena-chip { background: rgba(0,255,255,0.12); border: 1px solid rgba(0,255,255,0.28); padding: 6px 10px; border-radius: 10px; color: #0ff; font-size: 12px }
-
-    .names { position: absolute; top: 70px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 12px; gap: 12px; z-index: 12; }
-    .name-pill { pointer-events: auto; background: rgba(0,0,0,0.55); padding: 6px 10px; border-radius: 14px; border: 1px solid rgba(0,255,255,0.28); color: #e8feff; font-size: 13px }
-
-    .vote-btn { position: absolute; bottom: 130px; padding: 9px 16px; border-radius: 30px; background: rgba(0,255,255,0.2); border: none; color: #fff; font-size: 15px; pointer-events: auto; z-index: 12 }
-    .vote-left { left: 12px }
-    .vote-right { right: 12px }
-
-    .audience-bar { position: absolute; bottom: 78px; left: 50%; transform: translateX(-50%); min-width: 260px; max-width: min(92%, 560px);
-      display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 12px; border-radius: 14px; z-index: 12;
-      background: rgba(0,0,0,0.45); border: 1px solid rgba(0,255,255,0.28) }
-    .aud-text { font-size: 12px; color: #0ff }
-    .aud-avatars { display: flex; gap: 6px }
-    .aud-avatars img { width: 20px; height: 20px; border-radius: 50% }
-    .chat-mini { pointer-events: auto; border: none; border-radius: 999px; background: #0ff; color: #000; font-weight: 700; padding: 6px 10px; cursor: pointer }
-
-    .round-timer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 18px; border-radius: 28px;
-      background: rgba(0,255,255,0.12); border: 2px solid #0ff; color: #fff; font-weight: 700; box-shadow: 0 0 15px rgba(0,255,255,0.5); z-index: 12 }
-    .round-timer.animate { background: rgba(0,255,200,0.22); box-shadow: 0 0 20px rgba(0,255,200,0.75) }
-
-    /* Post-battle overlay */
-    .end-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 30; backdrop-filter: blur(4px) }
-    .end-card {
-      width: min(720px, 92%); background: rgba(0,0,0,0.6); border: 1px solid rgba(0,255,255,0.3);
-      border-radius: 16px; padding: 18px; box-shadow: 0 0 22px rgba(0,255,255,0.35)
+    #startBattleBtn {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(0,255,255,0.2); border: 2px solid #0ff; color: white; font-size: 20px;
+      padding: 16px 34px; border-radius: 40px; cursor: pointer;
+      z-index: 1200; pointer-events: auto; box-shadow: 0 0 20px rgba(0,255,255,0.5);
+      transition: all 0.3s ease; display: none;
     }
-    .end-card h3 { font-size: 18px; margin-bottom: 10px; color: #e8feff }
-    .end-card .grid { margin-top: 10px }
-    .end-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px }
-    .btn { padding: 10px 16px; border-radius: 20px; border: 1px solid rgba(0,255,255,0.3); background: rgba(0,255,255,0.12); color: #fff; cursor: pointer }
-    .btn.primary { background: #0ff; color: #000; border: none; font-weight: 700 }
+    #startBattleBtn:hover { background: rgba(0,255,255,0.35); transform: translate(-50%, -50%) scale(1.05); }
 
-    /* Utility */
-    .hidden { display: none !important; }
+    .placeholder { display:flex; align-items:center; justify-content:center; height:100%; width:100%; background: rgba(0,0,0,0.35); backdrop-filter: blur(6px); text-align:center; }
+    .placeholder .box { border:2px solid #0ff; border-radius:16px; padding:24px 28px; background:#0b0b12; max-width: 720px; width: calc(100% - 40px); box-shadow: 0 0 24px rgba(0,255,255,0.25); }
+    .placeholder h1 { color:#0ff; margin-bottom:8px; }
+    .placeholder p { color:#c8ffff; }
+
+    /* Post-battle overlay (uses same visual language as your modals) */
+    .post-modal { position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:1100; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+    .post-modal.show { display:flex; }
+    .post-card { background:#0b0b12; border:2px solid #0ff; border-radius:14px; width:min(92vw,720px); padding:18px 20px; box-shadow:0 0 24px rgba(0,255,255,0.35); }
+    .post-card h3 { color:#0ff; text-align:center; margin-bottom:8px; }
+    .post-actions { display:flex; gap:10px; justify-content:center; margin-top:12px; }
   </style>
 </head>
 <body>
-  <!-- SCREEN: HOME -->
-  <section id="screen-home" class="screen active">
-    <div class="top-bar">
-      <div class="nav-icon" data-nav="home">🏠 Home</div>
-      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
-      <div class="nav-icon" data-nav="battle">📺 Battle</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
-      <div class="nav-icon" data-nav="profile">👤 Profile</div>
-    </div>
-
-    <div class="slogan">
-      <div class="chip">1ST – Defeat BILLIONS.</div>
-      <div class="chip">2ND – Choose Your BATTLE.</div>
-      <div class="chip">3RD – Defeat BILLIONS.</div>
-    </div>
-
-    <div class="panel" style="margin-top: 10px;">
-      <h2>Welcome to BattleBillions</h2>
-      <p style="opacity:.9;font-size:13px;margin-bottom:10px">Tap Dashboard to choose your category and jump in.</p>
-      <div class="cta-wrap"><button class="cta" data-nav="dashboard">Go to Dashboard</button></div>
-    </div>
-
-    <div class="bottom-bar">
-      <div class="nav-icon" data-nav="profile">👤</div>
-      <div class="nav-icon" data-nav="dashboard">🔍</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆</div>
-      <div class="nav-icon" data-nav="home">🏠</div>
-      <div class="nav-icon" data-nav="battle">📺</div>
-    </div>
-  </section>
-
-  <!-- SCREEN: DASHBOARD -->
-  <section id="screen-dashboard" class="screen">
-    <div class="top-bar">
-      <div class="nav-icon" data-nav="home">🏠 Home</div>
-      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
-      <div class="nav-icon" data-nav="battle">📺 Battle</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
-      <div class="nav-icon" data-nav="profile">👤 Profile</div>
-    </div>
-
-    <div class="slogan" style="margin-top: 44px;">
-      <div class="chip">1ST – Defeat BILLIONS.</div>
-      <div class="chip">2ND – Choose Your BATTLE.</div>
-      <div class="chip">3RD – Defeat BILLIONS.</div>
-    </div>
-
-    <div class="panel" id="cat-panel">
-      <h2>Choose Category</h2>
-      <div class="grid" id="categoryGrid"></div>
-    </div>
-
-    <div class="panel hidden" id="subcat-panel" style="margin-top: 12px;">
-      <h2 id="subcatTitle">Choose Subcategory</h2>
-      <div class="sub-note" id="subcatNote"></div>
-      <div class="subgrid" id="subcatGrid"></div>
-      <div class="cta-wrap"><button id="startBattleBtn" class="cta">BattleBillions</button></div>
-      <div class="cta-wrap"><button id="backToCategories" class="cta secondary">Back to Categories</button></div>
-    </div>
-
-    <div class="bottom-bar">
-      <div class="nav-icon" data-nav="profile">👤</div>
-      <div class="nav-icon" data-nav="dashboard">🔍</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆</div>
-      <div class="nav-icon" data-nav="home">🏠</div>
-      <div class="nav-icon" data-nav="battle">📺</div>
-    </div>
-  </section>
-
   <!-- SCREEN: BATTLE -->
-  <section id="screen-battle" class="screen">
-    <div class="stream-container dimmed" id="arena">
+  <div class="screen active" id="screen-battle">
+    <div class="stream-container" id="streamContainer">
       <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-      <video class="video-stream" id="opponentVideo" autoplay muted loop></video>
+      <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
+
+      <!-- CATEGORY PICKER -->
+      <div class="modal show" id="categoryModal" aria-modal="true" role="dialog">
+        <div class="card">
+          <h2>Pick a Category</h2>
+          <div class="slogan">
+            <div>1ST - <b>Defeat BILLIONS.</b></div>
+            <div>2ND - <b>Choose Your BATTLE.</b></div>
+            <div>3RD - <b>Defeat BILLIONS.</b></div>
+          </div>
+
+          <div class="grid" id="categoryGrid">
+            <button type="button" class="pill" tabindex="0" data-cat="ART" aria-controls="optionsModal" aria-expanded="false">ART</button>
+            <button type="button" class="pill" tabindex="0" data-cat="AUTO" aria-controls="optionsModal" aria-expanded="false">AUTO</button>
+            <button type="button" class="pill" tabindex="0" data-cat="DEBAT" aria-controls="optionsModal" aria-expanded="false">DEBAT</button>
+            <button type="button" class="pill" tabindex="0" data-cat="FASHION" aria-controls="optionsModal" aria-expanded="false">FASHION</button>
+            <button type="button" class="pill" tabindex="0" data-cat="INSTRUMENTS" aria-controls="optionsModal" aria-expanded="false">INSTRUMENTS</button>
+            <button type="button" class="pill" tabindex="0" data-cat="RAP" aria-controls="optionsModal" aria-expanded="false">RAP</button>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" id="cancelCat" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORY OPTIONS -->
+      <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
+        <div class="card">
+          <h2 id="optionsTitle">Category Options</h2>
+        <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
+          <div id="optionsBody"></div>
+          <div class="muted" id="optionsHint"></div>
+          <div class="actions" id="optionsActions" style="margin-top:12px;">
+            <button class="btn secondary" id="backBtn" type="button">Back</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center button shown after option chosen -->
+      <button id="startBattleBtn" onclick="startBattle()">⚔️ BattleBillions</button>
 
       <div class="overlay">
         <div class="top-bar">
           <div class="nav-icon">🔴 LIVE</div>
-          <div class="nav-icon" id="viewerCountTop">👁️ 0</div>
+          <div class="nav-icon" id="viewerCountTop">👁️ 1.3k</div>
         </div>
 
-        <div class="arena-top" style="position: absolute; top: 36px; left: 0; right: 0;">
-          <div class="arena-chip" id="arenaCat">Category: —</div>
-          <div class="arena-chip" id="arenaSub">Sub: —</div>
-        </div>
-
-        <div class="names">
-          <div class="name-pill" id="youName">@You</div>
-          <div class="name-pill" id="oppName">@Opponent</div>
-        </div>
-
-        <button class="vote-btn vote-left">Vote</button>
-        <button class="vote-btn vote-right">Vote</button>
-
-        <div class="audience-bar">
-          <span class="aud-text" id="audCount">Live Audience: 🔴 0</span>
-          <div class="aud-avatars" id="audAvatars">
-            <img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt="">
+        <div class="profile-labels" id="profileLabels">
+          <div class="profile-entry">
+            <img src="user2.jpg" id="opponentImage" alt="User 2">
+            <span id="opponentUsername">@Opponent</span>
           </div>
-          <button class="chat-mini" id="chatBtn">💬 Chat</button>
         </div>
 
-        <div class="round-timer" id="roundTimer">Preparing battle…</div>
+        <div class="side-controls left">
+          <div class="side-button floating" data-screen="profile">👤</div>
+          <div class="side-button" data-screen="dashboard">🔍</div>
+          <div class="side-button" data-screen="login">🚪</div>
+        </div>
+
+        <div class="side-controls right">
+          <div class="side-button" data-screen="home">🏠</div>
+          <div class="side-button" data-screen="leaderboard">🏆</div>
+          <div class="side-button" data-screen="battle">📺</div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="nav-icon" data-screen="profile">👤</div>
+          <div class="nav-icon" data-screen="dashboard">🔍</div>
+          <div class="nav-icon" data-screen="leaderboard">🏆</div>
+          <div class="nav-icon" data-screen="home">🏠</div>
+          <div class="nav-icon" data-screen="battle">📺</div>
+        </div>
+
+        <div class="round-timer" id="roundTimer">Choose a category to begin…</div>
       </div>
 
-      <!-- Post-battle / between battles overlay -->
-      <div class="end-overlay" id="endOverlay">
-        <div class="end-card">
-          <h3 id="endTitle">🔥 Battle Over 🔥</h3>
-          <p style="opacity:.9;font-size:13px">Stay in your current category or pick another to keep battling.</p>
-
-          <div class="panel" style="margin-top:12px;background:rgba(0,255,255,0.05)">
-            <h2 style="margin-bottom:8px">Choose Category</h2>
-            <div class="grid" id="postCategoryGrid"></div>
-          </div>
-
-          <div class="end-actions">
-            <button class="btn" id="keepCategoryBtn">Keep Current Category</button>
-            <button class="btn primary" id="nextOpponentBtn">Next Opponent</button>
+      <!-- POST-BATTLE OVERLAY: category box + next opponent -->
+      <div class="post-modal" id="postBattleModal" aria-modal="true" role="dialog">
+        <div class="post-card">
+          <h3>🔥 Battle Over — What’s Next?</h3>
+          <p class="muted">Stay in your category or pick a new one. Then hit <b>Next Opponent</b> to keep battling.</p>
+          <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
+          <div class="post-actions">
+            <button class="btn secondary" id="postClose">Close</button>
+            <button class="btn" id="postKeepCat">Keep Current Category</button>
+            <button class="btn" id="postPickSub">Pick Subcategory</button>
+            <button class="btn" id="postNextOpponent">Next Opponent</button>
           </div>
         </div>
       </div>
+      <!-- /POST-BATTLE OVERLAY -->
     </div>
+  </div>
 
-    <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
-    <audio id="battleTrack" hidden></audio>
+  <!-- Other screens -->
+  <div class="screen" id="screen-home"><div class="placeholder"><div class="box"><h1>Home</h1><p>Use the nav to jump back to <b>Battle</b> — everything loads on this page.</p></div></div></div>
+  <div class="screen" id="screen-profile"><div class="placeholder"><div class="box"><h1>Your Profile</h1><p>Profile settings soon. Click 📺 to return to Battle.</p></div></div></div>
+  <div class="screen" id="screen-leaderboard"><div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here. Click 📺 to return to Battle.</p></div></div></div>
+  <div class="screen" id="screen-dashboard"><div class="placeholder"><div class="box"><h1>Dashboard Explorer</h1><p>Search & discovery UI goes here. Click 📺 to return to Battle.</p></div></div></div>
+  <div class="screen" id="screen-login"><div class="placeholder"><div class="box"><h1>Login</h1><p>Auth flow placeholder. Click 📺 to return to Battle.</p></div></div></div>
 
-    <div class="bottom-bar">
-      <div class="nav-icon" data-nav="profile">👤</div>
-      <div class="nav-icon" data-nav="dashboard">🔍</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆</div>
-      <div class="nav-icon" data-nav="home">🏠</div>
-      <div class="nav-icon" data-nav="battle">📺</div>
-    </div>
-  </section>
-
-  <!-- SCREEN: LEADERBOARD -->
-  <section id="screen-leaderboard" class="screen">
-    <div class="top-bar">
-      <div class="nav-icon" data-nav="home">🏠 Home</div>
-      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
-      <div class="nav-icon" data-nav="battle">📺 Battle</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
-      <div class="nav-icon" data-nav="profile">👤 Profile</div>
-    </div>
-
-    <div class="panel" style="margin-top: 56px;">
-      <h2>Leaderboard</h2>
-      <p style="opacity:.85;font-size:13px">Top battlers will appear here.</p>
-    </div>
-
-    <div class="bottom-bar">
-      <div class="nav-icon" data-nav="profile">👤</div>
-      <div class="nav-icon" data-nav="dashboard">🔍</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆</div>
-      <div class="nav-icon" data-nav="home">🏠</div>
-      <div class="nav-icon" data-nav="battle">📺</div>
-    </div>
-  </section>
-
-  <!-- SCREEN: PROFILE -->
-  <section id="screen-profile" class="screen">
-    <div class="top-bar">
-      <div class="nav-icon" data-nav="home">🏠 Home</div>
-      <div class="nav-icon" data-nav="dashboard">🎛️ Dashboard</div>
-      <div class="nav-icon" data-nav="battle">📺 Battle</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆 Leaderboard</div>
-      <div class="nav-icon" data-nav="profile">👤 Profile</div>
-    </div>
-
-    <div class="panel" style="margin-top: 56px;">
-      <h2>Your Profile</h2>
-      <p style="opacity:.85;font-size:13px">Customize your handle, avatar, and settings.</p>
-    </div>
-
-    <div class="bottom-bar">
-      <div class="nav-icon" data-nav="profile">👤</div>
-      <div class="nav-icon" data-nav="dashboard">🔍</div>
-      <div class="nav-icon" data-nav="leaderboard">🏆</div>
-      <div class="nav-icon" data-nav="home">🏠</div>
-      <div class="nav-icon" data-nav="battle">📺</div>
-    </div>
-  </section>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
+  <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    /* ---------------- SPA Router ---------------- */
+    /* ========== SPA NAV ========== */
     const screens = {
-      home: document.getElementById('screen-home'),
-      dashboard: document.getElementById('screen-dashboard'),
       battle: document.getElementById('screen-battle'),
-      leaderboard: document.getElementById('screen-leaderboard'),
+      home: document.getElementById('screen-home'),
       profile: document.getElementById('screen-profile'),
+      leaderboard: document.getElementById('screen-leaderboard'),
+      dashboard: document.getElementById('screen-dashboard'),
+      login: document.getElementById('screen-login'),
     };
-    function go(view){
-      Object.values(screens).forEach(s => s.classList.remove('active'));
-      (screens[view] || screens.home).classList.add('active');
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => {
+        if (key === name) el.classList.add('active'); else el.classList.remove('active');
+      });
     }
-    document.querySelectorAll('[data-nav]').forEach(el=>{
-      el.addEventListener('click', ()=> go(el.getAttribute('data-nav')));
+    document.querySelectorAll('[data-screen]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        showScreen(el.getAttribute('data-screen'));
+      });
     });
 
-    /* ----------- Category / Subcategory (no "ALL") ----------- */
-    const CATEGORY_MAP = {
-      ART:        { note: "Select an art discipline", sub: ["Painting","Digital","Sculpture","Graffiti","Photography","Mixed Media"] },
-      AUTO:       { note: "Select an auto discipline", sub: ["Drift","Build","Detail","Audio","Off-road","Showcase"] },
-      DEBAT:      { note: "Pick your debate arena",   sub: ["Politics","Tech","Sports","Culture","Open Debate"] },
-      FASHION:    { note: "Select a fashion lane",    sub: ["Runway","Streetwear","Styling","Thrifting","Design Sketch"] },
-      INSTRUMENTS:{ note: "Pick an instrument",        sub: ["Guitar","Piano","Drums","Violin","Bass","Brass"] },
-      RAP:        { note: "Pick your style",           sub: ["Boom Bap","Trap","Freestyle","Melodic","Battle Bars"] },
-    };
-
-    const categoryGrid = document.getElementById('categoryGrid');
-    const subPanel = document.getElementById('subcat-panel');
-    const subTitle = document.getElementById('subcatTitle');
-    const subNote = document.getElementById('subcatNote');
-    const subGrid = document.getElementById('subcatGrid');
-    const startBattleBtn = document.getElementById('startBattleBtn');
-    const backToCategories = document.getElementById('backToCategories');
-
-    let chosenCategory = null;
+    /* ========== Battle & Category State ========== */
+    let currentCategory = null;
+    let chosenOptions = {};
     let chosenSub = null;
 
-    // Build categories
-    function buildCategories(targetGrid){
-      targetGrid.innerHTML = '';
-      for (const key of Object.keys(CATEGORY_MAP)){
-        const btn = document.createElement('button');
-        btn.className = 'pill';
-        btn.innerHTML = `<span>${key}</span>`;
-        btn.addEventListener('click', ()=>{
-          chosenCategory = key; chosenSub = null;
-          if (targetGrid === categoryGrid){
-            [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
-            btn.classList.add('active');
-            fillSubcats(key);
-          } else {
-            // Post-battle category box pick
-            chosenCategory = key;
-            chosenSub = null;
-            fillSubcats(key); // open subcat on dashboard so user can choose then start
-            go('dashboard');
-            document.getElementById('endOverlay').style.display = 'none';
-          }
-        });
-        targetGrid.appendChild(btn);
+    const opponentPools = {
+      ART: [{ video: "art2.mp4", image: "art2.jpg", username: "@InkMage" }, { video: "art3.mp4", image: "art3.jpg", username: "@ColorCaster" }],
+      AUTO: [{ video: "auto1.mp4", image: "auto1.jpg", username: "@TorqueLord" }, { video: "auto2.mp4", image: "auto2.jpg", username: "@RimReaper" }],
+      DEBAT: [{ video: "deb1.mp4", image: "deb1.jpg", username: "@LogicBlade" }, { video: "deb2.mp4", image: "deb2.jpg", username: "@VerbalVolt" }],
+      FASHION: [{ video: "fashion2.mp4", image: "fashion2.jpg", username: "@RunwayRuler" }, { video: "fashion3.mp4", image: "fashion3.jpg", username: "@FitArchitect" }],
+      INSTRUMENTS: [{ video: "inst1.mp4", image: "inst1.jpg", username: "@ChordSmith" }, { video: "inst2.mp4", image: "inst2.jpg", username: "@DrumOracle" }],
+      RAP: [{ video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" }, { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }]
+    };
+
+    const subLists = {
+      ART: ['Painting','Digital','Graffiti','Sculpture','Illustration'],
+      AUTO: ['Drift','Drag','Build Showcase','Detailing','Audio Systems'],
+      DEBAT: ['Politics','Tech','Sports','Culture','Freestyle'],
+      FASHION: ['Runway','Streetwear','Vintage','Upcycle','Styling'],
+      INSTRUMENTS: ['Guitar','Piano','Violin','Drums','DJ'],
+      RAP: [
+        {label:'🔥 Classic Trap', value:'beat1.mp3'},
+        {label:'💥 Boom Bap', value:'beat2.mp3'},
+        {label:'🌊 Chill Vibes', value:'beat3.mp3'},
+        {label:'⚡ Fast Flow', value:'beat4.mp3'},
+      ]
+    };
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
+        document.getElementById('localVideo').srcObject = stream;
+      } catch (err) {
+        console.error('Camera error:', err);
+        // no alert spam on mobile—graceful fallback
       }
     }
-    buildCategories(categoryGrid);
 
-    function fillSubcats(cat){
-      const cfg = CATEGORY_MAP[cat];
-      subTitle.textContent = `Choose ${cat} Subcategory`;
-      subNote.textContent = cfg.note;
-      subGrid.innerHTML = '';
-      cfg.sub.forEach(name=>{
-        const s = document.createElement('button');
-        s.className = 'pill';
-        s.innerHTML = `<span>${name}</span>`;
-        s.addEventListener('click', ()=>{
-          chosenSub = name;
-          [...subGrid.children].forEach(c=>c.classList.remove('active'));
-          s.classList.add('active');
-          startBattleBtn.classList.add('show');
-        });
-        subGrid.appendChild(s);
-      });
-      subPanel.classList.remove('hidden');
-      startBattleBtn.classList.remove('show');
-    }
-
-    backToCategories.addEventListener('click', ()=>{
-      chosenCategory = null; chosenSub = null;
-      subPanel.classList.add('hidden');
-      [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
-      startBattleBtn.classList.remove('show');
-    });
-
-    startBattleBtn.addEventListener('click', ()=>{
-      if(!chosenCategory || !chosenSub) return;
-      go('battle');
-      bootArena(chosenCategory, chosenSub);
-    });
-
-    /* -------------------- Arena Logic -------------------- */
-    const arenaEl = document.getElementById('arena');
-    const arenaCat = document.getElementById('arenaCat');
-    const arenaSub = document.getElementById('arenaSub');
-    const localVideo = document.getElementById('localVideo');
-    const opponentVideo = document.getElementById('opponentVideo');
-    const oppName = document.getElementById('oppName');
-    const roundTimer = document.getElementById('roundTimer');
-    const roundEndSound = document.getElementById('roundEndSound');
+    const streamContainer = document.getElementById('streamContainer');
+    const timerDisplay = document.getElementById('roundTimer');
+    const sound = document.getElementById('roundEndSound');
     const battleTrack = document.getElementById('battleTrack');
-    const audCountEl = document.getElementById('audCount');
-
-    let chosenCategory = null;
-    let chosenSub = null;
-
-    // Build categories
-    function buildCategories(targetGrid){
-      targetGrid.innerHTML = '';
-      for (const key of Object.keys(CATEGORY_MAP)){
-        const btn = document.createElement('button');
-        btn.className = 'pill';
-        btn.innerHTML = `<span>${key}</span>`;
-        btn.addEventListener('click', ()=>{
-          chosenCategory = key; chosenSub = null;
-          if (targetGrid === categoryGrid){
-            [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
-            btn.classList.add('active');
-            fillSubcats(key);
-          } else {
-            // Post-battle category box pick
-            chosenCategory = key;
-            chosenSub = null;
-            fillSubcats(key); // open subcat on dashboard so user can choose then start
-            go('dashboard');
-            document.getElementById('endOverlay').style.display = 'none';
-          }
-        });
-        targetGrid.appendChild(btn);
-      }
-    }
-    buildCategories(categoryGrid);
-
-    function fillSubcats(cat){
-      const cfg = CATEGORY_MAP[cat];
-      subTitle.textContent = `Choose ${cat} Subcategory`;
-      subNote.textContent = cfg.note;
-      subGrid.innerHTML = '';
-      cfg.sub.forEach(name=>{
-        const s = document.createElement('button');
-        s.className = 'pill';
-        s.innerHTML = `<span>${name}</span>`;
-        s.addEventListener('click', ()=>{
-          chosenSub = name;
-          [...subGrid.children].forEach(c=>c.classList.remove('active'));
-          s.classList.add('active');
-          startBattleBtn.classList.add('show');
-        });
-        subGrid.appendChild(s);
-      });
-      subPanel.classList.remove('hidden');
-      startBattleBtn.classList.remove('show');
-    }
-
-    backToCategories.addEventListener('click', ()=>{
-      chosenCategory = null; chosenSub = null;
-      subPanel.classList.add('hidden');
-      [...categoryGrid.children].forEach(c=>c.classList.remove('active'));
-      startBattleBtn.classList.remove('show');
-    });
-
-    startBattleBtn.addEventListener('click', ()=>{
-      if(!chosenCategory || !chosenSub) return;
-      go('battle');
-      bootArena(chosenCategory, chosenSub);
-    });
-
-    /* -------------------- Arena Logic -------------------- */
-    const arenaEl = document.getElementById('arena');
-    const arenaCat = document.getElementById('arenaCat');
-    const arenaSub = document.getElementById('arenaSub');
-    const localVideo = document.getElementById('localVideo');
     const opponentVideo = document.getElementById('opponentVideo');
-    const oppName = document.getElementById('oppName');
-    const roundTimer = document.getElementById('roundTimer');
-    const roundEndSound = document.getElementById('roundEndSound');
-    const battleTrack = document.getElementById('battleTrack');
-    const audCountEl = document.getElementById('audCount');
-    const audAvatars = document.getElementById('audAvatars');
+    const opponentImage = document.getElementById('opponentImage');
+    const opponentUsername = document.getElementById('opponentUsername');
     const viewerCountTop = document.getElementById('viewerCountTop');
 
-    const endOverlay = document.getElementById('endOverlay');
-    const postCategoryGrid = document.getElementById('postCategoryGrid');
-    const keepCategoryBtn = document.getElementById('keepCategoryBtn');
-    const nextOpponentBtn = document.getElementById('nextOpponentBtn');
+    const categoryModal = document.getElementById('categoryModal');
+    const optionsModal = document.getElementById('optionsModal');
+    const optionsTitle = document.getElementById('optionsTitle');
+    const optionsSubtitle = document.getElementById('optionsSubtitle');
+    const optionsBody = document.getElementById('optionsBody');
+    const optionsHint = document.getElementById('optionsHint');
+    const startBattleBtn = document.getElementById('startBattleBtn');
+    const categoryGrid = document.getElementById('categoryGrid');
 
-    // Opponent pools
-    const OPP_POOLS = {
-      ART:        [{user:'@BrushKing', video:'art2.mp4'}, {user:'@InkMage', video:'art3.mp4'}],
-      AUTO:       [{user:'@DriftLord', video:'auto1.mp4'}, {user:'@DetailDuke', video:'auto2.mp4'}],
-      DEBAT:      [{user:'@ArgueAI', video:'debat1.mp4'}, {user:'@PointGuard', video:'debat2.mp4'}],
-      FASHION:    [{user:'@RunwayRay', video:'fashion2.mp4'}, {user:'@FitGenius', video:'fashion3.mp4'}],
-      INSTRUMENTS:[{user:'@Guitarix', video:'inst1.mp4'}, {user:'@KeysNova', video:'inst2.mp4'}],
-      RAP:        [{user:'@MicFlame', video:'rap1.mp4'}, {user:'@LyricBeast', video:'rap2.mp4'}],
+    // Post-battle overlay elements
+    const postModal = document.getElementById('postBattleModal');
+    const postCategoryGrid = document.getElementById('postCategoryGrid');
+    const postClose = document.getElementById('postClose');
+    const postKeepCat = document.getElementById('postKeepCat');
+    const postPickSub = document.getElementById('postPickSub');
+    const postNextOpponent = document.getElementById('postNextOpponent');
+
+    document.getElementById('cancelCat').onclick = () => {
+      categoryModal.classList.remove('show');
+      timerDisplay.innerText = "Open categories anytime to begin.";
+      clearHash();
+    };
+    document.getElementById('backBtn').onclick = () => {
+      optionsModal.classList.remove('show');
+      categoryModal.classList.add('show');
+      startBattleBtn.style.display = 'none';
+      chosenSub = null;
+      updateHash(currentCategory, null);
+      categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===currentCategory));
+      categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
 
-    // Optional instrumentals for RAP
-    const INSTRUMENTALS = [
-      {label:'🔥 Classic Trap', src:'beat1.mp3'},
-      {label:'💥 Boom Bap', src:'beat2.mp3'},
-      {label:'🌊 Chill Vibes', src:'beat3.mp3'},
-      {label:'⚡ Fast Flow', src:'beat4.mp3'},
-    ];
-
-    // Round state
-    let round = 1, part = 0, timeLeft = 33, maxRounds = 3, timerHandle = null;
-
-    // Audience
-    let audienceCount = 0, audienceTick = null;
-
-    function setDim(on){ arenaEl.classList.toggle('dimmed', !!on); }
-
-    async function bootArena(cat, sub){
-      arenaCat.textContent = `Category: ${cat}`;
-      arenaSub.textContent = `Sub: ${sub}`;
-      endOverlay.style.display = 'none';
-      setDim(true);
-
-      // Opponent
-      const pool = OPP_POOLS[cat] || [{user:'@Opponent', video:'user2.mp4'}];
-      const rnd = pool[Math.floor(Math.random()*pool.length)];
-      oppName.textContent = rnd.user;
-      opponentVideo.src = rnd.video;
-
-      // Camera
-      try{
-        const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-        localVideo.srcObject = stream;
-      }catch(e){
-        localVideo.src = 'user1.mp4';
-        localVideo.muted = true; localVideo.loop = true; localVideo.play();
+    // Category buttons
+    categoryGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.pill[data-cat]');
+      if (!btn) return;
+      openCategory(btn.dataset.cat, true);
+    });
+    categoryGrid.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.pill[data-cat]')) {
+        e.preventDefault();
+        openCategory(e.target.dataset.cat, true);
       }
-
-      // Track (only RAP)
-      if(cat === 'RAP'){
-        const track = INSTRUMENTALS[Math.floor(Math.random()*INSTRUMENTALS.length)];
-        battleTrack.src = track.src;
-        try { await battleTrack.play(); } catch {}
-      } else {
-        battleTrack.pause();
-        battleTrack.currentTime = 0;
-      }
-
-      // Audience seed/ticker
-      seedAudience();
-      if(audienceTick) clearInterval(audienceTick);
-      audienceTick = setInterval(updateAudience, 1500);
-
-      // Start battle
-      resetRounds();
-      startRoundLoop();
-    }
-
-    function resetRounds(){
-      round = 1; part = 0; timeLeft = 33;
-      if(timerHandle) clearInterval(timerHandle);
-      roundTimer.textContent = 'Get Ready…';
-    }
-
-    function tickTimer(){
-      roundTimer.textContent = `Round ${round}/${maxRounds} | ${(part===0?'@You':'@Opponent')} | ${timeLeft}s`;
-      timeLeft--;
-      if(timeLeft < 0){
-        clearInterval(timerHandle);
-        roundEndSound.currentTime = 0;
-        roundEndSound.play();
-        if(part===0){
-          part=1;
-          pauseBetween('Switching to Opponent…');
-        }else{
-          if(round < maxRounds){
-            round++; part=0;
-            pauseBetween('Next Round Loading…');
-          }else{
-            finishBattle();
-          }
-        }
-      }
-    }
-
-    function startRoundLoop(){
-      setDim(true); // dim during action
-      tickTimer();
-      timerHandle = setInterval(tickTimer, 1000);
-    }
-
-    function pauseBetween(msg){
-      setDim(false); // light during pause
-      roundTimer.classList.add('animate');
-      roundTimer.textContent = `⏸ ${msg}`;
-      setTimeout(()=>{
-        roundTimer.classList.remove('animate');
-        timeLeft = 33;
-        setDim(true);
-        startRoundLoop();
-      }, 6000);
-    }
-
-    function finishBattle(){
-      setDim(false); // light at finish
-      roundTimer.classList.add('animate');
-      roundTimer.textContent = '🔥 Battle Over 🔥';
-      setTimeout(()=> roundTimer.classList.remove('animate'), 1200);
-
-      // Show end overlay with category box & Next Opponent
-      buildCategories(postCategoryGrid);
-      endOverlay.style.display = 'flex';
-    }
-
-    // Keep current category — just find a new opponent in same cat
-    keepCategoryBtn.addEventListener('click', ()=>{
-      endOverlay.style.display = 'none';
-      if(!chosenCategory || !chosenSub){ go('dashboard'); return; }
-      bootArena(chosenCategory, chosenSub);
     });
 
-    // Next Opponent — stay in same cat/sub, swap rival
-    nextOpponentBtn.addEventListener('click', ()=>{
-      endOverlay.style.display = 'none';
-      if(!chosenCategory || !chosenSub){ go('dashboard'); return; }
-      bootArena(chosenCategory, chosenSub);
-    });
-
-    // Live audience
-    function seedAudience(){
-      audienceCount = 100 + Math.floor(Math.random()*250);
-      audCountEl.textContent = `Live Audience: 🔴 ${audienceCount}`;
-      viewerCountTop.textContent = `👁️ ${audienceCount}`;
-      // avatars
-      audAvatars.innerHTML = '';
-      ['a1.jpg','a2.jpg','a3.jpg','b1.jpg','b2.jpg','b3.jpg'].slice(0,3).forEach(src=>{
-        const i=document.createElement('img'); i.src = src; audAvatars.appendChild(i);
+    // Build post-battle category grid (same set)
+    function buildPostCats(){
+      postCategoryGrid.innerHTML = '';
+      Object.keys(subLists).forEach(cat=>{
+        const b=document.createElement('button');
+        b.className='pill'; b.textContent=cat;
+        b.addEventListener('click', ()=>{
+          currentCategory = cat; chosenSub=null;
+          postModal.classList.remove('show');
+                    categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
+          openCategory(cat, true);
+        });
+        postCategoryGrid.appendChild(b);
       });
     }
-    function updateAudience(){
-      const delta = Math.floor(Math.random()*9)-4; // -4..+4
-      audienceCount = Math.max(0, audienceCount + delta);
-      audCountEl.textContent = `Live Audience: 🔴 ${audienceCount}`;
-      viewerCountTop.textContent = `👁️ ${audienceCount}`;
-      if(Math.random()>0.7){
-        const img = document.createElement('img');
-        img.src = (Math.random()>0.5?'a':'b') + (1+Math.floor(Math.random()*3)) + '.jpg';
-        img.style.opacity = '0';
-        audAvatars.insertBefore(img, audAvatars.firstChild);
-        if(audAvatars.children.length>6) audAvatars.removeChild(audAvatars.lastChild);
-        requestAnimationFrame(()=>{ img.style.transition='opacity .35s'; img.style.opacity='1'; });
+
+    function openCategory(cat, fromUser) {
+      try {
+        currentCategory = cat;
+        chosenSub = null;
+        startBattleBtn.style.display = 'none';
+        categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
+        buildOptionsFor(cat);
+        categoryModal.classList.remove('show');
+        optionsModal.classList.add('show');
+        if (fromUser) updateHash(cat, null);
+        optionsModal.querySelector('.pill')?.focus();
+      } catch (err) {
+        console.error('openCategory error:', err);
       }
     }
 
-    // Chat placeholder
-    document.getElementById('chatBtn').addEventListener('click', ()=>{
-      alert('Chat opens here (inline modal/drawer) — coming soon.');
+    function applyCategoryOpponent(cat) {
+      const pool = opponentPools[cat] || [];
+      if (pool.length) {
+        const random = pool[Math.floor(Math.random() * pool.length)];
+        opponentVideo.src = random.video;
+        opponentImage.src = random.image;
+        opponentUsername.innerText = random.username;
+      }
+    }
+
+    function buildOptionsFor(cat) {
+      optionsBody.innerHTML = '';
+      chosenOptions = {};
+      optionsHint.innerText = '';
+      optionsTitle.innerText = `${cat} – Options`;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'grid';
+
+      const items = subLists[cat] || [];
+      if (cat === 'RAP') {
+        optionsSubtitle.innerText = "Choose your instrumental.";
+        items.forEach(b => {
+          const btn = makePill(b.label, b.value, () => {
+            chosenOptions.beat = b.value;
+            chosenSub = b.label;
+            battleTrack.src = b.value;
+            battleTrack.load();
+            optionsModal.classList.remove('show');
+            startBattleBtn.style.display = 'block';
+            timerDisplay.innerText = "🔥 Ready — tap BattleBillions to start!";
+            updateHash(cat, b.label);
+            applyCategoryOpponent(cat);
+          });
+          wrapper.appendChild(btn);
+        });
+        optionsHint.innerText = "Only RAP uses beats. Others don’t.";
+      } else {
+        const subtitleMap = {
+          ART: "Choose your art style.",
+          AUTO: "Choose your auto event.",
+          DEBAT: "Choose your debate topic.",
+          FASHION: "Choose your fashion lane.",
+          INSTRUMENTS: "Choose your instrument."
+        };
+        optionsSubtitle.innerText = subtitleMap[cat] || "Choose an option.";
+        items.forEach(label => {
+          const btn = makePill(label, label, () => {
+            chosenSub = label;
+            chosenOptions[cat.toLowerCase()] = label;
+            optionsModal.classList.remove('show');
+            startBattleBtn.style.display = 'block';
+            timerDisplay.innerText = "🔥 Ready — tap BattleBillions to start!";
+            updateHash(cat, label);
+            applyCategoryOpponent(cat);
+          });
+          wrapper.appendChild(btn);
+        });
+        const hints = {
+          ART: "No instrumental here — obviously.",
+          AUTO: "Rev up. No instrumental picker needed.",
+          DEBAT: "No beats — just bars of logic.",
+          FASHION: "Serving looks — no instrumental here.",
+          INSTRUMENTS: "Live performance mode — no beat selection here."
+        };
+        optionsHint.innerText = hints[cat] || '';
+      }
+
+      optionsBody.appendChild(wrapper);
+    }
+
+    function makePill(label, value, onChoose) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pill';
+      btn.tabIndex = 0;
+      btn.textContent = label;
+      btn.dataset.value = value;
+      btn.addEventListener('click', onChoose);
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChoose(); }
+      });
+      return btn;
+    }
+
+    /* Deep link: #cat/<CAT>/<SUB?>  */
+    function updateHash(cat, sub) {
+      const frag = `#cat/${encodeURIComponent(cat)}${sub?`/${encodeURIComponent(sub)}`:''}`;
+      history.pushState({cat, sub}, '', frag);
+    }
+    function clearHash(){ history.pushState({}, '', location.pathname + location.search); }
+
+    function parseHashAndOpen() {
+      const m = location.hash.match(/^#cat\/([^\/]+)(?:\/([^\/]+))?/i);
+      if (!m) return;
+      const cat = decodeURIComponent(m[1]);
+      const sub = m[2] ? decodeURIComponent(m[2]) : null;
+      if (!subLists[cat]) return;
+      openCategory(cat, false);
+      if (sub) {
+        setTimeout(() => {
+          const target = Array.from(optionsBody.querySelectorAll('.pill'))
+            .find(b => (b.textContent.trim() === sub) || (b.dataset.value === sub));
+          target?.click();
+        }, 0);
+      }
+    }
+    window.addEventListener('popstate', parseHashAndOpen);
+    window.addEventListener('hashchange', parseHashAndOpen);
+
+    /* Round logic (3 rounds, 33s, 6s pause, dim during action) */
+    let round = 1, roundPart = 0, timeLeft = 33;
+    const maxRounds = 3;
+    function setDim(active) { active ? streamContainer.classList.add('dimmed') : streamContainer.classList.remove('dimmed'); }
+    function triggerGlow() { timerDisplay.classList.add('animate'); setTimeout(() => timerDisplay.classList.remove('animate'), 2000); }
+
+    function runRoundPart() {
+      setDim(true);
+      const interval = setInterval(() => {
+        timerDisplay.innerText = `Round ${round} of ${maxRounds} | ${(roundPart === 0 ? '@You' : '@Opponent')} | ${timeLeft}s`;
+        timeLeft--;
+        if (timeLeft < 0) {
+          clearInterval(interval);
+          sound.play();
+          setDim(false);
+
+          if (roundPart === 0) {
+            roundPart = 1; timeLeft = 33;
+            timerDisplay.innerText = `Switching to Opponent…`;
+            setTimeout(runRoundPart, 6000);
+          } else {
+            if (round < maxRounds) {
+              round++; roundPart = 0; timeLeft = 33;
+              timerDisplay.innerText = `Switching to Next Round…`;
+              setTimeout(runRoundPart, 6000);
+            } else {
+              timerDisplay.innerText = '🔥 Battle Over — Great Work! 🔥';
+              triggerGlow(); setDim(false);
+              // show post-battle overlay
+              buildPostCats();
+              postModal.classList.add('show');
+              // prep next opponent background
+              loadRandomOpponent();
+              startBattleBtn.style.display = 'block';
+            }
+          }
+        }
+      }, 1000);
+    }
+
+    function startBattle() {
+      if (!currentCategory) { timerDisplay.innerText = "Pick a category first."; return; }
+      if (currentCategory === 'RAP') {
+        if (!chosenOptions.beat) { timerDisplay.innerText = "Pick an instrumental to start."; return; }
+        battleTrack.play().catch(()=>{});
+      } else {
+        battleTrack.pause(); battleTrack.currentTime = 0;
+      }
+      postModal.classList.remove('show');
+      startBattleBtn.style.display = 'none';
+      triggerGlow();
+      round = 1; roundPart = 0; timeLeft = 33;
+      runRoundPart();
+    }
+
+    function loadRandomOpponent() {
+      const pool = opponentPools[currentCategory] || [];
+      if (pool.length) {
+        const random = pool[Math.floor(Math.random() * pool.length)];
+        opponentVideo.src = random.video;
+        opponentImage.src = random.image;
+        opponentUsername.innerText = random.username;
+      }
+      setTimeout(() => {
+        timerDisplay.innerText = "🔥 New Opponent Ready — pick options or press BattleBillions!";
+      }, 1200);
+    }
+
+    // Post-battle actions
+    postClose.addEventListener('click', ()=> postModal.classList.remove('show'));
+    postKeepCat.addEventListener('click', ()=>{
+      if(!currentCategory || !chosenSub){ postModal.classList.remove('show'); categoryModal.classList.add('show'); return; }
+      postModal.classList.remove('show');
+      startBattleBtn.style.display='block';
+      timerDisplay.innerText = "Tap BattleBillions to continue in same category.";
+    });
+    postPickSub.addEventListener('click', ()=>{
+      postModal.classList.remove('show');
+      categoryModal.classList.add('show');
+      // preselect current cat
+      if(currentCategory){
+        categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===currentCategory));
+        openCategory(currentCategory, true);
+      }
+    });
+    postNextOpponent.addEventListener('click', ()=>{
+      postModal.classList.remove('show');
+      loadRandomOpponent();
+      startBattleBtn.style.display='block';
+      timerDisplay.innerText = "Opponent switched. Tap BattleBillions to start!";
     });
 
-    // Start on Home
-    go('home');
+    /* Viewer count tick */
+    let viewers = 1300;
+    setInterval(()=>{
+      const delta = Math.floor(Math.random()*21)-10; // -10..+10
+      viewers = Math.max(0, viewers + delta);
+      viewerCountTop.textContent = `👁️ ${viewers.toLocaleString()}`;
+    }, 1500);
+
+    /* Init */
+    window.onload = () => {
+      showScreen('battle');
+      startCamera();
+      timerDisplay.innerText = "Choose a category to begin…";
+      setDim(false);
+      parseHashAndOpen();
+    };
   </script>
 </body>
 </html>
