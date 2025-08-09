@@ -58,6 +58,24 @@
       height: 36px;
       padding: 4px 12px;
       border-bottom: 1px solid rgba(0,255,255,0.3);
+      align-items: center;
+      gap: 12px;
+    }
+
+    .top-bar .right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .category-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,255,255,0.35);
+      background: rgba(0,255,255,0.10);
+      color: #0ff;
+      font-size: 12px;
     }
 
     .bottom-bar {
@@ -249,6 +267,57 @@
       color: black;
       cursor: pointer;
     }
+
+    /* CATEGORY MODAL */
+    .category-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      display: none;
+      place-items: center;
+      z-index: 1200;
+      pointer-events: auto;
+      backdrop-filter: blur(6px);
+    }
+    .category-card{
+      width: min(540px, 92vw);
+      background: #0c0c0f;
+      border: 2px solid #0ff;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 0 25px rgba(0,255,255,0.35);
+    }
+    .category-card h3{
+      font-size: 18px;
+      color:#cff;
+      margin-bottom: 12px;
+      text-align:center;
+    }
+    .cat-grid{
+      display:grid;
+      grid-template-columns: repeat(2,1fr);
+      gap:10px;
+    }
+    .cat-btn{
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(0,255,255,0.4);
+      background: rgba(0,255,255,0.08);
+      color:#0ff;
+      cursor:pointer;
+      font-size:14px;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .cat-btn:hover{ transform: translateY(-1px); background: rgba(0,255,255,0.16); }
+    .modal-actions{
+      display:flex; justify-content:center; gap:10px; margin-top:12px;
+    }
+    .modal-actions button{
+      padding:10px 14px; border-radius:10px; border:1px solid #0e3232; background:#062; color:#cff; cursor:pointer;
+    }
+    .modal-note{
+      margin-top:10px; font-size:12px; color:#9ad; text-align:center;
+    }
   </style>
 </head>
 <body>
@@ -256,13 +325,27 @@
     <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
     <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
+    <!-- CATEGORY PICKER (NEW) -->
+    <div class="category-modal" id="categoryModal">
+      <div class="category-card">
+        <h3>Pick a Category to Battle In</h3>
+        <div class="cat-grid">
+          <button class="cat-btn" data-cat="ALL">ALL</button>
+          <button class="cat-btn" data-cat="ART">ART</button>
+          <button class="cat-btn" data-cat="FASHION">FASHION</button>
+          <button class="cat-btn" data-cat="RAP BATTLE">RAP BATTLE</button>
+        </div>
+        <div class="modal-actions">
+          <button id="confirmCategoryBtn" disabled>Confirm</button>
+        </div>
+        <div class="modal-note">Your opponent pool & instrumentals will adjust to your category.</div>
+      </div>
+    </div>
+
     <div id="instrumentalList">
       <select id="instrumentalSelect">
         <option disabled selected>Select instrumental</option>
-        <option value="beat1.mp3">🔥 Classic Trap</option>
-        <option value="beat2.mp3">💥 Boom Bap</option>
-        <option value="beat3.mp3">🌊 Chill Vibes</option>
-        <option value="beat4.mp3">⚡ Fast Flow</option>
+        <!-- options injected based on category -->
       </select>
       <button onclick="chooseInstrumental()">Confirm</button>
     </div>
@@ -272,7 +355,11 @@
     <div class="overlay">
       <div class="top-bar">
         <div class="nav-icon">🔴 LIVE</div>
-        <div class="nav-icon">👁️ 1.3k</div>
+        <div class="right">
+          <div class="nav-icon">👁️ 1.3k</div>
+          <!-- Category display (NEW) -->
+          <div class="category-pill" id="categoryPill">ALL</div>
+        </div>
       </div>
 
       <div class="profile-labels" id="profileLabels">
@@ -302,7 +389,7 @@
         <div class="nav-icon" onclick="location.href='battle.html'">📺</div>
       </div>
 
-      <div class="round-timer" id="roundTimer">Select your instrumental to begin...</div>
+      <div class="round-timer" id="roundTimer">Select your category to begin...</div>
     </div>
   </div>
 
@@ -310,12 +397,71 @@
   <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    const opponents = [
+    // ------- DATA POOLS -------
+    const opponentsALL = [
       { video: "user2.mp4", image: "user2.jpg", username: "@OpponentA" },
       { video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" },
       { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
     ];
+    const opponentsART = [
+      { video: "art1.mp4", image: "art1.jpg", username: "@InkMage" },
+      { video: "art2.mp4", image: "art2.jpg", username: "@CanvasQueen" }
+    ];
+    const opponentsFASHION = [
+      { video: "fashion1.mp4", image: "fashion1.jpg", username: "@StyleIcon" },
+      { video: "fashion2.mp4", image: "fashion2.jpg", username: "@ThreadQueen" }
+    ];
+    const opponentsRAP = [
+      { video: "rap1.mp4", image: "rap1.jpg", username: "@MicFlame" },
+      { video: "rap2.mp4", image: "rap2.jpg", username: "@LyricBeast" }
+    ];
 
+    const instrumentsByCategory = {
+      "ALL": [
+        { value: "beat1.mp3", label: "🔥 Classic Trap" },
+        { value: "beat2.mp3", label: "💥 Boom Bap" },
+        { value: "beat3.mp3", label: "🌊 Chill Vibes" },
+        { value: "beat4.mp3", label: "⚡ Fast Flow" }
+      ],
+      "ART": [
+        { value: "artbeat1.mp3", label: "🎨 Lo-Fi Paint" },
+        { value: "artbeat2.mp3", label: "🖌️ Neo Brush" }
+      ],
+      "FASHION": [
+        { value: "fabbeat1.mp3", label: "👗 Runway Pulse" },
+        { value: "fabbeat2.mp3", label: "🧵 Silk Step" }
+      ],
+      "RAP BATTLE": [
+        { value: "rapbeat1.mp3", label: "🎤 Street Cypher" },
+        { value: "rapbeat2.mp3", label: "🚨 Drill Mode" },
+        { value: "beat2.mp3", label: "💥 Boom Bap" }
+      ]
+    };
+
+    // ------- DOM REFS -------
+    const timerDisplay = document.getElementById('roundTimer');
+    const sound = document.getElementById('roundEndSound');
+    const battleTrack = document.getElementById('battleTrack');
+    const opponentVideo = document.getElementById('opponentVideo');
+    const opponentImage = document.getElementById('opponentImage');
+    const opponentUsername = document.getElementById('opponentUsername');
+
+    const categoryModal = document.getElementById('categoryModal');
+    const confirmCategoryBtn = document.getElementById('confirmCategoryBtn');
+    const categoryPill = document.getElementById('categoryPill');
+
+    const instrumentalList = document.getElementById('instrumentalList');
+    const instrumentalSelect = document.getElementById('instrumentalSelect');
+    const startBattleBtn = document.getElementById('startBattleBtn');
+
+    // ------- STATE -------
+    let currentCategory = 'ALL';
+    let selectedCategory = null;
+    let round = 1;
+    let roundPart = 0;
+    let timeLeft = 33;
+
+    // ------- CAMERA -------
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -329,18 +475,12 @@
       }
     }
 
-    const timerDisplay = document.getElementById('roundTimer');
-    const sound = document.getElementById('roundEndSound');
-    const battleTrack = document.getElementById('battleTrack');
-    let round = 1;
-    let roundPart = 0;
-    let timeLeft = 33;
-
     function triggerGlow() {
       timerDisplay.classList.add('animate');
       setTimeout(() => timerDisplay.classList.remove('animate'), 2000);
     }
 
+    // ------- ROUND FLOW -------
     function runRoundPart() {
       const interval = setInterval(() => {
         timerDisplay.innerText = `Round ${round} of 3 | ${(roundPart === 0 ? '@You' : '@Opponent')} | ${timeLeft}s`;
@@ -372,11 +512,49 @@
       }, 1000);
     }
 
+    // ------- CATEGORY → INSTRUMENTALS -------
+    function populateInstrumentalsForCategory(cat){
+      instrumentalSelect.innerHTML = `<option disabled selected>Select instrumental</option>`;
+      const list = instrumentsByCategory[cat] || instrumentsByCategory['ALL'];
+      list.forEach(item=>{
+        const opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        instrumentalSelect.appendChild(opt);
+      });
+    }
+
+    // ------- OPPONENT POOL -------
+    function getPoolForCategory(cat){
+      if (cat === 'ART') return opponentsART;
+      if (cat === 'FASHION') return opponentsFASHION;
+      if (cat === 'RAP BATTLE') return opponentsRAP;
+      return opponentsALL;
+    }
+
+    function loadRandomOpponent() {
+      const pool = getPoolForCategory(currentCategory);
+      const random = pool[Math.floor(Math.random() * pool.length)];
+      opponentVideo.src = random.video;
+      opponentImage.src = random.image;
+      opponentUsername.innerText = random.username;
+
+      // Reset battle state
+      round = 1;
+      roundPart = 0;
+      timeLeft = 33;
+      setTimeout(() => {
+        startBattleBtn.style.display = 'block';
+        timerDisplay.innerText = "🔥 New Opponent Ready 🔥";
+      }, 1500);
+    }
+
+    // ------- INSTRUMENTAL & START -------
     function chooseInstrumental() {
-      const selected = document.getElementById('instrumentalSelect').value;
+      const selected = instrumentalSelect.value;
       if (selected && selected !== 'Select instrumental') {
-        document.getElementById('instrumentalList').style.display = 'none';
-        document.getElementById('startBattleBtn').style.display = 'block';
+        instrumentalList.style.display = 'none';
+        startBattleBtn.style.display = 'block';
         battleTrack.src = selected;
         battleTrack.load();
       } else {
@@ -385,30 +563,79 @@
     }
 
     function startBattle() {
-      document.getElementById('startBattleBtn').style.display = 'none';
+      startBattleBtn.style.display = 'none';
       battleTrack.play();
       triggerGlow();
       runRoundPart();
     }
 
-    function loadRandomOpponent() {
-      const random = opponents[Math.floor(Math.random() * opponents.length)];
-      document.getElementById("opponentVideo").src = random.video;
-      document.getElementById("opponentImage").src = random.image;
-      document.getElementById("opponentUsername").innerText = random.username;
-      round = 1;
-      roundPart = 0;
-      timeLeft = 33;
-      setTimeout(() => {
-        document.getElementById("startBattleBtn").style.display = 'block';
-        timerDisplay.innerText = "🔥 New Opponent Ready 🔥";
-      }, 1500);
-    }
+    // expose to HTML onclick
+    window.chooseInstrumental = chooseInstrumental;
+    window.startBattle = startBattle;
 
+    // ------- CATEGORY MODAL LOGIC -------
+    // Handle category selection buttons
+    categoryModal.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.cat-btn');
+      if(!btn) return;
+      selectedCategory = btn.dataset.cat;
+      // Visual feedback
+      categoryModal.querySelectorAll('.cat-btn').forEach(b=> b.style.outline='none');
+      btn.style.outline = '2px solid #0ff';
+      confirmCategoryBtn.disabled = false;
+    });
+
+    confirmCategoryBtn.addEventListener('click', ()=>{
+      if(!selectedCategory) return;
+      currentCategory = selectedCategory;
+      localStorage.setItem('bb:selectedCategory', currentCategory);
+
+      // Update top bar pill
+      categoryPill.textContent = currentCategory;
+
+      // Adjust instrumentals to category and show instrumental picker
+      populateInstrumentalsForCategory(currentCategory);
+      categoryModal.style.display = 'none';
+      instrumentalList.style.display = 'block';
+
+      // Immediately align opponent pool to the category
+      loadRandomOpponent();
+
+      // Update round banner hint
+      timerDisplay.innerText = `Category set: ${currentCategory}. Pick an instrumental to begin...`;
+    });
+
+    // Optional: let user change category later by clicking the pill
+    categoryPill.addEventListener('click', ()=>{
+      selectedCategory = null;
+      confirmCategoryBtn.disabled = true;
+      categoryModal.querySelectorAll('.cat-btn').forEach(b=> b.style.outline='none');
+      categoryModal.style.display = 'grid';
+      instrumentalList.style.display = 'none';
+      startBattleBtn.style.display = 'none';
+      timerDisplay.innerText = 'Select your category to begin...';
+    });
+
+    // ------- INIT -------
     window.onload = () => {
       startCamera();
-      document.getElementById('instrumentalList').style.display = 'block';
+
+      // If returning user, prefill category from last session
+      const savedCat = localStorage.getItem('bb:selectedCategory');
+      if (savedCat && ['ALL','ART','FASHION','RAP BATTLE'].includes(savedCat)) {
+        currentCategory = savedCat;
+        categoryPill.textContent = currentCategory;
+        populateInstrumentalsForCategory(currentCategory);
+        // Show instrumental selection next
+        instrumentalList.style.display = 'block';
+        timerDisplay.innerText = `Category: ${currentCategory}. Pick an instrumental to begin...`;
+        loadRandomOpponent();
+      } else {
+        // First-time or no saved category → show modal
+        categoryModal.style.display = 'grid';
+        timerDisplay.innerText = 'Select your category to begin...';
+      }
     };
   </script>
 </body>
-                                                                        </html>
+</html>
