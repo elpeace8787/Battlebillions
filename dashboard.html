@@ -15,6 +15,15 @@
       overflow: hidden;
     }
 
+    /* --- SPA screens --- */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+    .screen.active { display: block; }
+
+    /* --- Battle screen container (your original structure) --- */
     .stream-container {
       display: flex;
       height: 100vh;
@@ -24,7 +33,7 @@
       backdrop-filter: blur(10px);
       transition: filter 300ms ease, opacity 300ms ease;
     }
-    /* DIM LOGIC: active rounds = dim, pauses + finish = bright */
+    /* DIM during active rounds */
     .stream-container.dimmed {
       filter: brightness(0.6) contrast(0.9) saturate(0.9);
     }
@@ -311,90 +320,156 @@
 
     /* small helpers */
     .muted { opacity: .8; font-size: 12px; margin-top: 4px; text-align:center; color:#9fecec; }
+
+    /* Placeholder screens styling */
+    .placeholder {
+      display:flex; align-items:center; justify-content:center; height:100%; width:100%;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+      text-align:center;
+    }
+    .placeholder .box {
+      border:2px solid #0ff; border-radius:16px; padding:24px 28px; background:#0b0b12;
+      max-width: 720px; width: calc(100% - 40px);
+      box-shadow: 0 0 24px rgba(0,255,255,0.25);
+    }
+    .placeholder h1 { color:#0ff; margin-bottom:8px; }
+    .placeholder p { color:#c8ffff; }
   </style>
 </head>
 <body>
-  <div class="stream-container" id="streamContainer">
-    <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-    <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
-    <!-- CATEGORY PICKER (primary modal) -->
-    <div class="modal show" id="categoryModal">
-      <div class="card">
-        <h2>Pick a Category</h2>
-        <div class="slogan">
-          <div>1ST - <b>Defeat BILLIONS.</b></div>
-          <div>2ND - <b>Choose Your BATTLE.</b></div>
-          <div>3RD - <b>Defeat BILLIONS.</b></div>
+  <!-- SCREEN: BATTLE (your original stream UI) -->
+  <div class="screen active" id="screen-battle">
+    <div class="stream-container" id="streamContainer">
+      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+      <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
+
+      <!-- CATEGORY PICKER (primary modal) -->
+      <div class="modal show" id="categoryModal">
+        <div class="card">
+          <h2>Pick a Category</h2>
+          <div class="slogan">
+            <div>1ST - <b>Defeat BILLIONS.</b></div>
+            <div>2ND - <b>Choose Your BATTLE.</b></div>
+            <div>3RD - <b>Defeat BILLIONS.</b></div>
+          </div>
+
+          <div class="grid" id="categoryGrid">
+            <div class="pill" data-cat="ART">ART</div>
+            <div class="pill" data-cat="AUTO">AUTO</div>
+            <div class="pill" data-cat="DEBAT">DEBAT</div>
+            <div class="pill" data-cat="FASHION">FASHION</div>
+            <div class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</div>
+            <div class="pill" data-cat="RAP">RAP</div>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" id="cancelCat">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORY-SPECIFIC OPTIONS (secondary modal) -->
+      <div class="modal" id="optionsModal">
+        <div class="card">
+          <h2 id="optionsTitle">Category Options</h2>
+          <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
+          <div class="select-row" id="optionsBody"><!-- dynamic --></div>
+          <div class="actions">
+            <button class="btn secondary" id="backBtn">Back</button>
+            <button class="btn" id="confirmOptionsBtn">Confirm</button>
+          </div>
+          <div class="muted" id="optionsHint"></div>
+        </div>
+      </div>
+
+      <button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
+
+      <div class="overlay">
+        <div class="top-bar">
+          <div class="nav-icon">🔴 LIVE</div>
+          <div class="nav-icon">👁️ 1.3k</div>
         </div>
 
-        <div class="grid" id="categoryGrid">
-          <!-- Leave labels EXACTLY as requested -->
-          <div class="pill" data-cat="ART">ART</div>
-          <div class="pill" data-cat="AUTO">AUTO</div>
-          <div class="pill" data-cat="DEBAT">DEBAT</div>
-          <div class="pill" data-cat="FASHION">FASHION</div>
-          <div class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</div>
-          <div class="pill" data-cat="RAP">RAP</div>
+        <div class="profile-labels" id="profileLabels">
+          <div class="profile-entry">
+            <img src="user2.jpg" id="opponentImage" alt="User 2">
+            <span id="opponentUsername">@Opponent</span>
+          </div>
         </div>
-        <div class="actions">
-          <button class="btn secondary" id="cancelCat">Cancel</button>
+
+        <div class="side-controls left">
+          <div class="side-button floating" data-screen="profile">👤</div>
+          <div class="side-button" data-screen="dashboard">🔍</div>
+          <div class="side-button" data-screen="login">🚪</div>
         </div>
+
+        <div class="side-controls right">
+          <div class="side-button" data-screen="home">🏠</div>
+          <div class="side-button" data-screen="leaderboard">🏆</div>
+          <div class="side-button" data-screen="battle">📺</div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="nav-icon" data-screen="profile">👤</div>
+          <div class="nav-icon" data-screen="dashboard">🔍</div>
+          <div class="nav-icon" data-screen="leaderboard">🏆</div>
+          <div class="nav-icon" data-screen="home">🏠</div>
+          <div class="nav-icon" data-screen="battle">📺</div>
+        </div>
+
+        <div class="round-timer" id="roundTimer">Choose a category to begin…</div>
       </div>
     </div>
+  </div>
 
-    <!-- CATEGORY-SPECIFIC OPTIONS (secondary modal) -->
-    <div class="modal" id="optionsModal">
-      <div class="card">
-        <h2 id="optionsTitle">Category Options</h2>
-        <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
-        <div class="select-row" id="optionsBody">
-          <!-- Populated dynamically per category -->
-        </div>
-        <div class="actions">
-          <button class="btn secondary" id="backBtn">Back</button>
-          <button class="btn" id="confirmOptionsBtn">Confirm</button>
-        </div>
-        <div class="muted" id="optionsHint"></div>
+  <!-- SCREEN: HOME -->
+  <div class="screen" id="screen-home">
+    <div class="placeholder">
+      <div class="box">
+        <h1>Home</h1>
+        <p>Welcome home. Use the nav to jump back to <b>Battle</b> or anywhere else. (SPA — no page reloads.)</p>
       </div>
     </div>
+  </div>
 
-    <button id="startBattleBtn" onclick="startBattle()">🔥 Start Battle</button>
-
-    <div class="overlay">
-      <div class="top-bar">
-        <div class="nav-icon">🔴 LIVE</div>
-        <div class="nav-icon">👁️ 1.3k</div>
+  <!-- SCREEN: PROFILE -->
+  <div class="screen" id="screen-profile">
+    <div class="placeholder">
+      <div class="box">
+        <h1>Your Profile</h1>
+        <p>Profile settings coming soon. Click 📺 to return to Battle.</p>
       </div>
+    </div>
+  </div>
 
-      <div class="profile-labels" id="profileLabels">
-        <div class="profile-entry">
-          <img src="user2.jpg" id="opponentImage" alt="User 2">
-          <span id="opponentUsername">@Opponent</span>
-        </div>
+  <!-- SCREEN: LEADERBOARD -->
+  <div class="screen" id="screen-leaderboard">
+    <div class="placeholder">
+      <div class="box">
+        <h1>Leaderboard</h1>
+        <p>Top performers will appear here. Click 📺 to return to Battle.</p>
       </div>
+    </div>
+  </div>
 
-      <div class="side-controls left">
-        <div class="side-button floating" onclick="location.href='profile.html'">👤</div>
-        <div class="side-button" onclick="location.href='dashboard.html'">🔍</div>
-        <div class="side-button" onclick="location.href='login.html'">🚪</div>
+  <!-- SCREEN: DASHBOARD (Explorer) -->
+  <div class="screen" id="screen-dashboard">
+    <div class="placeholder">
+      <div class="box">
+        <h1>Dashboard Explorer</h1>
+        <p>Search & discovery UI goes here. Click 📺 to return to Battle.</p>
       </div>
+    </div>
+  </div>
 
-      <div class="side-controls right">
-        <div class="side-button" onclick="location.href='home.html'">🏠</div>
-        <div class="side-button" onclick="location.href='leaderboard.html'">🏆</div>
-        <div class="side-button" onclick="location.href='battle.html'">📺</div>
+  <!-- SCREEN: LOGIN -->
+  <div class="screen" id="screen-login">
+    <div class="placeholder">
+      <div class="box">
+        <h1>Login</h1>
+        <p>Auth flow placeholder. Click 📺 to return to Battle.</p>
       </div>
-
-      <div class="bottom-bar">
-        <div class="nav-icon" onclick="location.href='profile.html'">👤</div>
-        <div class="nav-icon" onclick="location.href='dashboard.html'">🔍</div>
-        <div class="nav-icon" onclick="location.href='leaderboard.html'">🏆</div>
-        <div class="nav-icon" onclick="location.href='home.html'">🏠</div>
-        <div class="nav-icon" onclick="location.href='battle.html'">📺</div>
-      </div>
-
-      <div class="round-timer" id="roundTimer">Choose a category to begin…</div>
     </div>
   </div>
 
@@ -402,11 +477,39 @@
   <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    // ----------- State -----------
-    let currentCategory = null;
-    let chosenOptions = {}; // holds subcategory or beat depending on category
+    /* =========================
+       SPA NAV (same-page screens)
+       ========================= */
+    const screens = {
+      battle: document.getElementById('screen-battle'),
+      home: document.getElementById('screen-home'),
+      profile: document.getElementById('screen-profile'),
+      leaderboard: document.getElementById('screen-leaderboard'),
+      dashboard: document.getElementById('screen-dashboard'),
+      login: document.getElementById('screen-login'),
+    };
 
-    // Dummy opponent pools per category (swap with real feeds later)
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => {
+        if (key === name) el.classList.add('active');
+        else el.classList.remove('active');
+      });
+    }
+    // Hook all buttons/icons with data-screen
+    document.querySelectorAll('[data-screen]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const name = el.getAttribute('data-screen');
+        showScreen(name);
+      });
+    });
+
+    /* =========================
+       Battle state & category flow
+       ========================= */
+    let currentCategory = null;
+    let chosenOptions = {}; // holds subcategory or beat
+
     const opponentPools = {
       ART: [
         { video: "art2.mp4", image: "art2.jpg", username: "@InkMage" },
@@ -434,7 +537,6 @@
       ]
     };
 
-    // ----------- Camera -----------
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -448,7 +550,6 @@
       }
     }
 
-    // ----------- UI Handles -----------
     const streamContainer = document.getElementById('streamContainer');
     const timerDisplay = document.getElementById('roundTimer');
     const sound = document.getElementById('roundEndSound');
@@ -457,7 +558,6 @@
     const opponentImage = document.getElementById('opponentImage');
     const opponentUsername = document.getElementById('opponentUsername');
 
-    // Modals
     const categoryModal = document.getElementById('categoryModal');
     const optionsModal = document.getElementById('optionsModal');
     const optionsTitle = document.getElementById('optionsTitle');
@@ -465,9 +565,7 @@
     const optionsBody = document.getElementById('optionsBody');
     const optionsHint = document.getElementById('optionsHint');
 
-    // Buttons
     document.getElementById('cancelCat').onclick = () => {
-      // Keep them here; or navigate away if you prefer
       categoryModal.classList.remove('show');
       timerDisplay.innerText = "Pick a category from the menu anytime.";
     };
@@ -476,23 +574,31 @@
       categoryModal.classList.add('show');
     };
     document.getElementById('confirmOptionsBtn').onclick = () => {
+      // Validate RAP selection if needed
+      if (currentCategory === 'RAP' && !chosenOptions.beat) {
+        alert('Please select an instrumental for RAP.');
+        return;
+      }
       optionsModal.classList.remove('show');
-      // Only RAP autoloads a beat; others just set up and show start battle
+
+      // Prepare opponent pool preview
+      applyCategoryOpponent(currentCategory);
+
+      // Show Start button
       document.getElementById('startBattleBtn').style.display = 'block';
       timerDisplay.innerText = "🔥 Ready — press Start Battle!";
     };
 
-    // Category Pick
+    // Category buttons open options modal
     document.querySelectorAll('#categoryGrid .pill').forEach(p => {
       p.addEventListener('click', () => {
         currentCategory = p.dataset.cat;
         categoryModal.classList.remove('show');
-        buildOptionsFor(currentCategory);
+        buildOptionsFor(currentCategory);     // <-- fixed builder
         optionsModal.classList.add('show');
       });
     });
 
-    // ----------- Category-Specific Options -----------
     function buildOptionsFor(cat) {
       optionsBody.innerHTML = '';
       chosenOptions = {};
@@ -508,8 +614,8 @@
         });
         optionsBody.appendChild(select);
         optionsHint.innerText = "No instrumental here — obviously.";
-        select.addEventListener('change', ()=> chosenOptions.artStyle = select.value);
         chosenOptions.artStyle = select.value;
+        select.addEventListener('change', ()=> chosenOptions.artStyle = select.value);
 
       } else if (cat === 'AUTO') {
         optionsTitle.innerText = 'AUTO – Choose Event';
@@ -521,65 +627,5 @@
         });
         optionsBody.appendChild(select);
         optionsHint.innerText = "Rev up. No instrumental picker needed.";
-        select.addEventListener('change', ()=> chosenOptions.autoType = select.value);
         chosenOptions.autoType = select.value;
-
-      } else if (cat === 'DEBAT') {
-        optionsTitle.innerText = 'DEBAT – Choose Topic';
-        optionsSubtitle.innerText = "Sharpen your stance.";
-        const select = document.createElement('select');
-        select.id = 'debTopic';
-        ['Politics','Tech','Sports','Culture','Freestyle'].forEach(v=>{
-          const o=document.createElement('option'); o.value=v; o.textContent=v; select.appendChild(o);
-        });
-        optionsBody.appendChild(select);
-        optionsHint.innerText = "No beats — just bars of logic.";
-        select.addEventListener('change', ()=> chosenOptions.debTopic = select.value);
-        chosenOptions.debTopic = select.value;
-
-      } else if (cat === 'FASHION') {
-        optionsTitle.innerText = 'FASHION – Choose Lane';
-        optionsSubtitle.innerText = "Set the runway rules.";
-        const select = document.createElement('select');
-        select.id = 'fashionLane';
-        ['Runway','Streetwear','Vintage','Upcycle','Styling'].forEach(v=>{
-          const o=document.createElement('option'); o.value=v; o.textContent=v; select.appendChild(o);
-        });
-        optionsBody.appendChild(select);
-        optionsHint.innerText = "Serving looks — no instrumental here.";
-        select.addEventListener('change', ()=> chosenOptions.fashionLane = select.value);
-        chosenOptions.fashionLane = select.value;
-
-      } else if (cat === 'INSTRUMENTS') {
-        optionsTitle.innerText = 'INSTRUMENTS – Choose Instrument';
-        optionsSubtitle.innerText = "Your weapon of choice.";
-        const select = document.createElement('select');
-        select.id = 'instrument';
-        ['Guitar','Piano','Violin','Drums','DJ'].forEach(v=>{
-          const o=document.createElement('option'); o.value=v; o.textContent=v; select.appendChild(o);
-        });
-        optionsBody.appendChild(select);
-        optionsHint.innerText = "Live performance mode — no beat selection here.";
-        select.addEventListener('change', ()=> chosenOptions.instrument = select.value);
-        chosenOptions.instrument = select.value;
-
-      } else if (cat === 'RAP') {
-        optionsTitle.innerText = 'RAP – Choose Instrumental';
-        optionsSubtitle.innerText = "Lock a vibe for the battle.";
-        const select = document.createElement('select');
-        select.id = 'instrumentalSelect';
-        [
-          {label:'🔥 Classic Trap', val:'beat1.mp3'},
-          {label:'💥 Boom Bap', val:'beat2.mp3'},
-          {label:'🌊 Chill Vibes', val:'beat3.mp3'},
-          {label:'⚡ Fast Flow', val:'beat4.mp3'},
-        ].forEach(({label,val})=>{
-          const o=document.createElement('option'); o.value=val; o.textContent=label; optionsBody.appendChild(select); 
-          select.appendChild(o);
-        });
-        optionsBody.appendChild(select);
-        optionsHint.innerText = "Only RAP uses beats. Others don’t.";
-        select.addEventListener('change', ()=> {
-          chosenOptions.beat = select.value;
-          battleTrack.src = chosenOptions.beat || '';
-        
+        select.addEventListener('change', ()=> ch
