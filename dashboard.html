@@ -3,8 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions - Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <title>3ATTL33ILLIONS</title>
+
+  <!-- Virgo font (local file) -->
+  <style>
+    @font-face{
+      font-family:'Virgo';
+      src:
+        url('Virgo.woff2') format('woff2'),
+        url('Virgo.ttf') format('truetype');
+      font-display:swap;
+    }
+  </style>
+
   <style>
     :root{
       --bg-0:#0b0b0c; --bg-1:#111214; --bg-2:#15171a;
@@ -14,11 +25,16 @@
       --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
+
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
     body{
-      font-family:'Orbitron',sans-serif;background:var(--bg-0);color:var(--ink);overflow:hidden
+      font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background:var(--bg-0); color:var(--ink); overflow:hidden;
+      letter-spacing:.2px;
     }
+
+    /* Soft animated backdrop */
     body::before{
       content:"";position:fixed;inset:-20% -10%;
       background:
@@ -29,25 +45,22 @@
       animation: drift 18s ease-in-out infinite alternate;z-index:-1
     }
     @keyframes drift{0%{transform:translate(-1%,-2%)}100%{transform:translate(1%,2%)}}
-    @media (prefers-reduced-motion:reduce){
-      body::before{animation:none}
-      .float,.pulse,.shimmer{animation:none}
-    }
+    @media (prefers-reduced-motion:reduce){ body::before{animation:none} .pulse,.shimmer{animation:none}}
 
     /* ====== Top bar ====== */
     .app-topbar{
       position:fixed;inset:0 0 auto 0;height:44px;display:flex;align-items:center;justify-content:space-between;
       padding:0 14px;background:rgba(17,18,20,.80);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke);z-index:1000
     }
-    .brand{font-weight:900;letter-spacing:.6px;color:#fff;display:flex;align-items:center;gap:10px}
+    .brand{font-weight:900;letter-spacing:.8px;color:#fff;display:flex;align-items:center;gap:10px}
     .brand .wordmark{font-size:14px;opacity:.95}
     .top-right{display:flex;gap:10px;align-items:center}
     .chip{font-size:12px;color:var(--ink-2);padding:6px 10px;border:1px solid var(--stroke);border-radius:10px;background:rgba(255,255,255,.05)}
 
     /* ====== Tab bar (labels above icons) ====== */
     .app-tabbar{
-      position:fixed;left:0;right:0;bottom:0;height:72px; /* taller to fit label above icon */
-      padding-bottom: calc(var(--safe-bottom));
+      position:fixed;left:0;right:0;bottom:0;height:72px;
+      padding-bottom:calc(var(--safe-bottom));
       background:rgba(17,18,20,.85);backdrop-filter:blur(8px);border-top:1px solid var(--stroke);z-index:1000;
       display:grid;grid-template-columns:repeat(5,1fr)
     }
@@ -61,7 +74,7 @@
     .tab-btn svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
     .tab-label{font-size:10px;letter-spacing:.35px;line-height:1}
 
-    /* BILLIONS gold animation */
+    /* BILLIONS (3ILLIONS) gold animation */
     .tab-btn[data-screen="dashboard"] .tab-label{
       background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3),var(--gold-2),var(--gold-1));
       background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
@@ -75,6 +88,16 @@
     .app-shell{position:fixed;inset:44px 0 72px 0}
     .screen{position:absolute;inset:0;display:none}
     .screen.active{display:block}
+
+    /* ====== “3ILLIONS / 3ATTLES” screen positions ====== */
+    .corner-tag{
+      position:absolute;z-index:20;pointer-events:none;opacity:.08;letter-spacing:.12em;
+      font-weight:900;user-select:none;white-space:nowrap
+    }
+    .tag-battle{top:10px;right:16px;font-size:28px}
+    .tag-dashboard{top:10px;left:16px;font-size:28px}
+    /* Hidden by default; JS toggles visibility per screen */
+    .corner-tag{display:none}
 
     /* ====== Battle screen ====== */
     .stream-container{
@@ -162,7 +185,6 @@
           <animate attributeName="offset" values="1;0;1" dur="5s" repeatCount="indefinite" />
         </stop>
       </linearGradient>
-
       <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.6"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.6"/><path d="M10 11v3H8v2h8v-2h-2v-3" stroke-width="1.6"/></symbol>
@@ -174,24 +196,26 @@
     </defs>
   </svg>
 
-  <!-- ====== Top Bar (logo removed, name kept) ====== -->
+  <!-- ====== Top Bar (wordmark only) ====== -->
   <header class="app-topbar">
-    <div class="brand">
-      <div class="wordmark">BattleBillions</div>
-    </div>
+    <div class="brand"><div class="wordmark">3ATTL33ILLIONS</div></div>
     <div class="top-right">
       <div class="chip" id="viewerCountTop"><svg style="width:14px;height:14px;vertical-align:-2px;"><use href="#ic-eye"/></svg>&nbsp;1,300</div>
       <div class="chip">LIVE</div>
     </div>
   </header>
 
-  <!-- ====== Category FAB (small bottom button) ====== -->
+  <!-- ====== Category FAB (disappears after first tap) ====== -->
   <button class="cat-fab" id="openCats" aria-haspopup="dialog" aria-controls="categoryModal">
     <svg><use href="#ic-grid"/></svg><span>Choose Category</span>
   </button>
 
   <!-- ====== Content ====== -->
   <main class="app-shell">
+    <!-- On-screen positioned words -->
+    <div class="corner-tag tag-battle" id="tagBattle">3ATTLES</div>
+    <div class="corner-tag tag-dashboard" id="tagDash">3ILLIONS</div>
+
     <!-- Battle -->
     <section class="screen active" id="screen-battle" data-route="battle">
       <div class="stream-container" id="streamContainer">
@@ -203,9 +227,9 @@
           <div class="card">
             <h2>Pick a Category</h2>
             <div class="slogan">
-              <div>1ST - <b>Defeat BILLIONS.</b></div>
-              <div>2ND - <b>Choose Your BATTLE.</b></div>
-              <div>3RD - <b>Defeat BILLIONS.</b></div>
+              <div>1ST - <b>Defeat 3ILLIONS.</b></div>
+              <div>2ND - <b>Choose Your 3ATTLES.</b></div>
+              <div>3RD - <b>Defeat 3ILLIONS.</b></div>
             </div>
 
             <div class="grid" id="categoryGrid">
@@ -248,7 +272,7 @@
         <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
           <div class="card">
             <h2 id="optionsTitle">Category Options</h2>
-            <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
+            <div class="sub-title" id="optionsSubtitle">Configure this 3ATTLE</div>
             <div id="optionsBody"></div>
             <div class="muted" id="optionsHint"></div>
             <div class="actions" id="optionsActions" style="margin-top:12px;">
@@ -259,7 +283,7 @@
 
         <!-- Start Button -->
         <button id="startBattleBtn" onclick="startBattle()">
-          <svg style="vertical-align:middle;"><use href="#ic-play"/></svg> &nbsp;BattleBillions
+          <svg style="vertical-align:middle;"><use href="#ic-play"/></svg> &nbsp;3ATTL33ILLIONS
         </button>
 
         <div class="overlay">
@@ -269,14 +293,13 @@
               <span id="opponentUsername">@Opponent</span>
             </div>
           </div>
-
           <div class="round-timer" id="roundTimer">Tap “Choose Category” to begin…</div>
         </div>
 
         <!-- Post-battle -->
         <div class="post-modal" id="postBattleModal" aria-modal="true" role="dialog">
           <div class="post-card">
-            <h3>Battle Over — What’s Next?</h3>
+            <h3>3ATTLE Over — What’s Next?</h3>
             <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b>.</p>
             <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
             <div class="post-actions">
@@ -295,7 +318,7 @@
       <div class="placeholder"><div class="box"><h1>Home</h1><p>Single-page flow. Use the tab bar.</p></div></div>
     </section>
     <section class="screen" id="screen-dashboard" data-route="dashboard">
-      <div class="placeholder"><div class="box"><h1>BILLIONS</h1><p>Discover the biggest battles, trends, and challengers.</p></div></div>
+      <div class="placeholder"><div class="box"><h1>3ILLIONS</h1><p>Discover the biggest 3ATTLES, trends, and challengers.</p></div></div>
     </section>
     <section class="screen" id="screen-leaderboard" data-route="leaderboard">
       <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
@@ -311,12 +334,12 @@
       <span class="tab-label">Home</span>
       <svg><use href="#ic-home"/></svg>
     </a>
-    <a class="tab-btn" data-screen="dashboard" role="tab" aria-selected="false" title="BILLIONS">
-      <span class="tab-label">BILLIONS</span>
+    <a class="tab-btn" data-screen="dashboard" role="tab" aria-selected="false" title="3ILLIONS">
+      <span class="tab-label">3ILLIONS</span>
       <svg><use href="#ic-search"/></svg>
     </a>
     <a class="tab-btn active" data-screen="battle" role="tab" aria-selected="true">
-      <span class="tab-label">Battle</span>
+      <span class="tab-label">3ATTLES</span>
       <svg><use href="#ic-battle"/></svg>
     </a>
     <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false">
@@ -330,14 +353,21 @@
   </nav>
 
   <!-- ====== Audio ====== -->
-  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click
-    -124467.mp3"></audio>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
   <audio id="battleTrack" controls hidden></audio>
 
   <script>
     /* ====== SPA Nav ====== */
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
+    const tagBattle = document.getElementById('tagBattle');
+    const tagDash = document.getElementById('tagDash');
+
+    function toggleCornerTags(route){
+      tagBattle.style.display = (route==='battle') ? 'block' : 'none';
+      tagDash.style.display = (route==='dashboard') ? 'block' : 'none';
+    }
+
     function showScreen(name){
       Object.entries(screens).forEach(([k,el])=>el.classList.toggle('active',k===name));
       tabs.forEach(t=>{
@@ -345,7 +375,9 @@
         t.classList.toggle('active',on);
         t.setAttribute('aria-selected',on?'true':'false');
       });
+      toggleCornerTags(name);
     }
+
     tabs.forEach(el=>el.addEventListener('click',e=>{
       e.preventDefault();
       const target=el.getAttribute('data-screen');
@@ -364,10 +396,10 @@
     }
     window.addEventListener('hashchange', routeFromHash);
 
-    /* ====== Battle State ====== */
+    /* ====== Battle & Category State ====== */
     let currentCategory=null, chosenOptions={}, chosenSub=null;
 
-    const opponentPools={ /* truncated for brevity in JS; same as provided earlier */ 
+    const opponentPools={ 
       ART:[{video:"art2.mp4",image:"art2.jpg",username:"@InkMage"},{video:"art3.mp4",image:"art3.jpg",username:"@ColorCaster"}],
       AUTO:[{video:"auto1.mp4",image:"auto1.jpg",username:"@TorqueLord"},{video:"auto2.mp4",image:"auto2.jpg",username:"@RimReaper"}],
       DEBAT:[{video:"deb1.mp4",image:"deb1.jpg",username:"@LogicBlade"},{video:"deb2.mp4",image:"deb2.jpg",username:"@VerbalVolt"}],
@@ -450,13 +482,20 @@
 
     const openCats=document.getElementById('openCats');
     openCats.addEventListener('click',()=>{
+      // Open modal and HIDE the button permanently (per your request)
+      openCats.style.display='none';
       categoryModal.classList.add('show');
       categoryGrid.querySelector('.pill')?.focus();
       location.hash = '#/battle';
     });
 
     function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');postModal.classList.remove('show')}
-    document.getElementById('cancelCat').onclick=()=>{categoryModal.classList.remove('show');timerDisplay.textContent="Tap “Choose Category” to begin…";clearHash()};
+    document.getElementById('cancelCat').onclick=()=>{
+      categoryModal.classList.remove('show');
+      timerDisplay.textContent="Tap the start or switch screens.";
+      // Note: per spec, the Choose Category button stays hidden after first tap.
+      clearHash();
+    };
     document.getElementById('backBtn').onclick=()=>{
       optionsModal.classList.remove('show');categoryModal.classList.add('show');startBattleBtn.style.display='none';chosenSub=null;updateHash(currentCategory,null);
       categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));
@@ -513,7 +552,7 @@
           const btn=makePill(b.label,b.value,()=>{
             chosenOptions.beat=b.value;chosenSub=b.label;battleTrack.src=b.value;battleTrack.load();
             optionsModal.classList.remove('show');startBattleBtn.style.display='block';
-            timerDisplay.textContent="Ready — tap BattleBillions to start!";updateHash(cat,b.label);applyCategoryOpponent(cat);
+            timerDisplay.textContent="Ready — tap 3ATTL33ILLIONS to start!";updateHash(cat,b.label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });optionsHint.innerText="Only RAP uses instrumentals.";
       }else{
@@ -522,7 +561,7 @@
         items.forEach(label=>{
           const btn=makePill(label,label,()=>{
             chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');startBattleBtn.style.display='block';
-            timerDisplay.textContent="Ready — tap BattleBillions to start!";updateHash(cat,label);applyCategoryOpponent(cat);
+            timerDisplay.textContent="Ready — tap 3ATTL33ILLIONS to start!";updateHash(cat,label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });
       }
@@ -560,13 +599,13 @@
           if(roundPart===0){roundPart=1;timeLeft=33;timerDisplay.textContent=`Switching to Opponent…`;setTimeout(runRoundPart,6000)}
           else{
             if(round<maxRounds){round++;roundPart=0;timeLeft=33;timerDisplay.textContent=`Switching to Next Round…`;setTimeout(runRoundPart,6000)}
-            else{timerDisplay.textContent='Battle Over — Great Work!';glow();setDim(false);buildPostCats();postModal.classList.add('show');loadRandomOpponent();startBattleBtn.style.display='block'}
+            else{timerDisplay.textContent='3ATTLE Over — Great Work!';glow();setDim(false);buildPostCats();postModal.classList.add('show');loadRandomOpponent();startBattleBtn.style.display='block'}
           }
         }
       },1000);
     }
     function startBattle(){
-      if(!currentCategory){timerDisplay.textContent="Tap “Choose Category” first.";return}
+      if(!currentCategory){timerDisplay.textContent="Choose a category first.";return}
       if(currentCategory==='RAP'){ if(!chosenOptions.beat){timerDisplay.textContent="Pick an instrumental to start.";return} battleTrack.play().catch(()=>{}); }
       else{battleTrack.pause();battleTrack.currentTime=0}
       postModal.classList.remove('show');startBattleBtn.style.display='none';glow();round=1;roundPart=0;timeLeft=33;runRoundPart();
@@ -574,20 +613,20 @@
     function loadRandomOpponent(){
       const pool=opponentPools[currentCategory]||[]; if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];
         opponentVideo.src=r.video;opponentImage.src=r.image;opponentUsername.innerText=r.username;}
-      setTimeout(()=>{timerDisplay.textContent="New Opponent Ready — choose options or press BattleBillions!";},900)
+      setTimeout(()=>{timerDisplay.textContent="New Opponent Ready — choose options or press 3ATTL33ILLIONS!";},900)
     }
 
     // Post-battle actions
     postClose.addEventListener('click',()=>postModal.classList.remove('show'));
     postKeepCat.addEventListener('click',()=>{
       if(!currentCategory||!chosenSub){postModal.classList.remove('show');categoryModal.classList.add('show');return}
-      postModal.classList.remove('show');startBattleBtn.style.display='block';timerDisplay.textContent="Tap BattleBillions to continue."
+      postModal.classList.remove('show');startBattleBtn.style.display='block';timerDisplay.textContent="Tap 3ATTL33ILLIONS to continue."
     });
     postPickSub.addEventListener('click',()=>{
       postModal.classList.remove('show');categoryModal.classList.add('show');
       if(currentCategory){categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));openCategory(currentCategory,true)}
     });
-    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleBtn.style.display='block';timerDisplay.textContent="Opponent switched. Tap BattleBillions to start!"});
+    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleBtn.style.display='block';timerDisplay.textContent="Opponent switched. Tap 3ATTL33ILLIONS to start!"});
 
     // Viewer count tick
     let viewers=1300;
@@ -612,6 +651,7 @@
       startCamera();
       timerDisplay.textContent="Tap “Choose Category” to begin…";
       routeFromHash(); parseHashAndOpen();
+      toggleCornerTags('battle');
     };
   </script>
 </body>
