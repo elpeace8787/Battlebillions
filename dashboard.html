@@ -45,11 +45,7 @@
       border: 1px solid rgba(0,255,255,0.2);
     }
 
-    .overlay {
-      position: absolute; inset: 0;
-      pointer-events: none;
-      z-index: 10;
-    }
+    .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 
     .top-bar, .bottom-bar {
       position: absolute; width: 100%;
@@ -131,43 +127,34 @@
       font-size: 13px; line-height: 1.6; color: #c8ffff; text-align: center;
     }
 
-    /* FIXED: responsive, non-overlapping category pills */
+    /* Category/Subcategory buttons grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
       margin-top: 12px;
     }
+    /* Make .pill a real button */
     .pill {
       display: flex; align-items: center; justify-content: center;
-      min-height: 56px;
-      padding: 10px 8px;
-      text-align: center;
-      white-space: normal;
-      word-break: break-word;
-      line-height: 1.2;
-      font-size: 15px;
-      letter-spacing: 0.4px;
-
+      min-height: 56px; width: 100%;
+      padding: 10px 8px; text-align: center; white-space: normal; word-break: break-word;
+      line-height: 1.2; font-size: 15px; letter-spacing: 0.4px;
       background: rgba(0,255,255,0.08);
       border: 1px solid rgba(0,255,255,0.3);
-      border-radius: 10px;
-      color: #0ff; cursor: pointer; user-select: none;
+      border-radius: 10px; color: #0ff; cursor: pointer; user-select: none;
       transition: transform .2s, background .2s, box-shadow .2s;
     }
+    .pill:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,255,255,0.45); }
     .pill:hover { transform: translateY(-2px); background: rgba(0,255,255,0.16); box-shadow: 0 0 8px rgba(0,255,255,0.25); }
+    .pill.active { background: rgba(0,255,255,0.26); box-shadow: 0 0 12px rgba(0,255,255,0.35) inset; }
 
     .actions { margin-top: 16px; display: flex; justify-content: center; gap: 10px; }
     .btn { background: #0ff; color: #001a1a; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 700; }
     .btn.secondary { background: transparent; color: #0ff; border: 1px solid #0ff; }
 
     .modal .sub-title { text-align: center; color: #7ffafa; margin-top: 6px; font-size: 14px; }
-    .select-row { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-    select {
-      background: #05060a; color: #b6ffff; border: 1px solid #0ff; border-radius: 10px;
-      padding: 10px 12px; min-width: 260px; font-size: 14px; outline: none;
-    }
-    .muted { opacity: .8; font-size: 12px; margin-top: 6px; text-align:center; color:#9fecec; }
+    .muted { opacity: .8; font-size: 12px; margin-top: 10px; text-align:center; color:#9fecec; }
 
     /* Start button (center) */
     #startBattleBtn {
@@ -202,7 +189,7 @@
       <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
       <!-- CATEGORY PICKER -->
-      <div class="modal show" id="categoryModal">
+      <div class="modal show" id="categoryModal" aria-modal="true" role="dialog">
         <div class="card">
           <h2>Pick a Category</h2>
           <div class="slogan">
@@ -212,12 +199,12 @@
           </div>
 
           <div class="grid" id="categoryGrid">
-            <div class="pill" data-cat="ART">ART</div>
-            <div class="pill" data-cat="AUTO">AUTO</div>
-            <div class="pill" data-cat="DEBAT">DEBAT</div>
-            <div class="pill" data-cat="FASHION">FASHION</div>
-            <div class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</div>
-            <div class="pill" data-cat="RAP">RAP</div>
+            <button type="button" class="pill" data-cat="ART" aria-controls="optionsModal" aria-expanded="false">ART</button>
+            <button type="button" class="pill" data-cat="AUTO" aria-controls="optionsModal" aria-expanded="false">AUTO</button>
+            <button type="button" class="pill" data-cat="DEBAT" aria-controls="optionsModal" aria-expanded="false">DEBAT</button>
+            <button type="button" class="pill" data-cat="FASHION" aria-controls="optionsModal" aria-expanded="false">FASHION</button>
+            <button type="button" class="pill" data-cat="INSTRUMENTS" aria-controls="optionsModal" aria-expanded="false">INSTRUMENTS</button>
+            <button type="button" class="pill" data-cat="RAP" aria-controls="optionsModal" aria-expanded="false">RAP</button>
           </div>
           <div class="actions">
             <button class="btn secondary" id="cancelCat">Cancel</button>
@@ -226,13 +213,12 @@
       </div>
 
       <!-- CATEGORY OPTIONS -->
-      <div class="modal" id="optionsModal">
+      <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
         <div class="card">
           <h2 id="optionsTitle">Category Options</h2>
           <div class="sub-title" id="optionsSubtitle">Configure this battle</div>
-          <div class="select-row" id="optionsBody"></div>
+          <div id="optionsBody"></div>
           <div class="muted" id="optionsHint"></div>
-          <!-- Note: No confirm/back needed for your flow; picking an option shows the center BattleBillions button -->
           <div class="actions" id="optionsActions" style="margin-top:12px;">
             <button class="btn secondary" id="backBtn">Back</button>
           </div>
@@ -362,6 +348,7 @@
        ========================= */
     let currentCategory = null;
     let chosenOptions = {};
+    let chosenSub = null;
 
     const opponentPools = {
       ART: [
@@ -387,6 +374,20 @@
       RAP: [
         { video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" },
         { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
+      ]
+    };
+
+    const subLists = {
+      ART: ['Painting','Digital','Graffiti','Sculpture','Illustration'],
+      AUTO: ['Drift','Drag','Build Showcase','Detailing','Audio Systems'],
+      DEBAT: ['Politics','Tech','Sports','Culture','Freestyle'],
+      FASHION: ['Runway','Streetwear','Vintage','Upcycle','Styling'],
+      INSTRUMENTS: ['Guitar','Piano','Violin','Drums','DJ'],
+      RAP: [
+        {label:'🔥 Classic Trap', value:'beat1.mp3'},
+        {label:'💥 Boom Bap', value:'beat2.mp3'},
+        {label:'🌊 Chill Vibes', value:'beat3.mp3'},
+        {label:'⚡ Fast Flow', value:'beat4.mp3'},
       ]
     };
 
@@ -419,26 +420,49 @@
     const optionsHint = document.getElementById('optionsHint');
     const startBattleBtn = document.getElementById('startBattleBtn');
 
+    const categoryGrid = document.getElementById('categoryGrid');
+
     document.getElementById('cancelCat').onclick = () => {
       categoryModal.classList.remove('show');
       timerDisplay.innerText = "Open categories anytime to begin.";
+      clearHash();
     };
     document.getElementById('backBtn').onclick = () => {
       optionsModal.classList.remove('show');
       categoryModal.classList.add('show');
       startBattleBtn.style.display = 'none';
+      chosenSub = null;
+      updateHash(currentCategory, null);
+      categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===currentCategory));
+      categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
 
-    // Category → open subcategory modal
-    document.querySelectorAll('#categoryGrid .pill').forEach(p => {
-      p.addEventListener('click', () => {
-        currentCategory = p.dataset.cat;
-        categoryModal.classList.remove('show');
-        buildOptionsFor(currentCategory);
-        optionsModal.classList.add('show');
-        startBattleBtn.style.display = 'none';
-      });
+    // CATEGORY BUTTONS (click + keyboard)
+    categoryGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.pill[data-cat]');
+      if (!btn) return;
+      openCategory(btn.dataset.cat, true);
     });
+    categoryGrid.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.pill[data-cat]')) {
+        e.preventDefault();
+        openCategory(e.target.dataset.cat, true);
+      }
+    });
+
+    function openCategory(cat, fromUser) {
+      currentCategory = cat;
+      chosenSub = null;
+      startBattleBtn.style.display = 'none';
+      categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
+      buildOptionsFor(cat);
+      categoryModal.classList.remove('show');
+      optionsModal.classList.add('show');
+      if (fromUser) updateHash(cat, null);
+      // focus first sub-option
+      const firstBtn = optionsBody.querySelector('.pill');
+      firstBtn?.focus();
+    }
 
     function applyCategoryOpponent(cat) {
       const pool = opponentPools[cat] || [];
@@ -450,15 +474,19 @@
       }
     }
 
-    // Build options; when user selects an option, hide modal and show big start button
+    // Build subcategory buttons grid
     function buildOptionsFor(cat) {
       optionsBody.innerHTML = '';
       chosenOptions = {};
       optionsHint.innerText = '';
       optionsTitle.innerText = `${cat} – Options`;
 
-      const mkSelect = (id, labelText, list, onPick) => {
-        const select = document.createElement('select');
-        select.id = id;
-        const ph = document.createElement('option');
-        ph.textContent = `Select ${
+      const wrapper = document.createElement('div');
+      wrapper.className = 'grid';
+
+      const items = subLists[cat] || [];
+      if (cat === 'RAP') {
+        optionsSubtitle.innerText = "Choose your instrumental.";
+        items.forEach(b => {
+          const btn = makePill(b.label, b.value, () => {
+            chosenOptions.beat
