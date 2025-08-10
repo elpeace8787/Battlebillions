@@ -82,7 +82,8 @@
     video.video-stream + video.video-stream{border-left:1px solid rgba(255,255,255,.04)}
     .overlay{position:absolute;inset:0;pointer-events:none;z-index:10}
 
-    .profile-labels{position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;pointer-events:auto}
+    /* Opponent badge (hidden until subcategory chosen) */
+    .profile-labels{position:absolute;top:12px;right:16px;display:none;justify-content:flex-end;z-index:40;pointer-events:auto}
     .profile-entry{position:relative; display:flex; align-items:center; gap:10px;background:transparent; padding:6px 14px; border:none; box-shadow:none; cursor:pointer;overflow:hidden; text-decoration:none; color:inherit;}
     .profile-entry::before{content:"3ATTL33ILLIONS";position:absolute; inset:0; left:6px; top:50%; transform:translateY(-50%); font-weight:900; font-size:22px; letter-spacing:.15em;color:#fff; opacity:.06; white-space:nowrap; pointer-events:none; z-index:0;}
     .profile-entry img{width:34px;height:34px;border-radius:10px;position:relative;z-index:1}
@@ -117,14 +118,21 @@
     .cat-fab svg{width:18px;height:18px;stroke:#fff}
 
     /* Timer + pre-countdown */
-    .round-timer{position:absolute;bottom:108px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);border:1px solid rgba(255,255,255,.08);z-index:50;pointer-events:none;text-align:center;display:none}
+    .round-timer{
+      position:fixed;
+      left:50%;
+      bottom:calc(72px + var(--safe-bottom) + 14px); /* same spot as cat-fab */
+      transform:translateX(-50%);
+      background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);
+      border:1px solid rgba(255,255,255,.08);z-index:1200;pointer-events:none;text-align:center;display:none
+    }
     .round-timer.pulse{animation:pulse 2.2s infinite}
     @keyframes pulse{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.03)}100%{transform:translateX(-50%) scale(1)}}
     .pre-countdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:60;pointer-events:none;font-weight:900;font-size:clamp(48px, 20vw, 220px);letter-spacing:.08em;color:#fff;text-shadow:0 0 20px rgba(240,185,11,.35), 0 0 35px rgba(255,255,255,.15);}
     .pre-countdown.pop{ animation:pop .78s cubic-bezier(.2,.8,.2,1);}
     @keyframes pop{0%{ transform:scale(.6); opacity:.2 }50%{ transform:scale(1.05); opacity:1 }100%{ transform:scale(1); opacity:.9 }}
 
-    /* Modals / cards (categories, options, opponent picker) */
+    /* Modals / cards (categories, options, end screen) */
     .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);pointer-events:auto}
     .modal.show{display:flex}
     .card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px}
@@ -150,20 +158,14 @@
     .btn{background:#fff;color:#111;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:800;transition:transform .2s,filter .2s}
     .btn:hover{transform:translateY(-1px);filter:brightness(.9)}
     .btn.secondary{background:transparent;color:var(--ink)}
-
-    /* Opponent Picker */
-    #opponentPicker .card{width:min(92vw,560px);max-height:76vh;display:flex;flex-direction:column;gap:12px}
-    .opp-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .opp-header h3{font-size:18px}
-    .opp-scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px;border-radius:12px;background:#0b0b0c;border:1px solid rgba(255,255,255,.06)}
-    .opp-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);cursor:pointer; transition:transform .2s, background .2s, border-color .2s;margin-bottom:10px;}
-    .opp-item:hover{transform:translateY(-1px);background:rgba(255,255,255,.06)}
-    .opp-item img{width:40px;height:40px;border-radius:10px;object-fit:cover}
-    .opp-name{font-weight:800;color:#fff}
-    .opp-meta{font-size:12px;color:#9aa3ad}
-
-    .opp-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px}
     .btn-gold{background:linear-gradient(90deg,#4f4f4f,#F0B90B,#4f4f4f);background-size:200% 100%;border:1px solid rgba(240,185,11,.55);color:#101010;box-shadow:0 0 24px 4px rgba(240,185,11,.25)}
+
+    /* End Screen */
+    #endScreen .card{width:min(92vw,520px);display:flex;flex-direction:column;gap:12px}
+    .end-actions{display:grid;grid-template-columns:1fr;gap:10px}
+    .share-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px}
+    .share-btn{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 12px;cursor:pointer;font-weight:800}
+    .share-btn:hover{background:rgba(255,255,255,.14)}
   </style>
 </head>
 <body>
@@ -199,13 +201,13 @@
 
   <!-- CONTENT -->
   <main class="app-shell">
-    <!-- 3ATTLES (Battle view lives here) -->
+    <!-- 3ATTLES (Battle view) -->
     <section class="screen active" id="screen-battle" data-route="battle">
       <div class="stream-container" id="streamContainer">
         <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
         <video class="video-stream" id="opponentVideo" autoplay muted loop src="assets/video/user2.mp4"></video>
 
-        <!-- Category Modal (search + grid) -->
+        <!-- Category Modal -->
         <div class="modal" id="categoryModal" aria-modal="true" role="dialog">
           <div class="card">
             <div class="cat-header">
@@ -238,26 +240,31 @@
           </div>
         </div>
 
-        <!-- Opponent Picker (post-battle) -->
-        <div class="modal" id="opponentPicker" aria-modal="true" role="dialog">
+        <!-- End Screen (after battle) -->
+        <div class="modal" id="endScreen" aria-modal="true" role="dialog">
           <div class="card">
-            <div class="opp-header">
-              <h3>Choose Next Opponent</h3>
-              <div class="muted">Category: <span id="oppCatLabel">—</span></div>
+            <h3 style="text-align:center;margin-bottom:6px;">3ATTLE Finished</h3>
+            <p class="muted" style="text-align:center;margin-bottom:6px;">Pick what you want to do next.</p>
+            <div class="end-actions">
+              <button class="btn btn-gold" id="endNextBattle">Next Battle</button>
+              <button class="btn" id="endChooseCat">Choose Category</button>
+              <button class="btn secondary" id="endDone">Done for now</button>
             </div>
-            <div class="opp-scroller" id="oppList"></div>
-            <div class="opp-actions">
-              <button class="btn btn-gold" id="oppBattleNext">3ATTLE Next Opponent</button>
-              <button class="btn" id="oppChooseCat">Choose Category</button>
-              <button class="btn secondary" id="oppDone">Done for now</button>
+            <div class="share-row" aria-label="Share">
+              <button class="share-btn" data-share="copy">Copy Link</button>
+              <button class="share-btn" data-share="x">X</button>
+              <button class="share-btn" data-share="fb">Facebook</button>
+              <button class="share-btn" data-share="wa">WhatsApp</button>
+              <button class="share-btn" data-share="tg">Telegram</button>
+              <button class="share-btn" data-share="rd">Reddit</button>
             </div>
           </div>
         </div>
 
         <div class="overlay">
-          <!-- Opponent profile opens Opponents (profile.html) page -->
+          <!-- Opponent profile (hidden until subcategory chosen) -->
           <div class="profile-labels" id="profileLabels">
-            <a href="#/profile" class="profile-entry" id="opponentProfile" data-screen="opponents" aria-label="Open opponent profile">
+            <a href="#/opponents" class="profile-entry" id="opponentProfile" data-screen="opponents" aria-label="Open opponent profile">
               <img src="assets/img/user2.jpg" id="opponentImage" alt="User 2">
               <span id="opponentUsername">@Opponent</span>
             </a>
@@ -270,7 +277,7 @@
       </div>
     </section>
 
-    <!-- Other screens: injected from repo files -->
+    <!-- Other screens (loaded from your repo) -->
     <section class="screen" id="screen-home" data-route="home">
       <div class="screen-slot" data-src="/home.html"><div class="slot-loading">Loading Home…</div></div>
     </section>
@@ -325,6 +332,8 @@
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
     const startBattleFab = document.getElementById('startBattleFab');
+    const profileLabels = document.getElementById('profileLabels');
+    const openCats = document.getElementById('openCats');
 
     function showScreen(name){
       Object.entries(screens).forEach(([k,el])=>el.classList.toggle('active',k===name));
@@ -337,7 +346,7 @@
         startBattleFab.style.display='none';
         startBattleFab.classList.remove('blink');
       }
-      mountExternalChunk(name); // load external HTML once (for non-battle screens)
+      mountExternalChunk(name);
     }
 
     document.addEventListener('click',(e)=>{
@@ -360,7 +369,7 @@
     }
     window.addEventListener('hashchange', routeFromHash);
 
-    /* ====== External HTML loader (no iframes) ====== */
+    /* ====== External HTML loader ====== */
     const chunkLoaded = new Set();
     async function mountExternalChunk(name){
       if(name === 'battle') return;
@@ -376,7 +385,6 @@
         const res = await fetch(src, { cache: 'no-cache' });
         const text = await res.text();
         const doc = new DOMParser().parseFromString(text, 'text/html');
-
         const frag = doc.querySelector('[data-app-fragment]') || doc.querySelector('main') || doc.body;
         slot.innerHTML = frag ? frag.innerHTML : text;
         chunkLoaded.add(slot);
@@ -386,7 +394,7 @@
       }
     }
 
-    /* ====== Battle & Category State ====== */
+    /* ====== Battle State ====== */
     let currentCategory=null, chosenOptions={}, chosenSub=null, selectedOpponent=null;
 
     const opponentPools={ 
@@ -466,17 +474,15 @@
     const catCount=document.getElementById('catCount');
     const catEmpty=document.getElementById('catEmpty');
 
-    // Opponent Picker
-    const opponentPicker=document.getElementById('opponentPicker');
-    const oppList=document.getElementById('oppList');
-    const oppClose=document.getElementById('oppClose');
-    const oppCatLabel=document.getElementById('oppCatLabel');
-    const oppBattleNext=document.getElementById('oppBattleNext');
-    const oppChooseCat=document.getElementById('oppChooseCat');
-    const oppDone=document.getElementById('oppDone');
+    // End screen buttons
+    const endScreen=document.getElementById('endScreen');
+    const endNextBattle=document.getElementById('endNextBattle');
+    const endChooseCat=document.getElementById('endChooseCat');
+    const endDone=document.getElementById('endDone');
 
-    const openCats=document.getElementById('openCats');
+    /* Choose Category button: hide immediately on tap */
     openCats.addEventListener('click',()=>{
+      openCats.style.display='none';               // Hides right away
       categoryModal.classList.add('show');
       catSearch.value='';
       buildCategoryButtons('');
@@ -484,11 +490,19 @@
       location.hash = '#/battle';
     });
 
-    function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');opponentPicker.classList.remove('show')}
-    document.getElementById('cancelCat').onclick=()=>{categoryModal.classList.remove('show');clearHash();};
+    function closeAllModals(){
+      categoryModal.classList.remove('show');
+      optionsModal.classList.remove('show');
+      endScreen.classList.remove('show');
+    }
+    document.getElementById('cancelCat').onclick=()=>{
+      categoryModal.classList.remove('show');
+      clearHash();
+    };
     document.getElementById('backBtn').onclick=()=>{
       optionsModal.classList.remove('show');categoryModal.classList.add('show');
       startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
+      profileLabels.style.display='none';
       chosenSub=null;updateHash(currentCategory,null);
     };
 
@@ -522,6 +536,7 @@
       try{
         currentCategory=cat;chosenSub=null;selectedOpponent=null;
         startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
+        profileLabels.style.display='none';
         buildOptionsFor(cat);
         categoryModal.classList.remove('show');optionsModal.classList.add('show');
         if (fromUser) updateHash(cat,null);
@@ -553,8 +568,10 @@
           const btn=makePill(b.label,b.value,()=>{
             chosenOptions.beat=b.value;chosenSub=b.label;battleTrack.src=b.value;battleTrack.load();
             optionsModal.classList.remove('show');
+            applyCategoryOpponent(cat);
+            profileLabels.style.display='flex';
             startBattleFab.style.display='flex';startBattleFab.classList.add('blink'); startBattleFab.focus();
-            updateHash(cat,b.label);applyCategoryOpponent(cat);
+            updateHash(cat,b.label);
           });wrapper.appendChild(btn);
         });optionsHint.innerText="Only RAP uses instrumentals.";
       }else{
@@ -563,8 +580,10 @@
         items.forEach(label=>{
           const btn=makePill(label,label,()=>{
             chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');
+            applyCategoryOpponent(cat);
+            profileLabels.style.display='flex';
             startBattleFab.style.display='flex';startBattleFab.classList.add('blink'); startBattleFab.focus();
-            updateHash(cat,label);applyCategoryOpponent(cat);
+            updateHash(cat,label);
           });wrapper.appendChild(btn);
         });
       }
@@ -623,10 +642,9 @@
               if(round<maxRounds){
                 round++; roundPart=0; runRoundPart();
               }else{
-                timerDisplay.textContent='3ATTLE Over — Pick Your Next Opponent';
+                timerDisplay.textContent='3ATTLE Finished';
                 glow();
-                buildOpponentPicker(currentCategory);
-                startBattleFab.style.display='none'; startBattleFab.classList.remove('blink');
+                showEndScreen();
               }
             }
           }
@@ -640,63 +658,86 @@
         if(!chosenOptions.beat){return}
         battleTrack.play().catch(()=>{});
       }else{ battleTrack.pause(); battleTrack.currentTime=0; }
-      opponentPicker.classList.remove('show');
+      // Hide CTA
       startBattleFab.style.display='none';
       startBattleFab.classList.remove('blink');
+      // Start flow
       glow();
       round=1; roundPart=0;
       runRoundPart();
     }
     startBattleFab.addEventListener('click', startBattle);
 
-    /* Opponent Picker */
-    function buildOpponentPicker(cat){
-      oppCatLabel.textContent = cat || '—';
-      oppList.innerHTML='';
-      const pool = opponentPools[cat] || [];
-      if(pool.length===0){
-        const empty = document.createElement('div');
-        empty.className='muted'; empty.style.textAlign='center'; empty.style.padding='16px';
-        empty.textContent='No opponents available.';
-        oppList.appendChild(empty);
-      } else {
-        pool.forEach((o, idx)=>{
-          const row = document.createElement('div');
-          row.className='opp-item';
-          row.innerHTML = `
-            <img src="${o.image}" alt="${o.username}">
-            <div style="display:flex;flex-direction:column;">
-              <span class="opp-name">${o.username}</span>
-              <span class="opp-meta">Ready to 3ATTLE • Slot #${idx+1}</span>
-            </div>`;
-          row.addEventListener('click', ()=>{
-            applyCategoryOpponent(cat, o); // swap into stage
-            startBattleFab.style.display='flex'; startBattleFab.classList.add('blink'); startBattleFab.focus();
-            timerDisplay.textContent='Opponent ready — tap 3ATTLE to start!';
-          });
-          oppList.appendChild(row);
-        });
+    function nextRandomOpponent(){
+      const pool = opponentPools[currentCategory] || [];
+      if(pool.length){
+        // pick a new one different from current if possible
+        let candidate = pool[Math.floor(Math.random()*pool.length)];
+        if(selectedOpponent && pool.length>1){
+          let tries=0;
+          while(candidate.username===selectedOpponent.username && tries<6){
+            candidate = pool[Math.floor(Math.random()*pool.length)];
+            tries++;
+          }
+        }
+        applyCategoryOpponent(currentCategory, candidate);
       }
-      opponentPicker.classList.add('show');
     }
 
-    // Action buttons under the list
-    oppBattleNext.addEventListener('click', ()=>{
-      if(!selectedOpponent){ return; } // must have selected
-      startBattle(); // uses current selectedOpponent already on stage
+    /* End Screen */
+    function showEndScreen(){
+      endScreen.classList.add('show');
+    }
+
+    endNextBattle.addEventListener('click', ()=>{
+      endScreen.classList.remove('show');
+      nextRandomOpponent();
+      // Show 3ATTLE again for new opponent
+      startBattleFab.style.display='flex';
+      startBattleFab.classList.add('blink');
+      startBattleFab.focus();
+      timerDisplay.textContent='New opponent ready — tap 3ATTLE!';
     });
-    oppChooseCat.addEventListener('click', ()=>{
-      opponentPicker.classList.remove('show');
+
+    endChooseCat.addEventListener('click', ()=>{
+      endScreen.classList.remove('show');
       categoryModal.classList.add('show');
       catSearch.value='';
       buildCategoryButtons('');
       catSearch.focus();
     });
-    oppDone.addEventListener('click', ()=>{
-      opponentPicker.classList.remove('show');
+
+    endDone.addEventListener('click', ()=>{
+      endScreen.classList.remove('show');
       startBattleFab.style.display='none';
       startBattleFab.classList.remove('blink');
-      timerDisplay.textContent='Paused — Choose Category or Open another page.';
+      timerDisplay.style.display='none';
+      profileLabels.style.display='none';
+      // Optionally show the floating Choose Category again after ending
+      openCats.style.display='flex';
+    });
+
+    // Share buttons
+    document.querySelectorAll('.share-btn').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const label = btn.dataset.share;
+        const shareUrl = location.href;
+        const text = '3ATTL33ILLIONS — come battle me!';
+        if(navigator.share){
+          try{ await navigator.share({title:'3ATTL33ILLIONS', text, url:shareUrl}); }catch(e){}
+          return;
+        }
+        switch(label){
+          case 'copy':
+            try{ await navigator.clipboard.writeText(shareUrl); btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Link',1200);}catch(e){}
+            break;
+          case 'x': window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`,'_blank'); break;
+          case 'fb': window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,'_blank'); break;
+          case 'wa': window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text+' '+shareUrl)}`,'_blank'); break;
+          case 'tg': window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`,'_blank'); break;
+          case 'rd': window.open(`https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(text)}`,'_blank'); break;
+        }
+      });
     });
 
     // Opponent profile opens Opponents (profile.html)
@@ -721,11 +762,21 @@
     }
 
     /* Init */
+    function resetFloatingControls(){
+      // On fresh load, show small Choose Category; hide opponent & timer
+      openCats.style.display='flex';
+      profileLabels.style.display='none';
+      startBattleFab.style.display='none';
+      startBattleFab.classList.remove('blink');
+      timerDisplay.style.display='none';
+    }
+
     window.onload=()=>{
       showScreen('battle');
       if(!location.hash) location.hash='#/battle';
       startCamera();
       buildCategoryButtons('');
+      resetFloatingControls();
       routeFromHash(); parseHashAndOpen();
     };
   </script>
