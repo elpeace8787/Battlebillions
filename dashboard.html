@@ -116,11 +116,25 @@
     .battle-fab{
       position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 56px);transform:translateX(-50%);
       padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
-      border:none;backdrop-filter:none;z-index:1200;
-      display:none;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s
+      border:1px solid rgba(255,255,255,.12);backdrop-filter:none;z-index:1200;
+      display:none;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s,box-shadow .2s
     }
-    .battle-fab:hover{background:rgba(255,255,255,.16);transform:translateX(-50%) translateY(-1px)}
+    .battle-fab:hover{transform:translateX(-50%) translateY(-1px)}
     .battle-fab:focus-visible{outline:none;box-shadow:var(--ring)}
+
+    /* cool grey ↔ gold blinking */
+    .battle-fab.blink{
+      animation:blinkFab 1.15s ease-in-out infinite;
+    }
+    @keyframes blinkFab{
+      0%,55%{ background:rgba(255,255,255,.10); box-shadow:0 0 0 0 rgba(240,185,11,0); color:#ffffff; border-color:rgba(255,255,255,.12);}
+      56%,100%{
+        background:linear-gradient(90deg,#4f4f4f,#F0B90B,#4f4f4f);
+        background-size:200% 100%;
+        box-shadow:0 0 24px 4px rgba(240,185,11,.25);
+        color:#101010; border-color:rgba(240,185,11,.55);
+      }
+    }
 
     /* ====== Choose Category (disappears after tap) ====== */
     .cat-fab{
@@ -141,6 +155,23 @@
     }
     .round-timer.pulse{animation:pulse 2.2s infinite}
     @keyframes pulse{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.03)}100%{transform:translateX(-50%) scale(1)}}
+
+    /* ====== Pre-turn 6-5-4-3-2-1 countdown overlay ====== */
+    .pre-countdown{
+      position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:60;
+      pointer-events:none;
+      font-weight:900; 
+      font-size:clamp(48px, 20vw, 220px);
+      letter-spacing:.08em;
+      color:#fff;
+      text-shadow:0 0 20px rgba(240,185,11,.35), 0 0 35px rgba(255,255,255,.15);
+    }
+    .pre-countdown.pop{ animation:pop .78s cubic-bezier(.2,.8,.2,1); }
+    @keyframes pop{
+      0%{ transform:scale(.6); opacity:.2 }
+      50%{ transform:scale(1.05); opacity:1 }
+      100%{ transform:scale(1); opacity:.9 }
+    }
 
     /* ====== Modals / Cards ====== */
     .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);pointer-events:auto}
@@ -212,7 +243,11 @@
       <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.6"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.6"/><path d="M10 11v3H8v2h8v-2h-2v-3" stroke-width="1.6"/></symbol>
       <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" class="gold-stroke" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" class="gold-stroke" stroke-width="1.6" stroke-linecap="round"/></symbol>
-      <symbol id="ic-user" viewBox="0 0 24 24"><path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Z" stroke-width="1.6"/><path d="M4 20.4a8 8 0 0 1 16 0" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <!-- Messages icon -->
+      <symbol id="ic-messages" viewBox="0 0 24 24">
+        <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-5 4V6z" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M7 9h10M7 12h7" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
       <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12z" stroke-width="1.6"/><circle cx="12" cy="12" r="2.8" stroke-width="1.6"/></symbol>
       <symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7-11-7z" stroke-width="1.6" stroke-linejoin="round"/></symbol>
       <symbol id="ic-grid" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" stroke-width="1.6"/></symbol>
@@ -228,7 +263,7 @@
     </div>
   </header>
 
-  <!-- Small bottom-center "3ATTLE" start -->
+  <!-- Small bottom-center "3ATTLE" start (appears after subcategory pick) -->
   <button class="battle-fab" id="startBattleFab" aria-label="Start 3ATTLE">3ATTLE</button>
 
   <!-- Choose Category (disappears after first tap) -->
@@ -244,7 +279,7 @@
         <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
         <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
-        <!-- Category Picker (now small + scroll + search) -->
+        <!-- Category Picker (small + scroll + search) -->
         <div class="modal" id="categoryModal" aria-modal="true" role="dialog">
           <div class="card">
             <div class="cat-header">
@@ -280,13 +315,16 @@
         </div>
 
         <div class="overlay">
-          <!-- Clickable opponent profile (routes to Profile screen) -->
+          <!-- Clickable opponent (now routes to Messages) -->
           <div class="profile-labels" id="profileLabels">
-            <a href="#/profile" class="profile-entry" id="opponentProfile" data-screen="profile" aria-label="Open opponent profile">
+            <a href="#/messages" class="profile-entry" id="opponentProfile" data-screen="messages" aria-label="Open messages">
               <img src="user2.jpg" id="opponentImage" alt="User 2">
               <span id="opponentUsername">@Opponent</span>
             </a>
           </div>
+
+          <!-- Pre-turn Countdown Overlay -->
+          <div class="pre-countdown" id="preCountdown" aria-live="polite" aria-atomic="true"></div>
 
           <!-- Timer (hidden until battle starts) -->
           <div class="round-timer" id="roundTimer"></div>
@@ -319,8 +357,12 @@
     <section class="screen" id="screen-leaderboard" data-route="leaderboard">
       <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
     </section>
-    <section class="screen" id="screen-profile" data-route="profile">
-      <div class="placeholder"><div class="box"><h1>Profile</h1><p>Opponent profile opens here from the battle overlay.</p></div></div>
+    <!-- Messages screen (replaces Profile) -->
+    <section class="screen" id="screen-messages" data-route="messages">
+      <div class="placeholder"><div class="box">
+        <h1>Messages</h1>
+        <p>Conversations appear here. Opponent links open this page.</p>
+      </div></div>
     </section>
   </main>
 
@@ -338,13 +380,9 @@
       <span class="tab-label">3ATTLES</span>
       <svg><use href="#ic-battle"/></svg>
     </a>
-    <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false">
-      <span class="tab-label">Leaders</span>
-      <svg><use href="#ic-trophy"/></svg>
-    </a>
-    <a class="tab-btn" data-screen="profile" role="tab" aria-selected="false">
-      <span class="tab-label">Profile</span>
-      <svg><use href="#ic-user"/></svg>
+    <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false"
+            <span class="tab-label">Messages</span>
+      <svg><use href="#ic-messages"/></svg>
     </a>
   </nav>
 
@@ -366,7 +404,7 @@
       });
     }
 
-    // Global delegated nav (tabs + opponent box)
+    // Global delegated nav (tabs + opponent link)
     document.addEventListener('click',(e)=>{
       const link = e.target.closest('[data-screen]');
       if(!link) return;
@@ -448,6 +486,7 @@
 
     const streamContainer=document.getElementById('streamContainer');
     const timerDisplay=document.getElementById('roundTimer');
+    const preCountdown=document.getElementById('preCountdown');
     const sound=document.getElementById('roundEndSound');
     const battleTrack=document.getElementById('battleTrack');
     const opponentVideo=document.getElementById('opponentVideo');
@@ -490,13 +529,13 @@
       clearHash();
     };
     document.getElementById('backBtn').onclick=()=>{
-      optionsModal.classList.remove('show');categoryModal.classList.add('show');startBattleFab.style.display='none';chosenSub=null;updateHash(currentCategory,null);
+      optionsModal.classList.remove('show');categoryModal.classList.add('show');startBattleFab.style.display='none';startBattleFab.classList.remove('blink');chosenSub=null;updateHash(currentCategory,null);
       categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));
       categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
 
     // Build ALL categories dynamically + search filter
-    const allCats = Object.keys(subLists); // ensures every category in subLists appears
+    const allCats = Object.keys(subLists);
     function buildCategoryButtons(filter){
       categoryGrid.innerHTML='';
       const f = (filter||'').trim().toLowerCase();
@@ -535,7 +574,7 @@
         const b=document.createElement('button');b.className='pill';b.textContent=cat;
         b.addEventListener('click',()=>{
           currentCategory=cat;chosenSub=null;postModal.classList.remove('show');categoryModal.classList.add('show');
-          catSearch.value=''; buildCategoryButtons(''); // show all when reopened
+          catSearch.value=''; buildCategoryButtons('');
           openCategory(cat,true);
         });
         postCategoryGrid.appendChild(b);
@@ -544,7 +583,7 @@
 
     function openCategory(cat,fromUser){
       try{
-        currentCategory=cat;chosenSub=null;startBattleFab.style.display='none';
+        currentCategory=cat;chosenSub=null;startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
         // visual select
         categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===cat));
         buildOptionsFor(cat);
@@ -571,7 +610,7 @@
         items.forEach(b=>{
           const btn=makePill(b.label,b.value,()=>{
             chosenOptions.beat=b.value;chosenSub=b.label;battleTrack.src=b.value;battleTrack.load();
-            optionsModal.classList.remove('show');startBattleFab.style.display='flex';
+            optionsModal.classList.remove('show');startBattleFab.style.display='flex';startBattleFab.classList.add('blink');
             updateHash(cat,b.label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });optionsHint.innerText="Only RAP uses instrumentals.";
@@ -580,7 +619,7 @@
         optionsSubtitle.innerText=subtitleMap[cat]||"Choose an option.";
         items.forEach(label=>{
           const btn=makePill(label,label,()=>{
-            chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');startBattleFab.style.display='flex';
+            chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');startBattleFab.style.display='flex';startBattleFab.classList.add('blink');
             updateHash(cat,label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });
@@ -605,26 +644,57 @@
     }
     window.addEventListener('popstate',()=>{routeFromHash();parseHashAndOpen()});
 
-    /* Rounds */
+    /* ====== Turn/round flow with pre-countdown ====== */
     let round=1,roundPart=0,timeLeft=33; const maxRounds=3;
+
     function setDim(a){a?streamContainer.classList.add('dimmed'):streamContainer.classList.remove('dimmed')}
     function glow(){timerDisplay.classList.add('pulse');setTimeout(()=>timerDisplay.classList.remove('pulse'),1400)}
+
+    // Show 6→1 countdown, then callback
+    function showCountdown(forWhom, cb){
+      const seq=[6,5,4,3,2,1];
+      preCountdown.style.display='flex';
+      function step(){
+        if(seq.length===0){ preCountdown.style.display='none'; cb(); return; }
+        const n=seq.shift();
+        preCountdown.textContent=String(n);
+        preCountdown.classList.remove('pop'); void preCountdown.offsetWidth; preCountdown.classList.add('pop');
+        setTimeout(step, 800); // ~0.8s per tick
+      }
+      step();
+    }
+
     function runRoundPart(){
-      // show timer now that battle is live
-      timerDisplay.style.display='block';
-      setDim(true);
-      const interval=setInterval(()=>{
-        timerDisplay.textContent=`Round ${round} of ${maxRounds} | ${(roundPart===0?'@You':'@Opponent')} | ${timeLeft}s`;
-        timeLeft--;
-        if(timeLeft<0){
-          clearInterval(interval); sound.play(); setDim(false);
-          if(roundPart===0){roundPart=1;timeLeft=33;timerDisplay.textContent=`Switching to Opponent…`;setTimeout(runRoundPart,6000)}
-          else{
-            if(round<maxRounds){round++;roundPart=0;timeLeft=33;timerDisplay.textContent=`Switching to Next Round…`;setTimeout(runRoundPart,6000)}
-            else{timerDisplay.textContent='3ATTLE Over — Great Work!';glow();setDim(false);buildPostCats();postModal.classList.add('show');loadRandomOpponent();startBattleFab.style.display='flex'}
+      const who = (roundPart===0?'@You':'@Opponent');
+      // countdown BEFORE each participant turn
+      showCountdown(who, ()=>{
+        setDim(true);
+        timerDisplay.style.display='block';
+        timeLeft = 33;
+        const interval=setInterval(()=>{
+          timerDisplay.textContent=`Round ${round} of ${maxRounds} | ${who} | ${timeLeft}s`;
+          timeLeft--;
+          if(timeLeft<0){
+            clearInterval(interval); sound.play(); setDim(false);
+            if(roundPart===0){
+              // switch to opponent turn
+              roundPart=1;
+              runRoundPart(); // will show pre-countdown again
+            }else{
+              // end of round, maybe next round
+              if(round<maxRounds){
+                round++; roundPart=0;
+                runRoundPart(); // next round with pre-countdown
+              }else{
+                // battle over
+                timerDisplay.textContent='3ATTLE Over — Great Work!'; glow(); setDim(false);
+                buildPostCats(); postModal.classList.add('show'); loadRandomOpponent();
+                startBattleFab.style.display='flex'; startBattleFab.classList.add('blink');
+              }
+            }
           }
-        }
-      },1000);
+        },1000);
+      });
     }
 
     function startBattle(){
@@ -637,8 +707,9 @@
       }
       postModal.classList.remove('show');
       startBattleFab.style.display='none';
+      startBattleFab.classList.remove('blink');
       glow();
-      round=1; roundPart=0; timeLeft=33;
+      round=1; roundPart=0;
       runRoundPart();
     }
 
@@ -653,7 +724,7 @@
     postClose.addEventListener('click',()=>postModal.classList.remove('show'));
     postKeepCat.addEventListener('click',()=>{
       if(!currentCategory||!chosenSub){postModal.classList.remove('show');categoryModal.classList.add('show');return}
-      postModal.classList.remove('show');startBattleFab.style.display='flex';
+      postModal.classList.remove('show');startBattleFab.style.display='flex';startBattleFab.classList.add('blink');
     });
     postPickSub.addEventListener('click',()=>{
       postModal.classList.remove('show');categoryModal.classList.add('show');
@@ -662,7 +733,7 @@
         openCategory(currentCategory,true)
       }
     });
-    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleFab.style.display='flex'});
+    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleFab.style.display='flex';startBattleFab.classList.add('blink')});
 
     // Viewer count tick
     let viewers=1300;
@@ -685,7 +756,7 @@
       showScreen('battle');
       if(!location.hash) location.hash='#/battle';
       startCamera();
-      // build full list upfront so count is correct if user opens later
+      // build full category list upfront
       buildCategoryButtons('');
       routeFromHash(); parseHashAndOpen();
     };
