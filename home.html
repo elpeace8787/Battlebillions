@@ -5,224 +5,259 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>3ATTL33ILLIONS | Home</title>
 
-  <!-- Optional local font (safe if loaded standalone); in the shell, Virgo is already global -->
+  <!-- Virgo font (local) -->
   <style>
     @font-face{
       font-family:'Virgo';
-      src: url('assets/fonts/Virgo.woff2') format('woff2'),
-           url('assets/fonts/Virgo.ttf') format('truetype');
+      src:
+        url('assets/fonts/Virgo.woff2') format('woff2'),
+        url('assets/fonts/Virgo.ttf') format('truetype');
       font-display:swap;
     }
   </style>
 
   <style>
     :root{
-      --bg-0:#000000;
+      --bg:#000;
+      --panel:#0e0e0f;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --stroke:rgba(255,255,255,.08);
-      --panel:#0e0e0f;
-      --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
       --ring:0 0 0 3px rgba(255,255,255,.12);
+      --gold:#F0B90B;
+      --gold-soft:#F5D76E;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; background:var(--bg-0); color:var(--ink);
+      margin:0; background:var(--bg); color:var(--ink);
       font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      letter-spacing:.2px;
     }
 
-    /* Page container */
-    .home-wrap{
-      padding: 18px 16px 24px;
-      max-width: 1100px; margin: 0 auto;
-    }
+    /* Page wrapper (fragment root) */
+    .home{max-width:1100px;margin:0 auto;padding:20px 16px 28px}
 
-    /* Header / Profile */
+    /* ===== Header (profile) ===== */
     .hero{
-      display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center;
+      display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px;
       padding:16px; border:1px solid var(--stroke); border-radius:16px; background:rgba(255,255,255,.04);
-      backdrop-filter: blur(6px);
+      backdrop-filter:blur(6px);
     }
-    .avatar{
-      width:64px; height:64px; border-radius:16px; overflow:hidden; position:relative;
-      box-shadow:0 0 0 2px rgba(255,255,255,.06);
+    .avatar{width:64px;height:64px;border-radius:16px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.06)}
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .user{
+      min-width:0; display:flex; flex-direction:column; gap:6px;
     }
-    .avatar img{width:100%; height:100%; object-fit:cover; display:block}
-    .title{
-      display:flex; flex-direction:column; gap:6px;
-      min-width:0;
+    .user h1{
+      margin:0; font-size:20px; letter-spacing:.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .title h1{
-      font-size:20px; margin:0; letter-spacing:.4px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;
-    }
-    .subtitle{font-size:12px; color:var(--ink-3); letter-spacing:.3px}
-    .profile-actions{display:flex; gap:10px}
+    .user .sub{font-size:12px; color:var(--ink-3)}
+    .hero-actions{display:flex; gap:10px}
     .btn{
-      background:#fff; color:#111; border:1px solid var(--stroke);
-      padding:10px 14px; border-radius:12px; font-weight:800; cursor:pointer;
-      transition:transform .2s, filter .2s, box-shadow .2s;
+      border:1px solid var(--stroke); border-radius:12px; padding:10px 14px; cursor:pointer;
+      font-weight:800; background:#fff; color:#111; transition:transform .2s, filter .2s;
     }
     .btn:hover{transform:translateY(-1px); filter:brightness(.95)}
-    .btn.secondary{background:transparent; color:var(--ink)}
-    .btn.gold{
-      background:linear-gradient(90deg,#4f4f4f,#F0B90B,#4f4f4f); background-size:200% 100%;
-      color:#101; border-color:rgba(240,185,11,.55); box-shadow:0 0 18px 2px rgba(240,185,11,.25);
-    }
+    .btn.secondary{background:transparent;color:var(--ink)}
+    .btn.icon{display:flex; align-items:center; gap:10px}
+    .btn.icon img{width:18px;height:18px;object-fit:contain}
 
-    /* Stats */
+    /* ===== Stats (minimal) ===== */
     .stats{
-      display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin-top:14px;
+      margin-top:14px;
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;
     }
     .card{
       background:var(--panel); border:1px solid var(--stroke); border-radius:16px; padding:14px 16px;
+      display:flex; flex-direction:column; gap:6px;
     }
-    .card h3{font-size:13px; margin:0 0 6px; color:var(--ink-2); letter-spacing:.35px}
+    .card h3{margin:0; font-size:13px; color:var(--ink-2); letter-spacing:.35px}
     .metric{font-size:22px; font-weight:900; letter-spacing:.5px}
+    .card.clickable{cursor:pointer; transition:transform .2s, background .2s}
+    .card.clickable:hover{transform:translateY(-1px); background:rgba(255,255,255,.05)}
 
-    /* Live feed */
-    .feed{
-      margin-top:14px; display:flex; flex-direction:column; gap:10px;
-    }
+    /* ===== Feed (compact, image-leading) ===== */
+    .feed{margin-top:14px; display:flex; flex-direction:column; gap:10px}
     .feed h2{font-size:16px; margin:2px 2px 6px}
     .tile{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;
       padding:12px 14px; border:1px solid var(--stroke); border-radius:14px; background:rgba(255,255,255,.04);
       transition:transform .2s, background .2s;
     }
     .tile:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
-    .tile .left{display:flex; gap:10px; align-items:center}
-    .dot{width:10px; height:10px; border-radius:50%; background:linear-gradient(90deg, var(--gold-1), var(--gold-2)); box-shadow:0 0 10px rgba(240,185,11,.4)}
-    .tile .meta{font-size:12px; color:var(--ink-3)}
-
-    /* Quick Actions */
-    .quick{
-      margin-top:14px; display:flex; flex-wrap:wrap; gap:10px;
-    }
+    .tile .icon{width:28px;height:28px;border-radius:8px;overflow:hidden}
+    .tile .icon img{width:100%;height:100%;object-fit:contain}
+    .tile .text{min-width:0}
+    .tile .text .title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .tile .text .meta{font-size:12px; color:var(--ink-3)}
+    .tile .action{display:flex}
     .pill{
       background:rgba(255,255,255,.08); color:#fff; border:1px solid var(--stroke);
-      padding:10px 14px; border-radius:999px; font-weight:800; cursor:pointer;
-      transition:transform .2s, background .2s;
+      padding:8px 12px; border-radius:999px; font-weight:800; cursor:pointer;
+      transition:transform .2s, background .2s; font-size:12px;
+      display:flex; align-items:center; gap:8px;
     }
     .pill:hover{transform:translateY(-1px); background:rgba(255,255,255,.14)}
-    .pill.gold{background:linear-gradient(90deg,#4f4f4f,#F0B90B,#4f4f4f); background-size:200% 100%; color:#101; border-color:rgba(240,185,11,.55)}
+    .pill img{width:16px;height:16px;object-fit:contain}
+
+    /* ===== Quick actions ===== */
+    .quick{margin-top:14px; display:flex; flex-wrap:wrap; gap:10px}
+    .qa{
+      background:rgba(255,255,255,.08); border:1px solid var(--stroke); color:#fff;
+      padding:10px 14px; border-radius:14px; cursor:pointer; font-weight:800; display:flex; align-items:center; gap:10px;
+      transition:transform .2s, background .2s;
+    }
+    .qa:hover{transform:translateY(-1px); background:rgba(255,255,255,.14)}
+    .qa img{width:18px;height:18px;object-fit:contain}
+    .qa.rank .badge{
+      margin-left:6px; padding:2px 8px; border-radius:999px; border:1px solid rgba(240,185,11,.55);
+      background:linear-gradient(90deg,#4f4f4f,var(--gold),#4f4f4f); background-size:200% 100%;
+      color:#101; font-weight:900; font-size:11px;
+    }
 
     /* Responsive */
-    @media (max-width:640px){
+    @media (max-width:700px){
       .hero{grid-template-columns:auto 1fr; grid-auto-rows:auto}
-      .profile-actions{grid-column:1 / -1}
+      .hero-actions{grid-column:1/-1}
       .stats{grid-template-columns:1fr 1fr}
     }
   </style>
 </head>
 <body>
-  <!-- Fragment root for dashboard loader -->
-  <div class="home-wrap" data-app-fragment>
-    <!-- Hero / Profile -->
+  <!-- Fragment root -->
+  <div class="home" data-app-fragment>
+    <!-- Header -->
     <section class="hero">
       <div class="avatar">
         <img id="profileAvatar" src="assets/img/user_me.jpg" alt="Your avatar"/>
       </div>
-      <div class="title">
+      <div class="user">
         <h1 id="profileName">Welcome, Commander</h1>
-        <div class="subtitle">
-          <span id="profileHandle">@you</span> • <span id="dateTime">—</span>
-        </div>
+        <div class="sub"><span id="profileHandle">@you</span> • <span id="dateTime">—</span></div>
       </div>
-      <div class="profile-actions">
-        <button class="btn secondary" onclick="go('#/opponents')" aria-label="Open your profile">View Profile</button>
-        <button class="btn gold" onclick="go('#/messages')" aria-label="Open messages">Messages</button>
+      <div class="hero-actions">
+        <button class="btn secondary icon" onclick="go('#/opponents')" aria-label="View Profile">
+          <img src="assets/leaderboard 3d.png" alt="" aria-hidden="true"/><span>Profile</span>
+        </button>
+        <button class="btn icon" onclick="go('#/battle')" aria-label="Enter 3ATTLES">
+          <img src="assets/battle 3d.png" alt="" aria-hidden="true"/><span>Enter 3ATTLES</span>
+        </button>
       </div>
     </section>
 
     <!-- Stats -->
     <section class="stats">
-      <div class="card">
+      <article class="card">
         <h3>💰 Coins</h3>
         <div class="metric" id="statCoins">8,504</div>
-      </div>
-      <div class="card">
+      </article>
+
+      <article class="card">
         <h3>⚔️ 3ATTLES</h3>
         <div class="metric" id="statBattles">27</div>
-      </div>
-      <div class="card">
-        <h3>💬 Messages</h3>
-        <div class="metric" id="statMsgs">19</div>
-      </div>
+      </article>
+
+      <!-- Rank replaces Messages -->
+      <article class="card clickable" onclick="go('#/rank')" aria-label="Open Rank page">
+        <h3>🏅 Rank</h3>
+        <div class="metric" id="statRank">#27</div>
+      </article>
     </section>
 
-    <!-- Live Feed -->
+    <!-- Live feed -->
     <section class="feed">
       <h2>Live Feed</h2>
 
       <div class="tile">
-        <div class="left">
-          <div class="dot"></div>
-          <div>
-            <div>🔥 Top 3ATTLE: <b>Phoenix</b> vs <b>Hydra</b></div>
-            <div class="meta">Trending in 3ILLIONS</div>
-          </div>
+        <div class="icon"><img src="assets/battle 3d.png" alt="" aria-hidden="true"></div>
+        <div class="text">
+          <div class="title">🔥 Top 3ATTLE: <b>Phoenix</b> vs <b>Hydra</b></div>
+          <div class="meta">Trending in 3ILLIONS</div>
         </div>
-        <button class="pill" onclick="go('#/battle')">Watch</button>
+        <div class="action">
+          <button class="pill" onclick="go('#/battle')">
+            <img src="assets/battle 3d.png" alt="" aria-hidden="true">Watch
+          </button>
+        </div>
       </div>
 
       <div class="tile">
-        <div class="left">
-          <div class="dot"></div>
-          <div>
-            <div>⚡️ Blitz round starts in <b>2 min</b></div>
-            <div class="meta">RAP • Fast Flow</div>
-          </div>
+        <div class="icon"><img src="assets/battle 3d.png" alt="" aria-hidden="true"></div>
+        <div class="text">
+          <div class="title">⚡ Blitz round starts in <b>2 min</b></div>
+          <div class="meta">RAP • Fast Flow</div>
         </div>
-        <button class="pill gold" onclick="go('#/battle')">Join 3ATTLE</button>
+        <div class="action">
+          <button class="pill" onclick="go('#/battle')">
+            <img src="assets/battle 3d.png" alt="" aria-hidden="true">Join 3ATTLE
+          </button>
+        </div>
       </div>
 
       <div class="tile">
-        <div class="left">
-          <div class="dot"></div>
-          <div>
-            <div>🏆 Leaderboard updated</div>
-            <div class="meta">New #1: @RunwayRuler</div>
-          </div>
+        <div class="icon"><img src="assets/leaderboard 3d.png" alt="" aria-hidden="true"></div>
+        <div class="text">
+          <div class="title">🏆 Leaderboard updated</div>
+          <div class="meta">New #1: @RunwayRuler</div>
         </div>
-        <button class="pill" onclick="go('#/leaderboard')">See Leaders</button>
+        <div class="action">
+          <button class="pill" onclick="go('#/leaderboard')">
+            <img src="assets/leaderboard 3d.png" alt="" aria-hidden="true">See Leaders
+          </button>
+        </div>
       </div>
     </section>
 
-    <!-- Quick Actions -->
+    <!-- Quick actions -->
     <section class="quick">
-      <button class="pill gold" onclick="go('#/battle')">Enter 3ATTLES</button>
-      <button class="pill" onclick="go('#/leaderboard')">Top Players</button>
-      <button class="pill" onclick="go('#/messages')">Open Messages</button>
-      <button class="pill" onclick="go('#/opponents')">Edit Profile</button>
-      <button class="pill" onclick="go('#/battle')">Choose Category</button>
-      <button class="pill" onclick="go('#/home')">Refresh</button>
+      <button class="qa" onclick="go('#/battle')">
+        <img src="assets/battle 3d.png" alt="" aria-hidden="true">Enter 3ATTLES
+      </button>
+
+      <button class="qa" onclick="go('#/leaderboard')">
+        <img src="assets/leaderboard 3d.png" alt="" aria-hidden="true">Top Players
+      </button>
+
+      <!-- Rank quick action shows rank on the button -->
+      <button class="qa rank" onclick="go('#/rank')" aria-label="Open Rank page">
+        <img src="assets/leaderboard 3d.png" alt="" aria-hidden="true">Open Rank
+        <span class="badge" id="qaRank">#27</span>
+      </button>
+
+      <button class="qa" onclick="go('#/opponents')">
+        <img src="assets/leaderboard 3d.png" alt="" aria-hidden="true">View Profile
+      </button>
+
+      <button class="qa" onclick="go('#/battle')">
+        <img src="assets/billions 3d.png" alt="" aria-hidden="true">Choose Category
+      </button>
+
+      <button class="qa" onclick="go('#/home')">
+        <img src="assets/home-icon.png" alt="" aria-hidden="true">Refresh
+      </button>
     </section>
   </div>
 
   <script>
-    // SPA-friendly navigation helper
+    // SPA-friendly navigation helper (works inside dashboard.html or standalone)
     function go(hash){
       try{
-        if (window.parent && window.parent !== window && 'postMessage' in window.parent){
-          // Let the shell handle it by changing hash on the parent frame
+        if (window.parent && window.parent !== window){
           window.parent.location.hash = hash;
         } else {
-          // Opened standalone
           location.hash = hash;
         }
-      }catch(e){
-        location.hash = hash;
-      }
+      }catch(e){ location.hash = hash; }
     }
 
-    // Demo: you can replace with real user data when available
+    // --- Demo data (replace via real data later) ---
     const demoUser = {
       name: 'Commander Nova',
       handle: '@nova',
       avatar: 'assets/img/user_me.jpg',
       coins: 8504,
       battles: 27,
-      messages: 19
+      rank: 27
     };
 
     function fmt(n){ return n.toLocaleString(); }
@@ -234,19 +269,25 @@
     }
 
     function hydrate(){
-      const {name, handle, avatar, coins, battles, messages} = demoUser;
-      (document.getElementById('profileName')||{}).textContent = `Welcome, ${name}`;
-      (document.getElementById('profileHandle')||{}).textContent = handle;
-      const img = document.getElementById('profileAvatar');
-      if(img) img.src = avatar;
-      (document.getElementById('statCoins')||{}).textContent = fmt(coins);
-      (document.getElementById('statBattles')||{}).textContent = fmt(battles);
-      (document.getElementById('statMsgs')||{}).textContent = fmt(messages);
+      // Profile
+      const {name, handle, avatar, coins, battles, rank} = demoUser;
+      const img = document.getElementById('profileAvatar'); if(img) img.src = avatar;
+      const nm = document.getElementById('profileName'); if(nm) nm.textContent = `Welcome, ${name}`;
+      const h = document.getElementById('profileHandle'); if(h) h.textContent = handle;
+
+      // Stats
+      const c = document.getElementById('statCoins'); if(c) c.textContent = fmt(coins);
+      const b = document.getElementById('statBattles'); if(b) b.textContent = fmt(battles);
+      const r = document.getElementById('statRank'); if(r) r.textContent = `#${rank}`;
+
+      // QA rank badge
+      const q = document.getElementById('qaRank'); if(q) q.textContent = `#${rank}`;
+
       setNow();
     }
 
     hydrate();
-    setInterval(setNow, 60_000); // update timestamp every minute
+    setInterval(setNow, 60_000);
   </script>
 </body>
-  </html>
+            </html>
