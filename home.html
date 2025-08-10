@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Fixed + Scroll Buttons)</title>
+<title>Home Header (Fixed + Scroll + Rank Stats)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
@@ -34,6 +34,25 @@
     </span>
   </a>
 
+  <!-- Followers / Following under rank button -->
+  <div style="
+    position:fixed;
+    top: calc(max(12px, env(safe-area-inset-top)) + 82px);
+    right: max(12px, env(safe-area-inset-right));
+    display:flex; flex-direction:column; align-items:center;
+    font-size:10px; color:#cfd6dd; letter-spacing:.3px;
+    z-index:2147483646;
+  ">
+    <div style="display:flex;align-items:center;gap:3px;">
+      <img src="assets/icons/followers.svg" alt="Followers" style="width:10px;height:10px;">
+      <span>120</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:3px;margin-top:3px;">
+      <img src="assets/icons/following.svg" alt="Following" style="width:10px;height:10px;">
+      <span>98</span>
+    </div>
+  </div>
+
   <!-- Minimal profile header -->
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
@@ -59,16 +78,12 @@
     </div>
   </div>
 
-  <!-- Horizontal scroll bar with buttons -->
+  <!-- Horizontal scroll bar with new buttons -->
   <div style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:8px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;">
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Start Battle</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Join Queue</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Trending</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Nearby</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Top 100</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">New Creators</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Clips</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Search</button>
+    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Battles</button>
+    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Wallet</button>
+    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Edit</button>
+    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Settings</button>
   </div>
 
   <!-- Scrollbar styling for WebKit browsers -->
