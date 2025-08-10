@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Home • 3ATTL33ILLIONS</title>
+
   <style>
     @font-face{
       font-family:'Virgo';
@@ -12,31 +13,62 @@
       font-display:swap;
     }
     :root{--bg:#000;--ink:#e9edf1;--ink-2:#cfd6dd;--stroke:rgba(255,255,255,.10)}
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-    .container{max-width:980px;margin:0 auto;padding:18px 14px 90px;display:flex;flex-direction:column;gap:18px}
-    .top-row{display:flex;align-items:center;gap:14px;min-height:88px;flex-wrap:wrap}
-    .tri-avatar{width:92px;height:92px;position:relative;overflow:hidden;
-      clip-path:polygon(50% 0%,0% 100%,100% 100%);background:#111;flex:0 0 auto}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--ink);
+      font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      -webkit-font-smoothing:antialiased;letter-spacing:.2px;
+    }
+    .container{max-width:980px;margin:0 auto;padding:18px 14px 90px}
+
+    /* TOP ROW — forced single line */
+    .top-row{
+      display:flex;align-items:center;gap:14px;min-height:88px;
+      white-space:nowrap; /* keep everything one line */
+      overflow:hidden;     /* clip if insanely small */
+    }
+
+    /* ▲ Triangle avatar */
+    .tri-avatar{
+      width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
+      clip-path:polygon(50% 0%,0% 100%,100% 100%);-webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
+      background:#111;
+    }
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
-    .identity-line{display:flex;align-items:center;gap:18px;flex:1 1 auto;min-width:260px}
-    .display-name{font-size:22px;font-weight:900;white-space:nowrap}
-    .metrics{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-    .metric{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+
+    /* Right side line: name + metrics (no wrap) */
+    .identity-line{
+      display:flex;align-items:center;gap:16px;
+      flex:1 1 auto;min-width:0; /* allow name to shrink */
+      white-space:nowrap; overflow:hidden;
+    }
+    .display-name{
+      font-weight:900;font-size:22px;flex:0 1 auto;min-width:80px;
+      overflow:hidden;text-overflow:ellipsis;
+    }
+    .metrics{
+      display:flex;align-items:center;gap:16px;flex:0 0 auto;
+    }
+    .metric{display:flex;align-items:baseline;gap:6px}
     .metric .count{font-weight:900;font-size:16px}
     .metric .label{font-size:12px;color:var(--ink-2);letter-spacing:.3px}
-    .divider{height:1px;background:var(--stroke)}
-    @media (max-width:720px){
+
+    .divider{height:1px;background:var(--stroke);margin-top:14px}
+
+    /* Small screens: shrink type/gaps to keep single line */
+    @media (max-width:420px){
       .tri-avatar{width:78px;height:78px}
-      .display-name{font-size:20px}
-      .identity-line{gap:14px}
-      .metrics{gap:14px}
+      .identity-line{gap:12px}
+      .display-name{font-size:18px}
+      .metrics{gap:12px}
+      .metric .count{font-size:14px}
+      .metric .label{font-size:11px}
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <!-- STEP 1: Avatar / Name / Battles / Followers / Following -->
     <section class="top-row">
       <div class="tri-avatar" aria-hidden="true">
         <img id="avatar" src="assets/img/user_me.jpg" alt="User avatar">
@@ -46,9 +78,9 @@
         <div class="display-name" id="displayName">El Peace</div>
 
         <div class="metrics">
-          <div class="metric"><span class="count" id="battlesCount">0</span><span class="label">Battles</span></div>
-          <div class="metric"><span class="count" id="followersCount">0</span><span class="label">Followers</span></div>
-          <div class="metric"><span class="count" id="followingCount">0</span><span class="label">Following</span></div>
+          <div class="metric"><span class="count" id="battlesCount">27</span><span class="label">Battles</span></div>
+          <div class="metric"><span class="count" id="followersCount">12.8k</span><span class="label">Followers</span></div>
+          <div class="metric"><span class="count" id="followingCount">341</span><span class="label">Following</span></div>
         </div>
       </div>
     </section>
@@ -57,10 +89,10 @@
   </main>
 
   <script>
-    // Optional: hydrate with real values (uncomment & set)
+    // If you want to hydrate dynamically:
     // document.getElementById('displayName').textContent   = 'Your Name';
     // document.getElementById('battlesCount').textContent  = '27';
-    // document.getElementById('followersCount').textContent= '12800'; // or '12.8k'
+    // document.getElementById('followersCount').textContent= '12.8k';
     // document.getElementById('followingCount').textContent= '341';
     // document.getElementById('avatar').src                = 'assets/img/your_avatar.jpg';
   </script>
