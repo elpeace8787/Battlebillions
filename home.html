@@ -19,7 +19,7 @@
     :root{
       --bg:#000;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
-      --soft:rgba(255,255,255,.08);
+      --soft:rgba(255,255,255,.10);
       --ring:0 0 0 3px rgba(255,255,255,.18);
     }
     *{box-sizing:border-box}
@@ -32,9 +32,7 @@
     .container{max-width:980px;margin:0 auto;padding:18px 14px 90px}
 
     /* Row 1: avatar ▲ + name */
-    .row-top{
-      display:flex;align-items:center;gap:14px;min-height:92px;
-    }
+    .row-top{display:flex;align-items:center;gap:14px;min-height:92px}
     .tri-avatar{
       width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
       clip-path:polygon(50% 0%,0% 100%,100% 100%);-webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
@@ -43,17 +41,13 @@
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-    /* Rows of small icon buttons (NO big boxes) */
-    .icon-row{
-      display:grid;gap:18px;margin-top:16px;
-      grid-template-columns:repeat(3,1fr);
-    }
+    /* Row 2 & 3: small icon buttons */
+    .icon-row{display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(3,1fr)}
     .icon-row.actions{grid-template-columns:repeat(4,1fr)}
     .icon-btn{
-      appearance:none;background:transparent;border:none;color:#fff;
+      appearance:none;background:transparent;border:none;color:#fff;text-decoration:none;
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
       cursor:pointer;user-select:none;outline:none;
-      transform:translateZ(0);
     }
     .icon-btn:focus-visible{box-shadow:var(--ring);border-radius:12px}
     .icon-btn:hover .icwrap{transform:translateY(-1px) scale(1.03);filter:brightness(1.06)}
@@ -67,43 +61,6 @@
 
     .divider{height:1px;background:var(--soft);margin:18px 0}
 
-    /* Sub-page overlay (sheet) */
-    .modal{
-      position:fixed;inset:0;display:none;z-index:2000;
-      background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
-      align-items:center;justify-content:center;
-    }
-    .modal.show{display:flex}
-    .sheet{
-      width:min(980px,92vw);height:min(86vh,760px);
-      background:#0b0b0c;border:1px solid var(--soft);border-radius:16px;
-      display:flex;flex-direction:column;overflow:hidden;
-      box-shadow:0 20px 60px rgba(0,0,0,.65);
-      animation:pop .22s ease-out;
-    }
-    @keyframes pop{from{transform:translateY(8px);opacity:.8}to{transform:none;opacity:1}}
-    .sheet-head{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:12px 14px;border-bottom:1px solid var(--soft);
-    }
-    .sheet-title{font-weight:900;letter-spacing:.3px}
-    .closebtn,.backbtn{
-      border:1px solid var(--soft);border-radius:10px;background:transparent;color:#fff;
-      padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:6px
-    }
-    .closebtn svg,.backbtn svg{width:16px;height:16px;stroke:#fff}
-    .sheet-body{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px}
-    .sheet-foot{border-top:1px solid var(--soft);padding:10px 14px;display:flex;justify-content:center}
-
-    /* List */
-    .list{display:flex;flex-direction:column;gap:12px}
-    .list-item{display:flex;align-items:center;gap:10px}
-    .list-ava{width:42px;height:42px;border-radius:10px;overflow:hidden;background:#111;flex:0 0 auto}
-    .list-ava img{width:100%;height:100%;object-fit:cover}
-    .list-line{display:flex;flex-direction:column;min-width:0}
-    .list-name{font-weight:700;overflow:hidden;text-overflow:ellipsis}
-    .list-sub{font-size:12px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
     @media (max-width:420px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
@@ -114,7 +71,7 @@
 </head>
 <body>
 
-  <!-- inline icons -->
+  <!-- inline white icons (matching dashboard vibe) -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <symbol id="ic-swords" viewBox="0 0 24 24">
@@ -146,10 +103,8 @@
       </symbol>
       <symbol id="ic-cog" viewBox="0 0 24 24">
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke-width="1.6"/>
-        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7-1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
+        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7 1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
       </symbol>
-      <symbol id="ic-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-width="1.8" stroke-linecap="round"/></symbol>
-      <symbol id="ic-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     </defs>
   </svg>
 
@@ -162,19 +117,19 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: Battles / Followers / Following (small icons + counts) -->
+    <!-- Row 2: Battles / Followers / Following -->
     <section class="icon-row" aria-label="Profile metrics">
-      <button class="icon-btn" data-open="battlesSheet" aria-haspopup="dialog">
+      <button class="icon-btn" onclick="location.href='battles.html'">
         <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
         <span class="count" id="battlesCount">27</span>
         <span class="label">Battles</span>
       </button>
-      <button class="icon-btn" data-open="followersSheet" aria-haspopup="dialog">
+      <button class="icon-btn" onclick="location.href='followers.html'">
         <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
         <span class="count" id="followersCount">12.8k</span>
         <span class="label">Followers</span>
       </button>
-      <button class="icon-btn" data-open="followingSheet" aria-haspopup="dialog">
+      <button class="icon-btn" onclick="location.href='following.html'">
         <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
         <span class="count" id="followingCount">341</span>
         <span class="label">Following</span>
@@ -183,233 +138,35 @@
 
     <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- Row 3: Rank / Wallet / Edit / Settings (small icons) -->
+    <!-- Row 3: Rank / Wallet / Edit / Settings -->
     <section class="icon-row actions" aria-label="Profile actions">
-      <button class="icon-btn" data-open="rankSheet" aria-haspopup="dialog">
+      <a class="icon-btn" href="rank.html">
         <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
         <span class="label">Rank</span>
-      </button>
-      <button class="icon-btn" data-open="walletSheet" aria-haspopup="dialog">
+      </a>
+      <a class="icon-btn" href="wallet.html">
         <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
         <span class="label">Wallet</span>
-      </button>
-      <button class="icon-btn" data-open="editSheet" aria-haspopup="dialog">
+      </a>
+      <a class="icon-btn" href="edit.html">
         <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
         <span class="label">Edit</span>
-      </button>
-      <button class="icon-btn" data-open="settingsSheet" aria-haspopup="dialog">
+      </a>
+      <a class="icon-btn" href="settings.html">
         <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
         <span class="label">Settings</span>
-      </button>
+      </a>
     </section>
   </main>
 
-  <!-- SUB PAGE: Battles -->
-  <div class="modal" id="battlesSheet" role="dialog" aria-modal="true" aria-labelledby="battlesTitle">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div class="sheet-title" id="battlesTitle">Your Battles</div>
-        <button class="closebtn" data-close="battlesSheet"><svg><use href="#ic-x"/></svg> Close</button>
-      </div>
-      <div class="sheet-body">
-        <div class="list">
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/opponents/op1.jpg" alt=""></div>
-            <div class="list-line"><div class="list-name">vs @InkMage • ART</div><div class="list-sub">Won • 2 days ago • 3 rounds</div></div>
-          </div>
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/opponents/op2.jpg" alt=""></div>
-            <div class="list-line"><div class="list-name">vs @Headshot • GAMING</div><div class="list-sub">Lost • 4 days ago • 3 rounds</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-foot">
-        <button class="backbtn" data-close="battlesSheet"><svg><use href="#ic-back"/></svg> Go back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB PAGE: Followers -->
-  <div class="modal" id="followersSheet" role="dialog" aria-modal="true" aria-labelledby="followersTitle">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div class="sheet-title" id="followersTitle">Followers</div>
-        <button class="closebtn" data-close="followersSheet"><svg><use href="#ic-x"/></svg> Close</button>
-      </div>
-      <div class="sheet-body">
-        <div class="list">
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/users/u1.jpg" alt=""></div>
-            <div class="list-line"><div class="list-name">@RunwayRuler</div><div class="list-sub">FASHION • Follows you</div></div>
-          </div>
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/users/u2.jpg" alt=""></div>
-            <div class="list-line"><div class="list-name">@ChordSmith</div><div class="list-sub">INSTRUMENTS • Follows you</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-foot">
-        <button class="backbtn" data-close="followersSheet"><svg><use href="#ic-back"/></svg> Go back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB PAGE: Following -->
-  <div class="modal" id="followingSheet" role="dialog" aria-modal="true" aria-labelledby="followingTitle">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div class="sheet-title" id="followingTitle">Following</div>
-        <button class="closebtn" data-close="followingSheet"><svg><use href="#ic-x"/></svg> Close</button>
-      </div>
-      <div class="sheet-body">
-        <div class="list">
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/users/u3.jpg" alt=""></div>
-            <div class="list-line"><div class="list-name">@MiseEnPlace</div><div class="list-sub">COOKING • You follow</div></div>
-          </div>
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/users/u4.jpg" alt=""></div>
-            <div class="list-line"><div class="list-name">@VerbalVolt</div><div class="list-sub">DEBAT • You follow</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-foot">
-        <button class="backbtn" data-close="followingSheet"><svg><use href="#ic-back"/></svg> Go back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB PAGE: Rank -->
-  <div class="modal" id="rankSheet" role="dialog" aria-modal="true" aria-labelledby="rankTitle">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div class="sheet-title" id="rankTitle">Your Rank</div>
-        <button class="closebtn" data-close="rankSheet"><svg><use href="#ic-x"/></svg> Close</button>
-      </div>
-      <div class="sheet-body">
-        <div class="list">
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/badges/rank_medal.png" alt=""></div>
-            <div class="list-line"><div class="list-name">Current: #27</div><div class="list-sub">Next milestone: Top 25</div></div>
-          </div>
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/badges/win_streak.png" alt=""></div>
-            <div class="list-line"><div class="list-name">Win Streak: 4</div><div class="list-sub">+2 wins to boost rank</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-foot">
-        <button class="backbtn" data-close="rankSheet"><svg><use href="#ic-back"/></svg> Go back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB PAGE: Wallet -->
-  <div class="modal" id="walletSheet" role="dialog" aria-modal="true" aria-labelledby="walletTitle">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div class="sheet-title" id="walletTitle">Wallet</div>
-        <button class="closebtn" data-close="walletSheet"><svg><use href="#ic-x"/></svg> Close</button>
-      </div>
-      <div class="sheet-body">
-        <div class="list">
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/wallet/coin.png" alt=""></div>
-            <div class="list-line"><div class="list-name">Coins: 8,504</div><div class="list-sub">Available balance</div></div>
-          </div>
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/wallet/tx.png" alt=""></div>
-            <div class="list-line"><div class="list-name">Last Transaction</div><div class="list-sub">+250 • Battle reward • 3h ago</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-foot">
-        <button class="backbtn" data-close="walletSheet"><svg><use href="#ic-back"/></svg> Go back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB PAGE: Edit -->
-  <div class="modal" id="editSheet" role="dialog" aria-modal="true" aria-labelledby="editTitle">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div class="sheet-title" id="editTitle">Edit Profile</div>
-        <button class="closebtn" data-close="editSheet"><svg><use href="#ic-x"/></svg> Close</button>
-      </div>
-      <div class="sheet-body">
-        <div class="list">
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/img/user_me.jpg" alt=""></div>
-            <div class="list-line"><div class="list-name">Change Avatar</div><div class="list-sub">Upload a new photo</div></div>
-          </div>
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/icons/username.png" alt=""></div>
-            <div class="list-line"><div class="list-name">Display Name</div><div class="list-sub">Tap to edit</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-foot">
-        <button class="backbtn" data-close="editSheet"><svg><use href="#ic-back"/></svg> Go back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUB PAGE: Settings -->
-  <div class="modal" id="settingsSheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-    <div class="sheet">
-      <div class="sheet-head">
-        <div class="sheet-title" id="settingsTitle">Settings</div>
-        <button class="closebtn" data-close="settingsSheet"><svg><use href="#ic-x"/></svg> Close</button>
-      </div>
-      <div class="sheet-body">
-        <div class="list">
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/icons/bell.png" alt=""></div>
-            <div class="list-line"><div class="list-name">Notifications</div><div class="list-sub">Manage alerts</div></div>
-          </div>
-          <div class="list-item">
-            <div class="list-ava"><img src="assets/icons/privacy.png" alt=""></div>
-            <div class="list-line"><div class="list-name">Privacy</div><div class="list-sub">Followers & visibility</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="sheet-foot">
-        <button class="backbtn" data-close="settingsSheet"><svg><use href="#ic-back"/></svg> Go back</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- Optional: hydrate counts from JS later
   <script>
-    // Sub-page open/close (robust)
-    document.addEventListener('click',(e)=>{
-      const openEl = e.target.closest('[data-open]');
-      if(openEl){
-        const id = openEl.getAttribute('data-open');
-        const modal = document.getElementById(id);
-        if(modal){ modal.classList.add('show'); }
-      }
-      const closeEl = e.target.closest('[data-close]');
-      if(closeEl){
-        const id = closeEl.getAttribute('data-close');
-        const modal = document.getElementById(id);
-        if(modal){ modal.classList.remove('show'); }
-      }
-      if(e.target.classList.contains('modal')){
-        e.target.classList.remove('show');
-      }
-    });
-    document.addEventListener('keydown',e=>{
-      if(e.key==='Escape'){
-        document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
-      }
-    });
-
-    // Optional: hydrate values later
-    // document.getElementById('displayName').textContent   = 'Your Name';
-    // document.getElementById('avatar').src                = 'assets/img/your_avatar.jpg';
-    // document.getElementById('battlesCount').textContent  = '42';
-    // document.getElementById('followersCount').textContent= '13.2k';
-    // document.getElementById('followingCount').textContent= '512';
+    document.getElementById('displayName').textContent = 'Your Name';
+    document.getElementById('avatar').src = 'assets/img/your_avatar.jpg';
+    document.getElementById('battlesCount').textContent = '42';
+    document.getElementById('followersCount').textContent = '13.2k';
+    document.getElementById('followingCount').textContent = '512';
   </script>
+  -->
 </body>
-        </html>
+  </html>
