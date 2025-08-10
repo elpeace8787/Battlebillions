@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Fixed + Scroll + Rank Stats)</title>
+<title>Home Header (Buttons Restyled + Avatar)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
-  <!-- SUPER-ROBUST RANK BUTTON -->
+  <!-- SUPER-ROBUST RANK BUTTON (unchanged) -->
   <a href="rank.html" aria-label="Open Rank"
      style="
        position:fixed;
@@ -34,7 +34,7 @@
     </span>
   </a>
 
-  <!-- Followers / Following under rank button -->
+  <!-- Followers / Following under rank button (unchanged) -->
   <div style="
     position:fixed;
     top: calc(max(12px, env(safe-area-inset-top)) + 82px);
@@ -44,16 +44,16 @@
     z-index:2147483646;
   ">
     <div style="display:flex;align-items:center;gap:3px;">
-      <img src="assets/icons/followers.svg" alt="Followers" style="width:10px;height:10px;">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="#cfd6dd" aria-hidden="true"><path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
       <span>120</span>
     </div>
     <div style="display:flex;align-items:center;gap:3px;margin-top:3px;">
-      <img src="assets/icons/following.svg" alt="Following" style="width:10px;height:10px;">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="#cfd6dd" aria-hidden="true"><path d="M18 8h-3V5a1 1 0 10-2 0v3H10a1 1 0 100 2h3v3a1 1 0 102 0v-3h3a1 1 0 100-2z"/></svg>
       <span>98</span>
     </div>
   </div>
 
-  <!-- Minimal profile header -->
+  <!-- Minimal profile header (triangle avatar using your image) -->
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
       <!-- Triangle avatar -->
@@ -63,8 +63,8 @@
         -webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
         background:#111; box-shadow:0 8px 24px rgba(0,0,0,.45);
       ">
-        <img src="assets/img/user_me.jpg" alt="Avatar of El Peace"
-             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.04);" />
+        <img src="assets/img/battlebillions_avatar.png" alt="BattleBillions Avatar"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform:scale(1.02);" />
       </div>
 
       <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
@@ -78,20 +78,89 @@
     </div>
   </div>
 
-  <!-- Horizontal scroll bar with new buttons -->
-  <div style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:8px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;">
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Battles</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Wallet</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Edit</button>
-    <button style="flex:0 0 auto;padding:10px 16px;border-radius:999px;border:none;background:#111;color:#fff;cursor:pointer;">Settings</button>
+  <!-- Horizontal scroll bar with uniquely styled buttons -->
+  <div style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:10px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;">
+    <!-- Battles -->
+    <button class="btn" data-variant="battles" style="
+      flex:0 0 auto; padding:12px 18px; border:none; cursor:pointer;
+      border-radius:999px; color:#e9edf1;
+      background: linear-gradient(135deg, #141414, #0f0f0f);
+      box-shadow: inset 0 0 0 1px #242424, 0 6px 18px rgba(0,0,0,.35);
+      letter-spacing:.3px; font-weight:700;
+    ">
+      <span style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#e9edf1" aria-hidden="true"><path d="M7 4h10v2H7zM5 8h14v2H5zM3 12h18v2H3zM5 16h14v2H5z"/></svg>
+        Battles
+      </span>
+    </button>
+
+    <!-- Wallet -->
+    <button class="btn" data-variant="wallet" style="
+      flex:0 0 auto; padding:12px 18px; cursor:pointer;
+      border-radius:14px; color:#e9edf1; background:#0b0b0b;
+      box-shadow: 0 8px 20px rgba(0,0,0,.35);
+      border:1px solid #2a2a2a; font-weight:700; letter-spacing:.2px;
+    ">
+      <span style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#e9edf1" aria-hidden="true"><path d="M2 7a3 3 0 013-3h12a3 3 0 013 3v2h-6a3 3 0 00-3 3 3 3 0 003 3h6v2a3 3 0 01-3 3H5a3 3 0 01-3-3V7zm20 5h-6a1 1 0 000 2h6v-2z"/></svg>
+        Wallet
+      </span>
+    </button>
+
+    <!-- Edit -->
+    <button class="btn" data-variant="edit" style="
+      flex:0 0 auto; padding:12px 18px; cursor:pointer;
+      border-radius:10px; color:#e9edf1; background:#0d0d0d;
+      border:2px dashed #2f2f2f; font-weight:800; letter-spacing:.25px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.3);
+      position:relative;
+    ">
+      <span style="
+        position:absolute; left:8px; top:8px; bottom:8px; width:3px; border-radius:2px;
+        background:linear-gradient(#fff, #5a5a5a); opacity:.18;
+      "></span>
+      <span style="display:inline-flex;align-items:center;gap:8px;padding-left:6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#e9edf1" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm15.71-9.46a1 1 0 000-1.41l-1.59-1.59a1 1 0 00-1.41 0l-1.12 1.12 3.75 3.75 1.37-1.37z"/></svg>
+        Edit
+      </span>
+    </button>
+
+    <!-- Settings -->
+    <button class="btn" data-variant="settings" style="
+      flex:0 0 auto; padding:12px 18px; cursor:pointer;
+      border-radius:12px; color:#0a0a0a; background:#e9edf1;
+      font-weight:900; letter-spacing:.3px;
+      box-shadow: 0 10px 22px rgba(255,255,255,.06), 0 6px 18px rgba(0,0,0,.35);
+      position:relative; overflow:hidden;
+    ">
+      <span style="
+        position:absolute; inset:0;
+        -webkit-mask: radial-gradient(circle 6px at 14px 50%, transparent 6px, #000 6.1px) repeat-x 0 0 / 28px 100%;
+                mask: radial-gradient(circle 6px at 14px 50%, transparent 6px, #000 6.1px) repeat-x 0 0 / 28px 100%;
+        background: rgba(0,0,0,.06);
+        opacity:.35;
+        pointer-events:none;
+      "></span>
+      <span style="position:relative; display:inline-flex;align-items:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#0a0a0a" aria-hidden="true"><path d="M19.14 12.94a7.952 7.952 0 000-1.88l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.994 7.994 0 00-1.63-.94l-.36-2.54A.5.5 0 0013.99 0h-3.98a.5.5 0 00-.49.42l-.36 2.54c-.57.22-1.11.52-1.63.94l-2.39-.96a.5.5 0 00-.6.22L.63 6.56a.5.5 0 00.12.64l2.03 1.58a7.952 7.952 0 000 1.88L.75 14.24a.5.5 0 00-.12.64l1.92 3.32c.13.23.4.32.64.22l2.39-.96c.52.42 1.06.72 1.63.94l.36 2.54c.04.24.25.42.49.42h3.98c.24 0 .45-.18.49-.42l.36-2.54c.57-.22 1.11-.52 1.63-.94l2.39.96c.24.1.51.01.64-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 118.4 12 3.6 3.6 0 0112 15.6z"/></svg>
+        Settings
+      </span>
+    </button>
   </div>
 
-  <!-- Scrollbar styling for WebKit browsers -->
+  <!-- Styles limited to buttons + scrollbar -->
   <style>
     @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
     ::-webkit-scrollbar { height:8px; }
     ::-webkit-scrollbar-thumb { background:#444; border-radius:4px; }
     ::-webkit-scrollbar-track { background:transparent; }
+
+    .btn { transition: transform .16s ease, box-shadow .16s ease, filter .16s ease, background .16s ease; }
+    .btn:active { transform: translateY(1px) scale(.98); }
+    .btn[data-variant="battles"]:hover { filter: brightness(1.05); box-shadow: inset 0 0 0 1px #2e2e2e, 0 10px 24px rgba(0,0,0,.45); }
+    .btn[data-variant="wallet"]:hover  { box-shadow: 0 12px 26px rgba(0,0,0,.45); border-color:#3a3a3a; }
+    .btn[data-variant="edit"]:hover    { border-color:#3a3a3a; box-shadow: 0 10px 22px rgba(0,0,0,.4); }
+    .btn[data-variant="settings"]:hover{ filter: contrast(1.05); box-shadow: 0 12px 26px rgba(255,255,255,.08), 0 10px 22px rgba(0,0,0,.45); }
   </style>
 </body>
 </html>
