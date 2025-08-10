@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Working Inline Loader + Fallback)</title>
+<title>Home Header (Targeted Iframe Navigation)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
-  <!-- RANK (unchanged look) -->
-  <a id="rankLink" href="rank.html" aria-label="Open Rank"
+  <!-- SUPER-ROBUST RANK BUTTON (loads into iframe 'content') -->
+  <a id="rankLink" href="rank.html" target="content" aria-label="Open Rank"
      style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 20px);right:max(12px, env(safe-area-inset-right));
             width:56px;height:56px;border-radius:50%;display:grid;place-items:center;text-decoration:none;cursor:pointer;
             z-index:2147483647;padding:4px;background:conic-gradient(#B8860B,#FFD15C,#F0B90B,#B8860B);
@@ -22,25 +22,28 @@
     </span>
   </a>
 
-  <!-- Followers / Following (same look) -->
+  <!-- Followers / Following (also load into iframe 'content') -->
   <div style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 82px);right:max(12px, env(safe-area-inset-right));
               display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;color:#cfd6dd;letter-spacing:.3px;
               z-index:2147483646;gap:6px;">
-    <a href="followers.html" class="follow-btn" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
+    <a href="followers.html" target="content"
+       style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd"><path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
       <span>120</span>
     </a>
-    <a href="following.html" class="follow-btn" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
+    <a href="following.html" target="content"
+       style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd"><path d="M18 8h-3V5a1 1 0 10-2 0v3H10a1 1 0 100 2h3v3a1 1 0 102 0v-3h3a1 1 0 100-2z"/></svg>
       <span>98</span>
     </a>
   </div>
 
-  <!-- Profile header (avatar unchanged) -->
+  <!-- Minimal profile header (avatar unchanged) -->
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
       <div style="width:88px;height:88px;position:relative;overflow:hidden;flex:0 0 auto;
-                  clip-path:polygon(50% 0%, 0% 100%, 100% 100%);-webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+                  clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+                  -webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
                   background:#111; box-shadow:0 8px 24px rgba(0,0,0,.45);">
         <img src="assets/img/battlebillions_avatar.png" alt="BattleBillions Avatar"
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform:scale(1.02);" />
@@ -56,215 +59,58 @@
     </div>
   </div>
 
-  <!-- Button scroll row (unchanged look) -->
+  <!-- Button scroll row (anchors with target='content') -->
   <div id="scrollRow" style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:8px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;">
-    <button class="btn" data-page="battle.html"   style="flex:0 0 auto;padding:8px 14px;border:none;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424, 0 4px 12px rgba(0,0,0,.35);font-weight:700;font-size:13px;">Battles</button>
-    <button class="btn" data-page="wallet.html"   style="flex:0 0 auto;padding:8px 14px;border-radius:14px;color:#e9edf1;background:#0b0b0b;box-shadow:0 4px 12px rgba(0,0,0,.35);border:1px solid #2a2a2a;font-weight:700;font-size:13px;">Wallet</button>
-    <button class="btn" data-page="edit.html"     style="flex:0 0 auto;padding:8px 14px;border-radius:10px;color:#e9edf1;background:#0d0d0d;border:2px dashed #2f2f2f;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);">Edit</button>
-    <button class="btn" data-page="settings.html" style="flex:0 0 auto;padding:8px 14px;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</button>
+    <a href="battle.html"   target="content" class="btn"
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424,0 4px 12px rgba(0,0,0,.35);font-weight:700;font-size:13px;">Battles</a>
+    <a href="wallet.html"   target="content" class="btn"
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:14px;color:#e9edf1;background:#0b0b0b;box-shadow:0 4px 12px rgba(0,0,0,.35);border:1px solid #2a2a2a;font-weight:700;font-size:13px;">Wallet</a>
+    <a href="edit.html"     target="content" class="btn"
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:10px;color:#e9edf1;background:#0d0d0d;border:2px dashed #2f2f2f;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);">Edit</a>
+    <a href="settings.html" target="content" class="btn"
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</a>
   </div>
 
-  <!-- Inline content host -->
+  <!-- Inline content host: iframe named 'content' shows pages under the scroll -->
   <div style="padding:10px 16px;">
-    <div id="frameShell" style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;overflow:hidden;">
-      <div id="frameLoader" style="padding:12px;color:#9aa1a8;border-bottom:1px solid #1c1c1c;display:none;">Loading…</div>
-      <iframe id="pageFrame" title="Inline Page"
-              src="about:blank"
+    <div style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;overflow:hidden;">
+      <!-- Default to battle.html so it auto-shows on load -->
+      <iframe id="pageFrame" name="content" title="Inline Page"
+              src="battle.html"
               style="display:block;width:100%;height:70vh;border:0;background:#0c0c0c;"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
       </iframe>
-      <!-- Fallback area -->
-      <div id="fallback" style="display:none;padding:12px;"></div>
     </div>
   </div>
 
-  <!-- Fallback templates (only used if file not found). Keeps your look. -->
-  <template id="tpl-battle">
-    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Your Battles</div>
-      <div style="border:1px solid #1c1c1c;border-radius:10px;padding:10px;background:#0f0f0f;">No battles yet. Start one from the queue.</div>
-    </section>
-  </template>
-
-  <template id="tpl-wallet">
-    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-weight:800;letter-spacing:.2px;">Wallet</div>
-        <div style="font-variant-numeric:tabular-nums;background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:6px 8px;">$0.00</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">Add Funds</button>
-        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">Withdraw</button>
-        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">History</button>
-      </div>
-    </section>
-  </template>
-
-  <template id="tpl-edit">
-    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Edit Profile</div>
-      <div style="display:grid;gap:10px;">
-        <label style="display:grid;gap:6px;">
-          <span style="font-size:12px;color:#cfd6dd;">Display Name</span>
-          <input type="text" value="El Peace" style="background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;color:#e9edf1;padding:10px;outline:none;">
-        </label>
-        <label style="display:grid;gap:6px;">
-          <span style="font-size:12px;color:#cfd6dd;">Handle</span>
-          <input type="text" value="@elpeace" style="background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;color:#e9edf1;padding:10px;outline:none;">
-        </label>
-        <button style="justify-self:start;padding:10px 14px;border-radius:10px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;font-weight:700;">Save</button>
-      </div>
-    </section>
-  </template>
-
-  <template id="tpl-settings">
-    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Settings</div>
-      <div style="display:grid;gap:10px;">
-        <label style="display:flex;align-items:center;justify-content:space-between;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;padding:10px;">
-          <span>Dark Mode</span><input type="checkbox" checked />
-        </label>
-        <label style="display:flex;align-items:center;justify-content:space-between;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;padding:10px;">
-          <span>Notifications</span><input type="checkbox" />
-        </label>
-      </div>
-    </section>
-  </template>
-
-  <template id="tpl-rank">
-    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Rank</div>
-      <div style="color:#cfd6dd;">Your current rank is <b>27</b>. Leaderboard coming soon.</div>
-    </section>
-  </template>
-
-  <template id="tpl-followers">
-    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Followers</div>
-      <div style="color:#cfd6dd;">No followers yet.</div>
-    </section>
-  </template>
-
-  <template id="tpl-following">
-    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Following</div>
-      <div style="color:#cfd6dd;">Not following anyone yet.</div>
-    </section>
-  </template>
-
+  <!-- Minimal cosmetics -->
   <style>
     @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
     ::-webkit-scrollbar { height:8px; }
     ::-webkit-scrollbar-thumb { background:#444; border-radius:4px; }
     ::-webkit-scrollbar-track { background:transparent; }
-    .btn { cursor:pointer; transition: transform .16s ease, box-shadow .16s ease; }
+    .btn { transition: transform .16s ease, box-shadow .16s ease, filter .16s ease; }
     .btn:active { transform: translateY(1px) scale(.98); }
   </style>
 
+  <!-- (Optional) auto-resize when same-origin; safe no-op otherwise -->
   <script>
     (function(){
-      const frame     = document.getElementById('pageFrame');
-      const loader    = document.getElementById('frameLoader');
-      const fallback  = document.getElementById('fallback');
-
-      function showLoader(show){ loader.style.display = show ? 'block' : 'none'; }
-      function showFallback(tplId){
-        frame.style.display = 'none';
-        fallback.style.display = 'block';
-        fallback.innerHTML = '';
-        const tpl = document.getElementById(tplId);
-        if (tpl) fallback.appendChild(tpl.content.cloneNode(true));
-      }
-      function showFrame(){
-        fallback.style.display = 'none';
-        frame.style.display = 'block';
-      }
-
-      // Build base path (works at /, /repo/, /subdir/)
-      const basePath = location.pathname.replace(/[^/]+$/, '');
-
-      // Map pages to fallbacks
-      const FALLBACKS = {
-        'battle.html':   'tpl-battle',
-        'wallet.html':   'tpl-wallet',
-        'edit.html':     'tpl-edit',
-        'settings.html': 'tpl-settings',
-        'rank.html':     'tpl-rank',
-        'followers.html':'tpl-followers',
-        'following.html':'tpl-following'
-      };
-
-      // Try several path variants, then fallback
-      async function setFrameSmart(file){
-        showLoader(true);
-        const name = file.replace(/^\//,'');
-        const variants = [
-          basePath + name,                             // ./battle.html
-          basePath + 'pages/' + name,                  // ./pages/battle.html
-          basePath + name.charAt(0).toUpperCase() + name.slice(1), // Battle.html
-          basePath + 'pages/' + name.charAt(0).toUpperCase() + name.slice(1)
-        ];
-
-        // Probe via hidden iframe (works even with CSP/CORS)
-        for (const v of variants){
-          const ok = await probe(v);
-          if (ok) {
-            showFrame();
-            frame.src = v + (v.includes('?') ? '&' : '?') + '_t=' + Date.now();
-            showLoader(false);
-            return;
-          }
-        }
-        showLoader(false);
-        // Fallback template
-        const tplId = FALLBACKS[name] || 'tpl-battle';
-        showFallback(tplId);
-      }
-
-      function probe(url){
-        return new Promise((resolve)=>{
-          const t = document.createElement('iframe');
-          t.style.display = 'none';
-          t.sandbox = frame.sandbox;
-          t.src = url + (url.includes('?') ? '&' : '?') + '_p=' + Date.now();
-          t.onload = () => {
-            try {
-              const d = t.contentDocument;
-              const txt = (d && d.body && d.body.innerText || '').toLowerCase();
-              if ((d.title || '').toLowerCase().includes('404') || txt.includes('not found')) {
-                t.remove(); resolve(false);
-              } else { t.remove(); resolve(true); }
-            } catch(e){ t.remove(); resolve(true); } // cross-origin → assume ok
-          };
-          t.onerror = () => { t.remove(); resolve(false); };
-          document.body.appendChild(t);
-        });
-      }
-
-      // Wire buttons
-      document.querySelectorAll('#scrollRow .btn').forEach(btn=>{
-        btn.addEventListener('click', () => setFrameSmart(btn.getAttribute('data-page')));
-      });
-      document.querySelectorAll('.follow-btn').forEach(a=>{
-        a.addEventListener('click', (e)=>{ e.preventDefault(); setFrameSmart(a.getAttribute('href')); });
-      });
-      document.getElementById('rankLink').addEventListener('click', (e)=>{ e.preventDefault(); setFrameSmart('rank.html'); });
-
-      // Default load
-      setFrameSmart('battle.html');
-
-      // Resize try (same-origin)
-      frame.addEventListener('load', () => {
-        try {
+      const frame = document.getElementById('pageFrame');
+      function resize(){
+        try{
           const d = frame.contentDocument || frame.contentWindow.document;
-          const h = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight);
-          frame.style.height = Math.max(560, h) + 'px';
-        } catch(e) { frame.style.height = '85vh'; }
-      });
+          const h = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight, 560);
+          frame.style.height = h + 'px';
+        }catch(e){
+          /* cross-origin → keep fixed height */
+        }
+      }
+      frame.addEventListener('load', () => { resize(); setTimeout(resize, 200); setTimeout(resize, 600); });
     })();
   </script>
 
-  <!-- keyframes duplicate kept for safety -->
+  <!-- keyframes duplication kept for safety -->
   <style>@keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }</style>
 </body>
-                                                                                                                                          </html>
+</html>
