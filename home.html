@@ -19,10 +19,8 @@
     :root{
       --bg:#000;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
-      --stroke:rgba(255,255,255,.10);
+      --soft:rgba(255,255,255,.08);
       --ring:0 0 0 3px rgba(255,255,255,.18);
-      --pill:rgba(255,255,255,.06);
-      --pill-hover:rgba(255,255,255,.10);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -33,71 +31,71 @@
     }
     .container{max-width:980px;margin:0 auto;padding:18px 14px 90px}
 
-    /* Row 1: avatar ▲ + name (single line) */
-    .row-top{display:flex;align-items:center;gap:14px;min-height:88px;white-space:nowrap;overflow:hidden}
+    /* Row 1: avatar ▲ + name */
+    .row-top{
+      display:flex;align-items:center;gap:14px;min-height:92px;
+    }
     .tri-avatar{
       width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
       clip-path:polygon(50% 0%,0% 100%,100% 100%);-webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
       background:#111;
     }
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
-    .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis}
+    .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-    /* Mini tab-style buttons (like your dashboard bottom tabs) */
-    .mini-tabs{
-      margin-top:12px;
-      display:grid;gap:12px;
+    /* Rows of small icon buttons (NO big boxes) */
+    .icon-row{
+      display:grid;gap:18px;margin-top:16px;
+      grid-template-columns:repeat(3,1fr);
     }
-    .mini-tabs.three{grid-template-columns:repeat(3,1fr)}
-    .mini-tabs.four{grid-template-columns:repeat(4,1fr)}
-    .mini-tab{
-      background:transparent;border:none;color:#fff;cursor:pointer;
+    .icon-row.actions{grid-template-columns:repeat(4,1fr)}
+    .icon-btn{
+      appearance:none;background:transparent;border:none;color:#fff;
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-      padding:10px 8px;border-radius:14px;transition:transform .18s, background .18s, border-color .18s;
-      border:1px solid var(--stroke);
+      cursor:pointer;user-select:none;outline:none;
+      transform:translateZ(0);
     }
-    .mini-tab:hover{transform:translateY(-1px);background:var(--pill-hover);border-color:rgba(255,255,255,.16)}
-    .mini-tab:focus-visible{outline:none;box-shadow:var(--ring)}
-    .mini-tab svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
-    .mini-tab .label{font-size:11px;color:var(--ink-2);letter-spacing:.3px;line-height:1}
-    .mini-tab .count{font-weight:900;font-size:14px;line-height:1}
+    .icon-btn:focus-visible{box-shadow:var(--ring);border-radius:12px}
+    .icon-btn:hover .icwrap{transform:translateY(-1px) scale(1.03);filter:brightness(1.06)}
+    .icwrap{
+      width:40px;height:40px;display:grid;place-items:center;border-radius:12px;
+      background:transparent;transition:transform .18s ease, filter .18s ease;
+    }
+    .icwrap svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.96}
+    .count{font-size:12px;font-weight:900;line-height:1}
+    .label{font-size:10px;color:var(--ink-2);letter-spacing:.3px;line-height:1}
 
-    .divider{height:1px;background:var(--stroke);margin:14px 0}
+    .divider{height:1px;background:var(--soft);margin:18px 0}
 
-    /* Sub page sheets (modal overlays) */
+    /* Sub-page overlay (sheet) */
     .modal{
       position:fixed;inset:0;display:none;z-index:2000;
       background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
+      align-items:center;justify-content:center;
     }
-    .modal.show{display:block}
-
+    .modal.show{display:flex}
     .sheet{
-      position:fixed;left:0;right:0;bottom:0;top:0;
-      margin:0 auto;max-width:980px;
-      background:#0b0b0c;border:1px solid var(--stroke);border-radius:16px;
+      width:min(980px,92vw);height:min(86vh,760px);
+      background:#0b0b0c;border:1px solid var(--soft);border-radius:16px;
       display:flex;flex-direction:column;overflow:hidden;
       box-shadow:0 20px 60px rgba(0,0,0,.65);
       animation:pop .22s ease-out;
     }
     @keyframes pop{from{transform:translateY(8px);opacity:.8}to{transform:none;opacity:1}}
-
     .sheet-head{
       display:flex;align-items:center;justify-content:space-between;
-      padding:12px 14px;border-bottom:1px solid var(--stroke);
+      padding:12px 14px;border-bottom:1px solid var(--soft);
     }
     .sheet-title{font-weight:900;letter-spacing:.3px}
-    .closebtn{
-      border:1px solid var(--stroke);border-radius:10px;background:transparent;color:#fff;
+    .closebtn,.backbtn{
+      border:1px solid var(--soft);border-radius:10px;background:transparent;color:#fff;
       padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:6px
     }
-    .closebtn svg{width:16px;height:16px;stroke:#fff}
+    .closebtn svg,.backbtn svg{width:16px;height:16px;stroke:#fff}
+    .sheet-body{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+    .sheet-foot{border-top:1px solid var(--soft);padding:10px 14px;display:flex;justify-content:center}
 
-    .sheet-body{
-      flex:1;overflow:auto;padding:12px 14px;
-      display:flex;flex-direction:column;gap:12px;
-    }
-
-    /* Lists inside sub pages */
+    /* List */
     .list{display:flex;flex-direction:column;gap:12px}
     .list-item{display:flex;align-items:center;gap:10px}
     .list-ava{width:42px;height:42px;border-radius:10px;overflow:hidden;background:#111;flex:0 0 auto}
@@ -106,71 +104,51 @@
     .list-name{font-weight:700;overflow:hidden;text-overflow:ellipsis}
     .list-sub{font-size:12px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-    /* Bottom "Go back" button inside sheets */
-    .sheet-foot{
-      border-top:1px solid var(--stroke);padding:10px 14px;display:flex;justify-content:center
-    }
-    .backbtn{
-      border:1px solid var(--stroke);background:transparent;color:#fff;border-radius:999px;
-      padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px
-    }
-    .backbtn svg{width:16px;height:16px;stroke:#fff}
-
-    /* Small screens */
     @media (max-width:420px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
-      .mini-tab svg{width:20px;height:20px}
-      .sheet{border-radius:14px}
+      .icwrap{width:38px;height:38px}
+      .icon-row{gap:14px}
     }
   </style>
 </head>
 <body>
 
-  <!-- inline icons (white, like dashboard tabs) -->
+  <!-- inline icons -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
-      <!-- Battles -->
       <symbol id="ic-swords" viewBox="0 0 24 24">
         <path d="M14.5 3l6 6M20.5 3l-6 6" stroke-width="1.6" stroke-linecap="round"/>
         <path d="M21 14l-7-7-2 2 7 7 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
         <path d="M3 21l7-7 2 2-7 7-2-2z" stroke-width="1.6" stroke-linejoin="round"/>
       </symbol>
-      <!-- Users (followers) -->
       <symbol id="ic-users" viewBox="0 0 24 24">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
         <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
         <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.6" stroke-linecap="round"/>
         <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
-      <!-- Following (user with plus) -->
       <symbol id="ic-following" viewBox="0 0 24 24">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
         <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
         <path d="M17 8h6M20 5v6" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
-      <!-- Rank (medal) -->
       <symbol id="ic-medal" viewBox="0 0 24 24">
         <path d="M12 2l3 5 5 .7-3.6 3.6.9 5-5.3-2.8L7.6 16l.9-5L5 7.7 10 7z" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
       </symbol>
-      <!-- Wallet -->
       <symbol id="ic-wallet" viewBox="0 0 24 24">
         <path d="M3 7h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3z" stroke-width="1.6" stroke-linejoin="round"/>
         <path d="M17 9h4v6h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
       </symbol>
-      <!-- Edit (pencil) -->
       <symbol id="ic-edit" viewBox="0 0 24 24">
         <path d="M4 20h4l10-10a2.8 2.8 0 1 0-4-4L4 16z" stroke-width="1.6" stroke-linejoin="round"/>
         <path d="M13 6l5 5" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
-      <!-- Settings (cog) -->
       <symbol id="ic-cog" viewBox="0 0 24 24">
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke-width="1.6"/>
         <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7-1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
       </symbol>
-      <!-- Close (X) -->
       <symbol id="ic-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-width="1.8" stroke-linecap="round"/></symbol>
-      <!-- Back (chevron) -->
       <symbol id="ic-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     </defs>
   </svg>
@@ -184,22 +162,20 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: Battles / Followers / Following (sub pages) -->
-    <section class="mini-tabs three" aria-label="Profile metrics">
-      <button class="mini-tab" data-open="battlesSheet" aria-haspopup="dialog">
-        <svg><use href="#ic-swords"/></svg>
+    <!-- Row 2: Battles / Followers / Following (small icons + counts) -->
+    <section class="icon-row" aria-label="Profile metrics">
+      <button class="icon-btn" data-open="battlesSheet" aria-haspopup="dialog">
+        <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
         <span class="count" id="battlesCount">27</span>
         <span class="label">Battles</span>
       </button>
-
-      <button class="mini-tab" data-open="followersSheet" aria-haspopup="dialog">
-        <svg><use href="#ic-users"/></svg>
+      <button class="icon-btn" data-open="followersSheet" aria-haspopup="dialog">
+        <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
         <span class="count" id="followersCount">12.8k</span>
         <span class="label">Followers</span>
       </button>
-
-      <button class="mini-tab" data-open="followingSheet" aria-haspopup="dialog">
-        <svg><use href="#ic-following"/></svg>
+      <button class="icon-btn" data-open="followingSheet" aria-haspopup="dialog">
+        <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
         <span class="count" id="followingCount">341</span>
         <span class="label">Following</span>
       </button>
@@ -207,25 +183,22 @@
 
     <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- Row 3: Rank / Wallet / Edit / Settings (sub pages) -->
-    <section class="mini-tabs four" aria-label="Profile actions">
-      <button class="mini-tab" data-open="rankSheet" aria-haspopup="dialog">
-        <svg><use href="#ic-medal"/></svg>
+    <!-- Row 3: Rank / Wallet / Edit / Settings (small icons) -->
+    <section class="icon-row actions" aria-label="Profile actions">
+      <button class="icon-btn" data-open="rankSheet" aria-haspopup="dialog">
+        <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
         <span class="label">Rank</span>
       </button>
-
-      <button class="mini-tab" data-open="walletSheet" aria-haspopup="dialog">
-        <svg><use href="#ic-wallet"/></svg>
+      <button class="icon-btn" data-open="walletSheet" aria-haspopup="dialog">
+        <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
         <span class="label">Wallet</span>
       </button>
-
-      <button class="mini-tab" data-open="editSheet" aria-haspopup="dialog">
-        <svg><use href="#ic-edit"/></svg>
+      <button class="icon-btn" data-open="editSheet" aria-haspopup="dialog">
+        <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
         <span class="label">Edit</span>
       </button>
-
-      <button class="mini-tab" data-open="settingsSheet" aria-haspopup="dialog">
-        <svg><use href="#ic-cog"/></svg>
+      <button class="icon-btn" data-open="settingsSheet" aria-haspopup="dialog">
+        <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
         <span class="label">Settings</span>
       </button>
     </section>
@@ -248,7 +221,6 @@
             <div class="list-ava"><img src="assets/opponents/op2.jpg" alt=""></div>
             <div class="list-line"><div class="list-name">vs @Headshot • GAMING</div><div class="list-sub">Lost • 4 days ago • 3 rounds</div></div>
           </div>
-          <!-- add real items -->
         </div>
       </div>
       <div class="sheet-foot">
@@ -274,7 +246,6 @@
             <div class="list-ava"><img src="assets/users/u2.jpg" alt=""></div>
             <div class="list-line"><div class="list-name">@ChordSmith</div><div class="list-sub">INSTRUMENTS • Follows you</div></div>
           </div>
-          <!-- add real items -->
         </div>
       </div>
       <div class="sheet-foot">
@@ -300,7 +271,6 @@
             <div class="list-ava"><img src="assets/users/u4.jpg" alt=""></div>
             <div class="list-line"><div class="list-name">@VerbalVolt</div><div class="list-sub">DEBAT • You follow</div></div>
           </div>
-          <!-- add real items -->
         </div>
       </div>
       <div class="sheet-foot">
@@ -317,7 +287,6 @@
         <button class="closebtn" data-close="rankSheet"><svg><use href="#ic-x"/></svg> Close</button>
       </div>
       <div class="sheet-body">
-        <!-- Replace with real rank UI -->
         <div class="list">
           <div class="list-item">
             <div class="list-ava"><img src="assets/badges/rank_medal.png" alt=""></div>
@@ -343,7 +312,6 @@
         <button class="closebtn" data-close="walletSheet"><svg><use href="#ic-x"/></svg> Close</button>
       </div>
       <div class="sheet-body">
-        <!-- Replace with real wallet balances/transactions -->
         <div class="list">
           <div class="list-item">
             <div class="list-ava"><img src="assets/wallet/coin.png" alt=""></div>
@@ -369,7 +337,6 @@
         <button class="closebtn" data-close="editSheet"><svg><use href="#ic-x"/></svg> Close</button>
       </div>
       <div class="sheet-body">
-        <!-- Minimal placeholders — wire to your backend later -->
         <div class="list">
           <div class="list-item">
             <div class="list-ava"><img src="assets/img/user_me.jpg" alt=""></div>
@@ -413,24 +380,31 @@
   </div>
 
   <script>
-    // Open/close all sub pages
+    // Sub-page open/close (robust)
     document.addEventListener('click',(e)=>{
-      const open = e.target.closest('[data-open]');
-      if(open){
-        document.getElementById(open.dataset.open)?.classList.add('show');
+      const openEl = e.target.closest('[data-open]');
+      if(openEl){
+        const id = openEl.getAttribute('data-open');
+        const modal = document.getElementById(id);
+        if(modal){ modal.classList.add('show'); }
       }
-      const close = e.target.closest('[data-close]');
-      if(close){
-        document.getElementById(close.dataset.close)?.classList.remove('show');
+      const closeEl = e.target.closest('[data-close]');
+      if(closeEl){
+        const id = closeEl.getAttribute('data-close');
+        const modal = document.getElementById(id);
+        if(modal){ modal.classList.remove('show'); }
       }
-      // Click outside sheet closes
-      if(e.target.classList.contains('modal')) e.target.classList.remove('show');
+      if(e.target.classList.contains('modal')){
+        e.target.classList.remove('show');
+      }
     });
     document.addEventListener('keydown',e=>{
-      if(e.key==='Escape') document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
+      if(e.key==='Escape'){
+        document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
+      }
     });
 
-    // Optional dynamic hydration later:
+    // Optional: hydrate values later
     // document.getElementById('displayName').textContent   = 'Your Name';
     // document.getElementById('avatar').src                = 'assets/img/your_avatar.jpg';
     // document.getElementById('battlesCount').textContent  = '42';
