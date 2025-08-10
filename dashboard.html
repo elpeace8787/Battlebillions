@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>3ATTL33ILLIONS</title>
+  <title>3ATTL33ILLIONS — 3ATTLES</title>
 
-  <!-- Virgo font (local file) -->
+  <!-- Virgo font -->
   <style>
     @font-face{
       font-family:'Virgo';
       src:
-        url('Virgo.woff2') format('woff2'),
-        url('Virgo.ttf') format('truetype');
+        url('assets/fonts/Virgo.woff2') format('woff2'),
+        url('assets/fonts/Virgo.ttf') format('truetype');
       font-display:swap;
     }
   </style>
 
   <style>
     :root{
-      --bg-0:#000000; /* full solid black feel */
+      --bg-0:#000000;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --ring:0 0 0 3px rgba(255,255,255,.12);
       --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
@@ -31,15 +31,13 @@
       font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       background:var(--bg-0); color:var(--ink); overflow:hidden; letter-spacing:.2px;
     }
-
-    /* Subtle ambient glow so black still feels premium */
     body::before{
       content:"";position:fixed;inset:-20% -10%;
       background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.03), transparent 60%);
       filter: blur(24px); opacity:.35; z-index:-1;
     }
 
-    /* ====== Top bar ====== */
+    /* Top & bottom chrome */
     .app-topbar{
       position:fixed;inset:0 0 auto 0;height:44px;display:flex;align-items:center;justify-content:space-between;
       padding:0 14px;background:transparent;border:none;backdrop-filter:none;z-index:1000
@@ -49,7 +47,6 @@
     .top-right{display:flex;gap:10px;align-items:center}
     .chip{font-size:12px;color:var(--ink-2);padding:0;border:none;background:transparent}
 
-    /* ====== Bottom tab bar ====== */
     .app-tabbar{
       position:fixed;left:0;right:0;bottom:0;height:72px;
       padding-bottom:calc(var(--safe-bottom));
@@ -64,8 +61,6 @@
     .tab-btn.active{color:#fff}
     .tab-btn svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
     .tab-label{font-size:10px;letter-spacing:.35px;line-height:1}
-
-    /* BILLIONS (3ILLIONS) gold animation */
     .tab-btn[data-screen="dashboard"] .tab-label{
       background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3),var(--gold-2),var(--gold-1));
       background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
@@ -73,40 +68,27 @@
     }
     @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:100% 50%}}
 
-    /* ====== Content area ====== */
+    /* Screens */
     .app-shell{position:fixed;inset:44px 0 72px 0}
     .screen{position:absolute;inset:0;display:none}
     .screen.active{display:block}
+    .screen-slot{position:absolute;inset:0;overflow:auto;-webkit-overflow-scrolling:touch}
+    .slot-loading{display:flex;align-items:center;justify-content:center;height:100%;color:#9aa3ad;font-size:12px}
 
-    /* ====== Battle screen ====== */
-    .stream-container{
-      display:flex;height:100%;width:100%;position:relative;transition:filter 300ms ease,opacity 300ms ease,transform .6s ease
-    }
+    /* Battle screen */
+    .stream-container{display:flex;height:100%;width:100%;position:relative;transition:filter 300ms ease,opacity 300ms ease,transform .6s ease}
     .stream-container.dimmed{filter:brightness(.75) contrast(.95) saturate(.95)}
     video.video-stream{flex:1;object-fit:cover;background:#000;width:50%;height:100%;filter:brightness(.9) contrast(1.15) saturate(1.1)}
     video.video-stream + video.video-stream{border-left:1px solid rgba(255,255,255,.04)}
     .overlay{position:absolute;inset:0;pointer-events:none;z-index:10}
 
-    /* Opponent profile (opens Profile screen) + faded wordmark behind */
-    .profile-labels{
-      position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;pointer-events:auto;
-    }
-    .profile-entry{
-      position:relative; display:flex; align-items:center; gap:10px;
-      background:transparent; padding:6px 14px; border:none; box-shadow:none; cursor:pointer;
-      overflow:hidden; text-decoration:none; color:inherit;
-    }
-    .profile-entry::before{
-      content:"3ATTL33ILLIONS";
-      position:absolute; inset:0; left:6px; top:50%;
-      transform:translateY(-50%);
-      font-weight:900; font-size:22px; letter-spacing:.15em;
-      color:#fff; opacity:.06; white-space:nowrap; pointer-events:none; z-index:0;
-    }
+    .profile-labels{position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;pointer-events:auto}
+    .profile-entry{position:relative; display:flex; align-items:center; gap:10px;background:transparent; padding:6px 14px; border:none; box-shadow:none; cursor:pointer;overflow:hidden; text-decoration:none; color:inherit;}
+    .profile-entry::before{content:"3ATTL33ILLIONS";position:absolute; inset:0; left:6px; top:50%; transform:translateY(-50%); font-weight:900; font-size:22px; letter-spacing:.15em;color:#fff; opacity:.06; white-space:nowrap; pointer-events:none; z-index:0;}
     .profile-entry img{width:34px;height:34px;border-radius:10px;position:relative;z-index:1}
     .profile-entry span{font-size:14px;color:var(--ink-2);position:relative;z-index:1}
 
-    /* ====== Start "3ATTLE" button (appears after subcategory or after picking next opponent) ====== */
+    /* Start 3ATTLE */
     .battle-fab{
       position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 56px);transform:translateX(-50%);
       padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
@@ -126,60 +108,34 @@
       }
     }
 
-    /* ====== Choose Category pill (disappears after first tap) ====== */
-    .cat-fab{
-      position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 14px);transform:translateX(-50%);
-      padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
-      border:none;z-index:1200;
-      display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s
-    }
+    /* Choose Category */
+    .cat-fab{position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 14px);transform:translateX(-50%);
+      padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;border:none;z-index:1200;
+      display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s}
     .cat-fab:hover{background:rgba(255,255,255,.16);transform:translateX(-50%) translateY(-1px)}
     .cat-fab:focus-visible{outline:none;box-shadow:var(--ring)}
     .cat-fab svg{width:18px;height:18px;stroke:#fff}
 
-    /* ====== Round timer ====== */
-    .round-timer{
-      position:absolute;bottom:108px;left:50%;transform:translateX(-50%);
-      background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);
-      border:1px solid rgba(255,255,255,.08);z-index:50;pointer-events:none;text-align:center;display:none
-    }
+    /* Timer + pre-countdown */
+    .round-timer{position:absolute;bottom:108px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);border:1px solid rgba(255,255,255,.08);z-index:50;pointer-events:none;text-align:center;display:none}
     .round-timer.pulse{animation:pulse 2.2s infinite}
     @keyframes pulse{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.03)}100%{transform:translateX(-50%) scale(1)}}
+    .pre-countdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:60;pointer-events:none;font-weight:900;font-size:clamp(48px, 20vw, 220px);letter-spacing:.08em;color:#fff;text-shadow:0 0 20px rgba(240,185,11,.35), 0 0 35px rgba(255,255,255,.15);}
+    .pre-countdown.pop{ animation:pop .78s cubic-bezier(.2,.8,.2,1);}
+    @keyframes pop{0%{ transform:scale(.6); opacity:.2 }50%{ transform:scale(1.05); opacity:1 }100%{ transform:scale(1); opacity:.9 }}
 
-    /* ====== Pre-turn 6-5-4-3-2-1 countdown overlay ====== */
-    .pre-countdown{
-      position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:60;
-      pointer-events:none;font-weight:900;font-size:clamp(48px, 20vw, 220px);letter-spacing:.08em;color:#fff;
-      text-shadow:0 0 20px rgba(240,185,11,.35), 0 0 35px rgba(255,255,255,.15);
-    }
-    .pre-countdown.pop{ animation:pop .78s cubic-bezier(.2,.8,.2,1); }
-    @keyframes pop{
-      0%{ transform:scale(.6); opacity:.2 }
-      50%{ transform:scale(1.05); opacity:1 }
-      100%{ transform:scale(1); opacity:.9 }
-    }
-
-    /* ====== Modals ====== */
+    /* Modals / cards (categories, options, opponent picker) */
     .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);pointer-events:auto}
     .modal.show{display:flex}
     .card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px}
 
-    /* === Categories: smaller+search === */
-    #categoryModal .card{
-      width:min(92vw,520px);max-height:72vh;display:flex;flex-direction:column;gap:12px;padding:16px;
-    }
+    #categoryModal .card{width:min(92vw,520px);max-height:72vh;display:flex;flex-direction:column;gap:12px;padding:16px}
     .cat-header{position:sticky;top:0;z-index:2;background:#0e0e0f;display:grid;grid-template-columns:1fr;gap:10px}
     .cat-header h2{font-size:18px;text-align:center;margin:2px 0 0}
     .cat-search{display:flex;gap:8px;align-items:center}
-    .cat-search input{
-      flex:1;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);
-      border-radius:12px;padding:10px 12px;color:#fff;font-family:'Virgo',sans-serif;
-    }
+    .cat-search input{flex:1;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;color:#fff;font-family:'Virgo',sans-serif;}
     .cat-search input::placeholder{color:#9aa3ad}
-    .cat-count{
-      font-size:12px;color:#cfd6dd;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.04)
-    }
+    .cat-count{font-size:12px;color:#cfd6dd;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
     .cat-scroller{position:relative;flex:1;min-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px}
     .cat-empty{display:none;text-align:center;color:#9aa3ad;font-size:13px;padding:16px}
     .cat-empty.show{display:block}
@@ -195,46 +151,30 @@
     .btn:hover{transform:translateY(-1px);filter:brightness(.9)}
     .btn.secondary{background:transparent;color:var(--ink)}
 
-    .placeholder{display:flex;align-items:center;justify-content:center;height:100%;width:100%;text-align:center}
-    .placeholder .box{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px 28px;background:#0e0e0f;max-width:720px;width:calc(100% - 40px)}
-    .placeholder h1{color:var(--ink);margin-bottom:8px}
-    .placeholder p{color:var(--ink-3)}
-
-    /* ===== Opponent Picker (after battle) ===== */
+    /* Opponent Picker */
     #opponentPicker .card{width:min(92vw,560px);max-height:76vh;display:flex;flex-direction:column;gap:12px}
     .opp-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
     .opp-header h3{font-size:18px}
     .opp-scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px;border-radius:12px;background:#0b0b0c;border:1px solid rgba(255,255,255,.06)}
-    .opp-item{
-      display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;
-      border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);
-      cursor:pointer; transition:transform .2s, background .2s, border-color .2s;
-      margin-bottom:10px;
-    }
+    .opp-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);cursor:pointer; transition:transform .2s, background .2s, border-color .2s;margin-bottom:10px;}
     .opp-item:hover{transform:translateY(-1px);background:rgba(255,255,255,.06)}
     .opp-item img{width:40px;height:40px;border-radius:10px;object-fit:cover}
     .opp-name{font-weight:800;color:#fff}
     .opp-meta{font-size:12px;color:#9aa3ad}
+
+    .opp-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px}
+    .btn-gold{background:linear-gradient(90deg,#4f4f4f,#F0B90B,#4f4f4f);background-size:200% 100%;border:1px solid rgba(240,185,11,.55);color:#101010;box-shadow:0 0 24px 4px rgba(240,185,11,.25)}
   </style>
 </head>
 <body>
-  <!-- SVG sprite & gradient -->
+  <!-- SVG sprite -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
-      <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#F5D76E"><animate attributeName="offset" values="0;1;0" dur="5s" repeatCount="indefinite"/></stop>
-        <stop offset="50%" stop-color="#F0B90B"><animate attributeName="offset" values=".5;1;.5" dur="5s" repeatCount="indefinite"/></stop>
-        <stop offset="100%" stop-color="#FFD15C"><animate attributeName="offset" values="1;0;1" dur="5s" repeatCount="indefinite"/></stop>
-      </linearGradient>
       <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.6"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.6"/><path d="M10 11v3H8v2h8v-2h-2v-3" stroke-width="1.6"/></symbol>
       <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke-width="1.6" stroke-linecap="round"/></symbol>
-      <symbol id="ic-messages" viewBox="0 0 24 24">
-        <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-5 4V6z" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M7 9h10M7 12h7" stroke-width="1.6" stroke-linecap="round"/>
-      </symbol>
-      <symbol id="ic-user" viewBox="0 0 24 24"><path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Z" stroke-width="1.6"/><path d="M4 20.4a8 8 0 0 1 16 0" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="ic-messages" viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-5 4V6z" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 9h10M7 12h7" stroke-width="1.6" stroke-linecap="round"/></symbol>
       <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12z" stroke-width="1.6"/><circle cx="12" cy="12" r="2.8" stroke-width="1.6"/></symbol>
       <symbol id="ic-grid" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" stroke-width="1.6"/></symbol>
     </defs>
@@ -249,7 +189,7 @@
     </div>
   </header>
 
-  <!-- Start "3ATTLE" (appears after subcategory or after choosing next opponent) -->
+  <!-- Start 3ATTLE -->
   <button class="battle-fab" id="startBattleFab" aria-label="Start 3ATTLE">3ATTLE</button>
 
   <!-- Choose Category -->
@@ -257,15 +197,15 @@
     <svg><use href="#ic-grid"/></svg><span>Choose Category</span>
   </button>
 
-  <!-- Content -->
+  <!-- CONTENT -->
   <main class="app-shell">
-    <!-- Battle -->
+    <!-- 3ATTLES (Battle view lives here) -->
     <section class="screen active" id="screen-battle" data-route="battle">
       <div class="stream-container" id="streamContainer">
         <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-        <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
+        <video class="video-stream" id="opponentVideo" autoplay muted loop src="assets/video/user2.mp4"></video>
 
-        <!-- Category Picker (small + search) -->
+        <!-- Category Modal (search + grid) -->
         <div class="modal" id="categoryModal" aria-modal="true" role="dialog">
           <div class="card">
             <div class="cat-header">
@@ -285,7 +225,7 @@
           </div>
         </div>
 
-        <!-- Options -->
+        <!-- Options Modal -->
         <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
           <div class="card" style="width:min(92vw,680px);max-height:76vh;display:flex;flex-direction:column;gap:12px;">
             <h2 id="optionsTitle">Category Options</h2>
@@ -298,57 +238,57 @@
           </div>
         </div>
 
-        <!-- Opponent Picker (AFTER battle) -->
+        <!-- Opponent Picker (post-battle) -->
         <div class="modal" id="opponentPicker" aria-modal="true" role="dialog">
           <div class="card">
             <div class="opp-header">
               <h3>Choose Next Opponent</h3>
-              <div class="muted" id="oppHint">Category: <span id="oppCatLabel">—</span></div>
+              <div class="muted">Category: <span id="oppCatLabel">—</span></div>
             </div>
             <div class="opp-scroller" id="oppList"></div>
-            <div class="actions">
-              <button class="btn secondary" id="oppClose" type="button">Close</button>
+            <div class="opp-actions">
+              <button class="btn btn-gold" id="oppBattleNext">3ATTLE Next Opponent</button>
+              <button class="btn" id="oppChooseCat">Choose Category</button>
+              <button class="btn secondary" id="oppDone">Done for now</button>
             </div>
           </div>
         </div>
 
         <div class="overlay">
-          <!-- Opponent profile opens PROFILE screen -->
+          <!-- Opponent profile opens Opponents (profile.html) page -->
           <div class="profile-labels" id="profileLabels">
-            <a href="#/profile" class="profile-entry" id="opponentProfile" data-screen="profile" aria-label="Open profile">
-              <img src="user2.jpg" id="opponentImage" alt="User 2">
+            <a href="#/profile" class="profile-entry" id="opponentProfile" data-screen="opponents" aria-label="Open opponent profile">
+              <img src="assets/img/user2.jpg" id="opponentImage" alt="User 2">
               <span id="opponentUsername">@Opponent</span>
             </a>
           </div>
 
-          <!-- Pre-turn Countdown -->
+          <!-- Pre-turn countdown + timer -->
           <div class="pre-countdown" id="preCountdown" aria-live="polite" aria-atomic="true"></div>
-
-          <!-- Timer -->
           <div class="round-timer" id="roundTimer"></div>
         </div>
       </div>
     </section>
 
-    <!-- Other screens -->
+    <!-- Other screens: injected from repo files -->
     <section class="screen" id="screen-home" data-route="home">
-      <div class="placeholder"><div class="box"><h1>Home</h1><p>Single-page flow. Use the tab bar.</p></div></div>
+      <div class="screen-slot" data-src="/home.html"><div class="slot-loading">Loading Home…</div></div>
     </section>
+
     <section class="screen" id="screen-dashboard" data-route="dashboard">
-      <div class="placeholder"><div class="box"><h1>3ILLIONS</h1><p>Discover the biggest 3ATTLES, trends, and challengers.</p></div></div>
+      <div class="screen-slot" data-src="/battle.html"><div class="slot-loading">Loading 3ILLIONS…</div></div>
     </section>
+
     <section class="screen" id="screen-leaderboard" data-route="leaderboard">
-      <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
+      <div class="screen-slot" data-src="/leaderboard.html"><div class="slot-loading">Loading Leaderboard…</div></div>
     </section>
+
     <section class="screen" id="screen-messages" data-route="messages">
-      <div class="placeholder"><div class="box"><h1>Messages</h1><p>Conversations appear here.</p></div></div>
+      <div class="screen-slot" data-src="/messages.html"><div class="slot-loading">Loading Messages…</div></div>
     </section>
-    <section class="screen" id="screen-profile" data-route="profile">
-      <div class="placeholder"><div class="box">
-        <h1>Profile</h1>
-        <p id="profileName">@Opponent</p>
-        <p class="muted">Tap an avatar/name in battle to view their profile here.</p>
-      </div></div>
+
+    <section class="screen" id="screen-opponents" data-route="opponents">
+      <div class="screen-slot" data-src="/profile.html"><div class="slot-loading">Loading Opponents…</div></div>
     </section>
   </main>
 
@@ -381,7 +321,7 @@
   <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    /* ====== SPA NAV ====== */
+    /* ====== SPA Nav ====== */
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
     const startBattleFab = document.getElementById('startBattleFab');
@@ -393,7 +333,11 @@
         t.classList.toggle('active',on);
         t.setAttribute('aria-selected',on?'true':'false');
       });
-      if(name !== 'battle'){ startBattleFab.style.display='none'; startBattleFab.classList.remove('blink'); }
+      if(name !== 'battle'){
+        startBattleFab.style.display='none';
+        startBattleFab.classList.remove('blink');
+      }
+      mountExternalChunk(name); // load external HTML once (for non-battle screens)
     }
 
     document.addEventListener('click',(e)=>{
@@ -416,35 +360,61 @@
     }
     window.addEventListener('hashchange', routeFromHash);
 
+    /* ====== External HTML loader (no iframes) ====== */
+    const chunkLoaded = new Set();
+    async function mountExternalChunk(name){
+      if(name === 'battle') return;
+      const screen = screens[name];
+      if(!screen) return;
+      const slot = screen.querySelector('.screen-slot');
+      if(!slot || chunkLoaded.has(slot)) return;
+
+      const src = slot.dataset.src;
+      if(!src) return;
+
+      try{
+        const res = await fetch(src, { cache: 'no-cache' });
+        const text = await res.text();
+        const doc = new DOMParser().parseFromString(text, 'text/html');
+
+        const frag = doc.querySelector('[data-app-fragment]') || doc.querySelector('main') || doc.body;
+        slot.innerHTML = frag ? frag.innerHTML : text;
+        chunkLoaded.add(slot);
+      }catch(err){
+        slot.innerHTML = `<div class="slot-loading">Failed to load ${name}.</div>`;
+        console.error('Chunk load failed:', name, err);
+      }
+    }
+
     /* ====== Battle & Category State ====== */
-    let currentCategory=null, chosenOptions={}, chosenSub=null;
+    let currentCategory=null, chosenOptions={}, chosenSub=null, selectedOpponent=null;
 
     const opponentPools={ 
-      ART:[{video:"art2.mp4",image:"art2.jpg",username:"@InkMage"},{video:"art3.mp4",image:"art3.jpg",username:"@ColorCaster"}],
-      AUTO:[{video:"auto1.mp4",image:"auto1.jpg",username:"@TorqueLord"},{video:"auto2.mp4",image:"auto2.jpg",username:"@RimReaper"}],
-      DEBAT:[{video:"deb1.mp4",image:"deb1.jpg",username:"@LogicBlade"},{video:"deb2.mp4",image:"deb2.jpg",username:"@VerbalVolt"}],
-      FASHION:[{video:"fashion2.mp4",image:"fashion2.jpg",username:"@RunwayRuler"},{video:"fashion3.mp4",image:"fashion3.jpg",username:"@FitArchitect"}],
-      INSTRUMENTS:[{video:"inst1.mp4",image:"inst1.jpg",username:"@ChordSmith"},{video:"inst2.mp4",image:"inst2.jpg",username:"@DrumOracle"}],
-      RAP:[{video:"user3.mp4",image:"user3.jpg",username:"@ChallengerX"},{video:"user4.mp4",image:"user4.jpg",username:"@MCNeo"}],
-      DANCE:[{video:"dance1.mp4",image:"dance1.jpg",username:"@Footwork"},{video:"dance2.mp4",image:"dance2.jpg",username:"@WaveLord"}],
-      COMEDY:[{video:"comedy1.mp4",image:"comedy1.jpg",username:"@Punchliner"},{video:"comedy2.mp4",image:"comedy2.jpg",username:"@CrowdKiller"}],
-      GAMING:[{video:"game1.mp4",image:"game1.jpg",username:"@Clutch"},{video:"game2.mp4",image:"game2.jpg",username:"@Headshot"}],
-      COOKING:[{video:"cook1.mp4",image:"cook1.jpg",username:"@SearMaster"},{video:"cook2.mp4",image:"cook2.jpg",username:"@MiseEnPlace"}],
-      FITNESS:[{video:"fit1.mp4",image:"fit1.jpg",username:"@RepMachine"},{video:"fit2.mp4",image:"fit2.jpg",username:"@HIITHero"}],
-      PHOTOGRAPHY:[{video:"photo1.mp4",image:"photo1.jpg",username:"@LensCraft"},{video:"photo2.mp4",image:"photo2.jpg",username:"@FrameChaser"}],
-      SINGING:[{video:"sing1.mp4",image:"sing1.jpg",username:"@VocalEdge"},{video:"sing2.mp4",image:"sing2.jpg",username:"@Falsetto"}],
-      POETRY:[{video:"poe1.mp4",image:"poe1.jpg",username:"@VerseKing"},{video:"poe2.mp4",image:"poe2.jpg",username:"@Stanza"}],
-      MAGIC:[{video:"mag1.mp4",image:"mag1.jpg",username:"@CardFlux"},{video:"mag2.mp4",image:"mag2.jpg",username:"@IllusionX"}],
-      SPORTS:[{video:"spo1.mp4",image:"spo1.jpg",username:"@ClutchTime"},{video:"spo2.mp4",image:"spo2.jpg",username:"@GoatTalk"}],
-      TECH:[{video:"tech1.mp4",image:"tech1.jpg",username:"@DevWizard"},{video:"tech2.mp4",image:"tech2.jpg",username:"@ByteSmith"}],
-      EDU:[{video:"edu1.mp4",image:"edu1.jpg",username:"@MindCoach"},{video:"edu2.mp4",image:"edu2.jpg",username:"@LessonLab"}],
-      FILM:[{video:"film1.mp4",image:"film1.jpg",username:"@CutMaster"},{video:"film2.mp4",image:"film2.jpg",username:"@SceneLord"}],
-      PODCAST:[{video:"pod1.mp4",image:"pod1.jpg",username:"@HotMic"},{video:"pod2.mp4",image:"pod2.jpg",username:"@TalkFlow"}],
-      BEAUTY:[{video:"bea1.mp4",image:"bea1.jpg",username:"@BlendQueen"},{video:"bea2.mp4",image:"bea2.jpg",username:"@Contour"}],
-      DIY:[{video:"diy1.mp4",image:"diy1.jpg",username:"@ToolTime"},{video:"diy2.mp4",image:"diy2.jpg",username:"@Maker"}],
-      ASMR:[{video:"asm1.mp4",image:"asm1.jpg",username:"@Whisper"},{video:"asm2.mp4",image:"asm2.jpg",username:"@Tingle"}],
-      MEMES:[{video:"mem1.mp4",image:"mem1.jpg",username:"@TemplateKing"},{video:"mem2.mp4",image:"mem2.jpg",username:"@Dank"}],
-      TATTOO:[{video:"tat1.mp4",image:"tat1.jpg",username:"@InkLord"},{video:"tat2.mp4",image:"tat2.jpg",username:"@ShadeMaster"}],
+      ART:[{video:"assets/video/art2.mp4",image:"assets/img/art2.jpg",username:"@InkMage"},{video:"assets/video/art3.mp4",image:"assets/img/art3.jpg",username:"@ColorCaster"}],
+      AUTO:[{video:"assets/video/auto1.mp4",image:"assets/img/auto1.jpg",username:"@TorqueLord"},{video:"assets/video/auto2.mp4",image:"assets/img/auto2.jpg",username:"@RimReaper"}],
+      DEBAT:[{video:"assets/video/deb1.mp4",image:"assets/img/deb1.jpg",username:"@LogicBlade"},{video:"assets/video/deb2.mp4",image:"assets/img/deb2.jpg",username:"@VerbalVolt"}],
+      FASHION:[{video:"assets/video/fashion2.mp4",image:"assets/img/fashion2.jpg",username:"@RunwayRuler"},{video:"assets/video/fashion3.mp4",image:"assets/img/fashion3.jpg",username:"@FitArchitect"}],
+      INSTRUMENTS:[{video:"assets/video/inst1.mp4",image:"assets/img/inst1.jpg",username:"@ChordSmith"},{video:"assets/video/inst2.mp4",image:"assets/img/inst2.jpg",username:"@DrumOracle"}],
+      RAP:[{video:"assets/video/user3.mp4",image:"assets/img/user3.jpg",username:"@ChallengerX"},{video:"assets/video/user4.mp4",image:"assets/img/user4.jpg",username:"@MCNeo"}],
+      DANCE:[{video:"assets/video/dance1.mp4",image:"assets/img/dance1.jpg",username:"@Footwork"},{video:"assets/video/dance2.mp4",image:"assets/img/dance2.jpg",username:"@WaveLord"}],
+      COMEDY:[{video:"assets/video/comedy1.mp4",image:"assets/img/comedy1.jpg",username:"@Punchliner"},{video:"assets/video/comedy2.mp4",image:"assets/img/comedy2.jpg",username:"@CrowdKiller"}],
+      GAMING:[{video:"assets/video/game1.mp4",image:"assets/img/game1.jpg",username:"@Clutch"},{video:"assets/video/game2.mp4",image:"assets/img/game2.jpg",username:"@Headshot"}],
+      COOKING:[{video:"assets/video/cook1.mp4",image:"assets/img/cook1.jpg",username:"@SearMaster"},{video:"assets/video/cook2.mp4",image:"assets/img/cook2.jpg",username:"@MiseEnPlace"}],
+      FITNESS:[{video:"assets/video/fit1.mp4",image:"assets/img/fit1.jpg",username:"@RepMachine"},{video:"assets/video/fit2.mp4",image:"assets/img/fit2.jpg",username:"@HIITHero"}],
+      PHOTOGRAPHY:[{video:"assets/video/photo1.mp4",image:"assets/img/photo1.jpg",username:"@LensCraft"},{video:"assets/video/photo2.mp4",image:"assets/img/photo2.jpg",username:"@FrameChaser"}],
+      SINGING:[{video:"assets/video/sing1.mp4",image:"assets/img/sing1.jpg",username:"@VocalEdge"},{video:"assets/video/sing2.mp4",image:"assets/img/sing2.jpg",username:"@Falsetto"}],
+      POETRY:[{video:"assets/video/poe1.mp4",image:"assets/img/poe1.jpg",username:"@VerseKing"},{video:"assets/video/poe2.mp4",image:"assets/img/poe2.jpg",username:"@Stanza"}],
+      MAGIC:[{video:"assets/video/mag1.mp4",image:"assets/img/mag1.jpg",username:"@CardFlux"},{video:"assets/video/mag2.mp4",image:"assets/img/mag2.jpg",username:"@IllusionX"}],
+      SPORTS:[{video:"assets/video/spo1.mp4",image:"assets/img/spo1.jpg",username:"@ClutchTime"},{video:"assets/video/spo2.mp4",image:"assets/img/spo2.jpg",username:"@GoatTalk"}],
+      TECH:[{video:"assets/video/tech1.mp4",image:"assets/img/tech1.jpg",username:"@DevWizard"},{video:"assets/video/tech2.mp4",image:"assets/img/tech2.jpg",username:"@ByteSmith"}],
+      EDU:[{video:"assets/video/edu1.mp4",image:"assets/img/edu1.jpg",username:"@MindCoach"},{video:"assets/video/edu2.mp4",image:"assets/img/edu2.jpg",username:"@LessonLab"}],
+      FILM:[{video:"assets/video/film1.mp4",image:"assets/img/film1.jpg",username:"@CutMaster"},{video:"assets/video/film2.mp4",image:"assets/img/film2.jpg",username:"@SceneLord"}],
+      PODCAST:[{video:"assets/video/pod1.mp4",image:"assets/img/pod1.jpg",username:"@HotMic"},{video:"assets/video/pod2.mp4",image:"assets/img/pod2.jpg",username:"@TalkFlow"}],
+      BEAUTY:[{video:"assets/video/bea1.mp4",image:"assets/img/bea1.jpg",username:"@BlendQueen"},{video:"assets/video/bea2.mp4",image:"assets/img/bea2.jpg",username:"@Contour"}],
+      DIY:[{video:"assets/video/diy1.mp4",image:"assets/img/diy1.jpg",username:"@ToolTime"},{video:"assets/video/diy2.mp4",image:"assets/img/diy2.jpg",username:"@Maker"}],
+      ASMR:[{video:"assets/video/asm1.mp4",image:"assets/img/asm1.jpg",username:"@Whisper"},{video:"assets/video/asm2.mp4",image:"assets/img/asm2.jpg",username:"@Tingle"}],
+      MEMES:[{video:"assets/video/mem1.mp4",image:"assets/img/mem1.jpg",username:"@TemplateKing"},{video:"assets/video/mem2.mp4",image:"assets/img/mem2.jpg",username:"@Dank"}],
+      TATTOO:[{video:"assets/video/tat1.mp4",image:"assets/img/tat1.jpg",username:"@InkLord"},{video:"assets/video/tat2.mp4",image:"assets/img/tat2.jpg",username:"@ShadeMaster"}],
     };
 
     const subLists={
@@ -453,7 +423,7 @@
       DEBAT:['Politics','Tech','Sports','Culture','Freestyle'],
       FASHION:['Runway','Streetwear','Vintage','Upcycle','Styling'],
       INSTRUMENTS:['Guitar','Piano','Violin','Drums','DJ'],
-      RAP:[{label:'Classic Trap',value:'beat1.mp3'},{label:'Boom Bap',value:'beat2.mp3'},{label:'Chill Vibes',value:'beat3.mp3'},{label:'Fast Flow',value:'beat4.mp3'}],
+      RAP:[{label:'Classic Trap',value:'assets/audio/beat1.mp3'},{label:'Boom Bap',value:'assets/audio/beat2.mp3'},{label:'Chill Vibes',value:'assets/audio/beat3.mp3'},{label:'Fast Flow',value:'assets/audio/beat4.mp3'}],
       DANCE:['Hip-Hop','Popping','Breaking','Contemporary','Freestyle'],
       COMEDY:['Stand-up','Improv','Sketch','Roast','Storytelling'],
       GAMING:['FPS','MOBA','Fighting','Speedrun','Battle Royale'],
@@ -483,7 +453,6 @@
     const opponentVideo=document.getElementById('opponentVideo');
     const opponentImage=document.getElementById('opponentImage');
     const opponentUsername=document.getElementById('opponentUsername');
-    const profileName=document.getElementById('profileName');
     const viewerCountTop=document.getElementById('viewerCountTop');
 
     const categoryModal=document.getElementById('categoryModal');
@@ -502,10 +471,12 @@
     const oppList=document.getElementById('oppList');
     const oppClose=document.getElementById('oppClose');
     const oppCatLabel=document.getElementById('oppCatLabel');
+    const oppBattleNext=document.getElementById('oppBattleNext');
+    const oppChooseCat=document.getElementById('oppChooseCat');
+    const oppDone=document.getElementById('oppDone');
 
     const openCats=document.getElementById('openCats');
     openCats.addEventListener('click',()=>{
-      openCats.style.display='none';
       categoryModal.classList.add('show');
       catSearch.value='';
       buildCategoryButtons('');
@@ -549,7 +520,7 @@
 
     function openCategory(cat,fromUser){
       try{
-        currentCategory=cat;chosenSub=null;
+        currentCategory=cat;chosenSub=null;selectedOpponent=null;
         startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
         buildOptionsFor(cat);
         categoryModal.classList.remove('show');optionsModal.classList.add('show');
@@ -561,14 +532,14 @@
     function applyCategoryOpponent(cat,obj){
       if(obj){
         opponentVideo.src=obj.video;opponentImage.src=obj.image;opponentUsername.innerText=obj.username;
-        profileName.textContent = obj.username;
+        selectedOpponent = obj;
         return;
       }
       const pool=opponentPools[cat]||[];
       if(pool.length){
         const random=pool[Math.floor(Math.random()*pool.length)];
         opponentVideo.src=random.video;opponentImage.src=random.image;opponentUsername.innerText=random.username;
-        profileName.textContent = random.username;
+        selectedOpponent = random;
       }
     }
 
@@ -617,9 +588,8 @@
     }
     window.addEventListener('popstate',()=>{routeFromHash();parseHashAndOpen()});
 
-    /* ====== Turn/round flow with pre-countdown ====== */
+    /* Rounds + countdown */
     let round=1,roundPart=0,timeLeft=33; const maxRounds=3;
-
     function setDim(a){a?streamContainer.classList.add('dimmed'):streamContainer.classList.remove('dimmed')}
     function glow(){timerDisplay.classList.add('pulse');setTimeout(()=>timerDisplay.classList.remove('pulse'),1400)}
 
@@ -648,15 +618,13 @@
           if(timeLeft<0){
             clearInterval(interval); sound.play(); setDim(false);
             if(roundPart===0){
-              roundPart=1; runRoundPart(); // opponent turn (with pre-countdown)
+              roundPart=1; runRoundPart();
             }else{
               if(round<maxRounds){
-                round++; roundPart=0; runRoundPart(); // next round
+                round++; roundPart=0; runRoundPart();
               }else{
-                // ======== BATTLE OVER ========
                 timerDisplay.textContent='3ATTLE Over — Pick Your Next Opponent';
                 glow();
-                // Show opponent picker for current category; 3ATTLE button is hidden until an opponent is tapped
                 buildOpponentPicker(currentCategory);
                 startBattleFab.style.display='none'; startBattleFab.classList.remove('blink');
               }
@@ -671,10 +639,8 @@
       if(currentCategory==='RAP'){
         if(!chosenOptions.beat){return}
         battleTrack.play().catch(()=>{});
-      }else{
-        battleTrack.pause(); battleTrack.currentTime=0;
-      }
-      opponentPicker.classList.remove('show'); // ensure hidden if coming from picker
+      }else{ battleTrack.pause(); battleTrack.currentTime=0; }
+      opponentPicker.classList.remove('show');
       startBattleFab.style.display='none';
       startBattleFab.classList.remove('blink');
       glow();
@@ -683,16 +649,14 @@
     }
     startBattleFab.addEventListener('click', startBattle);
 
-    /* ====== Opponent Picker ====== */
+    /* Opponent Picker */
     function buildOpponentPicker(cat){
       oppCatLabel.textContent = cat || '—';
       oppList.innerHTML='';
       const pool = opponentPools[cat] || [];
       if(pool.length===0){
         const empty = document.createElement('div');
-        empty.className='muted';
-        empty.style.textAlign='center';
-        empty.style.padding='16px';
+        empty.className='muted'; empty.style.textAlign='center'; empty.style.padding='16px';
         empty.textContent='No opponents available.';
         oppList.appendChild(empty);
       } else {
@@ -706,12 +670,8 @@
               <span class="opp-meta">Ready to 3ATTLE • Slot #${idx+1}</span>
             </div>`;
           row.addEventListener('click', ()=>{
-            // swap current opponent
-            applyCategoryOpponent(cat, o);
-            // show 3ATTLE button now
+            applyCategoryOpponent(cat, o); // swap into stage
             startBattleFab.style.display='flex'; startBattleFab.classList.add('blink'); startBattleFab.focus();
-            // keep picker open or close? Close for faster loop
-            opponentPicker.classList.remove('show');
             timerDisplay.textContent='Opponent ready — tap 3ATTLE to start!';
           });
           oppList.appendChild(row);
@@ -719,7 +679,30 @@
       }
       opponentPicker.classList.add('show');
     }
-    oppClose.addEventListener('click', ()=> opponentPicker.classList.remove('show'));
+
+    // Action buttons under the list
+    oppBattleNext.addEventListener('click', ()=>{
+      if(!selectedOpponent){ return; } // must have selected
+      startBattle(); // uses current selectedOpponent already on stage
+    });
+    oppChooseCat.addEventListener('click', ()=>{
+      opponentPicker.classList.remove('show');
+      categoryModal.classList.add('show');
+      catSearch.value='';
+      buildCategoryButtons('');
+      catSearch.focus();
+    });
+    oppDone.addEventListener('click', ()=>{
+      opponentPicker.classList.remove('show');
+      startBattleFab.style.display='none';
+      startBattleFab.classList.remove('blink');
+      timerDisplay.textContent='Paused — Choose Category or Open another page.';
+    });
+
+    // Opponent profile opens Opponents (profile.html)
+    document.getElementById('opponentProfile').addEventListener('click', ()=>{
+      showScreen('opponents');
+    });
 
     /* Viewer count tick */
     let viewers=1300;
@@ -737,13 +720,8 @@
       }catch(err){console.error('Camera error:',err)}
     }
 
-    // Update Profile screen when clicking opponent box
-    document.getElementById('opponentProfile').addEventListener('click', ()=>{
-      profileName.textContent = opponentUsername.textContent || '@Opponent';
-    });
-
     /* Init */
-        window.onload=()=>{
+    window.onload=()=>{
       showScreen('battle');
       if(!location.hash) location.hash='#/battle';
       startCamera();
