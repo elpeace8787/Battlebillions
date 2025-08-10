@@ -315,7 +315,7 @@
         </div>
 
         <div class="overlay">
-          <!-- Clickable opponent (now routes to Messages) -->
+          <!-- Clickable opponent (routes to Messages) -->
           <div class="profile-labels" id="profileLabels">
             <a href="#/messages" class="profile-entry" id="opponentProfile" data-screen="messages" aria-label="Open messages">
               <img src="user2.jpg" id="opponentImage" alt="User 2">
@@ -357,7 +357,7 @@
     <section class="screen" id="screen-leaderboard" data-route="leaderboard">
       <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
     </section>
-    <!-- Messages screen (replaces Profile) -->
+    <!-- Messages screen -->
     <section class="screen" id="screen-messages" data-route="messages">
       <div class="placeholder"><div class="box">
         <h1>Messages</h1>
@@ -366,7 +366,7 @@
     </section>
   </main>
 
-  <!-- Bottom tabs -->
+  <!-- Bottom tabs (order: Home, 3ILLIONS, 3ATTLES, Leaders, Messages) -->
   <nav class="app-tabbar" role="tablist" aria-label="Main">
     <a class="tab-btn" data-screen="home" role="tab" aria-selected="false">
       <span class="tab-label">Home</span>
@@ -380,8 +380,12 @@
       <span class="tab-label">3ATTLES</span>
       <svg><use href="#ic-battle"/></svg>
     </a>
-    <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false"
-            <span class="tab-label">Messages</span>
+    <a class="tab-btn" data-screen="leaderboard" role="tab" aria-selected="false" title="Leaders">
+      <span class="tab-label">Leaders</span>
+      <svg><use href="#ic-trophy"/></svg>
+    </a>
+    <a class="tab-btn" data-screen="messages" role="tab" aria-selected="false" title="Messages">
+      <span class="tab-label">Messages</span>
       <svg><use href="#ic-messages"/></svg>
     </a>
   </nav>
@@ -394,6 +398,7 @@
     /* ====== SPA Nav ====== */
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
+    const startBattleFab = document.getElementById('startBattleFab');
 
     function showScreen(name){
       Object.entries(screens).forEach(([k,el])=>el.classList.toggle('active',k===name));
@@ -402,6 +407,8 @@
         t.classList.toggle('active',on);
         t.setAttribute('aria-selected',on?'true':'false');
       });
+      // Ensure 3ATTLE button only shows on battle screen
+      if(name !== 'battle'){ startBattleFab.style.display='none'; startBattleFab.classList.remove('blink'); }
     }
 
     // Global delegated nav (tabs + opponent link)
@@ -500,7 +507,6 @@
     const optionsSubtitle=document.getElementById('optionsSubtitle');
     const optionsBody=document.getElementById('optionsBody');
     const optionsHint=document.getElementById('optionsHint');
-    const startBattleFab=document.getElementById('startBattleFab');
     const categoryGrid=document.getElementById('categoryGrid');
     const catSearch=document.getElementById('catSearch');
     const catCount=document.getElementById('catCount');
@@ -529,8 +535,10 @@
       clearHash();
     };
     document.getElementById('backBtn').onclick=()=>{
-      optionsModal.classList.remove('show');categoryModal.classList.add('show');startBattleFab.style.display='none';startBattleFab.classList.remove('blink');chosenSub=null;updateHash(currentCategory,null);
-      categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));
+      optionsModal.classList.remove('show');categoryModal.classList.add('show');
+      // hide 3ATTLE until a subcategory is actually tapped again
+      startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
+      chosenSub=null;updateHash(currentCategory,null);
       categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
 
@@ -583,9 +591,10 @@
 
     function openCategory(cat,fromUser){
       try{
-        currentCategory=cat;chosenSub=null;startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
-        // visual select
-        categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===cat));
+        currentCategory=cat;chosenSub=null;
+        // ensure 3ATTLE is hidden until subcategory is *tapped*
+        startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
+
         buildOptionsFor(cat);
         categoryModal.classList.remove('show');optionsModal.classList.add('show');
         if (fromUser) updateHash(cat,null);
@@ -609,8 +618,11 @@
         optionsSubtitle.innerText="Choose your instrumental.";
         items.forEach(b=>{
           const btn=makePill(b.label,b.value,()=>{
+            // user tapped the subcategory choice
             chosenOptions.beat=b.value;chosenSub=b.label;battleTrack.src=b.value;battleTrack.load();
-            optionsModal.classList.remove('show');startBattleFab.style.display='flex';startBattleFab.classList.add('blink');
+            optionsModal.classList.remove('show');
+            // show 3ATTLE NOW (after tap)
+            startBattleFab.style.display='flex';startBattleFab.classList.add('blink'); startBattleFab.focus();
             updateHash(cat,b.label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });optionsHint.innerText="Only RAP uses instrumentals.";
@@ -619,7 +631,10 @@
         optionsSubtitle.innerText=subtitleMap[cat]||"Choose an option.";
         items.forEach(label=>{
           const btn=makePill(label,label,()=>{
-            chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');startBattleFab.style.display='flex';startBattleFab.classList.add('blink');
+            // user tapped the subcategory choice
+            chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');
+            // show 3ATTLE NOW (after tap)
+            startBattleFab.style.display='flex';startBattleFab.classList.add('blink'); startBattleFab.focus();
             updateHash(cat,label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });
