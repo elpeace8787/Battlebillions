@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Panels Under Scroll)</title>
+<title>Home Header (Buttons Linked to Pages)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
-  <!-- SUPER-ROBUST RANK BUTTON (unchanged) -->
+  <!-- SUPER-ROBUST RANK BUTTON -->
   <a href="rank.html" aria-label="Open Rank"
      style="
        position:fixed;
@@ -53,7 +53,7 @@
     </a>
   </div>
 
-  <!-- Profile header (avatar unchanged) -->
+  <!-- Profile header -->
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
       <div style="
@@ -76,117 +76,21 @@
     </div>
   </div>
 
-  <!-- Button scroll row (same look, smaller) -->
+  <!-- Button scroll row -->
   <div id="scrollRow" style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:8px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;">
-    <button class="btn" data-variant="battles"  data-target="panel-battles"  style="flex:0 0 auto;padding:8px 14px;border:none;cursor:pointer;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424, 0 4px 12px rgba(0,0,0,.35);letter-spacing:.3px;font-weight:700;font-size:13px;">Battles</button>
-    <button class="btn" data-variant="wallet"   data-target="panel-wallet"   style="flex:0 0 auto;padding:8px 14px;cursor:pointer;border-radius:14px;color:#e9edf1;background:#0b0b0b;box-shadow:0 4px 12px rgba(0,0,0,.35);border:1px solid #2a2a2a;font-weight:700;font-size:13px;">Wallet</button>
-    <button class="btn" data-variant="edit"     data-target="panel-edit"     style="flex:0 0 auto;padding:8px 14px;cursor:pointer;border-radius:10px;color:#e9edf1;background:#0d0d0d;border:2px dashed #2f2f2f;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);">Edit</button>
-    <button class="btn" data-variant="settings" data-target="panel-settings" style="flex:0 0 auto;padding:8px 14px;cursor:pointer;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</button>
+    <a href="battle.html" class="btn" style="flex:0 0 auto;padding:8px 14px;border:none;text-decoration:none;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424,0 4px 12px rgba(0,0,0,.35);letter-spacing:.3px;font-weight:700;font-size:13px;">Battles</a>
+    <a href="wallet.html" class="btn" style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:14px;color:#e9edf1;background:#0b0b0b;box-shadow:0 4px 12px rgba(0,0,0,.35);border:1px solid #2a2a2a;font-weight:700;font-size:13px;">Wallet</a>
+    <a href="edit.html" class="btn" style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:10px;color:#e9edf1;background:#0d0d0d;border:2px dashed #2f2f2f;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);">Edit</a>
+    <a href="settings.html" class="btn" style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</a>
   </div>
 
-  <!-- Panels show here (hidden by default) -->
-  <div id="panelHost" style="padding:8px 16px 24px;">
-    <section id="panel-battles"  class="panel" role="region" aria-label="Battles"  style="display:none;border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Your Battles</div>
-      <div style="display:grid;gap:8px;">
-        <div style="border:1px solid #1c1c1c;border-radius:10px;padding:10px;background:#0f0f0f;">No battles yet. Start one from the queue.</div>
-      </div>
-    </section>
-
-    <section id="panel-wallet"   class="panel" role="region" aria-label="Wallet"   style="display:none;border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-weight:800;letter-spacing:.2px;">Wallet</div>
-        <div style="font-variant-numeric:tabular-nums;background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:6px 8px;">$0.00</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">Add Funds</button>
-        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">Withdraw</button>
-        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">History</button>
-      </div>
-    </section>
-
-    <section id="panel-edit"     class="panel" role="region" aria-label="Edit"     style="display:none;border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Edit Profile</div>
-      <div style="display:grid;gap:10px;">
-        <label style="display:grid;gap:6px;">
-          <span style="font-size:12px;color:#cfd6dd;">Display Name</span>
-          <input type="text" value="El Peace" style="background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;color:#e9edf1;padding:10px;outline:none;">
-        </label>
-        <label style="display:grid;gap:6px;">
-          <span style="font-size:12px;color:#cfd6dd;">Handle</span>
-          <input type="text" value="@elpeace" style="background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;color:#e9edf1;padding:10px;outline:none;">
-        </label>
-        <button style="justify-self:start;padding:10px 14px;border-radius:10px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;font-weight:700;">Save</button>
-      </div>
-    </section>
-
-    <section id="panel-settings" class="panel" role="region" aria-label="Settings" style="display:none;border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
-      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Settings</div>
-      <div style="display:grid;gap:10px;">
-        <label style="display:flex;align-items:center;justify-content:space-between;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;padding:10px;">
-          <span>Dark Mode</span>
-          <input type="checkbox" checked />
-        </label>
-        <label style="display:flex;align-items:center;justify-content:space-between;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;padding:10px;">
-          <span>Notifications</span>
-          <input type="checkbox" />
-        </label>
-      </div>
-    </section>
-  </div>
-
-  <!-- Minimal styles for scrollbar + btn transitions (unchanged look) -->
   <style>
     @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
     ::-webkit-scrollbar { height:8px; }
     ::-webkit-scrollbar-thumb { background:#444; border-radius:4px; }
     ::-webkit-scrollbar-track { background:transparent; }
-    .btn { transition: transform .16s ease, box-shadow .16s ease, filter .16s ease, background .16s ease; }
+    .btn { display:inline-flex;align-items:center;justify-content:center;transition: transform .16s ease, box-shadow .16s ease, filter .16s ease, background .16s ease; }
     .btn:active { transform: translateY(1px) scale(.98); }
-    /* Panels: hidden by default, simple fade when swapped (no visual change to buttons) */
-    .panel { opacity: 0; transition: opacity .12s ease; }
-    .panel.show { display:block !important; opacity:1; }
   </style>
-
-  <!-- Tiny controller: swaps panels under the scroll -->
-  <script>
-    (function(){
-      const host = document.getElementById('panelHost');
-      const buttons = document.querySelectorAll('#scrollRow .btn');
-
-      function showPanel(id){
-        // hide all
-        host.querySelectorAll('.panel').forEach(p=>{
-          p.classList.remove('show');
-          p.style.display = 'none';
-        });
-        // show one
-        const el = document.getElementById(id);
-        if(el){
-          el.style.display = 'block';
-          // force reflow for fade
-          void el.offsetWidth;
-          el.classList.add('show');
-        }
-      }
-
-      // default: show Battles on first load (can change if you want)
-      showPanel('panel-battles');
-
-      // wire clicks
-      buttons.forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const target = btn.getAttribute('data-target');
-          if(target) showPanel(target);
-        });
-      });
-
-      // optional: allow hash navigation without changing button visuals
-      if(location.hash){
-        const id = 'panel-' + location.hash.replace('#','');
-        if(document.getElementById(id)) showPanel(id);
-      }
-    })();
-  </script>
 </body>
-        </html>
+</html>
