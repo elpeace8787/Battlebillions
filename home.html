@@ -1,122 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Rank Button Fix</title>
-<style>
-  body {
-    margin: 0;
-    background: #000;
-    color: #fff;
-    font-family: Arial, sans-serif;
-  }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BattleBillions • Home</title>
 
-  /* Profile row */
-  .profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-  }
+  <!-- Virgo font (optional local paths; falls back to system fonts if missing) -->
+  <style>
+    @font-face{
+      font-family:'Virgo';
+      src:
+        url('assets/fonts/Virgo.woff2') format('woff2'),
+        url('assets/fonts/Virgo.ttf') format('truetype');
+      font-display:swap;
+    }
+  </style>
 
-  .avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    overflow: hidden;
-  }
+  <style>
+    :root{
+      --bg:#000000;
+      --ink:#e9edf1;
+      --ink-2:#cfd6dd;
+      --gold-1:#B8860B;
+      --gold-2:#FFD15C;
+      --gold-3:#F0B90B;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
 
-  .avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--ink);
+      font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
 
-  .name-block {
-    display: flex;
-    flex-direction: column;
-  }
+    /* Subtle ambient glow (same vibe as dashboard) */
+    body::before{
+      content:"";
+      position:fixed; inset:-20% -10%;
+      background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.03), transparent 60%);
+      filter: blur(24px); opacity:.35; z-index:-1;
+      pointer-events:none;
+    }
 
-  .name {
-    font-size: 20px;
-    font-weight: bold;
-  }
+    /* ===== Profile header (left) ===== */
+    .wrap{
+      padding:18px 16px 8px;
+    }
+    .row{
+      display:flex; align-items:center; gap:12px;
+      min-height:88px;
+    }
 
-  .handle {
-    font-size: 14px;
-    color: #ccc;
-  }
+    /* Triangle avatar, pointing up */
+    .tri{
+      width:88px; height:88px; position:relative; overflow:hidden; flex:0 0 auto;
+      clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+      -webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+      background:#111;
+      box-shadow: 0 8px 24px rgba(0,0,0,.45);
+    }
+    .tri img{
+      position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+      transform:scale(1.04);
+    }
 
-  /* Fixed top-right Rank button */
-  .rank-btn {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: conic-gradient(#B8860B, #FFD700, #F0B90B, #B8860B);
-    padding: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    cursor: pointer;
-    animation: pulse 3s ease-in-out infinite;
-  }
+    .nameblock{display:flex; flex-direction:column; gap:4px; min-width:0}
+    .name{
+      font-weight:900; font-size:20px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      letter-spacing:.3px;
+    }
+    .handle{
+      font-size:12px; color:var(--ink-2);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      letter-spacing:.2px;
+    }
 
-  .rank-inner {
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 5px rgba(240, 185, 11, 0.5),
-                inset 0 0 5px rgba(255, 255, 255, 0.2);
-  }
+    /* ===== Floating Rank button (top-right, independent of layout) ===== */
+    #rankBtn{
+      position:fixed !important;
+      top: calc(12px + var(--safe-top)) !important;
+      right: calc(12px + var(--safe-right)) !important;
+      width:56px !important; height:56px !important; border-radius:50% !important;
+      z-index:2147483647 !important; /* sit above shell */
+      padding:4px !important;
+      background: conic-gradient(from 0deg, var(--gold-1), var(--gold-2), var(--gold-3), var(--gold-1)) !important;
+      box-shadow: 0 10px 28px rgba(240,185,11,.33) !important;
+      display:grid !important; place-items:center !important;
+      cursor:pointer !important; user-select:none !important;
+      animation: rankPulse 3s ease-in-out infinite !important;
+      text-decoration:none !important;
+    }
+    #rankBtn::before{
+      content:"";
+      position:absolute; inset:3.5px; border-radius:50%;
+      background: rgba(0,0,0,.88);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+    #rankBtn .lbl, #rankBtn .num{
+      position:relative; z-index:1; display:block; line-height:1; text-align:center;
+      font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    #rankBtn .lbl{ font-size:10px; color:#FFD15C; letter-spacing:.4px; margin-bottom:3px; }
+    #rankBtn .num{ font-size:14px; font-weight:900; color:#FFD15C; letter-spacing:.2px; }
 
-  .rank-label {
-    font-size: 10px;
-    color: #FFD700;
-    letter-spacing: 0.5px;
-  }
+    @keyframes rankPulse{
+      0%,100%{ transform: scale(1) }
+      50%{ transform: scale(1.05) }
+    }
 
-  .rank-number {
-    font-size: 14px;
-    font-weight: bold;
-    color: #FFD700;
-  }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-</style>
+    /* Responsive tweaks */
+    @media (max-width:420px){
+      .tri{width:80px;height:80px}
+      .name{font-size:18px}
+    }
+  </style>
 </head>
 <body>
 
-<!-- Rank Button (always top-right) -->
-<div class="rank-btn">
-  <div class="rank-inner">
-    <div class="rank-label">RANK</div>
-    <div class="rank-number">27</div>
-  </div>
-</div>
+  <!-- Floating Rank button (top-right). Link to your rank page when ready -->
+  <a id="rankBtn" href="rank.html" aria-label="Open Rank">
+    <span class="lbl">RANK</span>
+    <span class="num">27</span>
+  </a>
 
-<!-- Profile Row -->
-<div class="profile">
-  <div class="avatar">
-    <img src="https://via.placeholder.com/80" alt="Avatar">
+  <!-- Profile Header -->
+  <div class="wrap">
+    <div class="row">
+      <div class="tri">
+        <!-- Replace src with the user’s avatar -->
+        <img src="assets/img/user_me.jpg" alt="Avatar of El Peace">
+      </div>
+      <div class="nameblock">
+        <div class="name">El Peace</div>
+        <div class="handle">@elpeace</div>
+      </div>
+    </div>
   </div>
-  <div class="name-block">
-    <div class="name">El Peace</div>
-    <div class="handle">@elpeace</div>
-  </div>
-</div>
 
 </body>
-</html>
+    </html>
