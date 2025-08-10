@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Targeted Iframe Navigation)</title>
+<title>Home Header (Smooth Transitions)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
-  <!-- SUPER-ROBUST RANK BUTTON (loads into iframe 'content') -->
+  <!-- SUPER-ROBUST RANK BUTTON -->
   <a id="rankLink" href="rank.html" target="content" aria-label="Open Rank"
      style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 20px);right:max(12px, env(safe-area-inset-right));
             width:56px;height:56px;border-radius:50%;display:grid;place-items:center;text-decoration:none;cursor:pointer;
@@ -22,7 +22,7 @@
     </span>
   </a>
 
-  <!-- Followers / Following (also load into iframe 'content') -->
+  <!-- Followers / Following -->
   <div style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 82px);right:max(12px, env(safe-area-inset-right));
               display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;color:#cfd6dd;letter-spacing:.3px;
               z-index:2147483646;gap:6px;">
@@ -38,7 +38,7 @@
     </a>
   </div>
 
-  <!-- Minimal profile header (avatar unchanged) -->
+  <!-- Profile header (avatar unchanged) -->
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
       <div style="width:88px;height:88px;position:relative;overflow:hidden;flex:0 0 auto;
@@ -59,26 +59,30 @@
     </div>
   </div>
 
-  <!-- Button scroll row (anchors with target='content') -->
-  <div id="scrollRow" style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:8px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;">
+  <!-- Button scroll row (snap-scroll added) -->
+  <div id="scrollRow"
+       style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:8px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;
+              scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;">
     <a href="battle.html"   target="content" class="btn"
-       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424,0 4px 12px rgba(0,0,0,.35);font-weight:700;font-size:13px;">Battles</a>
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424,0 4px 12px rgba(0,0,0,.35);font-weight:700;font-size:13px;scroll-snap-align:start;">Battles</a>
     <a href="wallet.html"   target="content" class="btn"
-       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:14px;color:#e9edf1;background:#0b0b0b;box-shadow:0 4px 12px rgba(0,0,0,.35);border:1px solid #2a2a2a;font-weight:700;font-size:13px;">Wallet</a>
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:14px;color:#e9edf1;background:#0b0b0b;box-shadow:0 4px 12px rgba(0,0,0,.35);border:1px solid #2a2a2a;font-weight:700;font-size:13px;scroll-snap-align:start;">Wallet</a>
     <a href="edit.html"     target="content" class="btn"
-       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:10px;color:#e9edf1;background:#0d0d0d;border:2px dashed #2f2f2f;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);">Edit</a>
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:10px;color:#e9edf1;background:#0d0d0d;border:2px dashed #2f2f2f;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);scroll-snap-align:start;">Edit</a>
     <a href="settings.html" target="content" class="btn"
-       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</a>
+       style="flex:0 0 auto;padding:8px 14px;text-decoration:none;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);scroll-snap-align:start;">Settings</a>
   </div>
 
-  <!-- Inline content host: iframe named 'content' shows pages under the scroll -->
+  <!-- Inline content (defaults to Battle) -->
   <div style="padding:10px 16px;">
-    <div style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;overflow:hidden;">
-      <!-- Default to battle.html so it auto-shows on load -->
+    <div id="frameShell" style="position:relative;border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;overflow:hidden;">
+      <!-- subtle veil during swaps -->
+      <div id="veil" aria-hidden="true"
+           style="position:absolute;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(1px);opacity:0;pointer-events:none;transition:opacity .18s ease;"></div>
+
       <iframe id="pageFrame" name="content" title="Inline Page"
               src="battle.html"
-              style="display:block;width:100%;height:70vh;border:0;background:#0c0c0c;"
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
+              style="display:block;width:100%;height:70vh;border:0;background:#0c0c0c;opacity:1;transition:opacity .18s ease;">
       </iframe>
     </div>
   </div>
@@ -93,24 +97,65 @@
     .btn:active { transform: translateY(1px) scale(.98); }
   </style>
 
-  <!-- (Optional) auto-resize when same-origin; safe no-op otherwise -->
+  <!-- Smooth swap logic (keeps look untouched) -->
   <script>
     (function(){
       const frame = document.getElementById('pageFrame');
-      function resize(){
-        try{
+      const veil  = document.getElementById('veil');
+
+      // Fade-in after each page loads; also auto-resize if same-origin
+      function handleLoaded(){
+        // fade in
+        frame.style.opacity = '1';
+        veil.style.opacity = '0';
+
+        // try to resize (same-origin only)
+        try {
           const d = frame.contentDocument || frame.contentWindow.document;
-          const h = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight, 560);
+          const h = Math.max(
+            d.documentElement.scrollHeight,
+            d.body ? d.body.scrollHeight : 0,
+            560
+          );
           frame.style.height = h + 'px';
-        }catch(e){
-          /* cross-origin → keep fixed height */
+          // Second pass for async content
+          setTimeout(() => {
+            try {
+              const d2 = frame.contentDocument || frame.contentWindow.document;
+              const h2 = Math.max(d2.documentElement.scrollHeight, d2.body ? d2.body.scrollHeight : 0, 560);
+              frame.style.height = h2 + 'px';
+            } catch(e){}
+          }, 250);
+        } catch(e) {
+          // cross-origin: keep fixed height
         }
       }
-      frame.addEventListener('load', () => { resize(); setTimeout(resize, 200); setTimeout(resize, 600); });
+
+      frame.addEventListener('load', handleLoaded);
+
+      // Make any link that targets the iframe fade smoothly without changing your HTML
+      function prepSmoothSwap(anchor){
+        anchor.addEventListener('click', () => {
+          // Begin fade-out just before navigation happens
+          frame.style.opacity = '0';
+          veil.style.opacity = '.999';
+        });
+      }
+
+      // Rank + followers/following + buttons
+      document.querySelectorAll('a[target="content"]').forEach(prepSmoothSwap);
+
+      // Also catch programmatic changes (if any)
+      const obs = new MutationObserver(() => {
+        // When src changes (edge cases), show veil briefly
+        frame.style.opacity = '0';
+        veil.style.opacity = '.999';
+      });
+      obs.observe(frame, { attributes:true, attributeFilter:['src'] });
     })();
   </script>
 
-  <!-- keyframes duplication kept for safety -->
+  <!-- safety duplicate keyframes -->
   <style>@keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }</style>
 </body>
 </html>
