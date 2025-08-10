@@ -1,79 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Battlebillions | Home</title>
-  <link rel="stylesheet" href="shared.css" />
-  <link rel="stylesheet" href="dashboard.css" />
-  <link rel="stylesheet" href="home.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3ATTL33ILLIONS | Home</title>
+
+  <!-- Optional local font (safe if loaded standalone); in the shell, Virgo is already global -->
+  <style>
+    @font-face{
+      font-family:'Virgo';
+      src: url('assets/fonts/Virgo.woff2') format('woff2'),
+           url('assets/fonts/Virgo.ttf') format('truetype');
+      font-display:swap;
+    }
+  </style>
+
+  <style>
+    :root{
+      --bg-0:#000000;
+      --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
+      --stroke:rgba(255,255,255,.08);
+      --panel:#0e0e0f;
+      --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
+      --ring:0 0 0 3px rgba(255,255,255,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg-0); color:var(--ink);
+      font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    /* Page container */
+    .home-wrap{
+      padding: 18px 16px 24px;
+      max-width: 1100px; margin: 0 auto;
+    }
+
+    /* Header / Profile */
+    .hero{
+      display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center;
+      padding:16px; border:1px solid var(--stroke); border-radius:16px; background:rgba(255,255,255,.04);
+      backdrop-filter: blur(6px);
+    }
+    .avatar{
+      width:64px; height:64px; border-radius:16px; overflow:hidden; position:relative;
+      box-shadow:0 0 0 2px rgba(255,255,255,.06);
+    }
+    .avatar img{width:100%; height:100%; object-fit:cover; display:block}
+    .title{
+      display:flex; flex-direction:column; gap:6px;
+      min-width:0;
+    }
+    .title h1{
+      font-size:20px; margin:0; letter-spacing:.4px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;
+    }
+    .subtitle{font-size:12px; color:var(--ink-3); letter-spacing:.3px}
+    .profile-actions{display:flex; gap:10px}
+    .btn{
+      background:#fff; color:#111; border:1px solid var(--stroke);
+      padding:10px 14px; border-radius:12px; font-weight:800; cursor:pointer;
+      transition:transform .2s, filter .2s, box-shadow .2s;
+    }
+    .btn:hover{transform:translateY(-1px); filter:brightness(.95)}
+    .btn.secondary{background:transparent; color:var(--ink)}
+    .btn.gold{
+      background:linear-gradient(90deg,#4f4f4f,#F0B90B,#4f4f4f); background-size:200% 100%;
+      color:#101; border-color:rgba(240,185,11,.55); box-shadow:0 0 18px 2px rgba(240,185,11,.25);
+    }
+
+    /* Stats */
+    .stats{
+      display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin-top:14px;
+    }
+    .card{
+      background:var(--panel); border:1px solid var(--stroke); border-radius:16px; padding:14px 16px;
+    }
+    .card h3{font-size:13px; margin:0 0 6px; color:var(--ink-2); letter-spacing:.35px}
+    .metric{font-size:22px; font-weight:900; letter-spacing:.5px}
+
+    /* Live feed */
+    .feed{
+      margin-top:14px; display:flex; flex-direction:column; gap:10px;
+    }
+    .feed h2{font-size:16px; margin:2px 2px 6px}
+    .tile{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 14px; border:1px solid var(--stroke); border-radius:14px; background:rgba(255,255,255,.04);
+      transition:transform .2s, background .2s;
+    }
+    .tile:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
+    .tile .left{display:flex; gap:10px; align-items:center}
+    .dot{width:10px; height:10px; border-radius:50%; background:linear-gradient(90deg, var(--gold-1), var(--gold-2)); box-shadow:0 0 10px rgba(240,185,11,.4)}
+    .tile .meta{font-size:12px; color:var(--ink-3)}
+
+    /* Quick Actions */
+    .quick{
+      margin-top:14px; display:flex; flex-wrap:wrap; gap:10px;
+    }
+    .pill{
+      background:rgba(255,255,255,.08); color:#fff; border:1px solid var(--stroke);
+      padding:10px 14px; border-radius:999px; font-weight:800; cursor:pointer;
+      transition:transform .2s, background .2s;
+    }
+    .pill:hover{transform:translateY(-1px); background:rgba(255,255,255,.14)}
+    .pill.gold{background:linear-gradient(90deg,#4f4f4f,#F0B90B,#4f4f4f); background-size:200% 100%; color:#101; border-color:rgba(240,185,11,.55)}
+
+    /* Responsive */
+    @media (max-width:640px){
+      .hero{grid-template-columns:auto 1fr; grid-auto-rows:auto}
+      .profile-actions{grid-column:1 / -1}
+      .stats{grid-template-columns:1fr 1fr}
+    }
+  </style>
 </head>
 <body>
-  <div class="page-content home-page">
-    <!-- Header -->
-    <header class="header">
-      <h1>Welcome, Commander</h1>
-      <p class="subtitle" id="dateTime"></p>
-    </header>
+  <!-- Fragment root for dashboard loader -->
+  <div class="home-wrap" data-app-fragment>
+    <!-- Hero / Profile -->
+    <section class="hero">
+      <div class="avatar">
+        <img id="profileAvatar" src="assets/img/user_me.jpg" alt="Your avatar"/>
+      </div>
+      <div class="title">
+        <h1 id="profileName">Welcome, Commander</h1>
+        <div class="subtitle">
+          <span id="profileHandle">@you</span> • <span id="dateTime">—</span>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn secondary" onclick="go('#/opponents')" aria-label="Open your profile">View Profile</button>
+        <button class="btn gold" onclick="go('#/messages')" aria-label="Open messages">Messages</button>
+      </div>
+    </section>
 
-    <!-- Quick Stats -->
-    <section class="stats-grid">
-      <div class="stat-card">
-        <h2>💰 Coins</h2>
-        <p>8,504</p>
+    <!-- Stats -->
+    <section class="stats">
+      <div class="card">
+        <h3>💰 Coins</h3>
+        <div class="metric" id="statCoins">8,504</div>
       </div>
-      <div class="stat-card">
-        <h2>⚔️ Battles</h2>
-        <p>27</p>
+      <div class="card">
+        <h3>⚔️ 3ATTLES</h3>
+        <div class="metric" id="statBattles">27</div>
       </div>
-      <div class="stat-card">
-        <h2>💬 Messages</h2>
-        <p>19</p>
+      <div class="card">
+        <h3>💬 Messages</h3>
+        <div class="metric" id="statMsgs">19</div>
       </div>
     </section>
 
     <!-- Live Feed -->
-    <section class="live-feed">
+    <section class="feed">
       <h2>Live Feed</h2>
-      <ul>
-        <li>🔥 Top Battle: Phoenix vs Hydra</li>
-        <li>⚡️ Blitz round starts in 2 minutes</li>
-        <li>🏆 Leaderboard updated</li>
-      </ul>
+
+      <div class="tile">
+        <div class="left">
+          <div class="dot"></div>
+          <div>
+            <div>🔥 Top 3ATTLE: <b>Phoenix</b> vs <b>Hydra</b></div>
+            <div class="meta">Trending in 3ILLIONS</div>
+          </div>
+        </div>
+        <button class="pill" onclick="go('#/battle')">Watch</button>
+      </div>
+
+      <div class="tile">
+        <div class="left">
+          <div class="dot"></div>
+          <div>
+            <div>⚡️ Blitz round starts in <b>2 min</b></div>
+            <div class="meta">RAP • Fast Flow</div>
+          </div>
+        </div>
+        <button class="pill gold" onclick="go('#/battle')">Join 3ATTLE</button>
+      </div>
+
+      <div class="tile">
+        <div class="left">
+          <div class="dot"></div>
+          <div>
+            <div>🏆 Leaderboard updated</div>
+            <div class="meta">New #1: @RunwayRuler</div>
+          </div>
+        </div>
+        <button class="pill" onclick="go('#/leaderboard')">See Leaders</button>
+      </div>
     </section>
 
     <!-- Quick Actions -->
-    <section class="actions">
-      <button class="action-btn" onclick="navigateTo('battle.html')">Join Battle</button>
-      <button class="action-btn" onclick="navigateTo('leaderboard.html')">Top Players</button>
-      <button class="action-btn" onclick="navigateTo('wallet.html')">View Wallet</button>
+    <section class="quick">
+      <button class="pill gold" onclick="go('#/battle')">Enter 3ATTLES</button>
+      <button class="pill" onclick="go('#/leaderboard')">Top Players</button>
+      <button class="pill" onclick="go('#/messages')">Open Messages</button>
+      <button class="pill" onclick="go('#/opponents')">Edit Profile</button>
+      <button class="pill" onclick="go('#/battle')">Choose Category</button>
+      <button class="pill" onclick="go('#/home')">Refresh</button>
     </section>
   </div>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
-    <div class="nav-item active" onclick="navigateTo('home.html')">
-      <img src="assets/home-icon.png" alt="Home" />
-      <span>Home</span>
-    </div>
-    <div class="nav-item" onclick="navigateTo('battle.html')">
-      <img src="assets/battle 3d.png" alt="Battle" />
-      <span>Battle</span>
-    </div>
-    <div class="nav-item" onclick="navigateTo('leaderboard.html')">
-      <img src="assets/leaderboard 3d.png" alt="Leaderboard" />
-      <span>Rank</span>
-    </div>
-    <div class="nav-item" onclick="navigateTo('messages.html')">
-      <img src="assets/messages 3d.png" alt="Messages" />
-      <span>Chat</span>
-    </div>
-    <div class="nav-item" onclick="navigateTo('settings.html')">
-      <img src="assets/settings 3d .png" alt="Settings" />
-      <span>Settings</span>
-    </div>
-  </nav>
+  <script>
+    // SPA-friendly navigation helper
+    function go(hash){
+      try{
+        if (window.parent && window.parent !== window && 'postMessage' in window.parent){
+          // Let the shell handle it by changing hash on the parent frame
+          window.parent.location.hash = hash;
+        } else {
+          // Opened standalone
+          location.hash = hash;
+        }
+      }catch(e){
+        location.hash = hash;
+      }
+    }
 
-  <script src="main.js"></script>
+    // Demo: you can replace with real user data when available
+    const demoUser = {
+      name: 'Commander Nova',
+      handle: '@nova',
+      avatar: 'assets/img/user_me.jpg',
+      coins: 8504,
+      battles: 27,
+      messages: 19
+    };
+
+    function fmt(n){ return n.toLocaleString(); }
+
+    function setNow(){
+      const el = document.getElementById('dateTime');
+      const now = new Date();
+      el.textContent = now.toLocaleString([], { month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }
+
+    function hydrate(){
+      const {name, handle, avatar, coins, battles, messages} = demoUser;
+      (document.getElementById('profileName')||{}).textContent = `Welcome, ${name}`;
+      (document.getElementById('profileHandle')||{}).textContent = handle;
+      const img = document.getElementById('profileAvatar');
+      if(img) img.src = avatar;
+      (document.getElementById('statCoins')||{}).textContent = fmt(coins);
+      (document.getElementById('statBattles')||{}).textContent = fmt(battles);
+      (document.getElementById('statMsgs')||{}).textContent = fmt(messages);
+      setNow();
+    }
+
+    hydrate();
+    setInterval(setNow, 60_000); // update timestamp every minute
+  </script>
 </body>
-      </html>
+  </html>
