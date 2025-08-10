@@ -18,8 +18,7 @@
   <style>
     :root{
       --bg:#000;
-      --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
-      --soft:rgba(255,255,255,.10);
+      --ink:#e9edf1; --ink-2:#cfd6dd;
       --ring:0 0 0 3px rgba(255,255,255,.18);
       --max:980px;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -31,52 +30,50 @@
       font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
       -webkit-font-smoothing:antialiased;letter-spacing:.2px;
     }
-
-    /* Page container (extra bottom padding so it won't collide with bottom tab on mobile) */
     .container{
       max-width:var(--max);
       margin:0 auto;
       padding:18px 14px calc(100px + var(--safe-bottom));
     }
 
-    /* Row 1: avatar ▲ + name (side-by-side) */
-    .row-top{
-      display:flex;align-items:center;gap:14px;min-height:92px;
-    }
+    /* Row 1: avatar ▲ + name */
+    .row-top{display:flex;align-items:center;gap:14px;min-height:92px}
     .tri-avatar{
       width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
-      clip-path:polygon(50% 0%,0% 100%,100% 100%);
-      -webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
+      clip-path:polygon(50% 0%,0% 100%,100% 100%); -webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
       background:#111;
     }
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.1)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-    /* Rows of small icon buttons: white label ABOVE white icon */
-    .icon-row{
-      display:grid;gap:18px;margin-top:16px;
-      grid-template-columns:repeat(3,1fr);
+    /* Row 2: ALL buttons (labels above icons) */
+    .icon-grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+      gap:18px;
     }
-    .icon-row.actions{grid-template-columns:repeat(4,1fr)}
+    @media (max-width:420px){
+      .icon-grid{grid-template-columns:repeat(3,1fr);gap:14px}
+    }
+
     .icon-btn{
       appearance:none;background:transparent;border:none;color:#fff;text-decoration:none;
-      display:flex;flex-direction:column-reverse; /* puts label ABOVE icon */
+      display:flex;flex-direction:column-reverse; /* label ABOVE icon */
       align-items:center;justify-content:center;gap:6px;
-      cursor:pointer;user-select:none;outline:none;
-      min-width:0; /* prevent overflow on very small screens */
+      cursor:pointer;user-select:none;outline:none;min-width:0;
     }
     .icon-btn:focus-visible{box-shadow:var(--ring);border-radius:12px}
     .icon-btn:hover .icwrap{transform:translateY(-1px) scale(1.03);filter:brightness(1.06)}
 
     .icwrap{
-      width:40px;height:40px;display:grid;place-items:center;border-radius:12px;
+      width:42px;height:42px;display:grid;place-items:center;border-radius:12px;
       background:transparent;transition:transform .18s ease, filter .18s ease;
     }
     .icwrap svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.96}
 
     .label{
-      font-size:11px;line-height:1;font-weight:900;
-      color:#fff;letter-spacing:.3px;text-transform:capitalize;
+      font-size:11px;line-height:1;font-weight:900;color:#fff;letter-spacing:.3px;
       max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
     .count{
@@ -84,19 +81,11 @@
       max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
 
-    .divider{height:1px;background:var(--soft);margin:18px 0}
-
-    /* Mobile tweaks */
-    @media (max-width:520px){
+    /* Small tweaks for tight screens */
+    @media (max-width:360px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
-      .icon-row{gap:14px}
       .icwrap{width:38px;height:38px}
-      .icon-row.actions{grid-template-columns:repeat(4,1fr)}
-    }
-    @media (max-width:360px){
-      .icon-row{grid-template-columns:repeat(3,1fr)}
-      .icon-row.actions{grid-template-columns:repeat(4,1fr)}
       .label,.count{font-size:10px}
       .icwrap svg{width:20px;height:20px}
     }
@@ -104,7 +93,7 @@
 </head>
 <body>
 
-  <!-- Inline white icon sprite (same style as dashboard) -->
+  <!-- Inline white icon sprite (same style language as dashboard) -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <symbol id="ic-swords" viewBox="0 0 24 24">
@@ -119,7 +108,7 @@
         <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
       <symbol id="ic-following" viewBox="0 0 24 24">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M16 21v-2a4 4 0  0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
         <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
         <path d="M17 8h6M20 5v6" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
@@ -136,7 +125,7 @@
       </symbol>
       <symbol id="ic-cog" viewBox="0 0 24 24">
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke-width="1.6"/>
-        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7 1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
+        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7 1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0  0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
       </symbol>
     </defs>
   </svg>
@@ -150,41 +139,43 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: metrics (white label over icon) -->
-    <section class="icon-row" aria-label="Profile metrics">
+    <!-- Row 2: ALL buttons (auto-wrap grid) -->
+    <section class="icon-grid" aria-label="Profile">
+      <!-- Metrics -->
       <a class="icon-btn" href="battles.html">
         <span class="label">Battles</span>
         <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
         <span class="count" id="battlesCount">27</span>
       </a>
+
       <a class="icon-btn" href="followers.html">
         <span class="label">Followers</span>
         <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
         <span class="count" id="followersCount">12.8k</span>
       </a>
+
       <a class="icon-btn" href="following.html">
         <span class="label">Following</span>
         <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
         <span class="count" id="followingCount">341</span>
       </a>
-    </section>
 
-    <div class="divider" role="separator" aria-hidden="true"></div>
-
-    <!-- Row 3: actions (white label over icon) -->
-    <section class="icon-row actions" aria-label="Profile actions">
+      <!-- Actions -->
       <a class="icon-btn" href="rank.html">
         <span class="label">Rank</span>
         <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
       </a>
+
       <a class="icon-btn" href="wallet.html">
         <span class="label">Wallet</span>
         <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
       </a>
+
       <a class="icon-btn" href="edit.html">
         <span class="label">Edit</span>
         <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
       </a>
+
       <a class="icon-btn" href="settings.html">
         <span class="label">Settings</span>
         <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
@@ -192,14 +183,5 @@
     </section>
   </main>
 
-  <!-- Optional: hydrate with JS later
-  <script>
-    // document.getElementById('displayName').textContent = 'Your Name';
-    // document.getElementById('avatar').src = 'assets/img/your_avatar.jpg';
-    // document.getElementById('battlesCount').textContent = '42';
-    // document.getElementById('followersCount').textContent = '13.2k';
-    // document.getElementById('followingCount').textContent = '512';
-  </script>
-  -->
 </body>
   </html>
