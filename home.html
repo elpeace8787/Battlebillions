@@ -19,16 +19,11 @@
   <style>
     :root{
       --bg:#000;
-      --panel:#0e0e0f;
-      --ink:#e9edf1;
-      --ink-2:#cfd6dd;
-      --ink-3:#9aa3ad;
+      --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --stroke:rgba(255,255,255,.08);
-      --ring:0 0 0 3px rgba(255,255,255,.12);
       --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -37,73 +32,62 @@
       letter-spacing:.2px;
     }
 
-    /* Page layout */
+    /* ===== Page layout ===== */
     .home-shell{
-      max-width:1200px; margin:0 auto; padding:16px 12px calc(28px + var(--safe-bottom));
+      max-width:1200px; margin:0 auto; padding:16px 12px calc(24px + var(--safe-bottom));
       display:grid; grid-template-columns: 1fr 340px; gap:16px;
     }
+    /* Left area kept empty/for feed later (no copy shown) */
+    .home-main{min-height:40vh}
 
-    /* Left main area (fill with your feed/hero later) */
-    .home-main{
-      min-height:60vh; border:1px solid var(--stroke); border-radius:16px;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      padding:18px;
+    /* ===== Right Sidebar (clean, no boxes) ===== */
+    .home-sidebar{position:sticky; top:16px; display:flex; flex-direction:column; gap:14px}
+
+    /* Profile mini */
+    .profile-mini{
+      display:flex; gap:12px; align-items:center;
     }
-    .home-main h1{margin:0 0 8px 0; font-size:18px}
-    .home-main p{color:var(--ink-3); margin:0}
-
-    /* Right sidebar */
-    .home-sidebar{position:sticky; top:16px; display:flex; flex-direction:column; gap:12px}
-
-    .card{
-      border:1px solid var(--stroke); border-radius:16px; background:rgba(255,255,255,.04);
-      backdrop-filter:blur(6px); box-shadow:0 10px 30px rgba(0,0,0,.35);
-      padding:14px;
-    }
-
-    /* Profile header (avatar + display name) */
-    .profile-mini{display:flex; gap:12px; align-items:center}
     .avatar{width:64px;height:64px;border-radius:16px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.06)}
     .avatar img{width:100%;height:100%;object-fit:cover;display:block}
     .display-name{font-size:18px; font-weight:900}
 
-    /* Actions (open overlays) */
-    .actions{display:flex; flex-direction:column; gap:10px; margin-top:10px}
-    .action-btn{
-      display:flex; align-items:center; gap:12px; width:100%;
-      border:1px solid var(--stroke); border-radius:12px;
-      background:rgba(255,255,255,.06); color:#fff; font-weight:800; font-size:13px;
-      padding:12px; cursor:pointer; text-align:left;
-      transition:transform .2s, background .2s, box-shadow .2s;
+    /* Icon buttons row (like bottom bar) */
+    .action-icons{
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;
     }
-    .action-btn:hover{transform:translateY(-1px); background:rgba(255,255,255,.1)}
-    .action-btn svg{width:18px;height:18px;stroke:#fff}
-
-    .action-btn.rank{
-      background:linear-gradient(90deg,#3a3a3a,var(--gold-2),#3a3a3a);
-      background-size:200% 100%;
-      color:#101; border-color:rgba(240,185,11,.55);
-      box-shadow:0 0 16px 2px rgba(240,185,11,.25);
-      animation:shimmer 5s linear infinite;
+    .icon-btn{
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+      width:100%; aspect-ratio:1/1; border:none; background:transparent; color:#fff; cursor:pointer;
+      transition:transform .2s, opacity .2s;
     }
-    @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+    .icon-btn:focus-visible{outline:2px solid rgba(255,255,255,.3); outline-offset:4px; border-radius:14px}
+    .icon-btn:hover{transform:translateY(-1px)}
+    .icon-btn svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
+    .icon-label{font-size:10px; letter-spacing:.3px; color:var(--ink-2)}
 
-    .badge{
-      margin-left:auto;
-      padding:2px 8px; border-radius:999px; border:1px solid rgba(240,185,11,.55);
-      background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3));
-      color:#101; font-weight:900; font-size:11px;
+    /* Rank badge shimmer (small dot under icon) */
+    .icon-rank .badge{
+      position:absolute; top:-6px; right:-6px;
+      padding:2px 6px; border-radius:999px; border:1px solid rgba(240,185,11,.55);
+      background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3)); color:#101;
+      font-weight:900; font-size:10px;
+      box-shadow:0 0 10px rgba(240,185,11,.35);
     }
+    .icon-wrap{position:relative; display:grid; place-items:center}
 
-    .divider{height:1px; background:var(--stroke); margin:10px 0}
+    /* Divider line (subtle) */
+    .divider{height:1px; background:var(--stroke); margin:4px 0}
 
-    /* Stats */
+    /* Minimal stats (thin borders, tiny) */
     .stats{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px}
-    .stat{border:1px solid var(--stroke); border-radius:12px; background:var(--panel); padding:10px; text-align:center}
-    .stat .num{font-size:18px; font-weight:900}
+    .stat{
+      border:1px solid var(--stroke); border-radius:12px; background:transparent;
+      padding:10px; text-align:center;
+    }
+    .stat .num{font-size:16px; font-weight:900}
     .stat .lbl{font-size:10px; color:var(--ink-2); letter-spacing:.3px}
 
-    /* Overlays (sub-pages) */
+    /* ===== Overlays (sub-pages) ===== */
     .modal{
       position:fixed; inset:0; display:none; align-items:center; justify-content:center;
       background:rgba(0,0,0,.55); backdrop-filter:blur(6px); z-index:2000;
@@ -111,8 +95,7 @@
     .modal.show{display:flex}
     .sheet{
       width:min(92vw, 720px); border-radius:16px; background:#0e0e0f;
-      border:1px solid var(--stroke); box-shadow:0 10px 30px rgba(0,0,0,.45);
-      overflow:hidden;
+      border:1px solid var(--stroke); box-shadow:0 10px 30px rgba(0,0,0,.45); overflow:hidden;
     }
     .sheet-head{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -130,8 +113,13 @@
 
     /* Responsive */
     @media (max-width: 980px){
-      .home-shell{grid-template-columns: 1fr}
+      .home-shell{grid-template-columns:1fr}
       .home-sidebar{position:static}
+      .action-icons{grid-template-columns: repeat(4, 1fr)}
+    }
+    @media (max-width: 420px){
+      .action-icons{grid-template-columns: repeat(4, 1fr); gap:10px}
+      .icon-btn svg{width:20px;height:20px}
     }
   </style>
 </head>
@@ -160,74 +148,59 @@
   </svg>
 
   <div class="home-shell" data-app-fragment>
-    <!-- Left (your feed/hero) -->
-    <section class="home-main">
-      <h1>Welcome back</h1>
-      <p>Jump into a 3ATTLE, browse 3ILLIONS, or check your rank.</p>
-      <!-- Add your content/cards here -->
-    </section>
+    <!-- LEFT: nothing noisy — you can add feed later -->
+    <section class="home-main" aria-hidden="true"></section>
 
-    <!-- Right Sidebar -->
+    <!-- RIGHT: Sidebar -->
     <aside class="home-sidebar">
-      <!-- Profile Mini -->
-      <div class="card">
-        <div class="profile-mini">
-          <div class="avatar"><img id="avatar" src="assets/img/user_me.jpg" alt="Your avatar"></div>
-          <div class="display-name" id="displayName">Commander Nova</div>
-        </div>
-
-        <!-- Actions -->
-        <div class="actions">
-          <button class="action-btn rank" data-open="rankModal">
-            <svg><use href="#ic-trophy"/></svg>
-            <span>Rank</span>
-            <span class="badge" id="rankBadge">#27</span>
-          </button>
-          <button class="action-btn" data-open="walletModal">
-            <svg><use href="#ic-wallet"/></svg>
-            <span>Wallet</span>
-          </button>
-          <button class="action-btn" data-open="editModal">
-            <svg><use href="#ic-edit"/></svg>
-            <span>Edit</span>
-          </button>
-          <button class="action-btn" data-open="settingsModal">
-            <svg><use href="#ic-cog"/></svg>
-            <span>Settings</span>
-          </button>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Stats -->
-        <div class="stats">
-          <div class="stat">
-            <div class="num" id="statBattles">27</div>
-            <div class="lbl">3ATTLES</div>
-          </div>
-          <div class="stat">
-            <div class="num" id="statFollowers">12.8k</div>
-            <div class="lbl">Followers</div>
-          </div>
-          <div class="stat">
-            <div class="num" id="statFollowing">341</div>
-            <div class="lbl">Following</div>
-          </div>
-        </div>
+      <!-- Profile -->
+      <div class="profile-mini">
+        <div class="avatar"><img id="avatar" src="assets/img/user_me.jpg" alt="Your avatar"></div>
+        <div class="display-name" id="displayName">Commander Nova</div>
       </div>
 
-      <!-- Optional CTA -->
-      <div class="card">
-        <div class="sheet-body">
-          <div class="muted">Ready to jump back in?</div>
-          <div style="height:8px"></div>
-          <button class="action-btn" onclick="go('#/battle')">
-            <!-- play icon -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            Enter 3ATTLES
-          </button>
+      <!-- Icon buttons (like bottom bar) -->
+      <div class="action-icons" aria-label="Quick actions">
+        <!-- Rank -->
+        <button class="icon-btn icon-rank" data-open="rankModal" aria-label="Rank">
+          <span class="icon-wrap">
+            <svg><use href="#ic-trophy"/></svg>
+            <span class="badge" id="rankBadge">#27</span>
+          </span>
+          <span class="icon-label">Rank</span>
+        </button>
+        <!-- Wallet -->
+        <button class="icon-btn" data-open="walletModal" aria-label="Wallet">
+          <svg><use href="#ic-wallet"/></svg>
+          <span class="icon-label">Wallet</span>
+        </button>
+        <!-- Edit -->
+        <button class="icon-btn" data-open="editModal" aria-label="Edit Profile">
+          <svg><use href="#ic-edit"/></svg>
+          <span class="icon-label">Edit</span>
+        </button>
+        <!-- Settings -->
+        <button class="icon-btn" data-open="settingsModal" aria-label="Settings">
+          <svg><use href="#ic-cog"/></svg>
+          <span class="icon-label">Settings</span>
+        </button>
+      </div>
+
+      <div class="divider" role="separator"></div>
+
+      <!-- Stats (minimal) -->
+      <div class="stats" aria-label="Quick stats">
+        <div class="stat">
+          <div class="num" id="statBattles">27</div>
+          <div class="lbl">3ATTLES</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statFollowers">12.8k</div>
+          <div class="lbl">Followers</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statFollowing">341</div>
+          <div class="lbl">Following</div>
         </div>
       </div>
     </aside>
@@ -244,7 +217,7 @@
       <div class="sheet-body">
         <p>Your current global rank:</p>
         <h2 style="margin:6px 0 0 0; font-size:28px; font-weight:900;"><span id="rankBig">#27</span></h2>
-        <p class="muted">Climb by winning more 3ATTLES and earning 3ILLIONS.</p>
+        <p class="muted">Win more 3ATTLES to climb.</p>
       </div>
     </div>
   </div>
@@ -259,17 +232,12 @@
       <div class="sheet-body">
         <p>Balance</p>
         <h2 style="margin:6px 0; font-size:24px; font-weight:900;"><span id="walletBalance">8,504</span> coins</h2>
-        <p class="muted">Withdrawals, deposits, and rewards history will appear here.</p>
-        <div style="height:10px"></div>
-        <button class="action-btn" onclick="alert('Add funds flow coming soon')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          Add Funds
-        </button>
+        <p class="muted">Deposits, withdrawals, and rewards will show here.</p>
       </div>
     </div>
   </div>
 
-  <!-- Edit Profile -->
+  <!-- Edit -->
   <div class="modal" id="editModal" aria-modal="true" role="dialog">
     <div class="sheet" role="document">
       <div class="sheet-head">
@@ -277,15 +245,13 @@
         <button class="closebtn" data-close="editModal">Close</button>
       </div>
       <div class="sheet-body">
-        <div class="muted">Quick edit (demo). Wire to your backend later.</div>
-        <div style="height:10px"></div>
         <label style="font-size:12px;color:var(--ink-2)">Display Name</label>
         <input id="nameInput" type="text" value="Commander Nova" style="width:100%;margin-top:6px;margin-bottom:10px;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0b0c;color:#fff;font-family:inherit">
         <label style="font-size:12px;color:var(--ink-2)">Avatar URL</label>
         <input id="avatarInput" type="text" value="assets/img/user_me.jpg" style="width:100%;margin-top:6px;margin-bottom:14px;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0b0c;color:#fff;font-family:inherit">
-        <button class="action-btn" onclick="saveProfile()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Save
+        <button class="icon-btn" onclick="saveProfile()" style="width:auto;aspect-ratio:auto;padding:10px 14px;border:1px solid var(--stroke);border-radius:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M20 6L9 17l-5-5"/></svg>
+          <span class="icon-label" style="font-size:12px">Save</span>
         </button>
       </div>
     </div>
@@ -299,7 +265,7 @@
         <button class="closebtn" data-close="settingsModal">Close</button>
       </div>
       <div class="sheet-body">
-        <p class="muted">Fast toggles (demo).</p>
+        <p class="muted">Quick toggles (demo).</p>
         <div style="height:8px"></div>
         <label style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer">
           <input id="darkMode" type="checkbox" checked style="accent-color:#fff">
@@ -309,27 +275,12 @@
           <input id="notifs" type="checkbox" checked style="accent-color:#fff">
           <span>Battle notifications</span>
         </label>
-        <div style="height:10px"></div>
-        <button class="action-btn" onclick="alert('More settings soon')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2l4 4-4 4-4-4 4-4zM2 12l4 4-4 4-4-4 4-4zM22 12l-4 4 4 4 4-4-4-4zM12 22l-4-4 4-4 4 4-4 4z"/>
-          </svg>
-          Advanced
-        </button>
       </div>
     </div>
   </div>
 
   <script>
-    // SPA helper: open route in parent shell if embedded
-    function go(hash){
-      try{
-        if (window.parent && window.parent !== window){ window.parent.location.hash = hash; }
-        else { location.hash = hash; }
-      }catch(e){ location.hash = hash; }
-    }
-
-    // Demo data (replace later)
+    // Demo data (replace with live)
     const user = {
       name: 'Commander Nova',
       avatar: 'assets/img/user_me.jpg',
@@ -343,7 +294,7 @@
     function fmt(n){ return n.toLocaleString(); }
     function kfmt(n){ return n>=1000 ? (Math.round(n/100)/10)+'k' : n.toString(); }
 
-    // Hydration
+    // Hydrate content
     (function hydrate(){
       document.getElementById('displayName').textContent = user.name;
       document.getElementById('avatar').src = user.avatar;
@@ -359,45 +310,22 @@
     function openModal(id){ document.getElementById(id).classList.add('show'); }
     function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 
-    // Wire buttons (data-open / data-close)
+    // Wire buttons (data-open / data-close + backdrop click)
     document.addEventListener('click',(e)=>{
       const openBtn = e.target.closest('[data-open]');
-      if(openBtn){
-        const id = openBtn.getAttribute('data-open');
-        openModal(id);
-      }
+      if(openBtn){ openModal(openBtn.getAttribute('data-open')); }
+
       const closeBtn = e.target.closest('[data-close]');
-      if(closeBtn){
-        const id = closeBtn.getAttribute('data-close');
-        closeModal(id);
-        // clear hash if we used routes
-        if (location.hash === '#/rank' || location.hash === '#/wallet' || location.hash === '#/edit-profile' || location.hash === '#/settings'){
-          history.replaceState({}, '', '#/home');
-        }
-      }
-      const modal = e.target.classList.contains('modal') ? e.target : null;
-      if(modal){ modal.classList.remove('show'); history.replaceState({}, '', '#/home'); }
+      if(closeBtn){ closeModal(closeBtn.getAttribute('data-close')); }
+
+      const modalBg = e.target.classList.contains('modal') ? e.target : null;
+      if(modalBg){ modalBg.classList.remove('show'); }
     });
 
-    // Keyboard ESC closes any open sheet
+    // ESC to close
     document.addEventListener('keydown',(e)=>{
-      if(e.key==='Escape'){
-        document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
-        history.replaceState({}, '', '#/home');
-      }
+      if(e.key==='Escape'){ document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show')); }
     });
-
-    // Route → open overlay (works inside shell)
-    function routeFromHash(){
-      const h = (window.parent && window.parent !== window) ? window.parent.location.hash : location.hash;
-      if(h==='#/rank') openModal('rankModal');
-      if(h==='#/wallet') openModal('walletModal');
-      if(h==='#/edit-profile') openModal('editModal');
-      if(h==='#/settings') openModal('settingsModal');
-    }
-    window.addEventListener('hashchange', routeFromHash);
-    // If loaded directly with a modal route
-    routeFromHash();
 
     // Save (demo)
     function saveProfile(){
@@ -408,8 +336,7 @@
       document.getElementById('avatar').src = user.avatar;
       alert('Saved!');
       closeModal('editModal');
-      history.replaceState({}, '', '#/home');
     }
   </script>
 </body>
-  </html>
+            </html>
