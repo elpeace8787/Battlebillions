@@ -4,94 +4,28 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Home • 3ATTL33ILLIONS</title>
-
-  <!-- Virgo font (local) -->
   <style>
     @font-face{
       font-family:'Virgo';
-      src: url('assets/fonts/Virgo.woff2') format('woff2'),
-           url('assets/fonts/Virgo.ttf') format('truetype');
+      src:url('assets/fonts/Virgo.woff2') format('woff2'),
+          url('assets/fonts/Virgo.ttf') format('truetype');
       font-display:swap;
     }
-  </style>
-
-  <style>
-    :root{
-      --bg:#000;
-      --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
-      --stroke:rgba(255,255,255,.10);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; background:var(--bg); color:var(--ink);
-      font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      -webkit-font-smoothing:antialiased; letter-spacing:.2px;
-    }
-
-    /* Page shell spacing (matches dashboard rhythm) */
-    .container{
-      max-width:980px;
-      margin:0 auto;
-      padding:18px 14px 90px;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-    }
-
-    /* STEP 1 — Top row */
-    .top-row{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      min-height:88px;
-      flex-wrap:wrap; /* graceful wrap on small screens */
-    }
-
-    /* Triangle (▲) avatar */
-    .tri-avatar{
-      width:92px;
-      height:92px;
-      position:relative;
-      overflow:hidden;
-      clip-path: polygon(50% 0%, 0% 100%, 100% 100%); /* ▲ up */
-      -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-      background:#111; /* fallback if image missing */
-      flex:0 0 auto;
-    }
-    .tri-avatar img{
-      position:absolute; inset:0;
-      width:100%; height:100%; object-fit:cover;
-      transform: scale(1.12); /* slight zoom to fill corners */
-    }
-
-    /* Identity / metrics in one clean line */
-    .identity-line{
-      display:flex; align-items:center; gap:18px;
-      flex:1 1 auto; min-width:260px;
-    }
-    .display-name{
-      font-size:22px; font-weight:900; white-space:nowrap;
-    }
-
-    .metrics{
-      display:flex; align-items:center; gap:18px; flex-wrap:wrap;
-    }
-    .metric{
-      display:flex; align-items:baseline; gap:6px; white-space:nowrap;
-    }
-    .metric .count{
-      font-weight:900; font-size:16px;
-      min-width:2ch; /* keeps from squishing when empty */
-    }
-    .metric .label{
-      font-size:12px; color:var(--ink-2); letter-spacing:.3px;
-    }
-
-    /* Thin divider (subtle, like dashboard) */
-    .divider{height:1px; background:var(--stroke);}
-
-    /* Responsive tweaks */
+    :root{--bg:#000;--ink:#e9edf1;--ink-2:#cfd6dd;--stroke:rgba(255,255,255,.10)}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    .container{max-width:980px;margin:0 auto;padding:18px 14px 90px;display:flex;flex-direction:column;gap:18px}
+    .top-row{display:flex;align-items:center;gap:14px;min-height:88px;flex-wrap:wrap}
+    .tri-avatar{width:92px;height:92px;position:relative;overflow:hidden;
+      clip-path:polygon(50% 0%,0% 100%,100% 100%);background:#111;flex:0 0 auto}
+    .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
+    .identity-line{display:flex;align-items:center;gap:18px;flex:1 1 auto;min-width:260px}
+    .display-name{font-size:22px;font-weight:900;white-space:nowrap}
+    .metrics{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    .metric{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+    .metric .count{font-weight:900;font-size:16px}
+    .metric .label{font-size:12px;color:var(--ink-2);letter-spacing:.3px}
+    .divider{height:1px;background:var(--stroke)}
     @media (max-width:720px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
@@ -104,49 +38,31 @@
   <main class="container">
     <!-- STEP 1: Avatar / Name / Battles / Followers / Following -->
     <section class="top-row">
-      <!-- ▲ Triangle avatar -->
       <div class="tri-avatar" aria-hidden="true">
-        <!-- replace src with the user's avatar when available -->
-        <img id="avatar" src="assets/img/user_me.jpg" alt="">
+        <img id="avatar" src="assets/img/user_me.jpg" alt="User avatar">
       </div>
 
-      <!-- Single horizontal identity line -->
       <div class="identity-line">
-        <div class="display-name" id="displayName">Your Name</div>
+        <div class="display-name" id="displayName">El Peace</div>
 
         <div class="metrics">
-          <div class="metric">
-            <span class="count" id="battlesCount">{battlesCount}</span>
-            <span class="label">Battles</span>
-          </div>
-          <div class="metric">
-            <span class="count" id="followersCount">{followersCount}</span>
-            <span class="label">Followers</span>
-          </div>
-          <div class="metric">
-            <span class="count" id="followingCount">{followingCount}</span>
-            <span class="label">Following</span>
-          </div>
+          <div class="metric"><span class="count" id="battlesCount">0</span><span class="label">Battles</span></div>
+          <div class="metric"><span class="count" id="followersCount">0</span><span class="label">Followers</span></div>
+          <div class="metric"><span class="count" id="followingCount">0</span><span class="label">Following</span></div>
         </div>
       </div>
     </section>
 
     <div class="divider" role="separator" aria-hidden="true"></div>
-
-    <!-- NEXT STEPS (we’ll add these later, after you approve Step 1):
-         - Small icon buttons row (Rank / Wallet / Edit / Settings)
-         - Tabs (Grid / Reels / Tagged)
-         - Media grid
-         Nothing else is included yet per your top-down plan. -->
   </main>
 
   <script>
-    // No data-hydration here since you asked for placeholders.
-    // When you’re ready, you can set textContent for the IDs:
-    // document.getElementById('displayName').textContent = 'El Peace';
+    // Optional: hydrate with real values (uncomment & set)
+    // document.getElementById('displayName').textContent   = 'Your Name';
     // document.getElementById('battlesCount').textContent  = '27';
-    // document.getElementById('followersCount').textContent = '12.8k';
-    // document.getElementById('followingCount').textContent = '341';
+    // document.getElementById('followersCount').textContent= '12800'; // or '12.8k'
+    // document.getElementById('followingCount').textContent= '341';
+    // document.getElementById('avatar').src                = 'assets/img/your_avatar.jpg';
   </script>
 </body>
 </html>
