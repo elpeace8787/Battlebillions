@@ -43,11 +43,13 @@
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis}
 
-    /* Row 2: mini tab-style buttons (like bottom dashboard tabs) */
+    /* Mini tab-style buttons (like your dashboard bottom tabs) */
     .mini-tabs{
       margin-top:12px;
-      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+      display:grid;gap:12px;
     }
+    .mini-tabs.three{grid-template-columns:repeat(3,1fr)}
+    .mini-tabs.four{grid-template-columns:repeat(4,1fr)}
     .mini-tab{
       background:transparent;border:none;color:#fff;cursor:pointer;
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
@@ -95,7 +97,7 @@
       display:flex;flex-direction:column;gap:12px;
     }
 
-    /* List styles */
+    /* Lists inside sub pages */
     .list{display:flex;flex-direction:column;gap:12px}
     .list-item{display:flex;align-items:center;gap:10px}
     .list-ava{width:42px;height:42px;border-radius:10px;overflow:hidden;background:#111;flex:0 0 auto}
@@ -104,11 +106,22 @@
     .list-name{font-weight:700;overflow:hidden;text-overflow:ellipsis}
     .list-sub{font-size:12px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+    /* Bottom "Go back" button inside sheets */
+    .sheet-foot{
+      border-top:1px solid var(--stroke);padding:10px 14px;display:flex;justify-content:center
+    }
+    .backbtn{
+      border:1px solid var(--stroke);background:transparent;color:#fff;border-radius:999px;
+      padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:8px
+    }
+    .backbtn svg{width:16px;height:16px;stroke:#fff}
+
     /* Small screens */
     @media (max-width:420px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
       .mini-tab svg{width:20px;height:20px}
+      .sheet{border-radius:14px}
     }
   </style>
 </head>
@@ -117,13 +130,13 @@
   <!-- inline icons (white, like dashboard tabs) -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
-      <!-- Battles (crossed swords) -->
+      <!-- Battles -->
       <symbol id="ic-swords" viewBox="0 0 24 24">
         <path d="M14.5 3l6 6M20.5 3l-6 6" stroke-width="1.6" stroke-linecap="round"/>
         <path d="M21 14l-7-7-2 2 7 7 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
         <path d="M3 21l7-7 2 2-7 7-2-2z" stroke-width="1.6" stroke-linejoin="round"/>
       </symbol>
-      <!-- Followers (users) -->
+      <!-- Users (followers) -->
       <symbol id="ic-users" viewBox="0 0 24 24">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
         <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
@@ -136,7 +149,29 @@
         <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
         <path d="M17 8h6M20 5v6" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
+      <!-- Rank (medal) -->
+      <symbol id="ic-medal" viewBox="0 0 24 24">
+        <path d="M12 2l3 5 5 .7-3.6 3.6.9 5-5.3-2.8L7.6 16l.9-5L5 7.7 10 7z" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
+      </symbol>
+      <!-- Wallet -->
+      <symbol id="ic-wallet" viewBox="0 0 24 24">
+        <path d="M3 7h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3z" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M17 9h4v6h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
+      </symbol>
+      <!-- Edit (pencil) -->
+      <symbol id="ic-edit" viewBox="0 0 24 24">
+        <path d="M4 20h4l10-10a2.8 2.8 0 1 0-4-4L4 16z" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M13 6l5 5" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
+      <!-- Settings (cog) -->
+      <symbol id="ic-cog" viewBox="0 0 24 24">
+        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke-width="1.6"/>
+        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7-1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
+      </symbol>
+      <!-- Close (X) -->
       <symbol id="ic-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <!-- Back (chevron) -->
+      <symbol id="ic-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     </defs>
   </svg>
 
@@ -149,8 +184,8 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: mini tab-style buttons that open sub pages -->
-    <section class="mini-tabs" aria-label="Profile actions">
+    <!-- Row 2: Battles / Followers / Following (sub pages) -->
+    <section class="mini-tabs three" aria-label="Profile metrics">
       <button class="mini-tab" data-open="battlesSheet" aria-haspopup="dialog">
         <svg><use href="#ic-swords"/></svg>
         <span class="count" id="battlesCount">27</span>
@@ -172,7 +207,28 @@
 
     <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- You can continue the page below this divider if needed -->
+    <!-- Row 3: Rank / Wallet / Edit / Settings (sub pages) -->
+    <section class="mini-tabs four" aria-label="Profile actions">
+      <button class="mini-tab" data-open="rankSheet" aria-haspopup="dialog">
+        <svg><use href="#ic-medal"/></svg>
+        <span class="label">Rank</span>
+      </button>
+
+      <button class="mini-tab" data-open="walletSheet" aria-haspopup="dialog">
+        <svg><use href="#ic-wallet"/></svg>
+        <span class="label">Wallet</span>
+      </button>
+
+      <button class="mini-tab" data-open="editSheet" aria-haspopup="dialog">
+        <svg><use href="#ic-edit"/></svg>
+        <span class="label">Edit</span>
+      </button>
+
+      <button class="mini-tab" data-open="settingsSheet" aria-haspopup="dialog">
+        <svg><use href="#ic-cog"/></svg>
+        <span class="label">Settings</span>
+      </button>
+    </section>
   </main>
 
   <!-- SUB PAGE: Battles -->
@@ -184,23 +240,19 @@
       </div>
       <div class="sheet-body">
         <div class="list">
-          <!-- sample items (replace with real data) -->
           <div class="list-item">
             <div class="list-ava"><img src="assets/opponents/op1.jpg" alt=""></div>
-            <div class="list-line">
-              <div class="list-name">vs @InkMage • ART</div>
-              <div class="list-sub">Won • 2 days ago • 3 rounds</div>
-            </div>
+            <div class="list-line"><div class="list-name">vs @InkMage • ART</div><div class="list-sub">Won • 2 days ago • 3 rounds</div></div>
           </div>
           <div class="list-item">
             <div class="list-ava"><img src="assets/opponents/op2.jpg" alt=""></div>
-            <div class="list-line">
-              <div class="list-name">vs @Headshot • GAMING</div>
-              <div class="list-sub">Lost • 4 days ago • 3 rounds</div>
-            </div>
+            <div class="list-line"><div class="list-name">vs @Headshot • GAMING</div><div class="list-sub">Lost • 4 days ago • 3 rounds</div></div>
           </div>
-          <!-- add more -->
+          <!-- add real items -->
         </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="backbtn" data-close="battlesSheet"><svg><use href="#ic-back"/></svg> Go back</button>
       </div>
     </div>
   </div>
@@ -216,20 +268,17 @@
         <div class="list">
           <div class="list-item">
             <div class="list-ava"><img src="assets/users/u1.jpg" alt=""></div>
-            <div class="list-line">
-              <div class="list-name">@RunwayRuler</div>
-              <div class="list-sub">FASHION • Follows you</div>
-            </div>
+            <div class="list-line"><div class="list-name">@RunwayRuler</div><div class="list-sub">FASHION • Follows you</div></div>
           </div>
           <div class="list-item">
             <div class="list-ava"><img src="assets/users/u2.jpg" alt=""></div>
-            <div class="list-line">
-              <div class="list-name">@ChordSmith</div>
-              <div class="list-sub">INSTRUMENTS • Follows you</div>
-            </div>
+            <div class="list-line"><div class="list-name">@ChordSmith</div><div class="list-sub">INSTRUMENTS • Follows you</div></div>
           </div>
-          <!-- add more -->
+          <!-- add real items -->
         </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="backbtn" data-close="followersSheet"><svg><use href="#ic-back"/></svg> Go back</button>
       </div>
     </div>
   </div>
@@ -245,26 +294,126 @@
         <div class="list">
           <div class="list-item">
             <div class="list-ava"><img src="assets/users/u3.jpg" alt=""></div>
-            <div class="list-line">
-              <div class="list-name">@MiseEnPlace</div>
-              <div class="list-sub">COOKING • You follow</div>
-            </div>
+            <div class="list-line"><div class="list-name">@MiseEnPlace</div><div class="list-sub">COOKING • You follow</div></div>
           </div>
           <div class="list-item">
             <div class="list-ava"><img src="assets/users/u4.jpg" alt=""></div>
-            <div class="list-line">
-              <div class="list-name">@VerbalVolt</div>
-              <div class="list-sub">DEBAT • You follow</div>
-            </div>
+            <div class="list-line"><div class="list-name">@VerbalVolt</div><div class="list-sub">DEBAT • You follow</div></div>
           </div>
-          <!-- add more -->
+          <!-- add real items -->
         </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="backbtn" data-close="followingSheet"><svg><use href="#ic-back"/></svg> Go back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB PAGE: Rank -->
+  <div class="modal" id="rankSheet" role="dialog" aria-modal="true" aria-labelledby="rankTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="rankTitle">Your Rank</div>
+        <button class="closebtn" data-close="rankSheet"><svg><use href="#ic-x"/></svg> Close</button>
+      </div>
+      <div class="sheet-body">
+        <!-- Replace with real rank UI -->
+        <div class="list">
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/badges/rank_medal.png" alt=""></div>
+            <div class="list-line"><div class="list-name">Current: #27</div><div class="list-sub">Next milestone: Top 25</div></div>
+          </div>
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/badges/win_streak.png" alt=""></div>
+            <div class="list-line"><div class="list-name">Win Streak: 4</div><div class="list-sub">+2 wins to boost rank</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="backbtn" data-close="rankSheet"><svg><use href="#ic-back"/></svg> Go back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB PAGE: Wallet -->
+  <div class="modal" id="walletSheet" role="dialog" aria-modal="true" aria-labelledby="walletTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="walletTitle">Wallet</div>
+        <button class="closebtn" data-close="walletSheet"><svg><use href="#ic-x"/></svg> Close</button>
+      </div>
+      <div class="sheet-body">
+        <!-- Replace with real wallet balances/transactions -->
+        <div class="list">
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/wallet/coin.png" alt=""></div>
+            <div class="list-line"><div class="list-name">Coins: 8,504</div><div class="list-sub">Available balance</div></div>
+          </div>
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/wallet/tx.png" alt=""></div>
+            <div class="list-line"><div class="list-name">Last Transaction</div><div class="list-sub">+250 • Battle reward • 3h ago</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="backbtn" data-close="walletSheet"><svg><use href="#ic-back"/></svg> Go back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB PAGE: Edit -->
+  <div class="modal" id="editSheet" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="editTitle">Edit Profile</div>
+        <button class="closebtn" data-close="editSheet"><svg><use href="#ic-x"/></svg> Close</button>
+      </div>
+      <div class="sheet-body">
+        <!-- Minimal placeholders — wire to your backend later -->
+        <div class="list">
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/img/user_me.jpg" alt=""></div>
+            <div class="list-line"><div class="list-name">Change Avatar</div><div class="list-sub">Upload a new photo</div></div>
+          </div>
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/icons/username.png" alt=""></div>
+            <div class="list-line"><div class="list-name">Display Name</div><div class="list-sub">Tap to edit</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="backbtn" data-close="editSheet"><svg><use href="#ic-back"/></svg> Go back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB PAGE: Settings -->
+  <div class="modal" id="settingsSheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="settingsTitle">Settings</div>
+        <button class="closebtn" data-close="settingsSheet"><svg><use href="#ic-x"/></svg> Close</button>
+      </div>
+      <div class="sheet-body">
+        <div class="list">
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/icons/bell.png" alt=""></div>
+            <div class="list-line"><div class="list-name">Notifications</div><div class="list-sub">Manage alerts</div></div>
+          </div>
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/icons/privacy.png" alt=""></div>
+            <div class="list-line"><div class="list-name">Privacy</div><div class="list-sub">Followers & visibility</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="backbtn" data-close="settingsSheet"><svg><use href="#ic-back"/></svg> Go back</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Open/close in-place sub pages
+    // Open/close all sub pages
     document.addEventListener('click',(e)=>{
       const open = e.target.closest('[data-open]');
       if(open){
@@ -274,14 +423,14 @@
       if(close){
         document.getElementById(close.dataset.close)?.classList.remove('show');
       }
-      // Click outside sheet to close
+      // Click outside sheet closes
       if(e.target.classList.contains('modal')) e.target.classList.remove('show');
     });
     document.addEventListener('keydown',e=>{
       if(e.key==='Escape') document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
     });
 
-    // Optional: hydrate values dynamically later
+    // Optional dynamic hydration later:
     // document.getElementById('displayName').textContent   = 'Your Name';
     // document.getElementById('avatar').src                = 'assets/img/your_avatar.jpg';
     // document.getElementById('battlesCount').textContent  = '42';
@@ -289,4 +438,4 @@
     // document.getElementById('followingCount').textContent= '512';
   </script>
 </body>
-  </html>
+        </html>
