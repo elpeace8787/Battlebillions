@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Smart Inline Loader)</title>
+<title>Home Header (Working Inline Loader + Fallback)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
@@ -22,7 +22,7 @@
     </span>
   </a>
 
-  <!-- Followers / Following (unchanged look, clickable) -->
+  <!-- Followers / Following (same look) -->
   <div style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 82px);right:max(12px, env(safe-area-inset-right));
               display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;color:#cfd6dd;letter-spacing:.3px;
               z-index:2147483646;gap:6px;">
@@ -40,8 +40,7 @@
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
       <div style="width:88px;height:88px;position:relative;overflow:hidden;flex:0 0 auto;
-                  clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
-                  -webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+                  clip-path:polygon(50% 0%, 0% 100%, 100% 100%);-webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
                   background:#111; box-shadow:0 8px 24px rgba(0,0,0,.45);">
         <img src="assets/img/battlebillions_avatar.png" alt="BattleBillions Avatar"
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform:scale(1.02);" />
@@ -65,7 +64,7 @@
     <button class="btn" data-page="settings.html" style="flex:0 0 auto;padding:8px 14px;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</button>
   </div>
 
-  <!-- Content host -->
+  <!-- Inline content host -->
   <div style="padding:10px 16px;">
     <div id="frameShell" style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;overflow:hidden;">
       <div id="frameLoader" style="padding:12px;color:#9aa1a8;border-bottom:1px solid #1c1c1c;display:none;">Loading…</div>
@@ -74,8 +73,84 @@
               style="display:block;width:100%;height:70vh;border:0;background:#0c0c0c;"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
       </iframe>
+      <!-- Fallback area -->
+      <div id="fallback" style="display:none;padding:12px;"></div>
     </div>
   </div>
+
+  <!-- Fallback templates (only used if file not found). Keeps your look. -->
+  <template id="tpl-battle">
+    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
+      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Your Battles</div>
+      <div style="border:1px solid #1c1c1c;border-radius:10px;padding:10px;background:#0f0f0f;">No battles yet. Start one from the queue.</div>
+    </section>
+  </template>
+
+  <template id="tpl-wallet">
+    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-weight:800;letter-spacing:.2px;">Wallet</div>
+        <div style="font-variant-numeric:tabular-nums;background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:6px 8px;">$0.00</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">Add Funds</button>
+        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">Withdraw</button>
+        <button style="padding:8px 12px;border-radius:8px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;">History</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-edit">
+    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
+      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Edit Profile</div>
+      <div style="display:grid;gap:10px;">
+        <label style="display:grid;gap:6px;">
+          <span style="font-size:12px;color:#cfd6dd;">Display Name</span>
+          <input type="text" value="El Peace" style="background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;color:#e9edf1;padding:10px;outline:none;">
+        </label>
+        <label style="display:grid;gap:6px;">
+          <span style="font-size:12px;color:#cfd6dd;">Handle</span>
+          <input type="text" value="@elpeace" style="background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;color:#e9edf1;padding:10px;outline:none;">
+        </label>
+        <button style="justify-self:start;padding:10px 14px;border-radius:10px;border:1px solid #2a2a2a;background:#101010;color:#e9edf1;cursor:pointer;font-weight:700;">Save</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-settings">
+    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
+      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Settings</div>
+      <div style="display:grid;gap:10px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;padding:10px;">
+          <span>Dark Mode</span><input type="checkbox" checked />
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:#0f0f0f;border:1px solid #1f1f1f;border-radius:8px;padding:10px;">
+          <span>Notifications</span><input type="checkbox" />
+        </label>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-rank">
+    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
+      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Rank</div>
+      <div style="color:#cfd6dd;">Your current rank is <b>27</b>. Leaderboard coming soon.</div>
+    </section>
+  </template>
+
+  <template id="tpl-followers">
+    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
+      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Followers</div>
+      <div style="color:#cfd6dd;">No followers yet.</div>
+    </section>
+  </template>
+
+  <template id="tpl-following">
+    <section style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;padding:12px;">
+      <div style="font-weight:800;margin-bottom:8px;letter-spacing:.2px;">Following</div>
+      <div style="color:#cfd6dd;">Not following anyone yet.</div>
+    </section>
+  </template>
 
   <style>
     @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
@@ -84,120 +159,112 @@
     ::-webkit-scrollbar-track { background:transparent; }
     .btn { cursor:pointer; transition: transform .16s ease, box-shadow .16s ease; }
     .btn:active { transform: translateY(1px) scale(.98); }
-    .err { color:#ff6b6b;background:#170b0b;border:1px solid #3a0f0f;padding:10px;border-radius:8px;margin:10px 16px; }
   </style>
 
   <script>
     (function(){
-      const frame   = document.getElementById('pageFrame');
-      const loader  = document.getElementById('frameLoader');
-
-      // --- robust base path detection (works at /, /repo/, /subdir/) ---
-      const basePath = (function () {
-        // If we're at .../index.html, strip filename; else keep trailing slash
-        const path = location.pathname.replace(/[^/]+$/, '');
-        return location.origin + path; // e.g., https://user.github.io/repo/
-      })();
+      const frame     = document.getElementById('pageFrame');
+      const loader    = document.getElementById('frameLoader');
+      const fallback  = document.getElementById('fallback');
 
       function showLoader(show){ loader.style.display = show ? 'block' : 'none'; }
-
-      // Try multiple URL candidates: lowercase, Capitalized, /pages/
-      function resolveCandidates(input){
-        // if the dev passed 'battle.html', keep it; if just 'battle', add .html
-        const bare = input.replace(/^\//,'');
-        const name = bare.endsWith('.html') ? bare.slice(0, -5) : bare;
-
-        const lc  = name.toLowerCase() + '.html';
-        const cap = name.charAt(0).toUpperCase() + name.slice(1) + '.html';
-
-        return [
-          basePath + lc,
-          basePath + cap,
-          basePath + 'pages/' + lc,
-          basePath + 'pages/' + cap
-        ];
+      function showFallback(tplId){
+        frame.style.display = 'none';
+        fallback.style.display = 'block';
+        fallback.innerHTML = '';
+        const tpl = document.getElementById(tplId);
+        if (tpl) fallback.appendChild(tpl.content.cloneNode(true));
+      }
+      function showFrame(){
+        fallback.style.display = 'none';
+        frame.style.display = 'block';
       }
 
-      async function tryFetch(url){
-        // Append cache-buster to avoid stale 404s on GH Pages/Vercel
-        const u = new URL(url);
-        u.searchParams.set('_t', Date.now());
-        return new Promise((resolve) => {
-          // use iframe load test rather than fetch to avoid mixed origins/csp
-          const onLoad = () => resolve({ ok:true, url:u.toString() });
-          const onErr  = () => resolve({ ok:false, url:u.toString() });
+      // Build base path (works at /, /repo/, /subdir/)
+      const basePath = location.pathname.replace(/[^/]+$/, '');
 
-          const tester = document.createElement('iframe');
-          tester.style.display = 'none';
-          tester.sandbox = frame.sandbox; // same capabilities
-          tester.src = u.toString();
+      // Map pages to fallbacks
+      const FALLBACKS = {
+        'battle.html':   'tpl-battle',
+        'wallet.html':   'tpl-wallet',
+        'edit.html':     'tpl-edit',
+        'settings.html': 'tpl-settings',
+        'rank.html':     'tpl-rank',
+        'followers.html':'tpl-followers',
+        'following.html':'tpl-following'
+      };
 
-          tester.addEventListener('load', () => {
-            // Heuristic: if the doc title is GitHub 404 page, treat as fail
-            try {
-              const doc = tester.contentDocument;
-              const text = (doc && doc.body && doc.body.innerText || '').slice(0,200).toLowerCase();
-              if ((doc.title || '').toLowerCase().includes('404') || text.includes('not found')) {
-                tester.remove(); onErr();
-              } else { tester.remove(); onLoad(); }
-            } catch(e){ tester.remove(); onLoad(); } // cross-origin → assume ok
-          });
-          tester.addEventListener('error', () => { tester.remove(); onErr(); });
-
-          document.body.appendChild(tester);
-        });
-      }
-
-      async function setFrameSmart(input){
+      // Try several path variants, then fallback
+      async function setFrameSmart(file){
         showLoader(true);
-        const candidates = resolveCandidates(input);
-        for (const url of candidates){
-          const res = await tryFetch(url);
-          if (res.ok){
-            frame.src = res.url;
+        const name = file.replace(/^\//,'');
+        const variants = [
+          basePath + name,                             // ./battle.html
+          basePath + 'pages/' + name,                  // ./pages/battle.html
+          basePath + name.charAt(0).toUpperCase() + name.slice(1), // Battle.html
+          basePath + 'pages/' + name.charAt(0).toUpperCase() + name.slice(1)
+        ];
+
+        // Probe via hidden iframe (works even with CSP/CORS)
+        for (const v of variants){
+          const ok = await probe(v);
+          if (ok) {
+            showFrame();
+            frame.src = v + (v.includes('?') ? '&' : '?') + '_t=' + Date.now();
             showLoader(false);
             return;
           }
         }
-        // If all failed, show a helpful message
         showLoader(false);
-        const msg = document.createElement('div');
-        msg.className = 'err';
-        msg.innerHTML = `
-          Couldn’t find <b>${input}</b>.<br/>
-          Tried:<br/>${candidates.map(c => `<div>- ${c}</div>`).join('')}
-          <div style="margin-top:6px;color:#9aa1a8">Tip: ensure the file exists and matches the exact case (e.g., <code>Battle.html</code> vs <code>battle.html</code>) or place it under <code>/pages/</code>.</div>
-        `;
-        document.getElementById('frameShell').after(msg);
+        // Fallback template
+        const tplId = FALLBACKS[name] || 'tpl-battle';
+        showFallback(tplId);
       }
 
-      // Buttons under scroll
+      function probe(url){
+        return new Promise((resolve)=>{
+          const t = document.createElement('iframe');
+          t.style.display = 'none';
+          t.sandbox = frame.sandbox;
+          t.src = url + (url.includes('?') ? '&' : '?') + '_p=' + Date.now();
+          t.onload = () => {
+            try {
+              const d = t.contentDocument;
+              const txt = (d && d.body && d.body.innerText || '').toLowerCase();
+              if ((d.title || '').toLowerCase().includes('404') || txt.includes('not found')) {
+                t.remove(); resolve(false);
+              } else { t.remove(); resolve(true); }
+            } catch(e){ t.remove(); resolve(true); } // cross-origin → assume ok
+          };
+          t.onerror = () => { t.remove(); resolve(false); };
+          document.body.appendChild(t);
+        });
+      }
+
+      // Wire buttons
       document.querySelectorAll('#scrollRow .btn').forEach(btn=>{
         btn.addEventListener('click', () => setFrameSmart(btn.getAttribute('data-page')));
       });
-
-      // Followers/Following inline
       document.querySelectorAll('.follow-btn').forEach(a=>{
-        a.addEventListener('click', (e)=>{
-          e.preventDefault();
-          setFrameSmart(a.getAttribute('href'));
-        });
+        a.addEventListener('click', (e)=>{ e.preventDefault(); setFrameSmart(a.getAttribute('href')); });
       });
+      document.getElementById('rankLink').addEventListener('click', (e)=>{ e.preventDefault(); setFrameSmart('rank.html'); });
 
-      // Rank inline
-      document.getElementById('rankLink').addEventListener('click', (e)=>{
-        e.preventDefault();
-        setFrameSmart('rank.html');
-      });
-
-      // Default
+      // Default load
       setFrameSmart('battle.html');
+
+      // Resize try (same-origin)
+      frame.addEventListener('load', () => {
+        try {
+          const d = frame.contentDocument || frame.contentWindow.document;
+          const h = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight);
+          frame.style.height = Math.max(560, h) + 'px';
+        } catch(e) { frame.style.height = '85vh'; }
+      });
     })();
   </script>
 
-  <!-- keep keyframes at end -->
-  <style>
-    @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
-  </style>
+  <!-- keyframes duplicate kept for safety -->
+  <style>@keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }</style>
 </body>
-</html>
+                                                                                                                                          </html>
