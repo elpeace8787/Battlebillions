@@ -21,6 +21,8 @@
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --stroke:rgba(255,255,255,.10);
       --ring:0 0 0 3px rgba(255,255,255,.18);
+      --pill:rgba(255,255,255,.06);
+      --pill-hover:rgba(255,255,255,.10);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -32,9 +34,7 @@
     .container{max-width:980px;margin:0 auto;padding:18px 14px 90px}
 
     /* Row 1: avatar ▲ + name */
-    .row-top{
-      display:flex;align-items:center;gap:14px;min-height:88px;white-space:nowrap;overflow:hidden;
-    }
+    .row-top{display:flex;align-items:center;gap:14px;min-height:88px;white-space:nowrap;overflow:hidden}
     .tri-avatar{
       width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
       clip-path:polygon(50% 0%,0% 100%,100% 100%);-webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
@@ -43,52 +43,108 @@
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis}
 
-    /* Row 2: metrics across (tappable) */
+    /* Row 2: cooler pills across (sub pages) */
     .metrics-row{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;
     }
-    .metric-btn{
-      background:transparent;border:none;color:#fff;cursor:pointer;
-      display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border-radius:12px;
-      transition:transform .18s ease, background .18s ease;
+    .metric-pill{
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 10px;border-radius:14px;background:var(--pill);
+      border:1px solid var(--stroke); cursor:pointer; user-select:none;
+      transition:transform .18s ease, background .18s ease, border-color .18s ease;
+      color:inherit;
     }
-    .metric-btn:focus-visible{outline:none;box-shadow:var(--ring)}
-    .metric-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.06)}
-    .metric-count{font-weight:900;font-size:18px;line-height:1}
+    .metric-pill:hover{transform:translateY(-1px);background:var(--pill-hover);border-color:rgba(255,255,255,.16)}
+    .metric-pill:focus-visible{outline:none;box-shadow:var(--ring)}
+    .metric-icon{display:grid;place-items:center}
+    .metric-icon svg{width:18px;height:18px;stroke:#fff;fill:none;opacity:.95}
+    .metric-text{display:flex;flex-direction:column;line-height:1}
+    .metric-count{font-weight:900;font-size:17px}
     .metric-label{font-size:11px;color:var(--ink-2);letter-spacing:.3px}
 
     .divider{height:1px;background:var(--stroke);margin:14px 0}
 
-    /* Minimal modals (scrollable sheets) */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:2000}
-    .modal.show{display:flex}
-    .sheet{
-      width:min(92vw,720px);max-height:80vh;overflow:auto;
-      border:1px solid var(--stroke);border-radius:16px;background:#0e0e0f;
+    /* Sub page sheets */
+    .modal{
+      position:fixed;inset:0;display:none;z-index:2000;
+      background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
     }
-    .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--stroke)}
-    .sheet-title{font-weight:900}
-    .closebtn{border:1px solid var(--stroke);border-radius:10px;background:transparent;color:#fff;padding:8px 10px;cursor:pointer}
-    .sheet-body{padding:12px 14px}
-    .list{display:flex;flex-direction:column;gap:10px}
+    .modal.show{display:block}
+
+    .sheet{
+      position:fixed;left:0;right:0;bottom:0;top:0;
+      margin:0 auto;max-width:980px;
+      background:#0b0b0c;border:1px solid var(--stroke);border-radius:16px;
+      display:flex;flex-direction:column;overflow:hidden;
+      box-shadow:0 20px 60px rgba(0,0,0,.65);
+      animation:pop .22s ease-out;
+    }
+    @keyframes pop{from{transform:translateY(8px);opacity:.8}to{transform:none;opacity:1}}
+
+    .sheet-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 14px;border-bottom:1px solid var(--stroke);
+    }
+    .sheet-title{font-weight:900;letter-spacing:.3px}
+    .closebtn{
+      border:1px solid var(--stroke);border-radius:10px;background:transparent;color:#fff;
+      padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:6px
+    }
+    .closebtn svg{width:16px;height:16px;stroke:#fff}
+
+    .sheet-body{
+      flex:1;overflow:auto;padding:12px 14px;
+      display:flex;flex-direction:column;gap:12px;
+    }
+
+    /* List styles */
+    .list{display:flex;flex-direction:column;gap:12px}
     .list-item{display:flex;align-items:center;gap:10px}
-    .list-ava{width:40px;height:40px;border-radius:10px;overflow:hidden;background:#111;flex:0 0 auto}
+    .list-ava{width:42px;height:42px;border-radius:10px;overflow:hidden;background:#111;flex:0 0 auto}
     .list-ava img{width:100%;height:100%;object-fit:cover}
-    .list-line{display:flex;flex-direction:column}
-    .list-name{font-weight:700}
-    .list-sub{font-size:12px;color:var(--ink-3)}
+    .list-line{display:flex;flex-direction:column;min-width:0}
+    .list-name{font-weight:700;overflow:hidden;text-overflow:ellipsis}
+    .list-sub{font-size:12px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
     /* Small screens */
     @media (max-width:420px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
       .metric-count{font-size:16px}
+      .sheet{border-radius:14px}
     }
   </style>
 </head>
 <body>
+
+  <!-- inline icons -->
+  <svg width="0" height="0" style="position:absolute;opacity:0;">
+    <defs>
+      <!-- Battles (crossed swords) -->
+      <symbol id="ic-swords" viewBox="0 0 24 24">
+        <path d="M14.5 3l6 6M20.5 3l-6 6" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M21 14l-7-7-2 2 7 7 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M3 21l7-7 2 2-7 7-2-2z" stroke-width="1.6" stroke-linejoin="round"/>
+      </symbol>
+      <!-- Followers (users) -->
+      <symbol id="ic-users" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
+      <!-- Following (user with plus) -->
+      <symbol id="ic-following" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
+        <path d="M17 8h6M20 5v6" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="ic-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
   <main class="container">
-    <!-- Row 1: Avatar ▲ + Name -->
+    <!-- Row 1 -->
     <section class="row-top">
       <div class="tri-avatar" aria-hidden="true">
         <img id="avatar" src="assets/img/user_me.jpg" alt="User avatar">
@@ -96,100 +152,152 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: Metrics across (tappable) -->
+    <!-- Row 2: sub pages -->
     <section class="metrics-row" aria-label="Profile metrics">
-      <button class="metric-btn" data-open="battlesModal">
-        <span class="metric-count" id="battlesCount">27</span>
-        <span class="metric-label">Battles</span>
+      <button class="metric-pill" data-open="battlesSheet" aria-haspopup="dialog">
+        <span class="metric-icon"><svg><use href="#ic-swords"/></svg></span>
+        <span class="metric-text">
+          <span class="metric-count" id="battlesCount">27</span>
+          <span class="metric-label">Battles</span>
+        </span>
       </button>
-      <button class="metric-btn" data-open="followersModal">
-        <span class="metric-count" id="followersCount">12.8k</span>
-        <span class="metric-label">Followers</span>
+
+      <button class="metric-pill" data-open="followersSheet" aria-haspopup="dialog">
+        <span class="metric-icon"><svg><use href="#ic-users"/></svg></span>
+        <span class="metric-text">
+          <span class="metric-count" id="followersCount">12.8k</span>
+          <span class="metric-label">Followers</span>
+        </span>
       </button>
-      <button class="metric-btn" data-open="followingModal">
-        <span class="metric-count" id="followingCount">341</span>
-        <span class="metric-label">Following</span>
+
+      <button class="metric-pill" data-open="followingSheet" aria-haspopup="dialog">
+        <span class="metric-icon"><svg><use href="#ic-following"/></svg></span>
+        <span class="metric-text">
+          <span class="metric-count" id="followingCount">341</span>
+          <span class="metric-label">Following</span>
+        </span>
       </button>
     </section>
 
     <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- (We’ll add the small icon buttons row + tabs/grid after you confirm this layout) -->
+    <!-- (We’ll add your small icon buttons row next if you like) -->
   </main>
 
-  <!-- Battles modal -->
-  <div class="modal" id="battlesModal"><div class="sheet">
-    <div class="sheet-head"><div class="sheet-title">Recent Battles</div><button class="closebtn" data-close="battlesModal">Close</button></div>
-    <div class="sheet-body">
-      <div class="list">
-        <div class="list-item">
-          <div class="list-ava"><img src="assets/opponents/op1.jpg" alt=""></div>
-          <div class="list-line"><div class="list-name">@InkMage</div><div class="list-sub">ART • 2d ago</div></div>
+  <!-- SUB PAGE: Battles -->
+  <div class="modal" id="battlesSheet" role="dialog" aria-modal="true" aria-labelledby="battlesTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="battlesTitle">Your Battles</div>
+        <button class="closebtn" data-close="battlesSheet"><svg><use href="#ic-x"/></svg> Close</button>
+      </div>
+      <div class="sheet-body">
+        <div class="list">
+          <!-- sample items -->
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/opponents/op1.jpg" alt=""></div>
+            <div class="list-line">
+              <div class="list-name">vs @InkMage • ART</div>
+              <div class="list-sub">Won • 2 days ago • 3 rounds</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/opponents/op2.jpg" alt=""></div>
+            <div class="list-line">
+              <div class="list-name">vs @Headshot • GAMING</div>
+              <div class="list-sub">Lost • 4 days ago • 3 rounds</div>
+            </div>
+          </div>
+          <!-- add real items or load dynamically -->
         </div>
-        <div class="list-item">
-          <div class="list-ava"><img src="assets/opponents/op2.jpg" alt=""></div>
-          <div class="list-line"><div class="list-name">@Headshot</div><div class="list-sub">GAMING • 4d ago</div></div>
-        </div>
-        <!-- Add real items here -->
       </div>
     </div>
-  </div></div>
+  </div>
 
-  <!-- Followers modal -->
-  <div class="modal" id="followersModal"><div class="sheet">
-    <div class="sheet-head"><div class="sheet-title">Followers</div><button class="closebtn" data-close="followersModal">Close</button></div>
-    <div class="sheet-body">
-      <div class="list">
-        <div class="list-item">
-          <div class="list-ava"><img src="assets/users/u1.jpg" alt=""></div>
-          <div class="list-line"><div class="list-name">@RunwayRuler</div><div class="list-sub">FASHION</div></div>
+  <!-- SUB PAGE: Followers -->
+  <div class="modal" id="followersSheet" role="dialog" aria-modal="true" aria-labelledby="followersTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="followersTitle">Followers</div>
+        <button class="closebtn" data-close="followersSheet"><svg><use href="#ic-x"/></svg> Close</button>
+      </div>
+      <div class="sheet-body">
+        <div class="list">
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/users/u1.jpg" alt=""></div>
+            <div class="list-line">
+              <div class="list-name">@RunwayRuler</div>
+              <div class="list-sub">FASHION • Follows you</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/users/u2.jpg" alt=""></div>
+            <div class="list-line">
+              <div class="list-name">@ChordSmith</div>
+              <div class="list-sub">INSTRUMENTS • Follows you</div>
+            </div>
+          </div>
+          <!-- add real items -->
         </div>
-        <div class="list-item">
-          <div class="list-ava"><img src="assets/users/u2.jpg" alt=""></div>
-          <div class="list-line"><div class="list-name">@ChordSmith</div><div class="list-sub">INSTRUMENTS</div></div>
-        </div>
-        <!-- Add real items here -->
       </div>
     </div>
-  </div></div>
+  </div>
 
-  <!-- Following modal -->
-  <div class="modal" id="followingModal"><div class="sheet">
-    <div class="sheet-head"><div class="sheet-title">Following</div><button class="closebtn" data-close="followingModal">Close</button></div>
-    <div class="sheet-body">
-      <div class="list">
-        <div class="list-item">
-          <div class="list-ava"><img src="assets/users/u3.jpg" alt=""></div>
-          <div class="list-line"><div class="list-name">@MiseEnPlace</div><div class="list-sub">COOKING</div></div>
+  <!-- SUB PAGE: Following -->
+  <div class="modal" id="followingSheet" role="dialog" aria-modal="true" aria-labelledby="followingTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="followingTitle">Following</div>
+        <button class="closebtn" data-close="followingSheet"><svg><use href="#ic-x"/></svg> Close</button>
+      </div>
+      <div class="sheet-body">
+        <div class="list">
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/users/u3.jpg" alt=""></div>
+            <div class="list-line">
+              <div class="list-name">@MiseEnPlace</div>
+              <div class="list-sub">COOKING • You follow</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-ava"><img src="assets/users/u4.jpg" alt=""></div>
+            <div class="list-line">
+              <div class="list-name">@VerbalVolt</div>
+              <div class="list-sub">DEBAT • You follow</div>
+            </div>
+          </div>
+          <!-- add real items -->
         </div>
-        <div class="list-item">
-          <div class="list-ava"><img src="assets/users/u4.jpg" alt=""></div>
-          <div class="list-line"><div class="list-name">@VerbalVolt</div><div class="list-sub">DEBAT</div></div>
-        </div>
-        <!-- Add real items here -->
       </div>
     </div>
-  </div></div>
+  </div>
 
   <script>
-    // Open/close the small sheets
+    // Open/close sub pages
     document.addEventListener('click',(e)=>{
       const open = e.target.closest('[data-open]');
-      if(open){ document.getElementById(open.dataset.open).classList.add('show'); }
+      if(open){
+        const id = open.dataset.open;
+        document.getElementById(id)?.classList.add('show');
+      }
       const close = e.target.closest('[data-close]');
-      if(close){ document.getElementById(close.dataset.close).classList.remove('show'); }
+      if(close){
+        const id = close.dataset.close;
+        document.getElementById(id)?.classList.remove('show');
+      }
+      // Click outside sheet to close
       if(e.target.classList.contains('modal')) e.target.classList.remove('show');
     });
     document.addEventListener('keydown',e=>{
       if(e.key==='Escape') document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
     });
 
-    // If you want to hydrate values later:
+    // Optional: hydrate values dynamically later
     // document.getElementById('displayName').textContent   = 'Your Name';
     // document.getElementById('avatar').src                = 'assets/img/your_avatar.jpg';
-    // document.getElementById('battlesCount').textContent  = '27';
-    // document.getElementById('followersCount').textContent= '12.8k';
-    // document.getElementById('followingCount').textContent= '341';
+    // document.getElementById('battlesCount').textContent  = '42';
+    // document.getElementById('followersCount').textContent= '13.2k';
+    // document.getElementById('followingCount').textContent= '512';
   </script>
 </body>
-                                                                           </html>
+  </html>
