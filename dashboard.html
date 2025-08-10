@@ -18,10 +18,11 @@
 
   <style>
     :root{
-      --bg-0:#0b0b0c; --bg-1:#111214; --bg-2:#15171a;
+      --bg-0:#000000; /* full solid black feel */
+      --bg-1:#111214; --bg-2:#15171a;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --stroke:#2a2d31; --accent:#ffffff; --accent-2:#1f1f22;
-      --shadow:0 10px 30px rgba(0,0,0,.45); --ring:0 0 0 3px rgba(255,255,255,.12);
+      --ring:0 0 0 3px rgba(255,255,255,.12);
       --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -33,43 +34,36 @@
       background:var(--bg-0); color:var(--ink); overflow:hidden; letter-spacing:.2px;
     }
 
-    /* Soft animated backdrop */
+    /* Minimal ambient backdrop; keep super subtle so screen reads as solid black */
     body::before{
       content:"";position:fixed;inset:-20% -10%;
-      background:
-        radial-gradient(60% 40% at 70% 20%, rgba(255,255,255,.06), transparent 60%),
-        radial-gradient(50% 35% at 20% 70%, rgba(255,255,255,.04), transparent 60%),
-        linear-gradient(135deg, #0b0b0c 0%, #101114 60%, #0c0d10 100%);
-      filter: blur(30px) saturate(1);
-      animation: drift 18s ease-in-out infinite alternate;z-index:-1
+      background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.03), transparent 60%);
+      filter: blur(24px); opacity:.35; z-index:-1;
     }
-    @keyframes drift{0%{transform:translate(-1%,-2%)}100%{transform:translate(1%,2%)}}
-    @media (prefers-reduced-motion:reduce){ body::before{animation:none} .pulse,.shimmer{animation:none}}
 
-    /* ====== Top bar ====== */
+    /* ====== Top bar — transparent, no borders ====== */
     .app-topbar{
       position:fixed;inset:0 0 auto 0;height:44px;display:flex;align-items:center;justify-content:space-between;
-      padding:0 14px;background:rgba(17,18,20,.80);backdrop-filter:blur(8px);border-bottom:1px solid var(--stroke);z-index:1000
+      padding:0 14px;background:transparent;border:none;backdrop-filter:none;z-index:1000
     }
     .brand{font-weight:900;letter-spacing:.8px;color:#fff;display:flex;align-items:center;gap:10px}
     .brand .wordmark{font-size:14px;opacity:.95}
     .top-right{display:flex;gap:10px;align-items:center}
-    .chip{font-size:12px;color:var(--ink-2);padding:6px 10px;border:1px solid var(--stroke);border-radius:10px;background:rgba(255,255,255,.05)}
+    .chip{font-size:12px;color:var(--ink-2);padding:0;border:none;background:transparent}
 
-    /* ====== Tab bar (labels above icons) ====== */
+    /* ====== Bottom tab bar — transparent, labels above icons ====== */
     .app-tabbar{
       position:fixed;left:0;right:0;bottom:0;height:72px;
       padding-bottom:calc(var(--safe-bottom));
-      background:rgba(17,18,20,.85);backdrop-filter:blur(8px);border-top:1px solid var(--stroke);z-index:1000;
+      background:transparent;border:none;backdrop-filter:none;z-index:1000;
       display:grid;grid-template-columns:repeat(5,1fr)
     }
     .tab-btn{
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-      color:var(--ink-2);cursor:pointer;user-select:none;transition:background .2s,color .2s,transform .2s;position:relative
+      color:var(--ink-2);cursor:pointer;user-select:none;transition:transform .2s,color .2s
     }
-    .tab-btn:focus-visible{outline:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
-    .tab-btn:hover{background:rgba(255,255,255,.05);color:var(--ink)}
-    .tab-btn.active{background:rgba(255,255,255,.06);color:#fff}
+    .tab-btn:hover{color:var(--ink)}
+    .tab-btn.active{color:#fff}
     .tab-btn svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
     .tab-label{font-size:10px;letter-spacing:.35px;line-height:1}
 
@@ -81,7 +75,6 @@
     }
     @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:100% 50%}}
     .tab-btn[data-screen="dashboard"] svg .gold-stroke{stroke:url(#goldGrad)}
-    .tab-btn[data-screen="dashboard"].active{box-shadow:inset 0 0 0 1px rgba(240,185,11,.25)}
 
     /* ====== Content area ====== */
     .app-shell{position:fixed;inset:44px 0 72px 0}
@@ -91,28 +84,27 @@
     /* ====== Battle screen ====== */
     .stream-container{
       display:flex;height:100%;width:100%;position:relative;
-      background:radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.06), transparent 60%);
+      background:transparent;
       transition:filter 300ms ease,opacity 300ms ease,transform .6s ease
     }
     .stream-container.dimmed{filter:brightness(.75) contrast(.95) saturate(.95)}
-    video.video-stream{flex:1;object-fit:cover;background:#000;width:50%;height:100%;filter:brightness(.9) contrast(1.15) saturate(1.1);border-right:1px solid var(--stroke)}
-    video.video-stream:last-child{border-right:none;border-left:1px solid var(--stroke)}
+    video.video-stream{flex:1;object-fit:cover;background:#000;width:50%;height:100%;filter:brightness(.9) contrast(1.15) saturate(1.1)}
+    video.video-stream + video.video-stream{border-left:1px solid rgba(255,255,255,.04)}
     .overlay{position:absolute;inset:0;pointer-events:none;z-index:10}
 
-    /* Opponent profile box (clickable, with faded 3ATTL33ILLIONS bg) */
+    /* Opponent profile — no outline/background; faded 3ATTL33ILLIONS behind */
     .profile-labels{
       position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;
-      pointer-events:auto; /* allow clicks despite overlay being none */
+      pointer-events:auto;
     }
     .profile-entry{
       position:relative; display:flex; align-items:center; gap:10px;
-      background:rgba(255,255,255,.06); padding:6px 14px; border-radius:12px;
-      border:1px solid var(--stroke); box-shadow:var(--shadow); cursor:pointer;
+      background:transparent; padding:6px 14px; border:none; box-shadow:none; cursor:pointer;
       overflow:hidden; text-decoration:none; color:inherit;
     }
     .profile-entry::before{
       content:"3ATTL33ILLIONS";
-      position:absolute; inset:0; left:10px; top:50%;
+      position:absolute; inset:0; left:6px; top:50%;
       transform:translateY(-50%);
       font-weight:900; font-size:22px; letter-spacing:.15em;
       color:#fff; opacity:.06; white-space:nowrap; pointer-events:none; z-index:0;
@@ -120,73 +112,75 @@
     .profile-entry img{width:34px;height:34px;border-radius:10px;position:relative;z-index:1}
     .profile-entry span{font-size:14px;color:var(--ink-2);position:relative;z-index:1}
 
+    /* ====== Small bottom-center "3ATTLE" start button ====== */
+    .battle-fab{
+      position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 56px);transform:translateX(-50%);
+      padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
+      border:none;backdrop-filter:none;z-index:1200;
+      display:none;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s
+    }
+    .battle-fab:hover{background:rgba(255,255,255,.16);transform:translateX(-50%) translateY(-1px)}
+    .battle-fab:focus-visible{outline:none;box-shadow:var(--ring)}
+
+    /* ====== Choose Category (still small; disappears after tap) ====== */
+    .cat-fab{
+      position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 14px);transform:translateX(-50%);
+      padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
+      border:none;backdrop-filter:none;z-index:1200;
+      display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s
+    }
+    .cat-fab:hover{background:rgba(255,255,255,.16);transform:translateX(-50%) translateY(-1px)}
+    .cat-fab:focus-visible{outline:none;box-shadow:var(--ring)}
+    .cat-fab svg{width:18px;height:18px;stroke:#fff}
+
+    /* ====== Round timer — hidden until battle starts ====== */
     .round-timer{
       position:absolute;bottom:108px;left:50%;transform:translateX(-50%);
       background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);
-      border:1px solid var(--stroke);box-shadow:var(--shadow);z-index:50;pointer-events:none;text-align:center
+      border:1px solid rgba(255,255,255,.08);z-index:50;pointer-events:none;text-align:center;display:none
     }
     .round-timer.pulse{animation:pulse 2.2s infinite}
     @keyframes pulse{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.03)}100%{transform:translateX(-50%) scale(1)}}
 
-    /* ====== Category Button (bottom small) ====== */
-    .cat-fab{
-      position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 8px);transform:translateX(-50%);
-      padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--ink);
-      border:1px solid var(--stroke);backdrop-filter:blur(8px);box-shadow:var(--shadow);z-index:1200;
-      display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,background .2s
-    }
-    .cat-fab:hover{background:rgba(255,255,255,.12);transform:translateX(-50%) translateY(-1px)}
-    .cat-fab:focus-visible{outline:none;box-shadow:var(--ring)}
-    .cat-fab svg{width:18px;height:18px;stroke:#fff}
-
-    /* ====== Modals/Cards ====== */
-    .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);pointer-events:auto}
+    /* ====== Modals / Cards ====== */
+    .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);pointer-events:auto}
     .modal.show{display:flex}
-    .card{background:var(--bg-1);border:1px solid var(--stroke);border-radius:16px;width:min(92vw,820px);padding:20px;box-shadow:var(--shadow)}
+    .card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;width:min(92vw,820px);padding:20px}
     .card h2{margin-bottom:8px;color:var(--ink);font-size:20px;text-align:center}
-    .slogan{margin:8px auto 16px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--stroke);font-size:12px;line-height:1.6;color:var(--ink-3);text-align:center}
+    .slogan{margin:8px auto 16px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:12px;line-height:1.6;color:var(--ink-3);text-align:center}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px}
-    .pill{display:flex;align-items:center;justify-content:center;min-height:56px;width:100%;padding:10px 8px;text-align:center;white-space:normal;word-break:break-word;line-height:1.2;font-size:15px;letter-spacing:.4px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);border-radius:12px;color:var(--ink-2);cursor:pointer;user-select:none;transition:transform .2s,background .2s,box-shadow .2s,color .2s}
+    .pill{display:flex;align-items:center;justify-content:center;min-height:56px;width:100%;padding:10px 8px;text-align:center;white-space:normal;word-break:break-word;line-height:1.2;font-size:15px;letter-spacing:.4px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--ink-2);cursor:pointer;user-select:none;transition:transform .2s,background .2s,box-shadow .2s,color .2s}
     .pill:hover{transform:translateY(-2px);background:rgba(255,255,255,.1);color:var(--ink)}
     .pill:focus-visible{outline:none;box-shadow:var(--ring)}
     .pill.active{background:rgba(255,255,255,.18);color:var(--ink)}
     .actions{margin-top:16px;display:flex;justify-content:center;gap:10px}
-    .btn{background:var(--accent);color:var(--accent-2);border:1px solid var(--stroke);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:800;transition:transform .2s,filter .2s}
+    .btn{background:var(--accent);color:var(--accent-2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:800;transition:transform .2s,filter .2s}
     .btn:hover{transform:translateY(-1px);filter:brightness(.9)}
     .btn.secondary{background:transparent;color:var(--ink)}
     .modal .sub-title{text-align:center;color:var(--ink-3);margin-top:6px;font-size:13px}
     .muted{opacity:.8;font-size:12px;margin-top:10px;text-align:center;color:var(--ink-3)}
 
-    #startBattleBtn{
-      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(6px);
-      background:var(--accent);color:var(--accent-2);border:1px solid var(--stroke);font-size:18px;padding:14px 28px;border-radius:16px;cursor:pointer;z-index:1200;pointer-events:auto;box-shadow:var(--shadow);transition:all .25s ease;display:none
-    }
-    #startBattleBtn:hover{transform:translate(-50%,-50%) translateY(4px) scale(1.02)}
-    .placeholder{display:flex;align-items:center;justify-content:center;height:100%;width:100%;background:rgba(255,255,255,.02);backdrop-filter:blur(4px);text-align:center}
-    .placeholder .box{border:1px solid var(--stroke);border-radius:16px;padding:24px 28px;background:var(--bg-1);max-width:720px;width:calc(100% - 40px);box-shadow:var(--shadow)}
+    .placeholder{display:flex;align-items:center;justify-content:center;height:100%;width:100%;text-align:center}
+    .placeholder .box{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px 28px;background:#0e0e0f;max-width:720px;width:calc(100% - 40px)}
     .placeholder h1{color:var(--ink);margin-bottom:8px}
     .placeholder p{color:var(--ink-3)}
+
+    /* Post-battle */
     .post-modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)}
     .post-modal.show{display:flex}
-    .post-card{background:var(--bg-1);border:1px solid var(--stroke);border-radius:16px;width:min(92vw,820px);padding:18px 20px;box-shadow:var(--shadow)}
+    .post-card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;width:min(92vw,820px);padding:18px 20px}
     .post-card h3{color:var(--ink);text-align:center;margin-bottom:8px}
     .post-actions{display:flex;gap:10px;justify-content:center;margin-top:12px}
   </style>
 </head>
 <body>
-  <!-- ====== SVG Sprite + Gold Gradient ====== -->
+  <!-- SVG sprite & gold gradient -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#F5D76E">
-          <animate attributeName="offset" values="0;1;0" dur="5s" repeatCount="indefinite" />
-        </stop>
-        <stop offset="50%" stop-color="#F0B90B">
-          <animate attributeName="offset" values=".5;1;.5" dur="5s" repeatCount="indefinite" />
-        </stop>
-        <stop offset="100%" stop-color="#FFD15C">
-          <animate attributeName="offset" values="1;0;1" dur="5s" repeatCount="indefinite" />
-        </stop>
+        <stop offset="0%" stop-color="#F5D76E"><animate attributeName="offset" values="0;1;0" dur="5s" repeatCount="indefinite"/></stop>
+        <stop offset="50%" stop-color="#F0B90B"><animate attributeName="offset" values=".5;1;.5" dur="5s" repeatCount="indefinite"/></stop>
+        <stop offset="100%" stop-color="#FFD15C"><animate attributeName="offset" values="1;0;1" dur="5s" repeatCount="indefinite"/></stop>
       </linearGradient>
       <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -199,7 +193,7 @@
     </defs>
   </svg>
 
-  <!-- ====== Top Bar (wordmark only) ====== -->
+  <!-- Top bar -->
   <header class="app-topbar">
     <div class="brand"><div class="wordmark">3ATTL33ILLIONS</div></div>
     <div class="top-right">
@@ -208,12 +202,15 @@
     </div>
   </header>
 
-  <!-- ====== Category FAB (disappears after first tap) ====== -->
+  <!-- Small bottom-center "3ATTLE" start -->
+  <button class="battle-fab" id="startBattleFab" aria-label="Start 3ATTLE">3ATTLE</button>
+
+  <!-- Choose Category (disappears after first tap) -->
   <button class="cat-fab" id="openCats" aria-haspopup="dialog" aria-controls="categoryModal">
     <svg><use href="#ic-grid"/></svg><span>Choose Category</span>
   </button>
 
-  <!-- ====== Content ====== -->
+  <!-- Content -->
   <main class="app-shell">
     <!-- Battle -->
     <section class="screen active" id="screen-battle" data-route="battle">
@@ -230,7 +227,6 @@
               <div>2ND - <b>Choose Your 3ATTLES.</b></div>
               <div>3RD - <b>Defeat 3ILLIONS.</b></div>
             </div>
-
             <div class="grid" id="categoryGrid">
               <!-- Core -->
               <button type="button" class="pill" data-cat="ART">ART</button>
@@ -280,11 +276,6 @@
           </div>
         </div>
 
-        <!-- Start Button -->
-        <button id="startBattleBtn" onclick="startBattle()">
-          <svg style="vertical-align:middle;"><use href="#ic-play"/></svg> &nbsp;3ATTL33ILLIONS
-        </button>
-
         <div class="overlay">
           <!-- Clickable opponent profile (routes to Profile screen) -->
           <div class="profile-labels" id="profileLabels">
@@ -294,7 +285,8 @@
             </a>
           </div>
 
-          <div class="round-timer" id="roundTimer">Tap “Choose Category” to begin…</div>
+          <!-- Timer (hidden until battle starts) -->
+          <div class="round-timer" id="roundTimer"></div>
         </div>
 
         <!-- Post-battle -->
@@ -329,11 +321,11 @@
     </section>
   </main>
 
-  <!-- ====== Tab Bar ====== -->
+  <!-- Bottom tabs -->
   <nav class="app-tabbar" role="tablist" aria-label="Main">
     <a class="tab-btn" data-screen="home" role="tab" aria-selected="false">
       <span class="tab-label">Home</span>
-        <svg><use href="#ic-home"/></svg>
+      <svg><use href="#ic-home"/></svg>
     </a>
     <a class="tab-btn" data-screen="dashboard" role="tab" aria-selected="false" title="3ILLIONS">
       <span class="tab-label">3ILLIONS</span>
@@ -353,11 +345,11 @@
     </a>
   </nav>
 
-  <!-- ====== Audio ====== -->
+  <!-- Audio -->
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
   <audio id="battleTrack" controls hidden></audio>
 
-  <script>
+           <script>
     /* ====== SPA Nav ====== */
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
@@ -371,7 +363,7 @@
       });
     }
 
-    // Global handler: anything with [data-screen] acts like a nav link (tabs + opponent box)
+    // Global delegated nav (tabs + opponent box)
     document.addEventListener('click',(e)=>{
       const link = e.target.closest('[data-screen]');
       if(!link) return;
@@ -466,7 +458,7 @@
     const optionsSubtitle=document.getElementById('optionsSubtitle');
     const optionsBody=document.getElementById('optionsBody');
     const optionsHint=document.getElementById('optionsHint');
-    const startBattleBtn=document.getElementById('startBattleBtn');
+    const startBattleFab=document.getElementById('startBattleFab');
     const categoryGrid=document.getElementById('categoryGrid');
 
     const postModal=document.getElementById('postBattleModal');
@@ -478,7 +470,7 @@
 
     const openCats=document.getElementById('openCats');
     openCats.addEventListener('click',()=>{
-      openCats.style.display='none';               // per request: disappear after tapped
+      openCats.style.display='none';         // disappears after first tap
       categoryModal.classList.add('show');
       categoryGrid.querySelector('.pill')?.focus();
       location.hash = '#/battle';
@@ -487,11 +479,10 @@
     function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');postModal.classList.remove('show')}
     document.getElementById('cancelCat').onclick=()=>{
       categoryModal.classList.remove('show');
-      timerDisplay.textContent="Tap the start or switch screens.";
       clearHash();
     };
     document.getElementById('backBtn').onclick=()=>{
-      optionsModal.classList.remove('show');categoryModal.classList.add('show');startBattleBtn.style.display='none';chosenSub=null;updateHash(currentCategory,null);
+      optionsModal.classList.remove('show');categoryModal.classList.add('show');startBattleFab.style.display='none';chosenSub=null;updateHash(currentCategory,null);
       categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));
       categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
@@ -519,11 +510,11 @@
 
     function openCategory(cat,fromUser){
       try{
-        currentCategory=cat;chosenSub=null;startBattleBtn.style.display='none';
+        currentCategory=cat;chosenSub=null;startBattleFab.style.display='none';
         categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===cat));
         buildOptionsFor(cat);
         categoryModal.classList.remove('show');optionsModal.classList.add('show');
-        if(fromUser) updateHash(cat,null);
+        if (fromUser) updateHash(cat,null);
         optionsModal.querySelector('.pill')?.focus();
       }catch(err){console.error('openCategory error:',err)}
     }
@@ -545,8 +536,8 @@
         items.forEach(b=>{
           const btn=makePill(b.label,b.value,()=>{
             chosenOptions.beat=b.value;chosenSub=b.label;battleTrack.src=b.value;battleTrack.load();
-            optionsModal.classList.remove('show');startBattleBtn.style.display='block';
-            timerDisplay.textContent="Ready — tap 3ATTL33ILLIONS to start!";updateHash(cat,b.label);applyCategoryOpponent(cat);
+            optionsModal.classList.remove('show');startBattleFab.style.display='flex';
+            updateHash(cat,b.label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });optionsHint.innerText="Only RAP uses instrumentals.";
       }else{
@@ -554,8 +545,8 @@
         optionsSubtitle.innerText=subtitleMap[cat]||"Choose an option.";
         items.forEach(label=>{
           const btn=makePill(label,label,()=>{
-            chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');startBattleBtn.style.display='block';
-            timerDisplay.textContent="Ready — tap 3ATTL33ILLIONS to start!";updateHash(cat,label);applyCategoryOpponent(cat);
+            chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');startBattleFab.style.display='flex';
+            updateHash(cat,label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
         });
       }
@@ -584,6 +575,8 @@
     function setDim(a){a?streamContainer.classList.add('dimmed'):streamContainer.classList.remove('dimmed')}
     function glow(){timerDisplay.classList.add('pulse');setTimeout(()=>timerDisplay.classList.remove('pulse'),1400)}
     function runRoundPart(){
+      // show timer now that battle is live
+      timerDisplay.style.display='block';
       setDim(true);
       const interval=setInterval(()=>{
         timerDisplay.textContent=`Round ${round} of ${maxRounds} | ${(roundPart===0?'@You':'@Opponent')} | ${timeLeft}s`;
@@ -593,34 +586,45 @@
           if(roundPart===0){roundPart=1;timeLeft=33;timerDisplay.textContent=`Switching to Opponent…`;setTimeout(runRoundPart,6000)}
           else{
             if(round<maxRounds){round++;roundPart=0;timeLeft=33;timerDisplay.textContent=`Switching to Next Round…`;setTimeout(runRoundPart,6000)}
-            else{timerDisplay.textContent='3ATTLE Over — Great Work!';glow();setDim(false);buildPostCats();postModal.classList.add('show');loadRandomOpponent();startBattleBtn.style.display='block'}
+            else{timerDisplay.textContent='3ATTLE Over — Great Work!';glow();setDim(false);buildPostCats();postModal.classList.add('show');loadRandomOpponent();startBattleFab.style.display='flex'}
           }
         }
       },1000);
     }
+
     function startBattle(){
-      if(!currentCategory){timerDisplay.textContent="Choose a category first.";return}
-      if(currentCategory==='RAP'){ if(!chosenOptions.beat){timerDisplay.textContent="Pick an instrumental to start.";return} battleTrack.play().catch(()=>{}); }
-      else{battleTrack.pause();battleTrack.currentTime=0}
-      postModal.classList.remove('show');startBattleBtn.style.display='none';glow();round=1;roundPart=0;timeLeft=33;runRoundPart();
+      if(!currentCategory){return}
+      if(currentCategory==='RAP'){
+        if(!chosenOptions.beat){return}
+        battleTrack.play().catch(()=>{});
+      }else{
+        battleTrack.pause(); battleTrack.currentTime=0;
+      }
+      postModal.classList.remove('show');
+      startBattleFab.style.display='none';
+      glow();
+      round=1; roundPart=0; timeLeft=33;
+      runRoundPart();
     }
+
+    startBattleFab.addEventListener('click', startBattle);
+
     function loadRandomOpponent(){
       const pool=opponentPools[currentCategory]||[]; if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];
         opponentVideo.src=r.video;opponentImage.src=r.image;opponentUsername.innerText=r.username;}
-      setTimeout(()=>{timerDisplay.textContent="New Opponent Ready — choose options or press 3ATTL33ILLIONS!";},900)
     }
 
     // Post-battle actions
     postClose.addEventListener('click',()=>postModal.classList.remove('show'));
     postKeepCat.addEventListener('click',()=>{
       if(!currentCategory||!chosenSub){postModal.classList.remove('show');categoryModal.classList.add('show');return}
-      postModal.classList.remove('show');startBattleBtn.style.display='block';timerDisplay.textContent="Tap 3ATTL33ILLIONS to continue."
+      postModal.classList.remove('show');startBattleFab.style.display='flex';
     });
     postPickSub.addEventListener('click',()=>{
       postModal.classList.remove('show');categoryModal.classList.add('show');
       if(currentCategory){categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===currentCategory));openCategory(currentCategory,true)}
     });
-    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleBtn.style.display='block';timerDisplay.textContent="Opponent switched. Tap 3ATTL33ILLIONS to start!"});
+    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleFab.style.display='flex'});
 
     // Viewer count tick
     let viewers=1300;
@@ -643,7 +647,7 @@
       showScreen('battle');
       if(!location.hash) location.hash='#/battle';
       startCamera();
-      timerDisplay.textContent="Tap “Choose Category” to begin…";
+      // No "ready" text anymore; timer hidden until battle starts
       routeFromHash(); parseHashAndOpen();
     };
   </script>
