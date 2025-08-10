@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profile • 3ATTL33ILLIONS</title>
+  <title>Home • 3ATTL33ILLIONS</title>
 
   <!-- Virgo font (local) -->
   <style>
@@ -35,151 +35,144 @@
       letter-spacing:.2px;
     }
 
-    .wrap{max-width:1000px;margin:0 auto;padding:16px 12px 28px}
+    /* ===== Page layout ===== */
+    .home-shell{
+      max-width:1200px; margin:0 auto; padding:16px 12px 28px;
+      display:grid; grid-template-columns: 1fr 320px; gap:16px;
+    }
+    /* Main content placeholder (left) */
+    .home-main{
+      min-height:60vh;
+      border:1px solid var(--stroke); border-radius:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      padding:18px;
+    }
+    .home-main h1{margin:0 0 6px 0; font-size:18px}
+    .home-main p{color:var(--ink-3); margin:0}
 
-    /* ===== Hero (centered, no appbar) ===== */
-    .hero{
-      position:relative; overflow:hidden;
-      border:1px solid var(--stroke); border-radius:20px; padding:22px 18px;
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    /* ===== Right Sidebar (sticky) ===== */
+    .home-sidebar{
+      position:sticky; top:16px;
+      display:flex; flex-direction:column; gap:12px;
     }
-    .hero::before{
-      content:""; position:absolute; inset:-40% -20%;
-      background:
-        radial-gradient(600px 240px at 50% -20%, rgba(255,255,255,.06), transparent 60%),
-        radial-gradient(500px 220px at 80% 120%, rgba(255,255,255,.04), transparent 65%);
-      filter:blur(20px); pointer-events:none;
-    }
-    .hero-inner{
-      position:relative; display:flex; flex-direction:column; align-items:center; gap:14px;
-    }
-    .avatar{
-      width:108px;height:108px;border-radius:28px;overflow:hidden;position:relative;
-      box-shadow:0 0 0 3px rgba(255,255,255,.06);
-    }
-    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-    .name{font-size:22px;font-weight:900}
-    .handle{font-size:12px;color:var(--ink-3)}
 
-    /* Action chips (icon-first) */
+    .card{
+      border:1px solid var(--stroke); border-radius:16px; background:rgba(255,255,255,.04);
+      backdrop-filter:blur(6px); box-shadow:0 10px 30px rgba(0,0,0,.35);
+      padding:14px;
+    }
+
+    /* Actions block */
     .actions{
-      display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
-      margin-top:4px;
+      display:flex; flex-direction:column; gap:10px;
     }
-    .chip{
-      display:flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:12px; cursor:pointer;
-      border:1px solid var(--stroke); background:rgba(255,255,255,.06); color:#fff; font-weight:800; font-size:12px;
+    .action-btn{
+      display:flex; align-items:center; gap:12px; width:100%;
+      border:1px solid var(--stroke); border-radius:12px;
+      background:rgba(255,255,255,.06); color:#fff; font-weight:800; font-size:13px;
+      padding:12px; cursor:pointer; text-align:left;
       transition:transform .2s, background .2s, box-shadow .2s;
     }
-    .chip:hover{transform:translateY(-1px); background:rgba(255,255,255,.1)}
-    .chip img{width:16px;height:16px;object-fit:contain}
-    .chip.rank{
-      background:linear-gradient(90deg,#3a3a3a,var(--gold-2),#3a3a3a); background-size:200% 100%;
-      color:#101; border-color:rgba(240,185,11,.55); box-shadow:0 0 16px 2px rgba(240,185,11,.25);
+    .action-btn:hover{transform:translateY(-1px); background:rgba(255,255,255,.1)}
+    .action-btn svg{width:18px;height:18px;stroke:#fff}
+
+    /* Rank special style */
+    .action-btn.rank{
+      background:linear-gradient(90deg,#3a3a3a,var(--gold-2),#3a3a3a);
+      background-size:200% 100%;
+      color:#101; border-color:rgba(240,185,11,.55);
+      box-shadow:0 0 16px 2px rgba(240,185,11,.25);
       animation:shimmer 5s linear infinite;
     }
-    .chip .badge{
-      margin-left:2px; padding:2px 8px; border-radius:999px; border:1px solid rgba(240,185,11,.55);
-      background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3)); color:#101; font-weight:900; font-size:11px;
+    .badge{
+      margin-left:auto;
+      padding:2px 8px; border-radius:999px; border:1px solid rgba(240,185,11,.55);
+      background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3));
+      color:#101; font-weight:900; font-size:11px;
     }
     @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 
-    /* Stat chips (minimal) */
+    .divider{height:1px; background:var(--stroke); margin:10px 0}
+
+    /* Stats tiles */
     .stats{
-      display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px;
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;
     }
     .stat{
-      min-width:110px; padding:10px 12px; border:1px solid var(--stroke);
-      background:var(--panel); border-radius:12px; text-align:center;
+      border:1px solid var(--stroke); border-radius:12px;
+      background:var(--panel); padding:10px; text-align:center;
     }
-    .stat .num{font-size:18px;font-weight:900}
-    .stat .lbl{font-size:11px;color:var(--ink-2);letter-spacing:.3px}
+    .stat .num{font-size:18px; font-weight:900}
+    .stat .lbl{font-size:10px; color:var(--ink-2); letter-spacing:.3px}
 
-    /* Highlights (no text labels) */
-    .highlights{
-      display:flex; gap:12px; padding:12px 4px 0; overflow:auto; scrollbar-width:none;
+    /* Promo block (optional) */
+    .promo{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
-    .highlights::-webkit-scrollbar{display:none}
-    .hl{width:74px; min-width:74px; cursor:pointer}
-    .hl .ring{
-      width:74px; height:74px; border-radius:50%; padding:3px;
-      background:conic-gradient(var(--gold-2),var(--gold-1),var(--gold-3),var(--gold-2));
+    .promo .text{font-size:12px; color:var(--ink-2)}
+    .promo .go{
+      border:1px solid var(--stroke); border-radius:10px; padding:8px 10px; font-weight:800; cursor:pointer; background:#fff; color:#111;
+      transition:transform .2s, filter .2s;
     }
-    .hl .inner{
-      width:100%;height:100%;border-radius:50%;background:#000; display:flex;align-items:center;justify-content:center; overflow:hidden;
-    }
-    .hl img{width:70%;height:70%;object-fit:contain;opacity:.95}
+    .promo .go:hover{transform:translateY(-1px); filter:brightness(.95)}
 
-    /* View switcher (icon-only) */
-    .switcher{
-      margin-top:14px; display:flex; gap:8px; justify-content:center;
-    }
-    .switch-btn{
-      width:42px;height:42px;border-radius:12px;border:1px solid var(--stroke); background:rgba(255,255,255,.05);
-      display:flex;align-items:center;justify-content:center; cursor:pointer;
-      transition:transform .2s, background .2s, color .2s;
-    }
-    .switch-btn:hover{transform:translateY(-1px); background:rgba(255,255,255,.08)}
-    .switch-btn.active{background:rgba(255,255,255,.14)}
-    .switch-btn svg{stroke:#fff}
-
-    /* Media grid */
-    .panel{margin-top:10px}
-    .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:6px}
-    .cell{
-      position:relative; border-radius:12px; overflow:hidden; background:#0b0b0c;
-      border:1px solid var(--stroke); cursor:pointer;
-    }
-    .cell img,.cell video{width:100%;height:100%;object-fit:cover;display:block}
-    .cell .badge{
-      position:absolute; top:6px; left:6px; font-size:10px; padding:2px 6px; border-radius:999px;
-      background:rgba(0,0,0,.5); color:#fff; border:1px solid var(--stroke); backdrop-filter:blur(4px);
-    }
-
-    /* Lightbox */
-    .lightbox{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:9999}
-    .lightbox.show{display:flex}
-    .lightbox-card{width:min(92vw,900px); background:#0e0e0f; border:1px solid var(--stroke); border-radius:16px; overflow:hidden}
-    .lightbox-media{width:100%; max-height:64vh; background:#000}
-    .lightbox-media img,.lightbox-media video{width:100%; height:100%; object-fit:cover; display:block}
-    .lightbox-info{padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px}
-    .closebtn{border:1px solid var(--stroke); border-radius:10px; background:rgba(255,255,255,.06); color:#fff; padding:8px 10px; cursor:pointer; font-weight:800}
-    .closebtn:hover{background:rgba(255,255,255,.1)}
-
-    @media (max-width:720px){
-      .grid{grid-template-columns:repeat(3, 1fr)}
+    /* Responsive */
+    @media (max-width: 980px){
+      .home-shell{grid-template-columns: 1fr}
+      .home-sidebar{position:static}
     }
   </style>
 </head>
 <body>
-  <div class="wrap" data-app-fragment>
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-inner">
-        <div class="avatar"><img id="avatar" src="assets/img/user_me.jpg" alt="Profile avatar"></div>
-        <div class="name" id="displayName">Commander Nova</div>
-        <div class="handle" id="handle">@nova</div>
+  <div class="home-shell" data-app-fragment>
+    <!-- LEFT: Your main feed or hero content -->
+    <section class="home-main">
+      <h1>Welcome back</h1>
+      <p>Jump into a 3ATTLE, browse 3ILLIONS, or check your rank.</p>
+      <!-- You can place home feed/cards here -->
+    </section>
 
-        <!-- Action chips -->
+    <!-- RIGHT: Sticky Sidebar -->
+    <aside class="home-sidebar">
+      <!-- Actions -->
+      <div class="card">
         <div class="actions">
-          <button class="chip rank" onclick="go('#/rank')" aria-label="Open Rank">
-            <img src="assets/leaderboard 3d.png" alt="" aria-hidden="true"><span>Rank</span>
+          <!-- Rank with badge -->
+          <button class="action-btn rank" onclick="go('#/rank')" aria-label="Open Rank">
+            <!-- trophy/medal icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 21h8M12 17v4M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z"/>
+              <path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4"/>
+            </svg>
+            <span>Rank</span>
             <span class="badge" id="rankBadge">#27</span>
           </button>
-          <button class="chip" onclick="go('#/wallet')" aria-label="Open Wallet">
-            <img src="assets/billions 3d.png" alt="" aria-hidden="true"><span>Wallet</span>
+
+          <!-- Wallet -->
+          <button class="action-btn" onclick="go('#/wallet')" aria-label="Open Wallet">
+            <!-- wallet icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h14a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/>
+              <path d="M16 11h4v2h-4z"/>
+              <path d="M4 7V5a2 2 0 0 1 2-2h10"/>
+            </svg>
+            <span>Wallet</span>
           </button>
-          <button class="chip" onclick="go('#/edit-profile')" aria-label="Edit Profile">
+
+          <!-- Edit -->
+          <button class="action-btn" onclick="go('#/edit-profile')" aria-label="Edit Profile">
             <!-- pencil -->
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
             </svg>
             <span>Edit</span>
           </button>
-          <button class="chip" onclick="go('#/settings')" aria-label="Settings">
+
+          <!-- Settings -->
+          <button class="action-btn" onclick="go('#/settings')" aria-label="Settings">
             <!-- cog -->
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06A2 2 0 1 1 3.21 19l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 1 1 0-4h.09c.36 0 .71-.08 1.02-.23.62-.27 1-.86 1-1.51V7a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 5.04 3.21l.06.06c.5.5 1.19.65 1.82.33H7a1.65 1.65 0 0 0 1-1.51V2a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51c.63.32 1.32.17 1.82-.33l.06-.06A2 2 0 1 1 20.79 5l-.06.06c-.5.5-.65 1.19-.33 1.82V7"/>
             </svg>
@@ -187,80 +180,37 @@
           </button>
         </div>
 
-        <!-- Minimal stats -->
+        <div class="divider"></div>
+
+        <!-- Stats -->
         <div class="stats">
-          <div class="stat"><div class="num" id="statBattles">27</div><div class="lbl">3ATTLES</div></div>
-          <div class="stat"><div class="num" id="statFollowers">12.8k</div><div class="lbl">Followers</div></div>
-          <div class="stat"><div class="num" id="statFollowing">341</div><div class="lbl">Following</div></div>
+          <div class="stat">
+            <div class="num" id="statBattles">27</div>
+            <div class="lbl">3ATTLES</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="statFollowers">12.8k</div>
+            <div class="lbl">Followers</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="statFollowing">341</div>
+            <div class="lbl">Following</div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Highlights (no labels) -->
-    <div class="highlights" aria-label="Highlights">
-      <div class="hl" onclick="go('#/battle')">
-        <div class="ring"><div class="inner"><img src="assets/battle 3d.png" alt=""></div></div>
+      <!-- Optional CTA block -->
+      <div class="card">
+        <div class="promo">
+          <div class="text">Ready to jump back in?</div>
+          <button class="go" onclick="go('#/battle')">Enter 3ATTLES</button>
+        </div>
       </div>
-      <div class="hl" onclick="go('#/leaderboard')">
-        <div class="ring"><div class="inner"><img src="assets/leaderboard 3d.png" alt=""></div></div>
-      </div>
-      <div class="hl" onclick="go('#/rank')">
-        <div class="ring"><div class="inner"><img src="assets/leaderboard 3d.png" alt=""></div></div>
-      </div>
-      <div class="hl" onclick="go('#/wallet')">
-        <div class="ring"><div class="inner"><img src="assets/billions 3d.png" alt=""></div></div>
-      </div>
-    </div>
-
-    <!-- Icon-only view switcher (no text labels) -->
-    <div class="switcher" role="tablist" aria-label="Profile views">
-      <button class="switch-btn active" data-view="battles" role="tab" aria-selected="true" title="3ATTLES" aria-label="3ATTLES">
-        <!-- grid -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>
-        </svg>
-      </button>
-      <button class="switch-btn" data-view="illions" role="tab" aria-selected="false" title="3ILLIONS" aria-label="3ILLIONS">
-        <!-- sparkles -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" transform="translate(6 3)"/>
-        </svg>
-      </button>
-      <button class="switch-btn" data-view="wins" role="tab" aria-selected="false" title="WINS" aria-label="WINS">
-        <!-- trophy -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M8 21h8M12 17v4M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z"/>
-          <path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4"/>
-        </svg>
-      </button>
-      <button class="switch-btn" data-view="tagged" role="tab" aria-selected="false" title="TAGGED" aria-label="TAGGED">
-        <!-- tag -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-          <circle cx="7.5" cy="7.5" r="1.5"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Media Panel -->
-    <div class="panel">
-      <div class="grid" id="mediaGrid"></div>
-    </div>
-  </div>
-
-  <!-- Lightbox -->
-  <div class="lightbox" id="lightbox" aria-modal="true" role="dialog">
-    <div class="lightbox-card">
-      <div class="lightbox-media" id="lightboxMedia"></div>
-      <div class="lightbox-info">
-        <div id="lightboxTitle">Preview</div>
-        <button class="closebtn" onclick="closeLightbox()">Close</button>
-      </div>
-    </div>
+    </aside>
   </div>
 
   <script>
-    // SPA nav helper (works embedded in dashboard.html or standalone)
+    // SPA helper
     function go(hash){
       try{
         if (window.parent && window.parent !== window){ window.parent.location.hash = hash; }
@@ -268,108 +218,24 @@
       }catch(e){ location.hash = hash; }
     }
 
-    // Demo profile data (replace with real data)
-    const user = {
-      name: 'Commander Nova',
-      handle: '@nova',
-      avatar: 'assets/img/user_me.jpg',
+    // Demo values (replace with live data)
+    const demo = {
       rank: 27,
       battles: 27,
-      followers: 12842,
-      following: 341,
-      media: {
-        battles: [
-          {thumb:'assets/thumbs/b1.jpg', type:'video', title:'Round 3 KO'},
-          {thumb:'assets/thumbs/b2.jpg', type:'image', title:'Freestyle Night'},
-          {thumb:'assets/thumbs/b3.jpg', type:'image', title:'Auto Drift'},
-          {thumb:'assets/thumbs/b4.jpg', type:'video', title:'Debate Finals'},
-          {thumb:'assets/thumbs/b5.jpg', type:'image', title:'Runway Heat'},
-          {thumb:'assets/thumbs/b6.jpg', type:'video', title:'Chill Vibes'},
-        ],
-        illions: [
-          {thumb:'assets/thumbs/i1.jpg', type:'image', title:'Trending'},
-          {thumb:'assets/thumbs/i2.jpg', type:'image', title:'Spotlight'},
-          {thumb:'assets/thumbs/i3.jpg', type:'video', title:'Feature'},
-        ],
-        wins: [
-          {thumb:'assets/thumbs/w1.jpg', type:'image', title:'Champion'},
-          {thumb:'assets/thumbs/w2.jpg', type:'image', title:'Gold Trophy'},
-          {thumb:'assets/thumbs/w3.jpg', type:'video', title:'Crowd Fav'},
-        ],
-        tagged: [
-          {thumb:'assets/thumbs/t1.jpg', type:'image', title:'Collab'},
-          {thumb:'assets/thumbs/t2.jpg', type:'video', title:'Duet'},
-          {thumb:'assets/thumbs/t3.jpg', type:'image', title:'Feature'},
-        ]
-      }
+      followers: 12840,
+      following: 341
     };
-
     function fmt(n){ return n.toLocaleString(); }
 
-    // Hydrate hero
-    function hydrateHero(){
-      document.getElementById('displayName').textContent = user.name;
-      document.getElementById('handle').textContent = user.handle;
-      document.getElementById('avatar').src = user.avatar;
-      document.getElementById('rankBadge').textContent = '#'+user.rank;
-      document.getElementById('statBattles').textContent = fmt(user.battles);
-      document.getElementById('statFollowers').textContent = fmt(user.followers);
-      document.getElementById('statFollowing').textContent = fmt(user.following);
-    }
-
-    // Build grid
-    function cellHTML(item){
-      return `
-        <div class="cell" data-type="${item.type}" data-title="${item.title}" data-src="${item.thumb}">
-          <img src="${item.thumb}" alt="${item.title}">
-          <div class="badge">${item.type === 'video' ? 'VIDEO' : 'PHOTO'}</div>
-        </div>
-      `;
-    }
-    function buildGrid(items){
-      const el = document.getElementById('mediaGrid');
-      el.innerHTML = items.map(cellHTML).join('');
-    }
-
-    // Switcher (icon-only)
-    const switchBtns = document.querySelectorAll('.switch-btn');
-    switchBtns.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        switchBtns.forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-        btn.classList.add('active'); btn.setAttribute('aria-selected','true');
-        const view = btn.dataset.view;
-        let items = user.media.battles;
-        if(view==='illions') items = user.media.illions;
-        else if(view==='wins') items = user.media.wins;
-        else if(view==='tagged') items = user.media.tagged;
-        buildGrid(items);
-      });
-    });
-
-    // Lightbox
-    const lightbox = document.getElementById('lightbox');
-    const lightboxMedia = document.getElementById('lightboxMedia');
-    const lightboxTitle = document.getElementById('lightboxTitle');
-    function openLightbox(src,type,title){
-      lightboxMedia.innerHTML = type==='video'
-        ? `<video controls autoplay src="${src}" style="max-height:64vh"></video>`
-        : `<img src="${src}" alt="${title}">`;
-      lightboxTitle.textContent = title || 'Preview';
-      lightbox.classList.add('show');
-    }
-    function closeLightbox(){ lightbox.classList.remove('show'); lightboxMedia.innerHTML=''; }
-    lightbox.addEventListener('click', (e)=>{ if(e.target===lightbox) closeLightbox(); });
-
-    // Delegate grid clicks
-    document.addEventListener('click', (e)=>{
-      const cell = e.target.closest('.cell');
-      if(!cell) return;
-      openLightbox(cell.dataset.src, cell.dataset.type, cell.dataset.title);
-    });
-
-    // Init
-    hydrateHero();
-    buildGrid(user.media.battles); // default view
+    // Hydrate
+    (function hydrate(){
+      document.getElementById('rankBadge').textContent = '#'+demo.rank;
+      document.getElementById('statBattles').textContent = fmt(demo.battles);
+      // Followers in compact format
+      const f = demo.followers >= 1000 ? (demo.followers/1000).toFixed(1)+'k' : fmt(demo.followers);
+      document.getElementById('statFollowers').textContent = f;
+      document.getElementById('statFollowing').textContent = fmt(demo.following);
+    })();
   </script>
 </body>
-              </html>
+</html>
