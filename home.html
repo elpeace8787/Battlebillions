@@ -1,213 +1,91 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Home — 3ATTL33ILLIONS</title>
-
-  <!-- Virgo font -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BattleBillions | Profile Header</title>
   <style>
-    @font-face{
-      font-family:'Virgo';
-      src:url('assets/fonts/Virgo.woff2') format('woff2'),
-          url('assets/fonts/Virgo.ttf') format('truetype');
-      font-display:swap;
-    }
-  </style>
-
-  <style>
-    :root{
-      --bg-0:#000;
-      --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
-      --ring:0 0 0 3px rgba(255,255,255,.16);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --max:860px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;background:var(--bg-0);color:var(--ink);
-      font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      -webkit-font-smoothing:antialiased;letter-spacing:.2px;
-    }
-    body::before{
-      content:"";position:fixed;inset:-20% -10%;
-      background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.03), transparent 60%);
-      filter: blur(24px); opacity:.35; z-index:-1;
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
-    .home-wrap{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:16px 14px calc(90px + var(--safe-bottom));
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px;
     }
 
-    /* Row 1: avatar + name/handle */
-    .row-top{
-      display:flex;align-items:center;gap:14px;min-height:96px;
+    .profile-info {
+      display: flex;
+      align-items: center;
     }
-    .tri{
-      width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
-      clip-path:polygon(50% 0%,0% 100%,100% 100%);
-      -webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
-      background:#111;
-    }
-    .tri img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.06)}
-    .who{display:flex;flex-direction:column;gap:4px;min-width:0}
-    .name{font-weight:900;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .handle{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* Row 2: ONE horizontal scroll strip (stats + actions) */
-    .strip{
-      margin-top:14px;display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:6px 2px 10px;
-      -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;
+    .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #333;
+      margin-right: 10px;
     }
-    .item{
-      flex:0 0 auto; scroll-snap-align:center;
-      display:flex;flex-direction:column-reverse;align-items:center;gap:6px;
-      color:#fff;text-decoration:none;min-width:64px;outline:none;
+
+    .name-handle {
+      display: flex;
+      flex-direction: column;
     }
-    .item:focus-visible{box-shadow:var(--ring);border-radius:12px}
-    .icwrap{width:40px;height:40px;display:grid;place-items:center;border-radius:12px}
-    .icwrap svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.96}
-    .label{font-size:10px;line-height:1;font-weight:900;letter-spacing:.35px;color:#fff;text-transform:uppercase}
-    .count{font-size:10px;color:var(--ink-2);margin-top:4px}
 
-    /* Sections (optional, lightweight) */
-    .section{margin-top:18px}
-    .section h3{font-size:12px;color:var(--ink-2);letter-spacing:.38px;margin:0 4px 10px}
-    .hscroll{display:flex;gap:10px;overflow:auto;padding-bottom:4px;scroll-snap-type:x mandatory}
-    .card{flex:0 0 auto;width:160px;height:220px;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;background:#0e0e0f;position:relative;scroll-snap-align:start}
-    .card img,.card video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.06) saturate(1.04)}
-    .meta{position:absolute;left:0;right:0;bottom:0;padding:8px;background:linear-gradient(180deg,transparent 0%, rgba(0,0,0,.7) 75%);
-      display:flex;align-items:center;gap:6px;font-size:11px;color:#fff}
-    .meta svg{width:13px;height:13px;stroke:#fff;fill:none}
+    .name-handle h2 {
+      font-size: 18px;
+      margin: 0;
+    }
 
-    @media (max-width:420px){
-      .tri{width:84px;height:84px}
-      .name{font-size:18px}
-      .icwrap{width:36px;height:36px}
-      .icwrap svg{width:20px;height:20px}
+    .name-handle p {
+      font-size: 14px;
+      color: #aaa;
+      margin: 0;
+    }
+
+    .rank-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .rank-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+      margin-bottom: 4px;
     }
   </style>
 </head>
 <body>
 
-  <!-- White icon sprite (same style as dashboard tabs) -->
-  <svg width="0" height="0" style="position:absolute;opacity:0;">
-    <defs>
-      <!-- Stats icons -->
-      <symbol id="ic-swords" viewBox="0 0 24 24">
-        <path d="M14.5 3l6 6M20.5 3l-6 6" stroke-width="1.6" stroke-linecap="round"/>
-        <path d="M21 14l-7-7-2 2 7 7 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M3 21l7-7 2 2-7 7-2-2z" stroke-width="1.6" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-users" viewBox="0 0 24 24">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
-        <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.6" stroke-linecap="round"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-width="1.6" stroke-linecap="round"/>
-      </symbol>
-      <symbol id="ic-following" viewBox="0 0 24 24">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
-        <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
-        <path d="M17 8h6M20 5v6" stroke-width="1.6" stroke-linecap="round"/>
-      </symbol>
-      <!-- Action icons -->
-      <symbol id="ic-medal" viewBox="0 0 24 24">
-        <path d="M12 2l3 5 5 .7-3.6 3.6.9 5-5.3-2.8L7.6 16l.9-5L5 7.7 10 7z" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-wallet" viewBox="0 0 24 24">
-        <path d="M3 7h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H3z" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M17 9h4v6h-4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-edit" viewBox="0 0 24 24">
-        <path d="M4 20h4l10-10a2.8 2.8 0 1 0-4-4L4 16z" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M13 6l5 5" stroke-width="1.6" stroke-linecap="round"/>
-      </symbol>
-      <symbol id="ic-cog" viewBox="0 0 24 24">
-        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke-width="1.6"/>
-        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7 1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
-      </symbol>
-      <symbol id="ic-play" viewBox="0 0 24 24">
-        <path d="M8 5v14l11-7-11-7z" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
-      </symbol>
-    </defs>
-  </svg>
-
-  <main class="home-wrap">
-    <!-- Row 1 -->
-    <section class="row-top">
-      <div class="tri"><img src="assets/img/user_me.jpg" alt="Avatar"></div>
-      <div class="who">
-        <div class="name" id="displayName">El Peace</div>
-        <div class="handle" id="handle">@elpeace</div>
+  <div class="profile-header">
+    <div class="profile-info">
+      <div class="avatar"></div>
+      <div class="name-handle">
+        <h2>El Peace</h2>
+        <p>@elpeace</p>
       </div>
-    </section>
-
-    <!-- Row 2: ONE horizontal scroll strip (stats + actions) -->
-    <nav class="strip" aria-label="Stats and quick actions">
-      <!-- Stats first -->
-      <a class="item" href="battles.html" title="Your 3ATTLES">
-        <span class="label">3ATTLES</span>
-        <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
-        <span class="count" id="battlesCount">27</span>
-      </a>
-
-      <a class="item" href="followers.html" title="Your Followers">
-        <span class="label">Followers</span>
-        <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
-        <span class="count" id="followersCount">12.8k</span>
-      </a>
-
-      <a class="item" href="following.html" title="Your Following">
-        <span class="label">Following</span>
-        <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
-        <span class="count" id="followingCount">341</span>
-      </a>
-
-      <!-- Then actions -->
-      <a class="item" href="rank.html" title="Rank">
-        <span class="label">Rank</span>
-        <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
-      </a>
-
-      <a class="item" href="wallet.html" title="Wallet">
-        <span class="label">Wallet</span>
-        <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
-      </a>
-
-      <a class="item" href="edit.html" title="Edit Profile">
-        <span class="label">Edit</span>
-        <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
-      </a>
-
-      <a class="item" href="settings.html" title="Settings">
-        <span class="label">Settings</span>
-        <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
-      </a>
-    </nav>
-
-    <!-- Optional: lightweight sections like dashboard -->
-    <section class="section">
-      <h3>Continue 3ATTLE</h3>
-      <div class="hscroll">
-        <a class="card" href="battle.html#resume=1">
-          <img src="assets/thumbs/b1.jpg" alt="Resume 1">
-          <div class="meta"><svg><use href="#ic-play"/></svg><span>98k</span></div>
-        </a>
-        <a class="card" href="battle.html#resume=2">
-          <img src="assets/thumbs/b2.jpg" alt="Resume 2">
-          <div class="meta"><svg><use href="#ic-play"/></svg><span>54k</span></div>
-        </a>
-        <a class="card" href="battle.html#resume=3">
-          <img src="assets/thumbs/b3.jpg" alt="Resume 3">
-          <div class="meta"><svg><use href="#ic-play"/></svg><span>12k</span></div>
-        </a>
-      </div>
-    </section>
-  </main>
+    </div>
+    <button class="rank-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 2L15 8l6 .9-4.5 4.3L17.8 20 12 17l-5.8 3 1.3-6.8L3 8.9 9 8l3-6z"/>
+      </svg>
+      Rank #27
+    </button>
+  </div>
 
 </body>
 </html>
