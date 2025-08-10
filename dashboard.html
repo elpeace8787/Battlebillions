@@ -18,9 +18,11 @@
 
   <style>
     :root{
-      --bg-0:#000000; /* full solid black */
+      --bg-0:#000000; /* full solid black feel */
+      --bg-1:#111214; --bg-2:#15171a;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
-      --accent:#ffffff; --accent-2:#1f1f22;
+      --stroke:#2a2d31; --accent:#ffffff; --accent-2:#1f1f22;
+      --ring:0 0 0 3px rgba(255,255,255,.12);
       --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -30,6 +32,13 @@
     body{
       font-family:'Virgo', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       background:var(--bg-0); color:var(--ink); overflow:hidden; letter-spacing:.2px;
+    }
+
+    /* Minimal ambient backdrop; super subtle so screen reads as solid black */
+    body::before{
+      content:"";position:fixed;inset:-20% -10%;
+      background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.03), transparent 60%);
+      filter: blur(24px); opacity:.35; z-index:-1;
     }
 
     /* ====== Top bar — transparent, no borders ====== */
@@ -58,9 +67,6 @@
     .tab-btn svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
     .tab-label{font-size:10px;letter-spacing:.35px;line-height:1}
 
-    /* Make the BOTTOM BAR 3ATTLE icon GREY always */
-    .app-tabbar .tab-btn[data-screen="battle"] svg{stroke:#8a8f98 !important; opacity:.9}
-
     /* BILLIONS (3ILLIONS) gold animation */
     .tab-btn[data-screen="dashboard"] .tab-label{
       background:linear-gradient(90deg,var(--gold-1),var(--gold-2),var(--gold-3),var(--gold-2),var(--gold-1));
@@ -77,7 +83,8 @@
 
     /* ====== Battle screen ====== */
     .stream-container{
-      display:flex;height:100%;width:100%;position:relative;background:transparent;
+      display:flex;height:100%;width:100%;position:relative;
+      background:transparent;
       transition:filter 300ms ease,opacity 300ms ease,transform .6s ease
     }
     .stream-container.dimmed{filter:brightness(.75) contrast(.95) saturate(.95)}
@@ -85,7 +92,7 @@
     video.video-stream + video.video-stream{border-left:1px solid rgba(255,255,255,.04)}
     .overlay{position:absolute;inset:0;pointer-events:none;z-index:10}
 
-    /* Opponent profile trigger — clean, no outline; faded 3ATTL33ILLIONS behind */
+    /* Opponent profile — no outline/background; faded 3ATTL33ILLIONS behind */
     .profile-labels{
       position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;
       pointer-events:auto;
@@ -105,34 +112,15 @@
     .profile-entry img{width:34px;height:34px;border-radius:10px;position:relative;z-index:1}
     .profile-entry span{font-size:14px;color:var(--ink-2);position:relative;z-index:1}
 
-    /* ====== Small bottom-center "3ATTLE" start button with GOLD SMOKE ====== */
+    /* ====== Small bottom-center "3ATTLE" start button ====== */
     .battle-fab{
       position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 56px);transform:translateX(-50%);
-      padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;
+      padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
       border:none;backdrop-filter:none;z-index:1200;
-      display:none;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s;
-      overflow:hidden;
+      display:none;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s
     }
-    .battle-fab:hover{transform:translateX(-50%) translateY(-1px)}
-    .battle-fab:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
-    /* gold smoke effect via animated blurred layer */
-    .battle-fab::after{
-      content:""; position:absolute; inset:-40% -20%;
-      background:
-        radial-gradient(120px 80px at 20% 50%, rgba(245,215,110,.35), transparent 60%),
-        radial-gradient(140px 100px at 80% 50%, rgba(255,209,92,.28), transparent 60%),
-        radial-gradient(220px 160px at 50% -10%, rgba(240,185,11,.22), transparent 60%);
-      filter: blur(18px) saturate(1.2);
-      opacity:.0; pointer-events:none;
-      animation: goldSmoke 3.6s ease-in-out infinite;
-    }
-    .battle-fab.smoke{ background:rgba(255,255,255,.10); }
-    .battle-fab.smoke::after{ opacity:1; }
-    @keyframes goldSmoke{
-      0%{ transform:translateY(6px) scale(1); opacity:.85 }
-      50%{ transform:translateY(-4px) scale(1.03); opacity:.95 }
-      100%{ transform:translateY(6px) scale(1); opacity:.85 }
-    }
+    .battle-fab:hover{background:rgba(255,255,255,.16);transform:translateX(-50%) translateY(-1px)}
+    .battle-fab:focus-visible{outline:none;box-shadow:var(--ring)}
 
     /* ====== Choose Category (disappears after tap) ====== */
     .cat-fab{
@@ -142,10 +130,10 @@
       display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s
     }
     .cat-fab:hover{background:rgba(255,255,255,.16);transform:translateX(-50%) translateY(-1px)}
-    .cat-fab:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+    .cat-fab:focus-visible{outline:none;box-shadow:var(--ring)}
     .cat-fab svg{width:18px;height:18px;stroke:#fff}
 
-    /* ====== Round timer (hidden until battle starts) ====== */
+    /* ====== Round timer — hidden until battle starts ====== */
     .round-timer{
       position:absolute;bottom:108px;left:50%;transform:translateX(-50%);
       background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);
@@ -157,18 +145,44 @@
     /* ====== Modals / Cards ====== */
     .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);pointer-events:auto}
     .modal.show{display:flex}
-    .card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;width:min(92vw,820px);padding:20px}
-    .card h2{margin-bottom:8px;color:var(--ink);font-size:20px;text-align:center}
-    .slogan{margin:8px auto 16px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:12px;line-height:1.6;color:var(--ink-3);text-align:center}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px}
+
+    .card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px}
+
+    /* --- Smaller, scrollable Categories sheet --- */
+    #categoryModal .card{
+      width:min(92vw,520px);
+      max-height:72vh;
+      display:flex;flex-direction:column;gap:12px;
+      padding:16px;
+    }
+    .cat-header{position:sticky;top:0;z-index:2;background:#0e0e0f;display:grid;grid-template-columns:1fr;gap:10px}
+    .cat-header h2{font-size:18px;text-align:center;margin:2px 0 0}
+    .cat-search{display:flex;gap:8px;align-items:center}
+    .cat-search input{
+      flex:1;background:#0b0b0c;border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;padding:10px 12px;color:#fff;font-family:'Virgo',sans-serif;
+    }
+    .cat-search input::placeholder{color:#9aa3ad}
+    .cat-count{
+      font-size:12px;color:#cfd6dd;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04)
+    }
+    .cat-scroller{position:relative;flex:1;min-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px}
+    .cat-empty{display:none;text-align:center;color:#9aa3ad;font-size:13px;padding:16px}
+    .cat-empty.show{display:block}
+
+    /* Generic grid + pills (reused) */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
     .pill{display:flex;align-items:center;justify-content:center;min-height:56px;width:100%;padding:10px 8px;text-align:center;white-space:normal;word-break:break-word;line-height:1.2;font-size:15px;letter-spacing:.4px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--ink-2);cursor:pointer;user-select:none;transition:transform .2s,background .2s,box-shadow .2s,color .2s}
     .pill:hover{transform:translateY(-2px);background:rgba(255,255,255,.1);color:var(--ink)}
-    .pill:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+    .pill:focus-visible{outline:none;box-shadow:var(--ring)}
     .pill.active{background:rgba(255,255,255,.18);color:var(--ink)}
-    .actions{margin-top:16px;display:flex;justify-content:center;gap:10px}
+
+    .actions{margin-top:10px;display:flex;justify-content:center;gap:10px}
     .btn{background:var(--accent);color:var(--accent-2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:800;transition:transform .2s,filter .2s}
     .btn:hover{transform:translateY(-1px);filter:brightness(.9)}
     .btn.secondary{background:transparent;color:var(--ink)}
+
     .modal .sub-title{text-align:center;color:var(--ink-3);margin-top:6px;font-size:13px}
     .muted{opacity:.8;font-size:12px;margin-top:10px;text-align:center;color:var(--ink-3)}
 
@@ -183,23 +197,6 @@
     .post-card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;width:min(92vw,820px);padding:18px 20px}
     .post-card h3{color:var(--ink);text-align:center;margin-bottom:8px}
     .post-actions{display:flex;gap:10px;justify-content:center;margin-top:12px}
-
-    /* Opponent Profile Sheet (opens in-place) */
-    .sheet{position:absolute;inset:auto 0 72px auto; right:16px; top:48px; z-index:1050; display:none; pointer-events:auto;}
-    .sheet.show{display:block;}
-    .sheet .sheet-card{
-      background:#0e0e0f; border:1px solid rgba(255,255,255,.06); border-radius:16px;
-      width:min(92vw,360px); padding:16px;
-      box-shadow:0 20px 60px rgba(0,0,0,.6);
-    }
-    .sheet header{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
-    .sheet header img{width:44px; height:44px; border-radius:12px;}
-    .sheet header .name{font-weight:900}
-    .sheet .meta{font-size:12px; color:var(--ink-3); margin-top:2px}
-    .sheet .row{display:flex; gap:8px; margin-top:12px}
-    .sheet .tag{flex:1; text-align:center; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); color:var(--ink-2)}
-    .sheet .actions{display:flex; gap:10px; margin-top:12px}
-    .sheet .actions .btn{flex:1}
   </style>
 </head>
 <body>
@@ -215,12 +212,9 @@
       <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.6"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.6"/><path d="M10 11v3H8v2h8v-2h-2v-3" stroke-width="1.6"/></symbol>
       <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" class="gold-stroke" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" class="gold-stroke" stroke-width="1.6" stroke-linecap="round"/></symbol>
-      <!-- New messages icon -->
-      <symbol id="ic-messages" viewBox="0 0 24 24">
-        <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H10l-5 5v-5H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M7.5 8.5h9M7.5 12h6" stroke-width="1.6" stroke-linecap="round"/>
-      </symbol>
+      <symbol id="ic-user" viewBox="0 0 24 24"><path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Z" stroke-width="1.6"/><path d="M4 20.4a8 8 0 0 1 16 0" stroke-width="1.6" stroke-linecap="round"/></symbol>
       <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12z" stroke-width="1.6"/><circle cx="12" cy="12" r="2.8" stroke-width="1.6"/></symbol>
+      <symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7-11-7z" stroke-width="1.6" stroke-linejoin="round"/></symbol>
       <symbol id="ic-grid" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" stroke-width="1.6"/></symbol>
     </defs>
   </svg>
@@ -235,7 +229,7 @@
   </header>
 
   <!-- Small bottom-center "3ATTLE" start -->
-  <button class="battle-fab smoke" id="startBattleFab" aria-label="Start 3ATTLE">3ATTLE</button>
+  <button class="battle-fab" id="startBattleFab" aria-label="Start 3ATTLE">3ATTLE</button>
 
   <!-- Choose Category (disappears after first tap) -->
   <button class="cat-fab" id="openCats" aria-haspopup="dialog" aria-controls="categoryModal">
@@ -250,45 +244,22 @@
         <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
         <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
-        <!-- Category Picker -->
+        <!-- Category Picker (now small + scroll + search) -->
         <div class="modal" id="categoryModal" aria-modal="true" role="dialog">
           <div class="card">
-            <h2>Pick a Category</h2>
-            <div class="slogan">
-              <div>1ST - <b>Defeat 3ILLIONS.</b></div>
-              <div>2ND - <b>Choose Your 3ATTLES.</b></div>
-              <div>3RD - <b>Defeat 3ILLIONS.</b></div>
+            <div class="cat-header">
+              <h2>Pick a Category</h2>
+              <div class="cat-search">
+                <input id="catSearch" type="search" placeholder="Search categories…" aria-label="Search categories">
+                <div class="cat-count" id="catCount">0</div>
+              </div>
             </div>
-            <div class="grid" id="categoryGrid">
-              <!-- Core -->
-              <button type="button" class="pill" data-cat="ART">ART</button>
-              <button type="button" class="pill" data-cat="AUTO">AUTO</button>
-              <button type="button" class="pill" data-cat="DEBAT">DEBAT</button>
-              <button type="button" class="pill" data-cat="FASHION">FASHION</button>
-              <button type="button" class="pill" data-cat="INSTRUMENTS">INSTRUMENTS</button>
-              <button type="button" class="pill" data-cat="RAP">RAP</button>
-              <!-- Added -->
-              <button type="button" class="pill" data-cat="DANCE">DANCE</button>
-              <button type="button" class="pill" data-cat="COMEDY">COMEDY</button>
-              <button type="button" class="pill" data-cat="GAMING">GAMING</button>
-              <button type="button" class="pill" data-cat="COOKING">COOKING</button>
-              <button type="button" class="pill" data-cat="FITNESS">FITNESS</button>
-              <button type="button" class="pill" data-cat="PHOTOGRAPHY">PHOTOGRAPHY</button>
-              <!-- Expansion -->
-              <button type="button" class="pill" data-cat="SINGING">SINGING</button>
-              <button type="button" class="pill" data-cat="POETRY">POETRY</button>
-              <button type="button" class="pill" data-cat="MAGIC">MAGIC</button>
-              <button type="button" class="pill" data-cat="SPORTS">SPORTS</button>
-              <button type="button" class="pill" data-cat="TECH">TECH</button>
-              <button type="button" class="pill" data-cat="EDU">EDUCATION</button>
-              <button type="button" class="pill" data-cat="FILM">FILM</button>
-              <button type="button" class="pill" data-cat="PODCAST">PODCAST</button>
-              <button type="button" class="pill" data-cat="BEAUTY">BEAUTY</button>
-              <button type="button" class="pill" data-cat="DIY">DIY</button>
-              <button type="button" class="pill" data-cat="ASMR">ASMR</button>
-              <button type="button" class="pill" data-cat="MEMES">MEMES</button>
-              <button type="button" class="pill" data-cat="TATTOO">TATTOO</button>
+
+            <div class="cat-scroller">
+              <div class="grid" id="categoryGrid"></div>
+              <div class="cat-empty" id="catEmpty">No categories match your search.</div>
             </div>
+
             <div class="actions">
               <button class="btn secondary" id="cancelCat" type="button">Close</button>
             </div>
@@ -297,7 +268,7 @@
 
         <!-- Options -->
         <div class="modal" id="optionsModal" aria-modal="true" role="dialog">
-          <div class="card">
+          <div class="card" style="width:min(92vw,680px);max-height:76vh;display:flex;flex-direction:column;gap:12px;">
             <h2 id="optionsTitle">Category Options</h2>
             <div class="sub-title" id="optionsSubtitle">Configure this 3ATTLE</div>
             <div id="optionsBody"></div>
@@ -308,35 +279,13 @@
           </div>
         </div>
 
-        <!-- Inline Opponent Profile Sheet -->
-        <div class="sheet" id="opponentSheet" aria-live="polite">
-          <div class="sheet-card">
-            <header>
-              <img id="sheetAvatar" src="user2.jpg" alt="Opponent avatar">
-              <div>
-                <div class="name" id="sheetName">@Opponent</div>
-                <div class="meta" id="sheetMeta">Category • Subcategory</div>
-              </div>
-            </header>
-            <div class="row">
-              <div class="tag">W 124</div>
-              <div class="tag">L 37</div>
-              <div class="tag">WR 77%</div>
-            </div>
-            <div class="actions">
-              <button class="btn" id="sheetChallenge">Challenge</button>
-              <button class="btn secondary" id="sheetMessage">Message</button>
-            </div>
-          </div>
-        </div>
-
         <div class="overlay">
-          <!-- Clickable opponent (opens sheet in-place) -->
+          <!-- Clickable opponent profile (routes to Profile screen) -->
           <div class="profile-labels" id="profileLabels">
-            <button class="profile-entry" id="opponentProfile" aria-label="Open opponent profile">
+            <a href="#/profile" class="profile-entry" id="opponentProfile" data-screen="profile" aria-label="Open opponent profile">
               <img src="user2.jpg" id="opponentImage" alt="User 2">
               <span id="opponentUsername">@Opponent</span>
-            </button>
+            </a>
           </div>
 
           <!-- Timer (hidden until battle starts) -->
@@ -350,7 +299,7 @@
             <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b>.</p>
             <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
             <div class="post-actions">
-                          <button class="btn secondary" id="postClose">Close</button>
+              <button class="btn secondary" id="postClose">Close</button>
               <button class="btn" id="postKeepCat">Keep Current Category</button>
               <button class="btn" id="postPickSub">Pick Subcategory</button>
               <button class="btn" id="postNextOpponent">Next Opponent</button>
@@ -370,9 +319,8 @@
     <section class="screen" id="screen-leaderboard" data-route="leaderboard">
       <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
     </section>
-    <!-- Messages screen (replacing Profile tab) -->
-    <section class="screen" id="screen-messages" data-route="messages">
-      <div class="placeholder"><div class="box"><h1>Messages</h1><p>Your DMs and chats will appear here.</p></div></div>
+    <section class="screen" id="screen-profile" data-route="profile">
+      <div class="placeholder"><div class="box"><h1>Profile</h1><p>Opponent profile opens here from the battle overlay.</p></div></div>
     </section>
   </main>
 
@@ -394,9 +342,9 @@
       <span class="tab-label">Leaders</span>
       <svg><use href="#ic-trophy"/></svg>
     </a>
-    <a class="tab-btn" data-screen="messages" role="tab" aria-selected="false">
-      <span class="tab-label">Messages</span>
-      <svg><use href="#ic-messages"/></svg>
+    <a class="tab-btn" data-screen="profile" role="tab" aria-selected="false">
+      <span class="tab-label">Profile</span>
+      <svg><use href="#ic-user"/></svg>
     </a>
   </nav>
 
@@ -418,9 +366,9 @@
       });
     }
 
-    // Global delegated nav (tabs only)
+    // Global delegated nav (tabs + opponent box)
     document.addEventListener('click',(e)=>{
-      const link = e.target.closest('.tab-btn[data-screen]');
+      const link = e.target.closest('[data-screen]');
       if(!link) return;
       e.preventDefault();
       const target = link.getAttribute('data-screen');
@@ -515,6 +463,9 @@
     const optionsHint=document.getElementById('optionsHint');
     const startBattleFab=document.getElementById('startBattleFab');
     const categoryGrid=document.getElementById('categoryGrid');
+    const catSearch=document.getElementById('catSearch');
+    const catCount=document.getElementById('catCount');
+    const catEmpty=document.getElementById('catEmpty');
 
     const postModal=document.getElementById('postBattleModal');
     const postCategoryGrid=document.getElementById('postCategoryGrid');
@@ -523,38 +474,17 @@
     const postPickSub=document.getElementById('postPickSub');
     const postNextOpponent=document.getElementById('postNextOpponent');
 
-    // Opponent sheet
-    const opponentSheet=document.getElementById('opponentSheet');
-    const opponentProfile=document.getElementById('opponentProfile');
-    const sheetAvatar=document.getElementById('sheetAvatar');
-    const sheetName=document.getElementById('sheetName');
-    const sheetMeta=document.getElementById('sheetMeta');
-
-    // Open opponent sheet on avatar/name tap
-    opponentProfile.addEventListener('click',()=>{
-      // hydrate from current opponent
-      sheetAvatar.src = opponentImage.src;
-      sheetName.textContent = opponentUsername.textContent;
-      sheetMeta.textContent = currentCategory ? `${currentCategory}${chosenSub?` • ${chosenSub}`:''}` : 'Profile';
-      opponentSheet.classList.add('show');
-    });
-    // Close sheet when clicking outside the card (optional UX)
-    document.addEventListener('click',(e)=>{
-      if (!opponentSheet.classList.contains('show')) return;
-      const insideCard = e.target.closest('.sheet-card') || e.target.closest('#opponentProfile');
-      if (!insideCard) opponentSheet.classList.remove('show');
-    });
-
-    // Choose Category pill
     const openCats=document.getElementById('openCats');
     openCats.addEventListener('click',()=>{
       openCats.style.display='none';         // disappears after first tap
       categoryModal.classList.add('show');
-      categoryGrid.querySelector('.pill')?.focus();
+      catSearch.value='';
+      buildCategoryButtons('');
+      catSearch.focus();
       location.hash = '#/battle';
     });
 
-    function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');postModal.classList.remove('show');opponentSheet.classList.remove('show')}
+    function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');postModal.classList.remove('show')}
     document.getElementById('cancelCat').onclick=()=>{
       categoryModal.classList.remove('show');
       clearHash();
@@ -565,7 +495,33 @@
       categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
 
-    // Category grid interactions
+    // Build ALL categories dynamically + search filter
+    const allCats = Object.keys(subLists); // ensures every category in subLists appears
+    function buildCategoryButtons(filter){
+      categoryGrid.innerHTML='';
+      const f = (filter||'').trim().toLowerCase();
+      const shown = [];
+      allCats.sort((a,b)=>a.localeCompare(b)).forEach(cat=>{
+        if(f && !cat.toLowerCase().includes(f)) return;
+        const btn=document.createElement('button');
+        btn.type='button'; btn.className='pill'; btn.dataset.cat=cat; btn.textContent=cat;
+        categoryGrid.appendChild(btn);
+        shown.push(cat);
+      });
+      catCount.textContent = String(shown.length);
+      catEmpty.classList.toggle('show', shown.length===0);
+    }
+
+    // Search events
+    catSearch.addEventListener('input', (e)=> buildCategoryButtons(e.target.value));
+    catSearch.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){
+        const first = categoryGrid.querySelector('.pill');
+        if(first){ first.click(); }
+      }
+    });
+
+    // Category grid interactions (delegated)
     categoryGrid.addEventListener('click',e=>{
       const btn=e.target.closest('.pill[data-cat]'); if(!btn) return; openCategory(btn.dataset.cat,true);
     });
@@ -579,7 +535,7 @@
         const b=document.createElement('button');b.className='pill';b.textContent=cat;
         b.addEventListener('click',()=>{
           currentCategory=cat;chosenSub=null;postModal.classList.remove('show');categoryModal.classList.add('show');
-          categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===cat));
+          catSearch.value=''; buildCategoryButtons(''); // show all when reopened
           openCategory(cat,true);
         });
         postCategoryGrid.appendChild(b);
@@ -589,6 +545,7 @@
     function openCategory(cat,fromUser){
       try{
         currentCategory=cat;chosenSub=null;startBattleFab.style.display='none';
+        // visual select
         categoryGrid.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===cat));
         buildOptionsFor(cat);
         categoryModal.classList.remove('show');optionsModal.classList.add('show');
@@ -602,12 +559,6 @@
       if(pool.length){
         const random=pool[Math.floor(Math.random()*pool.length)];
         opponentVideo.src=random.video;opponentImage.src=random.image;opponentUsername.innerText=random.username;
-        // update sheet if open
-        if(opponentSheet.classList.contains('show')){
-          sheetAvatar.src = random.image;
-          sheetName.textContent = random.username;
-          sheetMeta.textContent = currentCategory ? `${currentCategory}${chosenSub?` • ${chosenSub}`:''}` : 'Profile';
-        }
       }
     }
 
@@ -685,10 +636,7 @@
         battleTrack.pause(); battleTrack.currentTime=0;
       }
       postModal.classList.remove('show');
-      // hide the start button after tap
       startBattleFab.style.display='none';
-      // close opponent sheet if open
-      opponentSheet.classList.remove('show');
       glow();
       round=1; roundPart=0; timeLeft=33;
       runRoundPart();
@@ -697,4 +645,50 @@
     startBattleFab.addEventListener('click', startBattle);
 
     function loadRandomOpponent(){
-      const pool=opponentPools[currentCategory]||[]; if(pool.length){const r=pool[Math.floor(Math.r
+      const pool=opponentPools[currentCategory]||[]; if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];
+        opponentVideo.src=r.video;opponentImage.src=r.image;opponentUsername.innerText=r.username;}
+    }
+
+    // Post-battle actions
+    postClose.addEventListener('click',()=>postModal.classList.remove('show'));
+    postKeepCat.addEventListener('click',()=>{
+      if(!currentCategory||!chosenSub){postModal.classList.remove('show');categoryModal.classList.add('show');return}
+      postModal.classList.remove('show');startBattleFab.style.display='flex';
+    });
+    postPickSub.addEventListener('click',()=>{
+      postModal.classList.remove('show');categoryModal.classList.add('show');
+      if(currentCategory){
+        catSearch.value=''; buildCategoryButtons('');
+        openCategory(currentCategory,true)
+      }
+    });
+    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleFab.style.display='flex'});
+
+    // Viewer count tick
+    let viewers=1300;
+    setInterval(()=>{
+      const delta=Math.floor(Math.random()*13)-6;
+      viewers=Math.max(0,viewers+delta);
+      viewerCountTop.innerHTML=`<svg style="width:14px;height:14px;vertical-align:-2px;"><use href="#ic-eye"/></svg>&nbsp;${viewers.toLocaleString()}`
+    },1600);
+
+    // Camera
+    async function startCamera(){
+      try{
+        const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720}},audio:true});
+        document.getElementById('localVideo').srcObject=stream;
+      }catch(err){console.error('Camera error:',err)}
+    }
+
+    // Init
+    window.onload=()=>{
+      showScreen('battle');
+      if(!location.hash) location.hash='#/battle';
+      startCamera();
+      // build full list upfront so count is correct if user opens later
+      buildCategoryButtons('');
+      routeFromHash(); parseHashAndOpen();
+    };
+  </script>
+</body>
+</html>
