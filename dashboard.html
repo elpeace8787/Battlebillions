@@ -19,9 +19,7 @@
   <style>
     :root{
       --bg-0:#000000; /* full solid black feel */
-      --bg-1:#111214; --bg-2:#15171a;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
-      --stroke:#2a2d31; --accent:#ffffff; --accent-2:#1f1f22;
       --ring:0 0 0 3px rgba(255,255,255,.12);
       --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -34,14 +32,14 @@
       background:var(--bg-0); color:var(--ink); overflow:hidden; letter-spacing:.2px;
     }
 
-    /* Minimal ambient backdrop; super subtle so screen reads as solid black */
+    /* Subtle ambient glow so black still feels premium */
     body::before{
       content:"";position:fixed;inset:-20% -10%;
       background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.03), transparent 60%);
       filter: blur(24px); opacity:.35; z-index:-1;
     }
 
-    /* ====== Top bar — transparent, no borders ====== */
+    /* ====== Top bar ====== */
     .app-topbar{
       position:fixed;inset:0 0 auto 0;height:44px;display:flex;align-items:center;justify-content:space-between;
       padding:0 14px;background:transparent;border:none;backdrop-filter:none;z-index:1000
@@ -51,7 +49,7 @@
     .top-right{display:flex;gap:10px;align-items:center}
     .chip{font-size:12px;color:var(--ink-2);padding:0;border:none;background:transparent}
 
-    /* ====== Bottom tab bar — transparent, labels above icons ====== */
+    /* ====== Bottom tab bar ====== */
     .app-tabbar{
       position:fixed;left:0;right:0;bottom:0;height:72px;
       padding-bottom:calc(var(--safe-bottom));
@@ -74,7 +72,6 @@
       animation: shimmer 3.2s linear infinite
     }
     @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:100% 50%}}
-    .tab-btn[data-screen="dashboard"] svg .gold-stroke{stroke:url(#goldGrad)}
 
     /* ====== Content area ====== */
     .app-shell{position:fixed;inset:44px 0 72px 0}
@@ -83,19 +80,16 @@
 
     /* ====== Battle screen ====== */
     .stream-container{
-      display:flex;height:100%;width:100%;position:relative;
-      background:transparent;
-      transition:filter 300ms ease,opacity 300ms ease,transform .6s ease
+      display:flex;height:100%;width:100%;position:relative;transition:filter 300ms ease,opacity 300ms ease,transform .6s ease
     }
     .stream-container.dimmed{filter:brightness(.75) contrast(.95) saturate(.95)}
     video.video-stream{flex:1;object-fit:cover;background:#000;width:50%;height:100%;filter:brightness(.9) contrast(1.15) saturate(1.1)}
     video.video-stream + video.video-stream{border-left:1px solid rgba(255,255,255,.04)}
     .overlay{position:absolute;inset:0;pointer-events:none;z-index:10}
 
-    /* Opponent profile — no outline/background; faded 3ATTL33ILLIONS behind */
+    /* Opponent profile (opens Profile screen) + faded wordmark behind */
     .profile-labels{
-      position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;
-      pointer-events:auto;
+      position:absolute;top:12px;right:16px;display:flex;justify-content:flex-end;z-index:40;pointer-events:auto;
     }
     .profile-entry{
       position:relative; display:flex; align-items:center; gap:10px;
@@ -112,20 +106,16 @@
     .profile-entry img{width:34px;height:34px;border-radius:10px;position:relative;z-index:1}
     .profile-entry span{font-size:14px;color:var(--ink-2);position:relative;z-index:1}
 
-    /* ====== Small bottom-center "3ATTLE" start button ====== */
+    /* ====== Start "3ATTLE" button (appears after subcategory or after picking next opponent) ====== */
     .battle-fab{
       position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 56px);transform:translateX(-50%);
       padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
-      border:1px solid rgba(255,255,255,.12);backdrop-filter:none;z-index:1200;
+      border:1px solid rgba(255,255,255,.12);z-index:1200;
       display:none;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s,box-shadow .2s
     }
     .battle-fab:hover{transform:translateX(-50%) translateY(-1px)}
     .battle-fab:focus-visible{outline:none;box-shadow:var(--ring)}
-
-    /* cool grey ↔ gold blinking */
-    .battle-fab.blink{
-      animation:blinkFab 1.15s ease-in-out infinite;
-    }
+    .battle-fab.blink{animation:blinkFab 1.15s ease-in-out infinite}
     @keyframes blinkFab{
       0%,55%{ background:rgba(255,255,255,.10); box-shadow:0 0 0 0 rgba(240,185,11,0); color:#ffffff; border-color:rgba(255,255,255,.12);}
       56%,100%{
@@ -136,18 +126,18 @@
       }
     }
 
-    /* ====== Choose Category (disappears after tap) ====== */
+    /* ====== Choose Category pill (disappears after first tap) ====== */
     .cat-fab{
       position:fixed;left:50%;bottom:calc(72px + var(--safe-bottom) + 14px);transform:translateX(-50%);
       padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;
-      border:none;backdrop-filter:none;z-index:1200;
+      border:none;z-index:1200;
       display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .2s,opacity .2s,background .2s
     }
     .cat-fab:hover{background:rgba(255,255,255,.16);transform:translateX(-50%) translateY(-1px)}
     .cat-fab:focus-visible{outline:none;box-shadow:var(--ring)}
     .cat-fab svg{width:18px;height:18px;stroke:#fff}
 
-    /* ====== Round timer — hidden until battle starts ====== */
+    /* ====== Round timer ====== */
     .round-timer{
       position:absolute;bottom:108px;left:50%;transform:translateX(-50%);
       background:rgba(255,255,255,.06);padding:10px 20px;border-radius:14px;font-size:14px;font-weight:800;color:var(--ink);
@@ -159,11 +149,7 @@
     /* ====== Pre-turn 6-5-4-3-2-1 countdown overlay ====== */
     .pre-countdown{
       position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:60;
-      pointer-events:none;
-      font-weight:900; 
-      font-size:clamp(48px, 20vw, 220px);
-      letter-spacing:.08em;
-      color:#fff;
+      pointer-events:none;font-weight:900;font-size:clamp(48px, 20vw, 220px);letter-spacing:.08em;color:#fff;
       text-shadow:0 0 20px rgba(240,185,11,.35), 0 0 35px rgba(255,255,255,.15);
     }
     .pre-countdown.pop{ animation:pop .78s cubic-bezier(.2,.8,.2,1); }
@@ -173,18 +159,14 @@
       100%{ transform:scale(1); opacity:.9 }
     }
 
-    /* ====== Modals / Cards ====== */
+    /* ====== Modals ====== */
     .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);pointer-events:auto}
     .modal.show{display:flex}
-
     .card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px}
 
-    /* --- Smaller, scrollable Categories sheet --- */
+    /* === Categories: smaller+search === */
     #categoryModal .card{
-      width:min(92vw,520px);
-      max-height:72vh;
-      display:flex;flex-direction:column;gap:12px;
-      padding:16px;
+      width:min(92vw,520px);max-height:72vh;display:flex;flex-direction:column;gap:12px;padding:16px;
     }
     .cat-header{position:sticky;top:0;z-index:2;background:#0e0e0f;display:grid;grid-template-columns:1fr;gap:10px}
     .cat-header h2{font-size:18px;text-align:center;margin:2px 0 0}
@@ -202,7 +184,6 @@
     .cat-empty{display:none;text-align:center;color:#9aa3ad;font-size:13px;padding:16px}
     .cat-empty.show{display:block}
 
-    /* Generic grid + pills (reused) */
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
     .pill{display:flex;align-items:center;justify-content:center;min-height:56px;width:100%;padding:10px 8px;text-align:center;white-space:normal;word-break:break-word;line-height:1.2;font-size:15px;letter-spacing:.4px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--ink-2);cursor:pointer;user-select:none;transition:transform .2s,background .2s,box-shadow .2s,color .2s}
     .pill:hover{transform:translateY(-2px);background:rgba(255,255,255,.1);color:var(--ink)}
@@ -210,28 +191,34 @@
     .pill.active{background:rgba(255,255,255,.18);color:var(--ink)}
 
     .actions{margin-top:10px;display:flex;justify-content:center;gap:10px}
-    .btn{background:var(--accent);color:var(--accent-2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:800;transition:transform .2s,filter .2s}
+    .btn{background:#fff;color:#111;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:800;transition:transform .2s,filter .2s}
     .btn:hover{transform:translateY(-1px);filter:brightness(.9)}
     .btn.secondary{background:transparent;color:var(--ink)}
-
-    .modal .sub-title{text-align:center;color:var(--ink-3);margin-top:6px;font-size:13px}
-    .muted{opacity:.8;font-size:12px;margin-top:10px;text-align:center;color:var(--ink-3)}
 
     .placeholder{display:flex;align-items:center;justify-content:center;height:100%;width:100%;text-align:center}
     .placeholder .box{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px 28px;background:#0e0e0f;max-width:720px;width:calc(100% - 40px)}
     .placeholder h1{color:var(--ink);margin-bottom:8px}
     .placeholder p{color:var(--ink-3)}
 
-    /* Post-battle */
-    .post-modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:1100;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)}
-    .post-modal.show{display:flex}
-    .post-card{background:#0e0e0f;border:1px solid rgba(255,255,255,.06);border-radius:16px;width:min(92vw,820px);padding:18px 20px}
-    .post-card h3{color:var(--ink);text-align:center;margin-bottom:8px}
-    .post-actions{display:flex;gap:10px;justify-content:center;margin-top:12px}
+    /* ===== Opponent Picker (after battle) ===== */
+    #opponentPicker .card{width:min(92vw,560px);max-height:76vh;display:flex;flex-direction:column;gap:12px}
+    .opp-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .opp-header h3{font-size:18px}
+    .opp-scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px;border-radius:12px;background:#0b0b0c;border:1px solid rgba(255,255,255,.06)}
+    .opp-item{
+      display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);
+      cursor:pointer; transition:transform .2s, background .2s, border-color .2s;
+      margin-bottom:10px;
+    }
+    .opp-item:hover{transform:translateY(-1px);background:rgba(255,255,255,.06)}
+    .opp-item img{width:40px;height:40px;border-radius:10px;object-fit:cover}
+    .opp-name{font-weight:800;color:#fff}
+    .opp-meta{font-size:12px;color:#9aa3ad}
   </style>
 </head>
 <body>
-  <!-- SVG sprite & gold gradient -->
+  <!-- SVG sprite & gradient -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -242,14 +229,13 @@
       <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-battle" viewBox="0 0 24 24"><path d="M10 4h4M4 10h16M4 14h16M10 20h4" stroke-width="1.6" stroke-linecap="round"/><path d="M8 4l-2 6 2 6M16 4l2 6-2 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.6"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.6"/><path d="M10 11v3H8v2h8v-2h-2v-3" stroke-width="1.6"/></symbol>
-      <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" class="gold-stroke" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" class="gold-stroke" stroke-width="1.6" stroke-linecap="round"/></symbol>
-      <!-- Messages icon -->
+      <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke-width="1.6" stroke-linecap="round"/></symbol>
       <symbol id="ic-messages" viewBox="0 0 24 24">
         <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-5 4V6z" stroke-width="1.6" stroke-linejoin="round"/>
         <path d="M7 9h10M7 12h7" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
+      <symbol id="ic-user" viewBox="0 0 24 24"><path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Z" stroke-width="1.6"/><path d="M4 20.4a8 8 0 0 1 16 0" stroke-width="1.6" stroke-linecap="round"/></symbol>
       <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12z" stroke-width="1.6"/><circle cx="12" cy="12" r="2.8" stroke-width="1.6"/></symbol>
-      <symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7-11-7z" stroke-width="1.6" stroke-linejoin="round"/></symbol>
       <symbol id="ic-grid" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" stroke-width="1.6"/></symbol>
     </defs>
   </svg>
@@ -263,10 +249,10 @@
     </div>
   </header>
 
-  <!-- Small bottom-center "3ATTLE" start (appears after subcategory pick) -->
+  <!-- Start "3ATTLE" (appears after subcategory or after choosing next opponent) -->
   <button class="battle-fab" id="startBattleFab" aria-label="Start 3ATTLE">3ATTLE</button>
 
-  <!-- Choose Category (disappears after first tap) -->
+  <!-- Choose Category -->
   <button class="cat-fab" id="openCats" aria-haspopup="dialog" aria-controls="categoryModal">
     <svg><use href="#ic-grid"/></svg><span>Choose Category</span>
   </button>
@@ -279,7 +265,7 @@
         <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
         <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video>
 
-        <!-- Category Picker (small + scroll + search) -->
+        <!-- Category Picker (small + search) -->
         <div class="modal" id="categoryModal" aria-modal="true" role="dialog">
           <div class="card">
             <div class="cat-header">
@@ -289,12 +275,10 @@
                 <div class="cat-count" id="catCount">0</div>
               </div>
             </div>
-
             <div class="cat-scroller">
               <div class="grid" id="categoryGrid"></div>
               <div class="cat-empty" id="catEmpty">No categories match your search.</div>
             </div>
-
             <div class="actions">
               <button class="btn secondary" id="cancelCat" type="button">Close</button>
             </div>
@@ -314,35 +298,34 @@
           </div>
         </div>
 
+        <!-- Opponent Picker (AFTER battle) -->
+        <div class="modal" id="opponentPicker" aria-modal="true" role="dialog">
+          <div class="card">
+            <div class="opp-header">
+              <h3>Choose Next Opponent</h3>
+              <div class="muted" id="oppHint">Category: <span id="oppCatLabel">—</span></div>
+            </div>
+            <div class="opp-scroller" id="oppList"></div>
+            <div class="actions">
+              <button class="btn secondary" id="oppClose" type="button">Close</button>
+            </div>
+          </div>
+        </div>
+
         <div class="overlay">
-          <!-- Clickable opponent (routes to Messages) -->
+          <!-- Opponent profile opens PROFILE screen -->
           <div class="profile-labels" id="profileLabels">
-            <a href="#/messages" class="profile-entry" id="opponentProfile" data-screen="messages" aria-label="Open messages">
+            <a href="#/profile" class="profile-entry" id="opponentProfile" data-screen="profile" aria-label="Open profile">
               <img src="user2.jpg" id="opponentImage" alt="User 2">
               <span id="opponentUsername">@Opponent</span>
             </a>
           </div>
 
-          <!-- Pre-turn Countdown Overlay -->
+          <!-- Pre-turn Countdown -->
           <div class="pre-countdown" id="preCountdown" aria-live="polite" aria-atomic="true"></div>
 
-          <!-- Timer (hidden until battle starts) -->
+          <!-- Timer -->
           <div class="round-timer" id="roundTimer"></div>
-        </div>
-
-        <!-- Post-battle -->
-        <div class="post-modal" id="postBattleModal" aria-modal="true" role="dialog">
-          <div class="post-card">
-            <h3>3ATTLE Over — What’s Next?</h3>
-            <p class="muted">Stay in your category or pick a new one, then hit <b>Next Opponent</b>.</p>
-            <div class="grid" id="postCategoryGrid" style="margin-top:12px"></div>
-            <div class="post-actions">
-              <button class="btn secondary" id="postClose">Close</button>
-              <button class="btn" id="postKeepCat">Keep Current Category</button>
-              <button class="btn" id="postPickSub">Pick Subcategory</button>
-              <button class="btn" id="postNextOpponent">Next Opponent</button>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -357,16 +340,19 @@
     <section class="screen" id="screen-leaderboard" data-route="leaderboard">
       <div class="placeholder"><div class="box"><h1>Leaderboard</h1><p>Top performers will appear here.</p></div></div>
     </section>
-    <!-- Messages screen -->
     <section class="screen" id="screen-messages" data-route="messages">
+      <div class="placeholder"><div class="box"><h1>Messages</h1><p>Conversations appear here.</p></div></div>
+    </section>
+    <section class="screen" id="screen-profile" data-route="profile">
       <div class="placeholder"><div class="box">
-        <h1>Messages</h1>
-        <p>Conversations appear here. Opponent links open this page.</p>
+        <h1>Profile</h1>
+        <p id="profileName">@Opponent</p>
+        <p class="muted">Tap an avatar/name in battle to view their profile here.</p>
       </div></div>
     </section>
   </main>
 
-  <!-- Bottom tabs (order: Home, 3ILLIONS, 3ATTLES, Leaders, Messages) -->
+  <!-- Bottom tabs -->
   <nav class="app-tabbar" role="tablist" aria-label="Main">
     <a class="tab-btn" data-screen="home" role="tab" aria-selected="false">
       <span class="tab-label">Home</span>
@@ -395,7 +381,7 @@
   <audio id="battleTrack" controls hidden></audio>
 
   <script>
-    /* ====== SPA Nav ====== */
+    /* ====== SPA NAV ====== */
     const screens = [...document.querySelectorAll('.screen')].reduce((acc, el) => (acc[el.dataset.route]=el, acc), {});
     const tabs = document.querySelectorAll('.tab-btn');
     const startBattleFab = document.getElementById('startBattleFab');
@@ -407,11 +393,9 @@
         t.classList.toggle('active',on);
         t.setAttribute('aria-selected',on?'true':'false');
       });
-      // Ensure 3ATTLE button only shows on battle screen
       if(name !== 'battle'){ startBattleFab.style.display='none'; startBattleFab.classList.remove('blink'); }
     }
 
-    // Global delegated nav (tabs + opponent link)
     document.addEventListener('click',(e)=>{
       const link = e.target.closest('[data-screen]');
       if(!link) return;
@@ -499,6 +483,7 @@
     const opponentVideo=document.getElementById('opponentVideo');
     const opponentImage=document.getElementById('opponentImage');
     const opponentUsername=document.getElementById('opponentUsername');
+    const profileName=document.getElementById('profileName');
     const viewerCountTop=document.getElementById('viewerCountTop');
 
     const categoryModal=document.getElementById('categoryModal');
@@ -512,16 +497,15 @@
     const catCount=document.getElementById('catCount');
     const catEmpty=document.getElementById('catEmpty');
 
-    const postModal=document.getElementById('postBattleModal');
-    const postCategoryGrid=document.getElementById('postCategoryGrid');
-    const postClose=document.getElementById('postClose');
-    const postKeepCat=document.getElementById('postKeepCat');
-    const postPickSub=document.getElementById('postPickSub');
-    const postNextOpponent=document.getElementById('postNextOpponent');
+    // Opponent Picker
+    const opponentPicker=document.getElementById('opponentPicker');
+    const oppList=document.getElementById('oppList');
+    const oppClose=document.getElementById('oppClose');
+    const oppCatLabel=document.getElementById('oppCatLabel');
 
     const openCats=document.getElementById('openCats');
     openCats.addEventListener('click',()=>{
-      openCats.style.display='none';         // disappears after first tap
+      openCats.style.display='none';
       categoryModal.classList.add('show');
       catSearch.value='';
       buildCategoryButtons('');
@@ -529,20 +513,15 @@
       location.hash = '#/battle';
     });
 
-    function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');postModal.classList.remove('show')}
-    document.getElementById('cancelCat').onclick=()=>{
-      categoryModal.classList.remove('show');
-      clearHash();
-    };
+    function closeAllModals(){categoryModal.classList.remove('show');optionsModal.classList.remove('show');opponentPicker.classList.remove('show')}
+    document.getElementById('cancelCat').onclick=()=>{categoryModal.classList.remove('show');clearHash();};
     document.getElementById('backBtn').onclick=()=>{
       optionsModal.classList.remove('show');categoryModal.classList.add('show');
-      // hide 3ATTLE until a subcategory is actually tapped again
       startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
       chosenSub=null;updateHash(currentCategory,null);
-      categoryGrid.querySelector(`[data-cat="${currentCategory}"]`)?.focus();
     };
 
-    // Build ALL categories dynamically + search filter
+    /* Build categories + search */
     const allCats = Object.keys(subLists);
     function buildCategoryButtons(filter){
       categoryGrid.innerHTML='';
@@ -552,23 +531,15 @@
         if(f && !cat.toLowerCase().includes(f)) return;
         const btn=document.createElement('button');
         btn.type='button'; btn.className='pill'; btn.dataset.cat=cat; btn.textContent=cat;
-        categoryGrid.appendChild(btn);
-        shown.push(cat);
+        categoryGrid.appendChild(btn); shown.push(cat);
       });
       catCount.textContent = String(shown.length);
       catEmpty.classList.toggle('show', shown.length===0);
     }
-
-    // Search events
     catSearch.addEventListener('input', (e)=> buildCategoryButtons(e.target.value));
-    catSearch.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter'){
-        const first = categoryGrid.querySelector('.pill');
-        if(first){ first.click(); }
-      }
-    });
+    catSearch.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ categoryGrid.querySelector('.pill')?.click(); }});
 
-    // Category grid interactions (delegated)
+    // Category interactions
     categoryGrid.addEventListener('click',e=>{
       const btn=e.target.closest('.pill[data-cat]'); if(!btn) return; openCategory(btn.dataset.cat,true);
     });
@@ -576,25 +547,10 @@
       if((e.key==='Enter'||e.key===' ')&&e.target.matches('.pill[data-cat]')){e.preventDefault();openCategory(e.target.dataset.cat,true);}
     });
 
-    function buildPostCats(){
-      postCategoryGrid.innerHTML='';
-      Object.keys(subLists).forEach(cat=>{
-        const b=document.createElement('button');b.className='pill';b.textContent=cat;
-        b.addEventListener('click',()=>{
-          currentCategory=cat;chosenSub=null;postModal.classList.remove('show');categoryModal.classList.add('show');
-          catSearch.value=''; buildCategoryButtons('');
-          openCategory(cat,true);
-        });
-        postCategoryGrid.appendChild(b);
-      });
-    }
-
     function openCategory(cat,fromUser){
       try{
         currentCategory=cat;chosenSub=null;
-        // ensure 3ATTLE is hidden until subcategory is *tapped*
         startBattleFab.style.display='none';startBattleFab.classList.remove('blink');
-
         buildOptionsFor(cat);
         categoryModal.classList.remove('show');optionsModal.classList.add('show');
         if (fromUser) updateHash(cat,null);
@@ -602,11 +558,17 @@
       }catch(err){console.error('openCategory error:',err)}
     }
 
-    function applyCategoryOpponent(cat){
+    function applyCategoryOpponent(cat,obj){
+      if(obj){
+        opponentVideo.src=obj.video;opponentImage.src=obj.image;opponentUsername.innerText=obj.username;
+        profileName.textContent = obj.username;
+        return;
+      }
       const pool=opponentPools[cat]||[];
       if(pool.length){
         const random=pool[Math.floor(Math.random()*pool.length)];
         opponentVideo.src=random.video;opponentImage.src=random.image;opponentUsername.innerText=random.username;
+        profileName.textContent = random.username;
       }
     }
 
@@ -618,10 +580,8 @@
         optionsSubtitle.innerText="Choose your instrumental.";
         items.forEach(b=>{
           const btn=makePill(b.label,b.value,()=>{
-            // user tapped the subcategory choice
             chosenOptions.beat=b.value;chosenSub=b.label;battleTrack.src=b.value;battleTrack.load();
             optionsModal.classList.remove('show');
-            // show 3ATTLE NOW (after tap)
             startBattleFab.style.display='flex';startBattleFab.classList.add('blink'); startBattleFab.focus();
             updateHash(cat,b.label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
@@ -631,9 +591,7 @@
         optionsSubtitle.innerText=subtitleMap[cat]||"Choose an option.";
         items.forEach(label=>{
           const btn=makePill(label,label,()=>{
-            // user tapped the subcategory choice
             chosenSub=label;chosenOptions[cat.toLowerCase()]=label;optionsModal.classList.remove('show');
-            // show 3ATTLE NOW (after tap)
             startBattleFab.style.display='flex';startBattleFab.classList.add('blink'); startBattleFab.focus();
             updateHash(cat,label);applyCategoryOpponent(cat);
           });wrapper.appendChild(btn);
@@ -648,7 +606,7 @@
       return btn;
     }
 
-    /* Deep link */
+    /* Hash helpers */
     function updateHash(cat,sub){const frag=`#cat/${encodeURIComponent(cat)}${sub?`/${encodeURIComponent(sub)}`:''}`;history.pushState({cat,sub},'',frag)}
     function clearHash(){history.pushState({},'','#/battle')}
     function parseHashAndOpen(){
@@ -665,8 +623,7 @@
     function setDim(a){a?streamContainer.classList.add('dimmed'):streamContainer.classList.remove('dimmed')}
     function glow(){timerDisplay.classList.add('pulse');setTimeout(()=>timerDisplay.classList.remove('pulse'),1400)}
 
-    // Show 6→1 countdown, then callback
-    function showCountdown(forWhom, cb){
+    function showCountdown(cb){
       const seq=[6,5,4,3,2,1];
       preCountdown.style.display='flex';
       function step(){
@@ -674,15 +631,14 @@
         const n=seq.shift();
         preCountdown.textContent=String(n);
         preCountdown.classList.remove('pop'); void preCountdown.offsetWidth; preCountdown.classList.add('pop');
-        setTimeout(step, 800); // ~0.8s per tick
+        setTimeout(step, 800);
       }
       step();
     }
 
     function runRoundPart(){
       const who = (roundPart===0?'@You':'@Opponent');
-      // countdown BEFORE each participant turn
-      showCountdown(who, ()=>{
+      showCountdown(()=>{
         setDim(true);
         timerDisplay.style.display='block';
         timeLeft = 33;
@@ -692,19 +648,17 @@
           if(timeLeft<0){
             clearInterval(interval); sound.play(); setDim(false);
             if(roundPart===0){
-              // switch to opponent turn
-              roundPart=1;
-              runRoundPart(); // will show pre-countdown again
+              roundPart=1; runRoundPart(); // opponent turn (with pre-countdown)
             }else{
-              // end of round, maybe next round
               if(round<maxRounds){
-                round++; roundPart=0;
-                runRoundPart(); // next round with pre-countdown
+                round++; roundPart=0; runRoundPart(); // next round
               }else{
-                // battle over
-                timerDisplay.textContent='3ATTLE Over — Great Work!'; glow(); setDim(false);
-                buildPostCats(); postModal.classList.add('show'); loadRandomOpponent();
-                startBattleFab.style.display='flex'; startBattleFab.classList.add('blink');
+                // ======== BATTLE OVER ========
+                timerDisplay.textContent='3ATTLE Over — Pick Your Next Opponent';
+                glow();
+                // Show opponent picker for current category; 3ATTLE button is hidden until an opponent is tapped
+                buildOpponentPicker(currentCategory);
+                startBattleFab.style.display='none'; startBattleFab.classList.remove('blink');
               }
             }
           }
@@ -720,37 +674,54 @@
       }else{
         battleTrack.pause(); battleTrack.currentTime=0;
       }
-      postModal.classList.remove('show');
+      opponentPicker.classList.remove('show'); // ensure hidden if coming from picker
       startBattleFab.style.display='none';
       startBattleFab.classList.remove('blink');
       glow();
       round=1; roundPart=0;
       runRoundPart();
     }
-
     startBattleFab.addEventListener('click', startBattle);
 
-    function loadRandomOpponent(){
-      const pool=opponentPools[currentCategory]||[]; if(pool.length){const r=pool[Math.floor(Math.random()*pool.length)];
-        opponentVideo.src=r.video;opponentImage.src=r.image;opponentUsername.innerText=r.username;}
-    }
-
-    // Post-battle actions
-    postClose.addEventListener('click',()=>postModal.classList.remove('show'));
-    postKeepCat.addEventListener('click',()=>{
-      if(!currentCategory||!chosenSub){postModal.classList.remove('show');categoryModal.classList.add('show');return}
-      postModal.classList.remove('show');startBattleFab.style.display='flex';startBattleFab.classList.add('blink');
-    });
-    postPickSub.addEventListener('click',()=>{
-      postModal.classList.remove('show');categoryModal.classList.add('show');
-      if(currentCategory){
-        catSearch.value=''; buildCategoryButtons('');
-        openCategory(currentCategory,true)
+    /* ====== Opponent Picker ====== */
+    function buildOpponentPicker(cat){
+      oppCatLabel.textContent = cat || '—';
+      oppList.innerHTML='';
+      const pool = opponentPools[cat] || [];
+      if(pool.length===0){
+        const empty = document.createElement('div');
+        empty.className='muted';
+        empty.style.textAlign='center';
+        empty.style.padding='16px';
+        empty.textContent='No opponents available.';
+        oppList.appendChild(empty);
+      } else {
+        pool.forEach((o, idx)=>{
+          const row = document.createElement('div');
+          row.className='opp-item';
+          row.innerHTML = `
+            <img src="${o.image}" alt="${o.username}">
+            <div style="display:flex;flex-direction:column;">
+              <span class="opp-name">${o.username}</span>
+              <span class="opp-meta">Ready to 3ATTLE • Slot #${idx+1}</span>
+            </div>`;
+          row.addEventListener('click', ()=>{
+            // swap current opponent
+            applyCategoryOpponent(cat, o);
+            // show 3ATTLE button now
+            startBattleFab.style.display='flex'; startBattleFab.classList.add('blink'); startBattleFab.focus();
+            // keep picker open or close? Close for faster loop
+            opponentPicker.classList.remove('show');
+            timerDisplay.textContent='Opponent ready — tap 3ATTLE to start!';
+          });
+          oppList.appendChild(row);
+        });
       }
-    });
-    postNextOpponent.addEventListener('click',()=>{postModal.classList.remove('show');loadRandomOpponent();startBattleFab.style.display='flex';startBattleFab.classList.add('blink')});
+      opponentPicker.classList.add('show');
+    }
+    oppClose.addEventListener('click', ()=> opponentPicker.classList.remove('show'));
 
-    // Viewer count tick
+    /* Viewer count tick */
     let viewers=1300;
     setInterval(()=>{
       const delta=Math.floor(Math.random()*13)-6;
@@ -758,7 +729,7 @@
       viewerCountTop.innerHTML=`<svg style="width:14px;height:14px;vertical-align:-2px;"><use href="#ic-eye"/></svg>&nbsp;${viewers.toLocaleString()}`
     },1600);
 
-    // Camera
+    /* Camera */
     async function startCamera(){
       try{
         const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720}},audio:true});
@@ -766,12 +737,16 @@
       }catch(err){console.error('Camera error:',err)}
     }
 
-    // Init
-    window.onload=()=>{
+    // Update Profile screen when clicking opponent box
+    document.getElementById('opponentProfile').addEventListener('click', ()=>{
+      profileName.textContent = opponentUsername.textContent || '@Opponent';
+    });
+
+    /* Init */
+        window.onload=()=>{
       showScreen('battle');
       if(!location.hash) location.hash='#/battle';
       startCamera();
-      // build full category list upfront
       buildCategoryButtons('');
       routeFromHash(); parseHashAndOpen();
     };
