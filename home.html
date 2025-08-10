@@ -3,14 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Live Page Loader Under Scroll)</title>
+<title>Home Header (Inline Page Loader)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
-  <!-- RANK BUTTON -->
-  <a href="rank.html" aria-label="Open Rank"
-     style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 20px);right:max(12px, env(safe-area-inset-right));width:56px;height:56px;border-radius:50%;display:grid;place-items:center;text-decoration:none;cursor:pointer;z-index:2147483647;padding:4px;background:conic-gradient(#B8860B,#FFD15C,#F0B90B,#B8860B);box-shadow:0 10px 28px rgba(240,185,11,.33);animation:rankPulse 3s ease-in-out infinite;">
-    <span style="width:100%;height:100%;border-radius:50%;background:rgba(0,0,0,.88);display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);">
+  <!-- SUPER-ROBUST RANK BUTTON (unchanged look) -->
+  <a id="rankLink" href="rank.html" aria-label="Open Rank"
+     style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 20px);right:max(12px, env(safe-area-inset-right));
+            width:56px;height:56px;border-radius:50%;display:grid;place-items:center;text-decoration:none;cursor:pointer;
+            z-index:2147483647;padding:4px;background:conic-gradient(#B8860B,#FFD15C,#F0B90B,#B8860B);
+            box-shadow:0 10px 28px rgba(240,185,11,.33);animation:rankPulse 3s ease-in-out infinite;">
+    <span style="width:100%;height:100%;border-radius:50%;background:rgba(0,0,0,.88);display:grid;place-items:center;
+                 box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);">
       <span style="display:block;line-height:1;text-align:center;">
         <span style="display:block;font-size:10px;color:#FFD15C;letter-spacing:.4px;margin-bottom:3px;">RANK</span>
         <span style="display:block;font-size:14px;font-weight:900;color:#FFD15C;letter-spacing:.2px;">27</span>
@@ -18,22 +22,28 @@
     </span>
   </a>
 
-  <!-- FOLLOWERS / FOLLOWING -->
-  <div style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 82px);right:max(12px, env(safe-area-inset-right));display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;color:#cfd6dd;letter-spacing:.3px;z-index:2147483646;gap:6px;">
+  <!-- Followers / Following (now load inline, look unchanged) -->
+  <div style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 82px);right:max(12px, env(safe-area-inset-right));
+              display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;color:#cfd6dd;letter-spacing:.3px;
+              z-index:2147483646;gap:6px;">
     <a href="followers.html" class="follow-btn" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd"><path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd" aria-hidden="true"><path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
       <span>120</span>
     </a>
     <a href="following.html" class="follow-btn" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd"><path d="M18 8h-3V5a1 1 0 10-2 0v3H10a1 1 0 100 2h3v3a1 1 0 102 0v-3h3a1 1 0 100-2z"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd" aria-hidden="true"><path d="M18 8h-3V5a1 1 0 10-2 0v3H10a1 1 0 100 2h3v3a1 1 0 102 0v-3h3a1 1 0 100-2z"/></svg>
       <span>98</span>
     </a>
   </div>
 
-  <!-- PROFILE HEADER -->
+  <!-- Minimal profile header (avatar unchanged) -->
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
-      <div style="width:88px;height:88px;position:relative;overflow:hidden;flex:0 0 auto;clip-path:polygon(50% 0%,0% 100%,100% 100%);-webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);background:#111;box-shadow:0 8px 24px rgba(0,0,0,.45);">
+      <!-- Triangle avatar -->
+      <div style="width:88px;height:88px;position:relative;overflow:hidden;flex:0 0 auto;
+                  clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+                  -webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+                  background:#111; box-shadow:0 8px 24px rgba(0,0,0,.45);">
         <img src="assets/img/battlebillions_avatar.png" alt="BattleBillions Avatar"
              style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform:scale(1.02);" />
       </div>
@@ -48,51 +58,117 @@
     </div>
   </div>
 
-  <!-- BUTTON SCROLL ROW -->
+  <!-- Button scroll row (unchanged look) -->
   <div id="scrollRow" style="overflow-x:auto;white-space:nowrap;padding:10px 16px;gap:8px;display:flex;scrollbar-width:thin;scrollbar-color:#444 transparent;">
-    <button class="btn" data-page="battle.html"   style="flex:0 0 auto;padding:8px 14px;border:none;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424,0 4px 12px rgba(0,0,0,.35);font-weight:700;font-size:13px;">Battles</button>
+    <button class="btn" data-page="battle.html"   style="flex:0 0 auto;padding:8px 14px;border:none;border-radius:999px;color:#e9edf1;background:linear-gradient(135deg,#141414,#0f0f0f);box-shadow:inset 0 0 0 1px #242424, 0 4px 12px rgba(0,0,0,.35);font-weight:700;font-size:13px;">Battles</button>
     <button class="btn" data-page="wallet.html"   style="flex:0 0 auto;padding:8px 14px;border-radius:14px;color:#e9edf1;background:#0b0b0b;box-shadow:0 4px 12px rgba(0,0,0,.35);border:1px solid #2a2a2a;font-weight:700;font-size:13px;">Wallet</button>
     <button class="btn" data-page="edit.html"     style="flex:0 0 auto;padding:8px 14px;border-radius:10px;color:#e9edf1;background:#0d0d0d;border:2px dashed #2f2f2f;font-weight:800;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);">Edit</button>
     <button class="btn" data-page="settings.html" style="flex:0 0 auto;padding:8px 14px;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</button>
   </div>
 
-  <!-- CONTAINER FOR LOADED CONTENT -->
+  <!-- Inline content mount -->
   <div id="pageContent" style="padding:10px 16px;"></div>
 
+  <!-- Minimal extras (no visual change to header/buttons) -->
   <style>
     @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
     ::-webkit-scrollbar { height:8px; }
     ::-webkit-scrollbar-thumb { background:#444; border-radius:4px; }
     ::-webkit-scrollbar-track { background:transparent; }
-    .btn { cursor:pointer;transition:transform .16s ease, box-shadow .16s ease; }
-    .btn:active { transform:translateY(1px) scale(.98); }
+    .btn { cursor:pointer; transition: transform .16s ease, box-shadow .16s ease; }
+    .btn:active { transform: translateY(1px) scale(.98); }
+
+    /* loader (subtle, won’t change layout) */
+    .loader {
+      display:inline-block; font-size:12px; color:#9aa1a8;
+      border:1px solid #1c1c1c; padding:8px 10px; border-radius:8px; background:#0c0c0c;
+    }
   </style>
 
   <script>
-    const buttons = document.querySelectorAll('#scrollRow .btn');
+    // ---- Robust inline page loader (keeps your look intact) ----
     const pageContent = document.getElementById('pageContent');
 
     async function loadPage(url) {
+      pageContent.innerHTML = '<span class="loader">Loading…</span>';
       try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        // Force same-origin absolute path (avoids relative/CORS weirdness)
+        const absolute = new URL(url, location.origin).toString();
+        const res = await fetch(absolute, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const html = await res.text();
-        pageContent.innerHTML = html;
-      } catch (err) {
-        pageContent.innerHTML = `<div style="color:red;padding:10px;">Error loading ${url}</div>`;
-        console.error(err);
+
+        // Parse and extract a sane content root
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        // Prefer a main/app-like container if present, else body contents
+        const root = doc.querySelector('#app, main, [role="main"]') || doc.body;
+
+        // Build fragment while preserving styles
+        const frag = document.createDocumentFragment();
+        // Move child nodes (not the whole <body>) to avoid duplicating html/head
+        Array.from(root.childNodes).forEach(n => frag.appendChild(n.cloneNode(true)));
+
+        // Inject fragment
+        pageContent.innerHTML = '';
+        pageContent.appendChild(frag);
+
+        // Recreate scripts so they execute
+        const scripts = (root.querySelectorAll ? root.querySelectorAll('script') : []);
+        for (const oldS of scripts) {
+          const s = document.createElement('script');
+          // Copy attributes
+          for (const attr of oldS.attributes) s.setAttribute(attr.name, attr.value);
+          if (!oldS.src) s.textContent = oldS.textContent;
+          // Ensure relative src works from current origin
+          if (s.src && s.src.startsWith('./')) {
+            s.src = s.src.replace('./', '/');
+          }
+          // Append after content so DOM exists
+          pageContent.appendChild(s);
+          // Await loading of external scripts in order
+          if (s.src) await new Promise((ok, err) => { s.onload = ok; s.onerror = err; });
+        }
+        // Scroll to content start (keeps header visible)
+        window.scrollTo({ top: pageContent.offsetTop - 8, behavior: 'smooth' });
+
+      } catch (e) {
+        console.error(e);
+        pageContent.innerHTML = `<div style="color:#ff6b6b;background:#170b0b;border:1px solid #3a0f0f;padding:10px;border-radius:8px;">
+          Couldn’t load <b>${url}</b>. Check the file path or host.
+        </div>`;
       }
     }
 
-    buttons.forEach(btn => {
+    // Wire scroll buttons
+    document.querySelectorAll('#scrollRow .btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const page = btn.getAttribute('data-page');
         if (page) loadPage(page);
       });
     });
 
-    // Optionally load Battles by default
+    // Intercept Followers/Following to load inline
+    document.querySelectorAll('.follow-btn').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = a.getAttribute('href');
+        if (href) loadPage(href);
+      });
+    });
+
+    // Intercept Rank badge to load inline too
+    document.getElementById('rankLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      loadPage('rank.html');
+    });
+
+    // Default: load Battles
     loadPage('battle.html');
   </script>
+
+  <!-- Keyframes inline (safe/no visual shift) -->
+  <style>
+    @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+  </style>
 </body>
-</html>
+  </html>
