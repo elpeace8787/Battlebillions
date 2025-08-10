@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Profile • 3ATTL33ILLIONS</title>
+  <title>Home — 3ATTL33ILLIONS</title>
 
-  <!-- Virgo font -->
+  <!-- Virgo -->
   <style>
     @font-face{
       font-family:'Virgo';
@@ -17,105 +17,85 @@
 
   <style>
     :root{
-      --bg:#000;
-      --ink:#fff; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
+      --bg-0:#000000;
+      --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --soft:rgba(255,255,255,.10);
-      --ring:0 0 0 3px rgba(255,255,255,.18);
-      --gold:#f0c24b;
-      --max:720px;
-      --safe-bottom:env(safe-area-inset-bottom,0);
+      --ring:0 0 0 3px rgba(255,255,255,.16);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --max:860px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0;background:var(--bg);color:var(--ink);
+      margin:0;background:var(--bg-0);color:var(--ink);
       font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
       -webkit-font-smoothing:antialiased;letter-spacing:.2px;
     }
-    .wrap{max-width:var(--max);margin:0 auto;padding:10px 12px 90px}
+    /* faint ambient like dashboard */
+    body::before{
+      content:"";position:fixed;inset:-20% -10%;
+      background: radial-gradient(1200px 600px at 50% 110%, rgba(255,255,255,.03), transparent 60%);
+      filter: blur(24px); opacity:.35; z-index:-1;
+    }
 
-    /* ——— Header: avatar + name (TikTok vibe, centered) ——— */
-    .header{
-      display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:8px;
+    /* ===== fragment wrapper (use this when embedding) ===== */
+    #home-fragment{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:16px 14px calc(90px + var(--safe-bottom));
+    }
+
+    /* Row 1: avatar + name/handle */
+    .row-top{
+      display:flex;align-items:center;gap:14px;min-height:96px;
     }
     .tri{
-      width:96px;height:96px;position:relative;overflow:hidden;
+      width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
       clip-path:polygon(50% 0%,0% 100%,100% 100%);
       -webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
       background:#111;
     }
     .tri img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.08)}
-    .name{font-weight:900;font-size:20px}
-    .handle{color:var(--ink-3);font-size:12px}
+    .who{display:flex;flex-direction:column;gap:4px;min-width:0}
+    .name{font-weight:900;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .handle{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    /* ——— Stats row (like TikTok) ——— */
-    .stats{
-      display:flex;gap:18px;justify-content:center;align-items:center;margin-top:6px;
-    }
-    .stat{display:flex;flex-direction:column;align-items:center;min-width:64px}
-    .stat .num{font-size:16px;font-weight:900}
-    .stat .label{font-size:10px;color:var(--ink-2);letter-spacing:.3px}
+    /* Row 2: metrics — 3 across, SMALL, white labels over white icons */
+    .row-2{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px;align-items:center;justify-items:center}
+    .icon-btn{appearance:none;background:transparent;border:none;color:#fff;text-decoration:none;
+      display:flex;flex-direction:column-reverse;align-items:center;gap:6px;cursor:pointer;outline:none;min-width:0}
+    .icon-btn:focus-visible{box-shadow:var(--ring);border-radius:12px}
+    .icwrap{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:transparent;transition:transform .16s ease}
+    .icon-btn:hover .icwrap{transform:translateY(-1px) scale(1.03)}
+    .icwrap svg{width:20px;height:20px;stroke:#fff;fill:none;opacity:.96}
+    .label{font-size:10px;line-height:1;font-weight:900;letter-spacing:.35px;color:#fff}
+    .count{font-size:10px;color:var(--ink-2);margin-top:4px}
 
-    /* ——— Actions: tiny icon buttons ——— */
-    .actions{
-      display:flex;gap:12px;justify-content:center;align-items:center;margin:14px 0 4px;
-    }
-    .btn-icon{
-      appearance:none;background:transparent;border:1px solid var(--soft);
-      color:#fff;border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:8px;
-      text-decoration:none;cursor:pointer;outline:none;
-    }
-    .btn-icon:hover{background:rgba(255,255,255,.06)}
-    .btn-icon:focus-visible{box-shadow:var(--ring)}
-    .btn-icon .ic{width:18px;height:18px;display:grid;place-items:center}
-    .btn-icon svg{width:18px;height:18px;stroke:#fff;fill:none}
-    .btn-icon .txt{font-size:12px}
-    .btn-rank .txt{color:var(--gold)}
+    /* Row 3: actions — 4 across, small buttons like shell */
+    .row-3{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:10px;align-items:center;justify-items:center}
 
-    /* ——— Bio (optional) ——— */
-    .bio{margin:8px auto 6px;max-width:560px;text-align:center;color:var(--ink-2);font-size:12px}
+    /* Sections: carousels (horizontal scroll) inspired by dashboard vibe */
+    .section{margin-top:18px}
+    .section h3{font-size:12px;color:var(--ink-2);letter-spacing:.38px;margin:0 4px 10px}
+    .hscroll{display:flex;gap:10px;overflow:auto;padding-bottom:4px;scroll-snap-type:x mandatory}
+    .card{flex:0 0 auto;width:160px;height:220px;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;background:#0e0e0f;position:relative;scroll-snap-align:start}
+    .card img,.card video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.06) saturate(1.04)}
+    .badge{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);border-radius:999px;color:#fff;font-size:10px;padding:4px 8px}
+    .meta{position:absolute;left:0;right:0;bottom:0;padding:8px;background:linear-gradient(180deg,transparent 0%, rgba(0,0,0,.7) 75%);
+      display:flex;align-items:center;gap:6px;font-size:11px;color:#fff}
+    .meta svg{width:13px;height:13px;stroke:#fff;fill:none}
 
-    /* ——— Tabs (TikTok style) ——— */
-    .tabs{
-      display:flex;justify-content:space-around;align-items:center;margin-top:10px;position:sticky;top:0;background:var(--bg);z-index:5;
-      border-top:1px solid var(--soft);border-bottom:1px solid var(--soft);
-    }
-    .tab{
-      flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0;text-decoration:none;color:#fff;cursor:pointer;
-    }
-    .tab svg{width:18px;height:18px;stroke:#fff;opacity:.85}
-    .tab .tlabel{font-size:11px;color:#fff;letter-spacing:.3px}
-    .tab.active{position:relative}
-    .tab.active::after{
-      content:"";position:absolute;bottom:-1px;left:20%;right:20%;height:2px;background:#fff;border-radius:2px;
-    }
+    /* Footer spacer if you use global shell */
+    .spacer{height:16px}
 
-    /* ——— Media grid (3 across, TikTok vibe) ——— */
-    .grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:8px;
-    }
-    .tile{
-      position:relative;background:#0e0e0f;aspect-ratio:9/14;overflow:hidden;cursor:pointer;
-    }
-    .tile img, .tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:contrast(1.06) saturate(1.04)}
-    .overlay{
-      position:absolute;left:0;right:0;bottom:0;padding:6px 6px 5px;background:linear-gradient(180deg,transparent 0%, rgba(0,0,0,.65) 70%);
-      display:flex;align-items:center;gap:6px;
-      font-size:11px;color:#fff;
-    }
-    .overlay svg{width:13px;height:13px;stroke:#fff;fill:none}
-
-    /* ——— Bottom spacer (if your global tab bar overlays) ——— */
-    .spacer{height:calc(16px + var(--safe-bottom))}
-    
-    /* Mobile scale down just a bit */
+    /* mobile scale a bit */
     @media (max-width:420px){
-      .tri{width:86px;height:86px}
+      .tri{width:84px;height:84px}
       .name{font-size:18px}
-      .stats{gap:14px}
-      .stat .num{font-size:15px}
-      .btn-icon{padding:7px 9px}
-      .btn-icon .txt{font-size:11px}
+      .icwrap{width:34px;height:34px}
+      .icwrap svg{width:18px;height:18px}
+      .label,.count{font-size:9.5px}
+      .card{width:148px;height:204px}
     }
   </style>
 </head>
@@ -124,6 +104,22 @@
   <!-- Minimal white icon sprite -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
+      <symbol id="ic-swords" viewBox="0 0 24 24">
+        <path d="M14.5 3l6 6M20.5 3l-6 6" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M21 14l-7-7-2 2 7 7 2-2z" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M3 21l7-7 2 2-7 7-2-2z" stroke-width="1.6" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="ic-users" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="ic-following" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
+        <path d="M17 8h6M20 5v6" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
       <symbol id="ic-medal" viewBox="0 0 24 24">
         <path d="M12 2l3 5 5 .7-3.6 3.6.9 5-5.3-2.8L7.6 16l.9-5L5 7.7 10 7z" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
       </symbol>
@@ -139,153 +135,135 @@
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke-width="1.6"/>
         <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7 1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
       </symbol>
-      <symbol id="ic-grid" viewBox="0 0 24 24">
-        <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" stroke-width="1.6" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-heart" viewBox="0 0 24 24">
-        <path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 1 0-7.6 7.6L12 22l8.8-8.8a5.4 5.4 0 0 0 0-7.6z" stroke-width="1.4" fill="none"/>
-      </symbol>
-      <symbol id="ic-tag" viewBox="0 0 24 24">
-        <path d="M20 12l-8 8-8-8 8-8 8 8z" stroke-width="1.6" fill="none"/>
-      </symbol>
       <symbol id="ic-play" viewBox="0 0 24 24">
         <path d="M8 5v14l11-7-11-7z" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="ic-eye" viewBox="0 0 24 24">
+        <path d="M2.5 12S6.5 6.5 12 6.5 21.5 12 21.5 12 17.5 17.5 12 17.5 2.5 12 2.5 12z" stroke-width="1.6"/>
+        <circle cx="12" cy="12" r="2.8" stroke-width="1.6"/>
       </symbol>
     </defs>
   </svg>
 
-  <main class="wrap">
-    <!-- Header -->
-    <section class="header">
+  <main id="home-fragment">
+    <!-- Row 1 -->
+    <section class="row-top">
       <div class="tri"><img src="assets/img/user_me.jpg" alt="Avatar"></div>
-      <div class="name" id="displayName">El Peace</div>
-      <div class="handle">@elpeace</div>
-
-      <!-- Stats -->
-      <div class="stats">
-        <div class="stat">
-          <div class="num" id="battlesCount">27</div>
-          <div class="label">3ATTLES</div>
-        </div>
-        <div class="stat">
-          <div class="num" id="followersCount">12.8k</div>
-          <div class="label">Followers</div>
-        </div>
-        <div class="stat">
-          <div class="num" id="followingCount">341</div>
-          <div class="label">Following</div>
-        </div>
+      <div class="who">
+        <div class="name" id="displayName">El Peace</div>
+        <div class="handle" id="handle">@elpeace</div>
       </div>
+    </section>
 
-      <!-- Actions -->
-      <div class="actions">
-        <a class="btn-icon btn-rank" href="rank.html">
-          <span class="ic"><svg><use href="#ic-medal"/></svg></span>
-          <span class="txt">Rank</span>
+    <!-- Row 2: Battles • Followers • Following (side-by-side) -->
+    <section class="row-2" aria-label="Metrics">
+      <a class="icon-btn" href="battles.html" title="Your 3ATTLES">
+        <span class="label">3ATTLES</span>
+        <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
+        <span class="count" id="battlesCount">27</span>
+      </a>
+      <a class="icon-btn" href="followers.html" title="Your Followers">
+        <span class="label">Followers</span>
+        <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
+        <span class="count" id="followersCount">12.8k</span>
+      </a>
+      <a class="icon-btn" href="following.html" title="Your Following">
+        <span class="label">Following</span>
+        <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
+        <span class="count" id="followingCount">341</span>
+      </a>
+    </section>
+
+    <!-- Row 3: Rank • Wallet • Edit • Settings (side-by-side) -->
+    <section class="row-3" aria-label="Actions">
+      <a class="icon-btn" href="rank.html" title="Rank">
+        <span class="label">Rank</span>
+        <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
+      </a>
+      <a class="icon-btn" href="wallet.html" title="Wallet">
+        <span class="label">Wallet</span>
+        <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
+      </a>
+      <a class="icon-btn" href="edit.html" title="Edit Profile">
+        <span class="label">Edit</span>
+        <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
+      </a>
+      <a class="icon-btn" href="settings.html" title="Settings">
+        <span class="label">Settings</span>
+        <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
+      </a>
+    </section>
+
+    <!-- Sections inspired by dashboard (clean, no big boxes) -->
+    <section class="section">
+      <h3>Continue 3ATTLE</h3>
+      <div class="hscroll">
+        <a class="card" href="battle.html#resume=1">
+          <img src="assets/thumbs/b1.jpg" alt="Resume battle 1">
+          <div class="badge">R1 • 0:33</div>
+          <div class="meta"><svg><use href="#ic-eye"/></svg><span>98k</span></div>
         </a>
-        <a class="btn-icon" href="wallet.html">
-          <span class="ic"><svg><use href="#ic-wallet"/></svg></span>
-          <span class="txt">Wallet</span>
+        <a class="card" href="battle.html#resume=2">
+          <img src="assets/thumbs/b2.jpg" alt="Resume battle 2">
+          <div class="badge">R2 • 1:12</div>
+          <div class="meta"><svg><use href="#ic-eye"/></svg><span>54k</span></div>
         </a>
-        <a class="btn-icon" href="edit.html">
-          <span class="ic"><svg><use href="#ic-edit"/></svg></span>
-          <span class="txt">Edit</span>
-        </a>
-        <a class="btn-icon" href="settings.html">
-          <span class="ic"><svg><use href="#ic-cog"/></svg></span>
-          <span class="txt">Settings</span>
+        <a class="card" href="battle.html#resume=3">
+          <img src="assets/thumbs/b3.jpg" alt="Resume battle 3">
+          <div class="badge">R1 • 0:08</div>
+          <div class="meta"><svg><use href="#ic-eye"/></svg><span>12k</span></div>
         </a>
       </div>
-
-      <!-- Bio (optional) -->
-      <div class="bio">Creating 3ATTLES & defeating 3ILLIONS. 🔥</div>
     </section>
 
-    <!-- Tabs -->
-    <nav class="tabs" role="tablist" aria-label="Profile tabs">
-      <button class="tab active" data-tab="tab-battles" role="tab" aria-selected="true">
-        <svg><use href="#ic-grid"/></svg><span class="tlabel">3ATTLES</span>
-      </button>
-      <button class="tab" data-tab="tab-likes" role="tab" aria-selected="false">
-        <svg><use href="#ic-heart"/></svg><span class="tlabel">3ILLIONS</span>
-      </button>
-      <button class="tab" data-tab="tab-tagged" role="tab" aria-selected="false">
-        <svg><use href="#ic-tag"/></svg><span class="tlabel">Tagged</span>
-      </button>
-    </nav>
-
-    <!-- Grids -->
-    <section id="tab-battles" class="grid" role="tabpanel" aria-labelledby="3attles-tab">
-      <!-- Placeholder items -->
-      <a class="tile" href="battle.html#v=1">
-        <img src="assets/thumbs/b1.jpg" alt="Battle 1">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>1.2M</span></div>
-      </a>
-      <a class="tile" href="battle.html#v=2">
-        <img src="assets/thumbs/b2.jpg" alt="Battle 2">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>782k</span></div>
-      </a>
-      <a class="tile" href="battle.html#v=3">
-        <img src="assets/thumbs/b3.jpg" alt="Battle 3">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>342k</span></div>
-      </a>
-      <a class="tile" href="battle.html#v=4">
-        <img src="assets/thumbs/b4.jpg" alt="Battle 4">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>219k</span></div>
-      </a>
-      <a class="tile" href="battle.html#v=5">
-        <img src="assets/thumbs/b5.jpg" alt="Battle 5">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>98k</span></div>
-      </a>
-      <a class="tile" href="battle.html#v=6">
-        <img src="assets/thumbs/b6.jpg" alt="Battle 6">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>54k</span></div>
-      </a>
+    <section class="section">
+      <h3>Trending 3ILLIONS</h3>
+      <div class="hscroll">
+        <a class="card" href="battle.html#trend=1">
+          <img src="assets/thumbs/l1.jpg" alt="Trending 1">
+          <div class="meta"><svg><use href="#ic-play"/></svg><span>1.2M</span></div>
+        </a>
+        <a class="card" href="battle.html#trend=2">
+          <img src="assets/thumbs/l2.jpg" alt="Trending 2">
+          <div class="meta"><svg><use href="#ic-play"/></svg><span>642k</span></div>
+        </a>
+        <a class="card" href="battle.html#trend=3">
+          <img src="assets/thumbs/l3.jpg" alt="Trending 3">
+          <div class="meta"><svg><use href="#ic-play"/></svg><span>301k</span></div>
+        </a>
+      </div>
     </section>
 
-    <section id="tab-likes" class="grid" role="tabpanel" hidden>
-      <a class="tile" href="battle.html#l=1">
-        <img src="assets/thumbs/l1.jpg" alt="Liked 1">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>1.8M</span></div>
-      </a>
-      <a class="tile" href="battle.html#l=2">
-        <img src="assets/thumbs/l2.jpg" alt="Liked 2">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>640k</span></div>
-      </a>
-      <a class="tile" href="battle.html#l=3">
-        <img src="assets/thumbs/l3.jpg" alt="Liked 3">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>210k</span></div>
-      </a>
-    </section>
-
-    <section id="tab-tagged" class="grid" role="tabpanel" hidden>
-      <a class="tile" href="battle.html#t=1">
-        <img src="assets/thumbs/t1.jpg" alt="Tagged 1">
-        <div class="overlay"><svg><use href="#ic-play"/></svg><span>77k</span></div>
-      </a>
+    <section class="section">
+      <h3>Your Feed</h3>
+      <div class="hscroll">
+        <a class="card" href="battle.html#v=101">
+          <video src="assets/video/feed1.mp4" muted playsinline></video>
+          <div class="meta"><svg><use href="#ic-play"/></svg><span>87k</span></div>
+        </a>
+        <a class="card" href="battle.html#v=102">
+          <video src="assets/video/feed2.mp4" muted playsinline></video>
+          <div class="meta"><svg><use href="#ic-play"/></svg><span>44k</span></div>
+        </a>
+        <a class="card" href="battle.html#v=103">
+          <video src="assets/video/feed3.mp4" muted playsinline></video>
+          <div class="meta"><svg><use href="#ic-play"/></svg><span>19k</span></div>
+        </a>
+      </div>
     </section>
 
     <div class="spacer"></div>
   </main>
 
   <script>
-    // Minimal tabs
-    const tabBtns = document.querySelectorAll('.tab');
-    const panels = {
-      'tab-battles': document.getElementById('tab-battles'),
-      'tab-likes': document.getElementById('tab-likes'),
-      'tab-tagged': document.getElementById('tab-tagged'),
-    };
-    tabBtns.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        tabBtns.forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-        btn.classList.add('active'); btn.setAttribute('aria-selected','true');
-        Object.values(panels).forEach(p=>p.hidden = true);
-        const id = btn.dataset.tab;
-        panels[id].hidden = false;
-        // optional: scroll to tabs top on switch
-        document.querySelector('.tabs').scrollIntoView({behavior:'smooth', block:'start'});
-      });
+    // Autoplay previews on hover/touchstart (kept super light)
+    document.querySelectorAll('.card video').forEach(v=>{
+      const play = ()=> v.play().catch(()=>{});
+      const stop = ()=> { v.pause(); v.currentTime=0; };
+      v.closest('.card').addEventListener('pointerenter', play);
+      v.closest('.card').addEventListener('pointerleave', stop);
+      v.closest('.card').addEventListener('touchstart', play, {passive:true});
+      v.closest('.card').addEventListener('touchend', stop);
     });
   </script>
 </body>
