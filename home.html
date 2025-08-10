@@ -21,6 +21,7 @@
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --soft:rgba(255,255,255,.10);
       --ring:0 0 0 3px rgba(255,255,255,.18);
+      --max:980px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -29,20 +30,25 @@
       font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
       -webkit-font-smoothing:antialiased;letter-spacing:.2px;
     }
-    .container{max-width:980px;margin:0 auto;padding:18px 14px 90px}
+    .container{max-width:var(--max);margin:0 auto;padding:18px 14px 90px}
 
-    /* Row 1: avatar ▲ + name */
-    .row-top{display:flex;align-items:center;gap:14px;min-height:92px}
+    /* Row 1: avatar ▲ + name (side-by-side) */
+    .row-top{
+      display:flex;align-items:center;gap:14px;min-height:92px;
+    }
     .tri-avatar{
       width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
-      clip-path:polygon(50% 0%,0% 100%,100% 100%);-webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
+      clip-path:polygon(50% 0%,0% 100%,100% 100%);
+      -webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
       background:#111;
     }
-    .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
+    .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.1)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-    /* Row 2 & 3: small icon buttons */
-    .icon-row{display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(3,1fr)}
+    /* Row 2 & 3: small icon buttons (no boxes) */
+    .icon-row{
+      display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(3,1fr);
+    }
     .icon-row.actions{grid-template-columns:repeat(4,1fr)}
     .icon-btn{
       appearance:none;background:transparent;border:none;color:#fff;text-decoration:none;
@@ -57,21 +63,22 @@
     }
     .icwrap svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.96}
     .count{font-size:12px;font-weight:900;line-height:1}
-    .label{font-size:10px;color:var(--ink-2);letter-spacing:.3px;line-height:1}
+    .label{font-size:10px;color:var(--ink-2);letter-spacing:.3px;line-height:1;text-transform:capitalize}
 
     .divider{height:1px;background:var(--soft);margin:18px 0}
 
-    @media (max-width:420px){
+    @media (max-width:520px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
-      .icwrap{width:38px;height:38px}
       .icon-row{gap:14px}
+      .icwrap{width:38px;height:38px}
+      .icon-row.actions{grid-template-columns:repeat(4,1fr)}
     }
   </style>
 </head>
 <body>
 
-  <!-- inline white icons (matching dashboard vibe) -->
+  <!-- Inline white icon sprite -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <symbol id="ic-swords" viewBox="0 0 24 24">
@@ -109,7 +116,7 @@
   </svg>
 
   <main class="container">
-    <!-- Row 1 -->
+    <!-- Row 1: avatar + name -->
     <section class="row-top">
       <div class="tri-avatar" aria-hidden="true">
         <img id="avatar" src="assets/img/user_me.jpg" alt="User avatar">
@@ -117,28 +124,28 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: Battles / Followers / Following -->
+    <!-- Row 2: metrics -->
     <section class="icon-row" aria-label="Profile metrics">
-      <button class="icon-btn" onclick="location.href='battles.html'">
+      <a class="icon-btn" href="battles.html">
         <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
         <span class="count" id="battlesCount">27</span>
         <span class="label">Battles</span>
-      </button>
-      <button class="icon-btn" onclick="location.href='followers.html'">
+      </a>
+      <a class="icon-btn" href="followers.html">
         <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
         <span class="count" id="followersCount">12.8k</span>
         <span class="label">Followers</span>
-      </button>
-      <button class="icon-btn" onclick="location.href='following.html'">
+      </a>
+      <a class="icon-btn" href="following.html">
         <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
         <span class="count" id="followingCount">341</span>
         <span class="label">Following</span>
-      </button>
+      </a>
     </section>
 
     <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- Row 3: Rank / Wallet / Edit / Settings -->
+    <!-- Row 3: actions -->
     <section class="icon-row actions" aria-label="Profile actions">
       <a class="icon-btn" href="rank.html">
         <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
@@ -159,14 +166,15 @@
     </section>
   </main>
 
-  <!-- Optional: hydrate counts from JS later
+  <!-- Optional: hydrate from JS later
   <script>
-    document.getElementById('displayName').textContent = 'Your Name';
-    document.getElementById('avatar').src = 'assets/img/your_avatar.jpg';
-    document.getElementById('battlesCount').textContent = '42';
-    document.getElementById('followersCount').textContent = '13.2k';
-    document.getElementById('followingCount').textContent = '512';
+    // Example dynamic updates
+    // document.getElementById('displayName').textContent = 'Your Name';
+    // document.getElementById('avatar').src = 'assets/img/your_avatar.jpg';
+    // document.getElementById('battlesCount').textContent = '42';
+    // document.getElementById('followersCount').textContent = '13.2k';
+    // document.getElementById('followingCount').textContent = '512';
   </script>
   -->
 </body>
-  </html>
+    </html>
