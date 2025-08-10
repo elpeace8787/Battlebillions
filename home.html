@@ -20,8 +20,6 @@
       --bg:#000;
       --ink:#e9edf1; --ink-2:#cfd6dd; --ink-3:#9aa3ad;
       --stroke:rgba(255,255,255,.10);
-      --ring:0 0 0 3px rgba(255,255,255,.12);
-      --gold-1:#F5D76E; --gold-2:#F0B90B; --gold-3:#FFD15C;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -31,248 +29,124 @@
       -webkit-font-smoothing:antialiased; letter-spacing:.2px;
     }
 
-    /* Page shell spacing (like dashboard) */
+    /* Page shell spacing (matches dashboard rhythm) */
     .container{
       max-width:980px;
       margin:0 auto;
       padding:18px 14px 90px;
       display:flex;
       flex-direction:column;
-      gap:18px; /* spread sections out */
+      gap:18px;
     }
 
-    /* Top: avatar + name + counts (no boxes) */
-    .profile-row{
-      display:grid; grid-template-columns:92px 1fr; gap:16px; align-items:start;
+    /* STEP 1 — Top row */
+    .top-row{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-height:88px;
+      flex-wrap:wrap; /* graceful wrap on small screens */
     }
-    .avatar{width:92px;height:92px;border-radius:50%;overflow:hidden}
-    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-    .display-block{display:flex;flex-direction:column;gap:10px}
-    .name{font-size:22px;font-weight:900}
-    .counts{display:flex;gap:24px}
-    .count b{display:block;font-size:18px}
-    .count span{font-size:12px;color:var(--ink-2)}
 
-    /* Bio */
-    .bio{display:flex;flex-direction:column;gap:6px;line-height:1.45}
-    .role{color:var(--ink-3);font-size:12px}
-    .handle{display:flex;align-items:center;gap:8px}
-    .handle svg{width:16px;height:16px;stroke:#fff}
-
-    /* Small icon buttons row (like dashboard bottom-bar) */
-    .mini-actions{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
-      margin-top:6px;
+    /* Triangle (▲) avatar */
+    .tri-avatar{
+      width:92px;
+      height:92px;
+      position:relative;
+      overflow:hidden;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%); /* ▲ up */
+      -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      background:#111; /* fallback if image missing */
+      flex:0 0 auto;
     }
-    .icon-btn{
-      border:none;background:transparent;color:#fff;cursor:pointer;
-      display:flex;flex-direction:column;align-items:center;gap:6px;
-      padding:6px 4px;border-radius:14px;transition:transform .2s,opacity .2s;
+    .tri-avatar img{
+      position:absolute; inset:0;
+      width:100%; height:100%; object-fit:cover;
+      transform: scale(1.12); /* slight zoom to fill corners */
     }
-    .icon-btn:focus-visible{outline:2px solid rgba(255,255,255,.25);outline-offset:4px}
-    .icon-btn:hover{transform:translateY(-1px)}
-    .icon-btn svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
-    .icon-label{font-size:10px;color:var(--ink-2);letter-spacing:.3px}
 
-    /* Thin divider lines (subtle like dashboard) */
-    .divider{height:1px;background:var(--stroke);}
-
-    /* Tabs row (grid/reels/tagged) */
-    .tabs{
-      display:flex;align-items:center;justify-content:space-around;padding:6px 0 4px;
-      position:sticky;top:0;z-index:5;background:#000;border-bottom:1px solid var(--stroke);
+    /* Identity / metrics in one clean line */
+    .identity-line{
+      display:flex; align-items:center; gap:18px;
+      flex:1 1 auto; min-width:260px;
     }
-    .tab{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 10px;color:var(--ink-2);cursor:pointer}
-    .tab svg{width:22px;height:22px;stroke:#fff}
-    .tab.active{color:#fff}
-    .tab-line{height:2px;width:60px;border-radius:2px;background:#fff;opacity:0;transition:opacity .2s}
-    .tab.active .tab-line{opacity:1}
+    .display-name{
+      font-size:22px; font-weight:900; white-space:nowrap;
+    }
 
-    /* Media grid */
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
-    .tile{position:relative;width:100%;aspect-ratio:1/1;background:#111}
-    .tile img{width:100%;height:100%;object-fit:cover;display:block}
-    .corner{position:absolute;right:6px;top:6px;background:rgba(0,0,0,.55);border-radius:8px;padding:2px;display:grid;place-items:center}
-    .corner svg{width:16px;height:16px;stroke:#fff}
+    .metrics{
+      display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    }
+    .metric{
+      display:flex; align-items:baseline; gap:6px; white-space:nowrap;
+    }
+    .metric .count{
+      font-weight:900; font-size:16px;
+      min-width:2ch; /* keeps from squishing when empty */
+    }
+    .metric .label{
+      font-size:12px; color:var(--ink-2); letter-spacing:.3px;
+    }
 
-    /* Overlays (rank/wallet/edit/settings) — minimal, no white boxes */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:2000}
-    .modal.show{display:flex}
-    .sheet{width:min(92vw,720px);border-radius:16px;border:1px solid var(--stroke);background:#0e0e0f}
-    .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--stroke)}
-    .sheet-title{font-weight:900}
-    .closebtn{border:1px solid var(--stroke);border-radius:10px;background:transparent;color:#fff;padding:8px 10px;cursor:pointer}
-    .sheet-body{padding:14px}
+    /* Thin divider (subtle, like dashboard) */
+    .divider{height:1px; background:var(--stroke);}
 
-    /* Responsive */
+    /* Responsive tweaks */
     @media (max-width:720px){
-      .container{gap:16px;padding:16px 10px 90px}
-      .profile-row{grid-template-columns:78px 1fr}
-      .avatar{width:78px;height:78px}
-      .counts{gap:18px}
-      .mini-actions{gap:12px}
+      .tri-avatar{width:78px;height:78px}
+      .display-name{font-size:20px}
+      .identity-line{gap:14px}
+      .metrics{gap:14px}
     }
   </style>
 </head>
 <body>
-
-  <!-- Inline white icons -->
-  <svg width="0" height="0" style="position:absolute;opacity:0;">
-    <defs>
-      <symbol id="ic-link" viewBox="0 0 24 24">
-        <path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L10.6 5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14 11a5 5 0 0 0-7.07 0L4.8 13.12a5 5 0 0 0 7.07 7.07l1.41-1.41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-trophy" viewBox="0 0 24 24">
-        <path d="M8 21h8M12 17v4M7 4h10v3a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4V4z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M17 7h2a2 2 0 0 0 2-2V4h-4M7 7H5a2 2 0 0 1-2-2V4h4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-wallet" viewBox="0 0 24 24">
-        <path d="M4 7h14a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M16 11h4v2h-4z" stroke-width="1.8"/><path d="M4 7V5a2 2 0 0 1 2-2h10" stroke-width="1.8" stroke-linecap="round"/>
-      </symbol>
-      <symbol id="ic-edit" viewBox="0 0 24 24">
-        <path d="M12 20h9" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-cog" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="3" stroke-width="1.8"/>
-        <path d="M19.4 15a1.7 1.7 0 0 0 .39 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.88-.39c-.54.24-.9.77-.9 1.37V21a2 2 0 1 1-4 0v-.09c0-.6-.36-1.13-.9-1.37a1.7 1.7 0 0 0-1.88.39l-.06.06A2 2 0 1 1 3.21 19l.06-.06c.5-.5 .65-1.2 .39-1.88-.24-.54-.77-.9-1.37-.9H2a2 2 0 1 1 0-4h.09c.6 0 1.13-.36 1.37-.9.26-.68.11-1.38-.39-1.88l-.06-.06A2 2 0 1 1 5.04 3.21l.06.06c.5.5 1.2.65 1.88.39.54-.24.9-.77.9-1.37V2a2 2 0 1 1 4 0v.09c0 .6.36 1.13.9 1.37.68.26 1.38.11 1.88-.39l.06-.06A2 2 0 1 1 20.79 5l-.06.06c-.5.5-.65 1.2-.39 1.88.24.54.77.9 1.37.9H22a2 2 0 1 1 0 4h-.09c-.6 0-1.13.36-1.37.9Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </symbol>
-      <symbol id="ic-grid" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" stroke-width="1.6"/></symbol>
-      <symbol id="ic-reels" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" stroke-width="1.6"/><path d="M4 9h16M9 4v5M15 4v5M10 12l5 3-5 3z" stroke-width="1.6"/></symbol>
-      <symbol id="ic-tag" viewBox="0 0 24 24"><path d="M20 13l-7 7-9-9V4h7l9 9z" stroke-width="1.6"/><circle cx="7.5" cy="7.5" r="1.2" stroke-width="1.6"/></symbol>
-      <symbol id="ic-reels-corner" viewBox="0 0 24 24"><path d="M3 7h18M7 3v18" stroke-width="1.6"/><rect x="6" y="6" width="12" height="12" rx="2" stroke-width="1.6"/></symbol>
-    </defs>
-  </svg>
-
   <main class="container">
-    <!-- Top section -->
-    <section class="profile-row">
-      <div class="avatar"><img id="avatar" src="assets/img/user_me.jpg" alt="Avatar"></div>
-      <div class="display-block">
-        <div class="name" id="displayName">El Peace</div>
-        <div class="counts">
-          <div class="count"><b id="postCount">17</b><span>posts</span></div>
-          <div class="count"><b id="followerCount">315</b><span>followers</span></div>
-          <div class="count"><b id="followingCount">155</b><span>following</span></div>
-        </div>
+    <!-- STEP 1: Avatar / Name / Battles / Followers / Following -->
+    <section class="top-row">
+      <!-- ▲ Triangle avatar -->
+      <div class="tri-avatar" aria-hidden="true">
+        <!-- replace src with the user's avatar when available -->
+        <img id="avatar" src="assets/img/user_me.jpg" alt="">
+      </div>
 
-        <div class="bio">
-          <div class="role">Public figure</div>
-          <div>El Shalom ✴️ ☀️ Thee Untouchables</div>
-          <div>🔥 ERA<br/>OWNER OF - BATTLEBILLIONS</div>
-          <div class="handle"><svg><use href="#ic-link"/></svg><span>@peace_el</span></div>
-        </div>
+      <!-- Single horizontal identity line -->
+      <div class="identity-line">
+        <div class="display-name" id="displayName">Your Name</div>
 
-        <!-- Small icon buttons (no boxes) -->
-        <div class="mini-actions" aria-label="Quick actions">
-          <button class="icon-btn" data-open="rankModal"><svg><use href="#ic-trophy"/></svg><span class="icon-label">Rank</span></button>
-          <button class="icon-btn" data-open="walletModal"><svg><use href="#ic-wallet"/></svg><span class="icon-label">Wallet</span></button>
-          <button class="icon-btn" data-open="editModal"><svg><use href="#ic-edit"/></svg><span class="icon-label">Edit</span></button>
-          <button class="icon-btn" data-open="settingsModal"><svg><use href="#ic-cog"/></svg><span class="icon-label">Settings</span></button>
+        <div class="metrics">
+          <div class="metric">
+            <span class="count" id="battlesCount">{battlesCount}</span>
+            <span class="label">Battles</span>
+          </div>
+          <div class="metric">
+            <span class="count" id="followersCount">{followersCount}</span>
+            <span class="label">Followers</span>
+          </div>
+          <div class="metric">
+            <span class="count" id="followingCount">{followingCount}</span>
+            <span class="label">Following</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <div class="divider"></div>
+    <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- Tabs -->
-    <div class="tabs" role="tablist">
-      <div class="tab active" data-tab="grid" role="tab" aria-selected="true"><svg><use href="#ic-grid"/></svg><div class="tab-line"></div></div>
-      <div class="tab" data-tab="reels" role="tab" aria-selected="false"><svg><use href="#ic-reels"/></svg><div class="tab-line"></div></div>
-      <div class="tab" data-tab="tagged" role="tab" aria-selected="false"><svg><use href="#ic-tag"/></svg><div class="tab-line"></div></div>
-    </div>
-
-    <!-- Media grid -->
-    <section class="grid" id="postGrid">
-      <a class="tile" href="#"><img src="assets/posts/p1.jpg" alt=""><span class="corner"><svg><use href="#ic-reels-corner"/></svg></span></a>
-      <a class="tile" href="#"><img src="assets/posts/p2.jpg" alt=""></a>
-      <a class="tile" href="#"><img src="assets/posts/p3.jpg" alt=""></a>
-      <a class="tile" href="#"><img src="assets/posts/p4.jpg" alt=""></a>
-      <a class="tile" href="#"><img src="assets/posts/p5.jpg" alt=""></a>
-      <a class="tile" href="#"><img src="assets/posts/p6.jpg" alt=""></a>
-    </section>
+    <!-- NEXT STEPS (we’ll add these later, after you approve Step 1):
+         - Small icon buttons row (Rank / Wallet / Edit / Settings)
+         - Tabs (Grid / Reels / Tagged)
+         - Media grid
+         Nothing else is included yet per your top-down plan. -->
   </main>
 
-  <!-- Minimal modals (no white boxes) -->
-  <div class="modal" id="rankModal"><div class="sheet">
-    <div class="sheet-head"><div class="sheet-title">Rank</div><button class="closebtn" data-close="rankModal">Close</button></div>
-    <div class="sheet-body"><h2 style="margin:0;font-weight:900">#27</h2><p class="muted">Win more 3ATTLES to climb.</p></div>
-  </div></div>
-
-  <div class="modal" id="walletModal"><div class="sheet">
-    <div class="sheet-head"><div class="sheet-title">Wallet</div><button class="closebtn" data-close="walletModal">Close</button></div>
-    <div class="sheet-body"><h2 style="margin:0;font-weight:900">8,504 coins</h2><p class="muted">Rewards and payouts live here.</p></div>
-  </div></div>
-
-  <div class="modal" id="editModal"><div class="sheet">
-    <div class="sheet-head"><div class="sheet-title">Edit Profile</div><button class="closebtn" data-close="editModal">Close</button></div>
-    <div class="sheet-body">
-      <label style="font-size:12px;color:var(--ink-2)">Display name</label>
-      <input id="nameInput" value="El Peace" style="width:100%;margin:6px 0 12px;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0b0c;color:#fff;font-family:inherit">
-      <label style="font-size:12px;color:var(--ink-2)">Avatar URL</label>
-      <input id="avatarInput" value="assets/img/user_me.jpg" style="width:100%;margin:6px 0 14px;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:#0b0b0c;color:#fff;font-family:inherit">
-      <button class="icon-btn" onclick="saveProfile()" style="width:auto;padding:10px 14px;border:1px solid var(--stroke);border-radius:12px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M20 6L9 17l-5-5"/></svg>
-        <span class="icon-label" style="font-size:12px">Save</span>
-      </button>
-    </div>
-  </div></div>
-
-  <div class="modal" id="settingsModal"><div class="sheet">
-    <div class="sheet-head"><div class="sheet-title">Settings</div><button class="closebtn" data-close="settingsModal">Close</button></div>
-    <div class="sheet-body">
-      <label style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer">
-        <input type="checkbox" checked style="accent-color:#fff"> <span>Dark mode</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer">
-        <input type="checkbox" checked style="accent-color:#fff"> <span>Battle notifications</span>
-      </label>
-    </div>
-  </div></div>
-
   <script>
-    // Demo data
-    const user={name:'El Peace',avatar:'assets/img/user_me.jpg',posts:17,followers:315,following:155};
-
-    // Hydrate
-    (function(){
-      document.getElementById('displayName').textContent=user.name;
-      document.getElementById('avatar').src=user.avatar;
-      document.getElementById('postCount').textContent=user.posts;
-      document.getElementById('followerCount').textContent=user.followers.toLocaleString();
-      document.getElementById('followingCount').textContent=user.following.toLocaleString();
-    })();
-
-    // Tabs (visual only)
-    const tabs=document.querySelectorAll('.tab');
-    tabs.forEach(t=>t.addEventListener('click',()=>{
-      tabs.forEach(x=>{x.classList.remove('active');x.setAttribute('aria-selected','false')});
-      t.classList.add('active');t.setAttribute('aria-selected','true');
-      // Hook: swap grid content if you want to filter for reels/tagged
-    }));
-
-    // Overlay open/close
-    document.addEventListener('click',(e)=>{
-      const o=e.target.closest('[data-open]'); if(o){ document.getElementById(o.dataset.open).classList.add('show'); }
-      const c=e.target.closest('[data-close]'); if(c){ document.getElementById(c.dataset.close).classList.remove('show'); }
-      if(e.target.classList.contains('modal')) e.target.classList.remove('show');
-    });
-    document.addEventListener('keydown',e=>{
-      if(e.key==='Escape') document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
-    });
-
-    // Save (demo)
-    function saveProfile(){
-      const n=document.getElementById('nameInput').value.trim()||user.name;
-      const a=document.getElementById('avatarInput').value.trim()||user.avatar;
-      user.name=n; user.avatar=a;
-      document.getElementById('displayName').textContent=n;
-      document.getElementById('avatar').src=a;
-      document.getElementById('editModal').classList.remove('show');
-      alert('Saved');
-    }
+    // No data-hydration here since you asked for placeholders.
+    // When you’re ready, you can set textContent for the IDs:
+    // document.getElementById('displayName').textContent = 'El Peace';
+    // document.getElementById('battlesCount').textContent  = '27';
+    // document.getElementById('followersCount').textContent = '12.8k';
+    // document.getElementById('followingCount').textContent = '341';
   </script>
 </body>
-                                     </html>
+</html>
