@@ -33,33 +33,31 @@
     .container{
       max-width:var(--max);
       margin:0 auto;
-      padding:18px 14px calc(100px + var(--safe-bottom));
+      padding:18px 14px calc(90px + var(--safe-bottom));
     }
 
     /* Row 1: avatar ▲ + name */
     .row-top{display:flex;align-items:center;gap:14px;min-height:92px}
     .tri-avatar{
       width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
-      clip-path:polygon(50% 0%,0% 100%,100% 100%); -webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
+      clip-path:polygon(50% 0%,0% 100%,100% 100%);
+      -webkit-clip-path:polygon(50% 0%,0% 100%,100% 100%);
       background:#111;
     }
-    .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.1)}
+    .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.08)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-    /* Row 2: ALL buttons (labels above icons) */
-    .icon-grid{
-      margin-top:16px;
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
-      gap:18px;
-    }
-    @media (max-width:420px){
-      .icon-grid{grid-template-columns:repeat(3,1fr);gap:14px}
-    }
+    /* Rows: strict grids so items sit SIDE-BY-SIDE */
+    .row-2, .row-3{display:grid;gap:16px;margin-top:16px;align-items:center;justify-items:center}
+    .row-2{grid-template-columns:repeat(3,1fr)}
+    .row-3{grid-template-columns:repeat(4,1fr)}
 
-    .icon-btn{
+    /* Icon buttons (white label ABOVE white icon) */
+    .icon-btn,
+    .icon-btn:link,
+    .icon-btn:visited{
       appearance:none;background:transparent;border:none;color:#fff;text-decoration:none;
-      display:flex;flex-direction:column-reverse; /* label ABOVE icon */
+      display:flex;flex-direction:column-reverse; /* label above icon */
       align-items:center;justify-content:center;gap:6px;
       cursor:pointer;user-select:none;outline:none;min-width:0;
     }
@@ -75,25 +73,33 @@
     .label{
       font-size:11px;line-height:1;font-weight:900;color:#fff;letter-spacing:.3px;
       max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+      text-transform:capitalize;
     }
     .count{
       font-size:11px;line-height:1;color:var(--ink-2);margin-top:4px;
       max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     }
 
-    /* Small tweaks for tight screens */
-    @media (max-width:360px){
+    /* Keep 3 + 4 items per row on small screens by shrinking sizes */
+    @media (max-width:480px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
-      .icwrap{width:38px;height:38px}
-      .label,.count{font-size:10px}
+      .icwrap{width:36px;height:36px}
       .icwrap svg{width:20px;height:20px}
+      .label,.count{font-size:10px}
+      .row-2{gap:12px}
+      .row-3{gap:12px}
+    }
+    @media (max-width:360px){
+      .icwrap{width:34px;height:34px}
+      .icwrap svg{width:19px;height:19px}
+      .label,.count{font-size:9.5px}
     }
   </style>
 </head>
 <body>
 
-  <!-- Inline white icon sprite (same style language as dashboard) -->
+  <!-- Inline white icon sprite -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <symbol id="ic-swords" viewBox="0 0 24 24">
@@ -108,7 +114,7 @@
         <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
       <symbol id="ic-following" viewBox="0 0 24 24">
-        <path d="M16 21v-2a4 4 0  0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-width="1.6" stroke-linecap="round"/>
         <circle cx="9" cy="7" r="4" stroke-width="1.6"/>
         <path d="M17 8h6M20 5v6" stroke-width="1.6" stroke-linecap="round"/>
       </symbol>
@@ -125,13 +131,13 @@
       </symbol>
       <symbol id="ic-cog" viewBox="0 0 24 24">
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke-width="1.6"/>
-        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7 1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0  0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
+        <path d="M19 12a7 7 0 0 0-.2-1.6l2-1.5-2-3.4-2.3 1a7.1 7.1 0 0 0-2.7 1.6L13.5 2h-3L9.2 4.9a7.1 7.1 0 0 0-2.7 1.6L4.2 5.5l-2 3.4 2 1.5A7 7 0 0 0 4 12a7 7 0 0 0 .2 1.6l-2 1.5 2 3.4 2.3-1a7.1 7.1 0 0 0 2.7 1.6L10.5 22h3l1.3-2.9a7.1 7.1 0 0 0 2.7-1.6l2.3 1 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z" stroke-width="1.2" fill="none"/>
       </symbol>
     </defs>
   </svg>
 
   <main class="container">
-    <!-- Row 1: avatar + name -->
+    <!-- Row 1 -->
     <section class="row-top">
       <div class="tri-avatar" aria-hidden="true">
         <img id="avatar" src="assets/img/user_me.jpg" alt="User avatar">
@@ -139,43 +145,39 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: ALL buttons (auto-wrap grid) -->
-    <section class="icon-grid" aria-label="Profile">
-      <!-- Metrics -->
+    <!-- Row 2: Battles • Followers • Following (side by side) -->
+    <section class="row-2" aria-label="Metrics">
       <a class="icon-btn" href="battles.html">
         <span class="label">Battles</span>
         <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
         <span class="count" id="battlesCount">27</span>
       </a>
-
       <a class="icon-btn" href="followers.html">
         <span class="label">Followers</span>
         <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
         <span class="count" id="followersCount">12.8k</span>
       </a>
-
       <a class="icon-btn" href="following.html">
         <span class="label">Following</span>
         <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
         <span class="count" id="followingCount">341</span>
       </a>
+    </section>
 
-      <!-- Actions -->
+    <!-- Row 3: Rank • Wallet • Edit • Settings (side by side) -->
+    <section class="row-3" aria-label="Actions">
       <a class="icon-btn" href="rank.html">
         <span class="label">Rank</span>
         <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
       </a>
-
       <a class="icon-btn" href="wallet.html">
         <span class="label">Wallet</span>
         <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
       </a>
-
       <a class="icon-btn" href="edit.html">
         <span class="label">Edit</span>
         <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
       </a>
-
       <a class="icon-btn" href="settings.html">
         <span class="label">Settings</span>
         <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
@@ -184,4 +186,4 @@
   </main>
 
 </body>
-  </html>
+          </html>
