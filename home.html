@@ -33,7 +33,7 @@
     }
     .container{max-width:980px;margin:0 auto;padding:18px 14px 90px}
 
-    /* Row 1: avatar ▲ + name */
+    /* Row 1: avatar ▲ + name (single line) */
     .row-top{display:flex;align-items:center;gap:14px;min-height:88px;white-space:nowrap;overflow:hidden}
     .tri-avatar{
       width:92px;height:92px;position:relative;overflow:hidden;flex:0 0 auto;
@@ -43,28 +43,26 @@
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis}
 
-    /* Row 2: cooler pills across (sub pages) */
-    .metrics-row{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;
+    /* Row 2: mini tab-style buttons (like bottom dashboard tabs) */
+    .mini-tabs{
+      margin-top:12px;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
     }
-    .metric-pill{
-      display:flex;align-items:center;justify-content:center;gap:10px;
-      padding:12px 10px;border-radius:14px;background:var(--pill);
-      border:1px solid var(--stroke); cursor:pointer; user-select:none;
-      transition:transform .18s ease, background .18s ease, border-color .18s ease;
-      color:inherit;
+    .mini-tab{
+      background:transparent;border:none;color:#fff;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+      padding:10px 8px;border-radius:14px;transition:transform .18s, background .18s, border-color .18s;
+      border:1px solid var(--stroke);
     }
-    .metric-pill:hover{transform:translateY(-1px);background:var(--pill-hover);border-color:rgba(255,255,255,.16)}
-    .metric-pill:focus-visible{outline:none;box-shadow:var(--ring)}
-    .metric-icon{display:grid;place-items:center}
-    .metric-icon svg{width:18px;height:18px;stroke:#fff;fill:none;opacity:.95}
-    .metric-text{display:flex;flex-direction:column;line-height:1}
-    .metric-count{font-weight:900;font-size:17px}
-    .metric-label{font-size:11px;color:var(--ink-2);letter-spacing:.3px}
+    .mini-tab:hover{transform:translateY(-1px);background:var(--pill-hover);border-color:rgba(255,255,255,.16)}
+    .mini-tab:focus-visible{outline:none;box-shadow:var(--ring)}
+    .mini-tab svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.95}
+    .mini-tab .label{font-size:11px;color:var(--ink-2);letter-spacing:.3px;line-height:1}
+    .mini-tab .count{font-weight:900;font-size:14px;line-height:1}
 
     .divider{height:1px;background:var(--stroke);margin:14px 0}
 
-    /* Sub page sheets */
+    /* Sub page sheets (modal overlays) */
     .modal{
       position:fixed;inset:0;display:none;z-index:2000;
       background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
@@ -110,14 +108,13 @@
     @media (max-width:420px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
-      .metric-count{font-size:16px}
-      .sheet{border-radius:14px}
+      .mini-tab svg{width:20px;height:20px}
     }
   </style>
 </head>
 <body>
 
-  <!-- inline icons -->
+  <!-- inline icons (white, like dashboard tabs) -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <!-- Battles (crossed swords) -->
@@ -152,36 +149,30 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: sub pages -->
-    <section class="metrics-row" aria-label="Profile metrics">
-      <button class="metric-pill" data-open="battlesSheet" aria-haspopup="dialog">
-        <span class="metric-icon"><svg><use href="#ic-swords"/></svg></span>
-        <span class="metric-text">
-          <span class="metric-count" id="battlesCount">27</span>
-          <span class="metric-label">Battles</span>
-        </span>
+    <!-- Row 2: mini tab-style buttons that open sub pages -->
+    <section class="mini-tabs" aria-label="Profile actions">
+      <button class="mini-tab" data-open="battlesSheet" aria-haspopup="dialog">
+        <svg><use href="#ic-swords"/></svg>
+        <span class="count" id="battlesCount">27</span>
+        <span class="label">Battles</span>
       </button>
 
-      <button class="metric-pill" data-open="followersSheet" aria-haspopup="dialog">
-        <span class="metric-icon"><svg><use href="#ic-users"/></svg></span>
-        <span class="metric-text">
-          <span class="metric-count" id="followersCount">12.8k</span>
-          <span class="metric-label">Followers</span>
-        </span>
+      <button class="mini-tab" data-open="followersSheet" aria-haspopup="dialog">
+        <svg><use href="#ic-users"/></svg>
+        <span class="count" id="followersCount">12.8k</span>
+        <span class="label">Followers</span>
       </button>
 
-      <button class="metric-pill" data-open="followingSheet" aria-haspopup="dialog">
-        <span class="metric-icon"><svg><use href="#ic-following"/></svg></span>
-        <span class="metric-text">
-          <span class="metric-count" id="followingCount">341</span>
-          <span class="metric-label">Following</span>
-        </span>
+      <button class="mini-tab" data-open="followingSheet" aria-haspopup="dialog">
+        <svg><use href="#ic-following"/></svg>
+        <span class="count" id="followingCount">341</span>
+        <span class="label">Following</span>
       </button>
     </section>
 
     <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- (We’ll add your small icon buttons row next if you like) -->
+    <!-- You can continue the page below this divider if needed -->
   </main>
 
   <!-- SUB PAGE: Battles -->
@@ -193,7 +184,7 @@
       </div>
       <div class="sheet-body">
         <div class="list">
-          <!-- sample items -->
+          <!-- sample items (replace with real data) -->
           <div class="list-item">
             <div class="list-ava"><img src="assets/opponents/op1.jpg" alt=""></div>
             <div class="list-line">
@@ -208,7 +199,7 @@
               <div class="list-sub">Lost • 4 days ago • 3 rounds</div>
             </div>
           </div>
-          <!-- add real items or load dynamically -->
+          <!-- add more -->
         </div>
       </div>
     </div>
@@ -237,7 +228,7 @@
               <div class="list-sub">INSTRUMENTS • Follows you</div>
             </div>
           </div>
-          <!-- add real items -->
+          <!-- add more -->
         </div>
       </div>
     </div>
@@ -266,24 +257,22 @@
               <div class="list-sub">DEBAT • You follow</div>
             </div>
           </div>
-          <!-- add real items -->
+          <!-- add more -->
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Open/close sub pages
+    // Open/close in-place sub pages
     document.addEventListener('click',(e)=>{
       const open = e.target.closest('[data-open]');
       if(open){
-        const id = open.dataset.open;
-        document.getElementById(id)?.classList.add('show');
+        document.getElementById(open.dataset.open)?.classList.add('show');
       }
       const close = e.target.closest('[data-close]');
       if(close){
-        const id = close.dataset.close;
-        document.getElementById(id)?.classList.remove('show');
+        document.getElementById(close.dataset.close)?.classList.remove('show');
       }
       // Click outside sheet to close
       if(e.target.classList.contains('modal')) e.target.classList.remove('show');
