@@ -22,6 +22,7 @@
       --soft:rgba(255,255,255,.10);
       --ring:0 0 0 3px rgba(255,255,255,.18);
       --max:980px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -30,7 +31,13 @@
       font-family:'Virgo',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
       -webkit-font-smoothing:antialiased;letter-spacing:.2px;
     }
-    .container{max-width:var(--max);margin:0 auto;padding:18px 14px 90px}
+
+    /* Page container (extra bottom padding so it won't collide with bottom tab on mobile) */
+    .container{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:18px 14px calc(100px + var(--safe-bottom));
+    }
 
     /* Row 1: avatar ▲ + name (side-by-side) */
     .row-top{
@@ -45,28 +52,41 @@
     .tri-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.1)}
     .display-name{font-weight:900;font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-    /* Row 2 & 3: small icon buttons (no boxes) */
+    /* Rows of small icon buttons: white label ABOVE white icon */
     .icon-row{
-      display:grid;gap:18px;margin-top:16px;grid-template-columns:repeat(3,1fr);
+      display:grid;gap:18px;margin-top:16px;
+      grid-template-columns:repeat(3,1fr);
     }
     .icon-row.actions{grid-template-columns:repeat(4,1fr)}
     .icon-btn{
       appearance:none;background:transparent;border:none;color:#fff;text-decoration:none;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+      display:flex;flex-direction:column-reverse; /* puts label ABOVE icon */
+      align-items:center;justify-content:center;gap:6px;
       cursor:pointer;user-select:none;outline:none;
+      min-width:0; /* prevent overflow on very small screens */
     }
     .icon-btn:focus-visible{box-shadow:var(--ring);border-radius:12px}
     .icon-btn:hover .icwrap{transform:translateY(-1px) scale(1.03);filter:brightness(1.06)}
+
     .icwrap{
       width:40px;height:40px;display:grid;place-items:center;border-radius:12px;
       background:transparent;transition:transform .18s ease, filter .18s ease;
     }
     .icwrap svg{width:22px;height:22px;stroke:#fff;fill:none;opacity:.96}
-    .count{font-size:12px;font-weight:900;line-height:1}
-    .label{font-size:10px;color:var(--ink-2);letter-spacing:.3px;line-height:1;text-transform:capitalize}
+
+    .label{
+      font-size:11px;line-height:1;font-weight:900;
+      color:#fff;letter-spacing:.3px;text-transform:capitalize;
+      max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .count{
+      font-size:11px;line-height:1;color:var(--ink-2);margin-top:4px;
+      max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
 
     .divider{height:1px;background:var(--soft);margin:18px 0}
 
+    /* Mobile tweaks */
     @media (max-width:520px){
       .tri-avatar{width:78px;height:78px}
       .display-name{font-size:20px}
@@ -74,11 +94,17 @@
       .icwrap{width:38px;height:38px}
       .icon-row.actions{grid-template-columns:repeat(4,1fr)}
     }
+    @media (max-width:360px){
+      .icon-row{grid-template-columns:repeat(3,1fr)}
+      .icon-row.actions{grid-template-columns:repeat(4,1fr)}
+      .label,.count{font-size:10px}
+      .icwrap svg{width:20px;height:20px}
+    }
   </style>
 </head>
 <body>
 
-  <!-- Inline white icon sprite -->
+  <!-- Inline white icon sprite (same style as dashboard) -->
   <svg width="0" height="0" style="position:absolute;opacity:0;">
     <defs>
       <symbol id="ic-swords" viewBox="0 0 24 24">
@@ -124,51 +150,50 @@
       <div class="display-name" id="displayName">El Peace</div>
     </section>
 
-    <!-- Row 2: metrics -->
+    <!-- Row 2: metrics (white label over icon) -->
     <section class="icon-row" aria-label="Profile metrics">
       <a class="icon-btn" href="battles.html">
+        <span class="label">Battles</span>
         <span class="icwrap"><svg><use href="#ic-swords"/></svg></span>
         <span class="count" id="battlesCount">27</span>
-        <span class="label">Battles</span>
       </a>
       <a class="icon-btn" href="followers.html">
+        <span class="label">Followers</span>
         <span class="icwrap"><svg><use href="#ic-users"/></svg></span>
         <span class="count" id="followersCount">12.8k</span>
-        <span class="label">Followers</span>
       </a>
       <a class="icon-btn" href="following.html">
+        <span class="label">Following</span>
         <span class="icwrap"><svg><use href="#ic-following"/></svg></span>
         <span class="count" id="followingCount">341</span>
-        <span class="label">Following</span>
       </a>
     </section>
 
     <div class="divider" role="separator" aria-hidden="true"></div>
 
-    <!-- Row 3: actions -->
+    <!-- Row 3: actions (white label over icon) -->
     <section class="icon-row actions" aria-label="Profile actions">
       <a class="icon-btn" href="rank.html">
-        <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
         <span class="label">Rank</span>
+        <span class="icwrap"><svg><use href="#ic-medal"/></svg></span>
       </a>
       <a class="icon-btn" href="wallet.html">
-        <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
         <span class="label">Wallet</span>
+        <span class="icwrap"><svg><use href="#ic-wallet"/></svg></span>
       </a>
       <a class="icon-btn" href="edit.html">
-        <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
         <span class="label">Edit</span>
+        <span class="icwrap"><svg><use href="#ic-edit"/></svg></span>
       </a>
       <a class="icon-btn" href="settings.html">
-        <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
         <span class="label">Settings</span>
+        <span class="icwrap"><svg><use href="#ic-cog"/></svg></span>
       </a>
     </section>
   </main>
 
-  <!-- Optional: hydrate from JS later
+  <!-- Optional: hydrate with JS later
   <script>
-    // Example dynamic updates
     // document.getElementById('displayName').textContent = 'Your Name';
     // document.getElementById('avatar').src = 'assets/img/your_avatar.jpg';
     // document.getElementById('battlesCount').textContent = '42';
@@ -177,4 +202,4 @@
   </script>
   -->
 </body>
-    </html>
+  </html>
