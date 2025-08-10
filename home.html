@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Home Header (Inline Iframe Loader)</title>
+<title>Home Header (Smart Inline Loader)</title>
 </head>
 <body style="margin:0;background:#000;color:#e9edf1;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
 
-  <!-- SUPER-ROBUST RANK BUTTON (unchanged look) -->
+  <!-- RANK (unchanged look) -->
   <a id="rankLink" href="rank.html" aria-label="Open Rank"
      style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 20px);right:max(12px, env(safe-area-inset-right));
             width:56px;height:56px;border-radius:50%;display:grid;place-items:center;text-decoration:none;cursor:pointer;
@@ -22,24 +22,23 @@
     </span>
   </a>
 
-  <!-- Followers / Following (same look, now load inline) -->
+  <!-- Followers / Following (unchanged look, clickable) -->
   <div style="position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 82px);right:max(12px, env(safe-area-inset-right));
               display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;color:#cfd6dd;letter-spacing:.3px;
               z-index:2147483646;gap:6px;">
     <a href="followers.html" class="follow-btn" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd" aria-hidden="true"><path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd"><path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>
       <span>120</span>
     </a>
     <a href="following.html" class="follow-btn" style="display:flex;align-items:center;gap:5px;text-decoration:none;color:inherit;background:#111;padding:4px 6px;border-radius:8px;">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd" aria-hidden="true"><path d="M18 8h-3V5a1 1 0 10-2 0v3H10a1 1 0 100 2h3v3a1 1 0 102 0v-3h3a1 1 0 100-2z"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="#cfd6dd"><path d="M18 8h-3V5a1 1 0 10-2 0v3H10a1 1 0 100 2h3v3a1 1 0 102 0v-3h3a1 1 0 100-2z"/></svg>
       <span>98</span>
     </a>
   </div>
 
-  <!-- Minimal profile header (avatar unchanged) -->
+  <!-- Profile header (avatar unchanged) -->
   <div style="padding:18px 16px 8px;">
     <div style="display:flex;align-items:center;gap:12px;min-height:88px;">
-      <!-- Triangle avatar -->
       <div style="width:88px;height:88px;position:relative;overflow:hidden;flex:0 0 auto;
                   clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
                   -webkit-clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
@@ -66,15 +65,13 @@
     <button class="btn" data-page="settings.html" style="flex:0 0 auto;padding:8px 14px;border-radius:12px;color:#0a0a0a;background:#e9edf1;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.35);">Settings</button>
   </div>
 
-  <!-- Inline content mount: iframe keeps styles/scripts intact -->
+  <!-- Content host -->
   <div style="padding:10px 16px;">
     <div id="frameShell" style="border:1px solid #1c1c1c;border-radius:12px;background:#0c0c0c;overflow:hidden;">
       <div id="frameLoader" style="padding:12px;color:#9aa1a8;border-bottom:1px solid #1c1c1c;display:none;">Loading…</div>
-      <iframe id="pageFrame"
-              title="Inline Page"
+      <iframe id="pageFrame" title="Inline Page"
               src="about:blank"
               style="display:block;width:100%;height:70vh;border:0;background:#0c0c0c;"
-              referrerpolicy="no-referrer-when-downgrade"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals">
       </iframe>
     </div>
@@ -87,69 +84,118 @@
     ::-webkit-scrollbar-track { background:transparent; }
     .btn { cursor:pointer; transition: transform .16s ease, box-shadow .16s ease; }
     .btn:active { transform: translateY(1px) scale(.98); }
+    .err { color:#ff6b6b;background:#170b0b;border:1px solid #3a0f0f;padding:10px;border-radius:8px;margin:10px 16px; }
   </style>
 
   <script>
     (function(){
-      const frame = document.getElementById('pageFrame');
-      const loader = document.getElementById('frameLoader');
+      const frame   = document.getElementById('pageFrame');
+      const loader  = document.getElementById('frameLoader');
+
+      // --- robust base path detection (works at /, /repo/, /subdir/) ---
+      const basePath = (function () {
+        // If we're at .../index.html, strip filename; else keep trailing slash
+        const path = location.pathname.replace(/[^/]+$/, '');
+        return location.origin + path; // e.g., https://user.github.io/repo/
+      })();
 
       function showLoader(show){ loader.style.display = show ? 'block' : 'none'; }
 
-      function setFrame(src){
+      // Try multiple URL candidates: lowercase, Capitalized, /pages/
+      function resolveCandidates(input){
+        // if the dev passed 'battle.html', keep it; if just 'battle', add .html
+        const bare = input.replace(/^\//,'');
+        const name = bare.endsWith('.html') ? bare.slice(0, -5) : bare;
+
+        const lc  = name.toLowerCase() + '.html';
+        const cap = name.charAt(0).toUpperCase() + name.slice(1) + '.html';
+
+        return [
+          basePath + lc,
+          basePath + cap,
+          basePath + 'pages/' + lc,
+          basePath + 'pages/' + cap
+        ];
+      }
+
+      async function tryFetch(url){
+        // Append cache-buster to avoid stale 404s on GH Pages/Vercel
+        const u = new URL(url);
+        u.searchParams.set('_t', Date.now());
+        return new Promise((resolve) => {
+          // use iframe load test rather than fetch to avoid mixed origins/csp
+          const onLoad = () => resolve({ ok:true, url:u.toString() });
+          const onErr  = () => resolve({ ok:false, url:u.toString() });
+
+          const tester = document.createElement('iframe');
+          tester.style.display = 'none';
+          tester.sandbox = frame.sandbox; // same capabilities
+          tester.src = u.toString();
+
+          tester.addEventListener('load', () => {
+            // Heuristic: if the doc title is GitHub 404 page, treat as fail
+            try {
+              const doc = tester.contentDocument;
+              const text = (doc && doc.body && doc.body.innerText || '').slice(0,200).toLowerCase();
+              if ((doc.title || '').toLowerCase().includes('404') || text.includes('not found')) {
+                tester.remove(); onErr();
+              } else { tester.remove(); onLoad(); }
+            } catch(e){ tester.remove(); onLoad(); } // cross-origin → assume ok
+          });
+          tester.addEventListener('error', () => { tester.remove(); onErr(); });
+
+          document.body.appendChild(tester);
+        });
+      }
+
+      async function setFrameSmart(input){
         showLoader(true);
-        frame.src = src;
-      }
-
-      // Auto-resize iframe when same-origin; fall back to fixed height otherwise
-      function tryResize(){
-        try {
-          const doc = frame.contentDocument || frame.contentWindow.document;
-          const h = Math.max(
-            doc.documentElement.scrollHeight,
-            doc.body ? doc.body.scrollHeight : 0,
-            560 // minimum sensible height
-          );
-          frame.style.height = h + 'px';
-        } catch(e){
-          // Cross-origin: keep a comfortable viewport height
-          frame.style.height = '85vh';
+        const candidates = resolveCandidates(input);
+        for (const url of candidates){
+          const res = await tryFetch(url);
+          if (res.ok){
+            frame.src = res.url;
+            showLoader(false);
+            return;
+          }
         }
+        // If all failed, show a helpful message
+        showLoader(false);
+        const msg = document.createElement('div');
+        msg.className = 'err';
+        msg.innerHTML = `
+          Couldn’t find <b>${input}</b>.<br/>
+          Tried:<br/>${candidates.map(c => `<div>- ${c}</div>`).join('')}
+          <div style="margin-top:6px;color:#9aa1a8">Tip: ensure the file exists and matches the exact case (e.g., <code>Battle.html</code> vs <code>battle.html</code>) or place it under <code>/pages/</code>.</div>
+        `;
+        document.getElementById('frameShell').after(msg);
       }
 
-      frame.addEventListener('load', () => {
-        showLoader(false);
-        tryResize();
-        // In case content loads async, attempt a delayed resize
-        setTimeout(tryResize, 150);
-        setTimeout(tryResize, 400);
-      });
-
-      // Wire top scroll buttons
+      // Buttons under scroll
       document.querySelectorAll('#scrollRow .btn').forEach(btn=>{
-        btn.addEventListener('click', () => setFrame(btn.getAttribute('data-page')));
+        btn.addEventListener('click', () => setFrameSmart(btn.getAttribute('data-page')));
       });
 
-      // Intercept Followers/Following to load inline
+      // Followers/Following inline
       document.querySelectorAll('.follow-btn').forEach(a=>{
         a.addEventListener('click', (e)=>{
           e.preventDefault();
-          setFrame(a.getAttribute('href'));
+          setFrameSmart(a.getAttribute('href'));
         });
       });
 
-      // Intercept Rank badge to load inline
+      // Rank inline
       document.getElementById('rankLink').addEventListener('click', (e)=>{
         e.preventDefault();
-        setFrame('rank.html');
+        setFrameSmart('rank.html');
       });
 
-      // Default page
-      setFrame('battle.html');
+      // Default
+      setFrameSmart('battle.html');
     })();
   </script>
 
-  <!-- Keyframes inline (safe/no visual shift) -->
+  <!-- keep keyframes at end -->
   <style>
     @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
   </style>
