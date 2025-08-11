@@ -1,101 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BattleBillions — 3illions (Baseline)</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>3illions — Safe Debug Build</title>
 <style>
   :root{
-    --bg:#000; --ink:#f2f4f7; --ink2:#c7cdd6; --ink3:#8f96a2;
+    --bg:#000; --ink:#f2f4f7; --ink2:#c9cfd8; --ink3:#9aa3ad;
     --card:#121418; --b1:rgba(255,255,255,.12);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;margin:0}
   body{background:var(--bg);color:var(--ink);font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;overflow:hidden}
 
-  .hud{position:fixed;left:0;right:0;top:0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:env(safe-area-inset-top) 12px 0 12px;z-index:20;background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,0))}
-  .pill{border:1px solid var(--b1);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--ink2);letter-spacing:.08em;text-transform:uppercase}
+  /* Header (always visible) */
+  .hud{
+    position:fixed; left:0; right:0; top:0; height:60px; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:env(safe-area-inset-top) 12px 0 12px;
+    background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,0));
+  }
+  .pill{border:1px solid var(--b1); padding:6px 10px; border-radius:999px; font-size:12px; color:var(--ink2); letter-spacing:.08em; text-transform:uppercase}
 
-  .grid{position:relative;height:100vh;width:100vw;overflow-y:auto;scroll-snap-type:y mandatory;scroll-snap-stop:always;padding-top:60px;touch-action:none}
-  .row{height:calc(100vh - 60px);scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;padding:10px}
-  .row-title{font-size:12px;color:var(--ink3);letter-spacing:.12em}
-  .slides{flex:1;display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-snap-stop:always;-webkit-overflow-scrolling:touch}
+  /* Grid: native scroll first (works even if JS dies) */
+  .grid{
+    position:relative; height:100vh; width:100vw;
+    overflow-y:auto; scroll-snap-type:y mandatory; scroll-snap-stop:always;
+    padding-top:60px; /* space for HUD */
+    background:var(--bg);
+  }
+  .row{
+    height:calc(100vh - 60px);
+    scroll-snap-align:start;
+    display:flex; flex-direction:column; gap:12px;
+    padding:10px;
+  }
+  .row-title{font-size:12px; color:var(--ink3); letter-spacing:.12em}
 
-  .slide{flex:0 0 100vw;height:100%;border:1px solid var(--b1);border-radius:16px;overflow:hidden;background:var(--card);display:grid;grid-template-columns:1fr 1fr;position:relative}
-  .pane{display:flex;align-items:center;justify-content:center;color:#a4abb6;font-size:16px;letter-spacing:.08em}
-  .shade0{background:#0e1115}.shade1{background:#101318}.shade2{background:#13161b}.shade3{background:#151920}.shade4{background:#171c23}.shade5{background:#1a1f27}
+  .slides{
+    flex:1; display:flex; gap:12px;
+    overflow-x:auto; scroll-snap-type:x mandatory; scroll-snap-stop:always;
+    -webkit-overflow-scrolling:touch;
+  }
+  .slide{
+    flex:0 0 100vw; height:100%;
+    border:1px solid var(--b1); border-radius:16px; overflow:hidden;
+    background:var(--card);
+    display:grid; grid-template-columns:1fr 1fr;
+  }
+  .pane{
+    display:flex; align-items:center; justify-content:center;
+    color:#a9b0ba; font-size:16px; letter-spacing:.08em;
+  }
+  .shade0{background:#0f1115} .shade1{background:#111318}
+  .shade2{background:#13161b} .shade3{background:#151a20}
+  .shade4{background:#171c23} .shade5{background:#192029}
 
-  /* error banner if anything goes wrong */
-  .err{position:fixed;inset:auto 10px 10px 10px;background:#1a1f27;color:#fff;border:1px solid #444;border-radius:10px;padding:10px;font-size:12px;z-index:99}
+  /* Debug banner (shows details if JS errors) */
+  #debug{
+    position:fixed; left:10px; right:10px; bottom:10px; z-index:50;
+    display:none; background:#192029; color:#fff;
+    border:1px solid #3a404a; border-radius:10px; padding:10px; font-size:12px; line-height:1.3;
+    white-space:pre-wrap;
+  }
 </style>
 </head>
 <body>
+  <!-- HUD -->
   <header class="hud">
-    <div class="pill" id="rowLabel">ROW 1</div>
+    <div class="pill" id="rowPill">ALL</div>
     <div class="pill">3illions</div>
-    <div class="pill" id="colLabel">COL 1</div>
+    <div class="pill" id="colPill">1 / 1</div>
   </header>
 
-  <main class="grid" id="grid"></main>
+  <!-- GRID: static content so you ALWAYS see something -->
+  <main class="grid" id="grid">
+    <!-- ROW 1: ALL -->
+    <section class="row" data-category="ALL">
+      <div class="row-title">ALL</div>
+      <div class="slides">
+        <div class="slide">
+          <div class="pane shade0">USER 1</div>
+          <div class="pane shade1">USER 2</div>
+        </div>
+        <div class="slide">
+          <div class="pane shade2">NOVA</div>
+          <div class="pane shade3">VEX</div>
+        </div>
+        <div class="slide">
+          <div class="pane shade4">RAZE</div>
+          <div class="pane shade5">MYTH</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 2: ART -->
+    <section class="row" data-category="ART">
+      <div class="row-title">ART</div>
+      <div class="slides">
+        <div class="slide">
+          <div class="pane shade1">BRUSH</div>
+          <div class="pane shade2">CANVAS</div>
+        </div>
+        <div class="slide">
+          <div class="pane shade3">INK</div>
+          <div class="pane shade4">MUSE</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 3: RAP BATTLE -->
+    <section class="row" data-category="RAP BATTLE">
+      <div class="row-title">RAP BATTLE</div>
+      <div class="slides">
+        <div class="slide">
+          <div class="pane shade2">FLAME</div>
+          <div class="pane shade3">LYRIC</div>
+        </div>
+        <div class="slide">
+          <div class="pane shade4">CIPHER</div>
+          <div class="pane shade5">8-BAR</div>
+        </div>
+        <div class="slide">
+          <div class="pane shade0">HOOK</div>
+          <div class="pane shade1">METRE</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="debug"></div>
 
 <script>
+/* ===========================================================
+   JS FOUNDATION — runs AFTER static HTML is visible
+   - If anything breaks, you still see rows/slides and can scroll.
+   - Any error prints into the #debug banner instead of blanking the page.
+   =========================================================== */
 (function(){
-  'use strict';
-
-  // -------- Safe error surface so you never get a silent black screen
-  function showError(msg){
-    const b = document.createElement('div');
-    b.className = 'err';
-    b.textContent = 'Error: ' + msg;
-    document.body.appendChild(b);
+  const debugEl = document.getElementById('debug');
+  function debug(msg){
+    debugEl.style.display='block';
+    debugEl.textContent = String(msg);
   }
-  window.addEventListener('error', (e)=> showError(e.message || 'Script error'));
+  window.addEventListener('error', e => debug('JS Error: ' + (e.message||'unknown')));
+  window.addEventListener('unhandledrejection', e => debug('Promise Rejection: ' + (e.reason||'unknown')));
 
-  // -------- Data (placeholders so you always see content)
-  const FEED = [
-    { category:'ALL', slides:  ['USER 1 | USER 2', 'NOVA | VEX', 'RAZE | MYTH'] },
-    { category:'ART', slides:  ['BRUSH | CANVAS', 'INK | MUSE'] },
-    { category:'FASHION', slides:['STYLE | THREAD', 'RUNWAY | TAILOR'] },
-    { category:'RAP BATTLE', slides:['FLAME | LYRIC', 'CIPHER | 8-BAR', 'HOOK | METRE'] },
-  ];
-
-  // -------- Build
   const grid = document.getElementById('grid');
-  const rowLabel = document.getElementById('rowLabel');
-  const colLabel = document.getElementById('colLabel');
-
-  function h(tag, attrs, kids){
-    const n = document.createElement(tag);
-    if (attrs) for (const k in attrs) {
-      if (k === 'class') n.className = attrs[k];
-      else if (k === 'dataset') for (const dk in attrs.dataset) n.dataset[dk] = attrs.dataset[dk];
-      else if (k === 'text') n.textContent = attrs[k];
-      else n.setAttribute(k, attrs[k]);
-    }
-    if (kids) kids.forEach(k => n.appendChild(k));
-    return n;
-  }
-
-  function buildSlide(label, i){
-    const s = h('div', {class:'slide'});
-    const left  = h('div', {class:'pane shade'+(i%6), text: label.split('|')[0].trim()});
-    const right = h('div', {class:'pane shade'+((i+1)%6), text: label.split('|')[1]?.trim() || 'VS'});
-    s.appendChild(left); s.appendChild(right);
-    return s;
-  }
-
-  FEED.forEach(row => {
-    const sec = h('section', {class:'row', dataset:{category:row.category}});
-    sec.appendChild(h('div', {class:'row-title', text: row.category}));
-    const strip = h('div', {class:'slides'});
-    row.slides.forEach((lbl, i) => strip.appendChild(buildSlide(lbl, i)));
-    sec.appendChild(strip);
-    grid.appendChild(sec);
-  });
-
-  // -------- State helpers
-  let rows = Array.from(document.querySelectorAll('.row'));
-  let wraps = rows.map(r => r.querySelector('.slides'));
+  const rows = Array.from(grid.querySelectorAll('.row'));
+  const wraps = rows.map(r => r.querySelector('.slides'));
+  const rowPill = document.getElementById('rowPill');
+  const colPill = document.getElementById('colPill');
 
   function vh(){ return grid.clientHeight; }
   function vw(){ return grid.clientWidth; }
@@ -106,99 +161,84 @@
     return Math.round(w.scrollLeft / vw());
   }
   function syncHUD(){
-    const r = rows[vIndex()];
-    rowLabel.textContent = r ? r.dataset.category : 'ROW ?';
-    colLabel.textContent = 'COL ' + (hIndex()+1);
+    const sec = rows[vIndex()];
+    const cat = sec ? (sec.dataset.category || 'ROW') : 'ROW';
+    const w = activeWrap();
+    const cols = w ? Math.max(1, Math.round((w.scrollWidth + 1) / vw())) : 1;
+    rowPill.textContent = cat;
+    colPill.textContent = `${hIndex()+1} / ${cols}`;
   }
-  grid.addEventListener('scroll', syncHUD, {passive:true});
-  wraps.forEach(w => w.addEventListener('scroll', syncHUD, {passive:true}));
-  window.addEventListener('resize', syncHUD);
   syncHUD();
+  grid.addEventListener('scroll', ()=>syncHUD(), {passive:true});
+  wraps.forEach(w=>w.addEventListener('scroll', ()=>syncHUD(), {passive:true}));
+  window.addEventListener('resize', syncHUD);
 
-  // -------- Wheel/trackpad (desktop & some Android tablets)
+  /* ---- Wheel / trackpad (does nothing on most phones; harmless) ---- */
   grid.addEventListener('wheel', (e)=>{
     const w = activeWrap();
-    if (Math.abs(e.deltaX) > 0 || e.shiftKey) {
-      w.scrollLeft += (e.deltaX || e.deltaY);
-      e.preventDefault();
-    }
-    if (Math.abs(e.deltaY) > 0) {
-      grid.scrollTop += e.deltaY;
-      e.preventDefault();
-    }
+    if (Math.abs(e.deltaX)>0 || e.shiftKey){ w.scrollLeft += (e.deltaX || e.deltaY); e.preventDefault(); }
+    if (Math.abs(e.deltaY)>0){ grid.scrollTop += e.deltaY; e.preventDefault(); }
   }, {passive:false});
 
-  // -------- Oblique drag (mobile-first). Does NOT block native scroll.
-  const drag = { active:false, pid:null, x:0, y:0, vx:0, vy:0, raf:0, friction:0.92, stop:0.12 };
+  /* ---- Oblique assist (diagonal drag) without blocking native scrolling ---- */
   const hasPE = 'onpointerdown' in window;
+  const drag = {on:false,id:null,x:0,y:0,vx:0,vy:0,raf:0,friction:0.92,stop:0.12};
 
-  function step(dx, dy){
-    grid.scrollTop -= dy * 0.5;         // assist vertical
-    activeWrap().scrollLeft -= dx * 0.5; // assist horizontal
+  function step(dx,dy){
+    // assist both axes (half-strength so it feels natural)
+    grid.scrollTop -= dy*0.5;
+    activeWrap().scrollLeft -= dx*0.5;
     syncHUD();
   }
   function snap(){
     const w = activeWrap();
     const vTarget = Math.round(grid.scrollTop / vh()) * vh();
     const hTarget = Math.round(w.scrollLeft / vw()) * vw();
-    grid.scrollTo({ top:vTarget, behavior:'smooth' });
-    w.scrollTo({ left:hTarget, behavior:'smooth' });
+    grid.scrollTo({top:vTarget, behavior:'smooth'});
+    w.scrollTo({left:hTarget, behavior:'smooth'});
   }
   function momentum(){
     cancelAnimationFrame(drag.raf);
     drag.raf = requestAnimationFrame(()=>{
       drag.vx *= drag.friction;
       drag.vy *= drag.friction;
-      if (Math.abs(drag.vx) < drag.stop && Math.abs(drag.vy) < drag.stop) { snap(); return; }
+      if (Math.abs(drag.vx)<drag.stop && Math.abs(drag.vy)<drag.stop){ snap(); return; }
       step(drag.vx, drag.vy);
       momentum();
     });
   }
 
-  function begin(x,y,pid){ drag.active=true; drag.pid=pid; drag.x=x; drag.y=y; drag.vx=0; drag.vy=0; }
+  function begin(x,y,id){ drag.on=true; drag.id=id; drag.x=x; drag.y=y; drag.vx=drag.vy=0; }
   function move(x,y){
-    if (!drag.active) return;
-    const dx = x - drag.x, dy = y - drag.y;
-    step(dx, dy);
+    if (!drag.on) return;
+    const dx = x-drag.x, dy=y-drag.y;
+    step(dx,dy);
     drag.vx = drag.vx*0.8 + dx*0.2;
     drag.vy = drag.vy*0.8 + dy*0.2;
-    drag.x = x; drag.y = y;
+    drag.x=x; drag.y=y;
   }
-  function end(){ if(!drag.active) return; drag.active=false; momentum(); }
+  function end(){ if(!drag.on) return; drag.on=false; momentum(); }
 
   if (hasPE){
-    grid.addEventListener('pointerdown', (e)=>{
-      if (e.target.closest('button,a')) return;
-      begin(e.clientX, e.clientY, e.pointerId);
-    }, {passive:true});
-
-    grid.addEventListener('pointermove', (e)=>{
-      if (!drag.active || drag.pid !== e.pointerId) return;
-      move(e.clientX, e.clientY);
-    }, {passive:true});
-
-    const finish = (e)=>{ if (drag.pid === e.pointerId) end(); };
-    grid.addEventListener('pointerup', finish, {passive:true});
-    grid.addEventListener('pointercancel', finish, {passive:true});
+    grid.addEventListener('pointerdown', e=>{ if(e.target.closest('button,a')) return; begin(e.clientX,e.clientY,e.pointerId); }, {passive:true});
+    grid.addEventListener('pointermove', e=>{ if(!drag.on || drag.id!==e.pointerId) return; move(e.clientX,e.clientY); }, {passive:true});
+    const off = e=>{ if(drag.id===e.pointerId) end(); };
+    grid.addEventListener('pointerup', off, {passive:true});
+    grid.addEventListener('pointercancel', off, {passive:true});
   } else {
-    grid.addEventListener('touchstart', (e)=>{
-      if (e.target.closest('button,a')) return;
-      const t = e.touches[0]; begin(t.clientX, t.clientY, 0);
-    }, {passive:true});
-    grid.addEventListener('touchmove', (e)=>{
-      const t = e.touches[0]; move(t.clientX, t.clientY);
-    }, {passive:true});
+    // Older iOS fallback
+    grid.addEventListener('touchstart', e=>{ if(e.target.closest('button,a')) return; const t=e.touches[0]; begin(t.clientX,t.clientY,0); }, {passive:true});
+    grid.addEventListener('touchmove', e=>{ const t=e.touches[0]; move(t.clientX,t.clientY); }, {passive:true});
     grid.addEventListener('touchend', end, {passive:true});
     grid.addEventListener('touchcancel', end, {passive:true});
   }
 
-  // Debounced snap when user stops native scrolling
+  // Debounced snap when native scrolling stops
   let snapTO;
-  function debSnap(){ clearTimeout(snapTO); snapTO = setTimeout(snap, 160); }
-  grid.addEventListener('scroll', debSnap, {passive:true});
-  wraps.forEach(w => w.addEventListener('scroll', debSnap, {passive:true}));
-
+  function deb(){ clearTimeout(snapTO); snapTO=setTimeout(snap, 160); }
+  grid.addEventListener('scroll', deb, {passive:true});
+  wraps.forEach(w=>w.addEventListener('scroll', deb, {passive:true}));
 })();
 </script>
 </body>
-</html>
+  </html>
