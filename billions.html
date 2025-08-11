@@ -6,236 +6,417 @@
   <title>BattleBillions — 3illions Feed (Mono)</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    /* =====================
-       BattleBillions Mono UI
-       ===================== */
-    :root {
-      --bb-bg-0: #000;
-      --bb-bg-1: #0b0c0f;
-      --bb-card: #111317;
-      --bb-line: #1c1f24;
-      --bb-ink: #eef1f5;
-      --bb-ink-2: #c9d0d7;
-      --bb-ink-3: #9aa3ad;
-      --bb-pill: rgba(255,255,255,0.04);
-      --bb-pill-border: rgba(255,255,255,0.12);
-      --bb-focus: 0 0 0 3px rgba(255,255,255,0.12);
-      --bb-shadow: 0 8px 30px rgba(0,0,0,.6);
-      --bb-white-08: rgba(255,255,255,.08);
-      --bb-white-12: rgba(255,255,255,.12);
-      --bb-white-16: rgba(255,255,255,.16);
-      --bb-white-24: rgba(255,255,255,.24);
+    :root{
+      --bb-bg-0:#000; --bb-bg-1:#0b0c0f; --bb-card:#111317; --bb-line:#1c1f24;
+      --bb-ink:#eef1f5; --bb-ink-2:#c9d0d7; --bb-ink-3:#9aa3ad;
+      --bb-pill:rgba(255,255,255,.04); --bb-pill-border:rgba(255,255,255,.12);
+      --bb-shadow:0 8px 30px rgba(0,0,0,.6);
+      --bb-white-12:rgba(255,255,255,.12); --bb-white-16:rgba(255,255,255,.16);
     }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: radial-gradient(1200px 1200px at 50% -10%, #15171c 0%, var(--bb-bg-0) 55%);
-      color: var(--bb-ink);
-      font-family: 'Orbitron', system-ui, sans-serif;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; background:radial-gradient(1200px 1200px at 50% -10%,#15171c 0%,var(--bb-bg-0) 55%);
+      color:var(--bb-ink); font-family:'Orbitron',system-ui,sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent;
     }
-    /* Grain overlay */
-    .grain {
-      position: fixed; inset: 0; pointer-events: none; opacity: .12;
-      mix-blend-mode: overlay;
-      background-image: url('data:image/svg+xml;utf8,\
+
+    /* subtle grain */
+    .grain{position:fixed; inset:0; pointer-events:none; opacity:.12; mix-blend-mode:overlay;
+      background-image:url('data:image/svg+xml;utf8,\
       <svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">\
-      <filter id="n">\
-      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2"/>\
-      <feColorMatrix type="saturate" values="0"/>\
-      </filter>\
-      <rect width="100%" height="100%" filter="url(%23n)" opacity=".35"/>\
-      </svg>');
-      animation: drift 24s linear infinite;
-    }
-    @keyframes drift { from { transform: translate3d(0,0,0) } to { transform: translate3d(-220px,-220px,0) } }
+        <filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter>\
+        <rect width="100%" height="100%" filter="url(%23n)" opacity=".35"/>\
+      </svg>'); animation:drift 24s linear infinite}
+    @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-220px,-220px,0)}}
+
     /* HUD */
-    .hud {
-      position: fixed; inset: 0 0 auto 0; height: 76px; display: grid;
-      grid-template-columns: 76px 1fr 76px; align-items: center; z-index: 30;
-      pointer-events: none;
+    .hud{position:fixed; inset:0 0 auto 0; height:76px; display:grid; grid-template-columns:76px 1fr 76px; align-items:center; z-index:30; pointer-events:none}
+    .slot{display:flex; align-items:center; justify-content:center; gap:12px; pointer-events:auto}
+    .icon-btn{width:42px; height:42px; display:grid; place-items:center; border-radius:999px; border:1px solid var(--bb-pill-border); background:var(--bb-pill); box-shadow:var(--bb-shadow); cursor:pointer; transition:transform .12s ease}
+    .icon-btn:hover{transform:translateY(-1px)}
+    .pill{border:1px solid var(--bb-pill-border); background:var(--bb-pill); color:var(--bb-ink-2); padding:8px 14px; border-radius:999px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; box-shadow:var(--bb-shadow)}
+    .round{display:flex; align-items:center; gap:10px}
+    .round .label{font-size:13px; color:var(--bb-ink-2); letter-spacing:.08em; text-transform:uppercase}
+    .timer{position:relative; width:46px; height:46px; display:grid; place-items:center}
+    .timer svg{transform:rotate(-90deg); filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
+    .timer .tspan{position:absolute; font-size:12px; color:var(--bb-ink)}
+
+    /* rails */
+    .rail{position:fixed; top:50%; transform:translateY(-50%); display:grid; gap:12px; z-index:25}
+    .rail.left{left:10px} .rail.right{right:10px}
+
+    /* containers */
+    .vertical{
+      height:100vh; width:100vw; overflow-y:auto; scroll-snap-type:y mandatory; scroll-snap-stop:always;
+      /* custom pan on both axes */
+      touch-action:none; overscroll-behavior:contain;
     }
-    .hud .slot { display: flex; align-items: center; justify-content: center; gap: 12px; pointer-events: auto; }
-    .icon-btn {
-      width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px;
-      border: 1px solid var(--bb-pill-border); background: var(--bb-pill);
-      box-shadow: var(--bb-shadow); cursor: pointer; transition: transform .12s ease, background .2s ease;
+    .vertical::-webkit-scrollbar{width:8px} .vertical::-webkit-scrollbar-thumb{background:var(--bb-white-12); border-radius:8px}
+
+    .hwrap{
+      display:flex; width:100vw; height:100vh; scroll-snap-align:start; overflow-x:auto; scroll-snap-type:x mandatory; scroll-snap-stop:always;
+      -webkit-overflow-scrolling:touch;
     }
-    .icon-btn:hover { transform: translateY(-1px); }
-    .icon-btn:active { transform: translateY(0); }
-    .pill {
-      border: 1px solid var(--bb-pill-border); background: var(--bb-pill); color: var(--bb-ink-2);
-      padding: 8px 14px; border-radius: 999px; font-size: 13px; letter-spacing:.08em;
-      text-transform: uppercase; box-shadow: var(--bb-shadow);
+    .hwrap::-webkit-scrollbar{height:8px} .hwrap::-webkit-scrollbar-thumb{background:var(--bb-white-12); border-radius:8px}
+
+    .arena{flex:0 0 100%; height:100%; position:relative; display:flex; flex-direction:column}
+    .content{flex:1; display:flex; height:100%}
+
+    .pane{flex:1; position:relative; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; isolation:isolate}
+    video{width:100%; height:100%; object-fit:cover; background:#000}
+    .vignette{position:absolute; inset:0; background:radial-gradient(80% 100% at 50% 50%, transparent 40%, rgba(0,0,0,.55) 100%); z-index:1}
+
+    .cinfo{position:absolute; top:68px; display:flex; align-items:center; gap:10px; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); padding:8px 14px; border-radius:999px; z-index:3; border:1px solid var(--bb-white-12); box-shadow:var(--bb-shadow)}
+    .pane.left .cinfo{left:14px} .pane.right .cinfo{right:14px}
+    .cinfo img{width:32px; height:32px; border-radius:50%; outline:2px solid rgba(255,255,255,.18)}
+    .handle{font-size:14px; color:var(--bb-ink)}
+
+    .vote{position:absolute; bottom:130px; padding:10px 18px; border-radius:999px; background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); border:1px solid var(--bb-white-16); color:var(--bb-ink); cursor:pointer; font-size:14px; z-index:3; backdrop-filter:blur(6px); box-shadow:var(--bb-shadow); transition:transform .12s ease}
+    .pane.left .vote{left:14px} .pane.right .vote{right:14px}
+    .vote:active{transform:translateY(1px) scale(.98)}
+
+    .aud{position:absolute; bottom:82px; left:0; right:0; text-align:center; font-size:12px; color:var(--bb-ink-3); z-index:2}
+    .a-avatars{display:inline-flex; gap:6px; margin-top:6px; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.35); border:1px solid var(--bb-white-12); backdrop-filter:blur(4px)}
+    .a-avatars img{width:26px; height:26px; border-radius:50%}
+
+    .chat-hint{position:fixed; bottom:12px; left:50%; transform:translateX(-50%); color:var(--bb-ink-3); font-size:12px; z-index:6; opacity:.75}
+
+    .ripple{position:absolute; border-radius:50%; transform:scale(0); background:rgba(255,255,255,.25); animation:ripple .6s ease-out forwards; pointer-events:none}
+    @keyframes ripple{to{transform:scale(10); opacity:0}}
+
+    @media (prefers-reduced-motion:reduce){
+      .grain{display:none}
+      .vertical,.hwrap{scroll-behavior:auto}
     }
-    /* Round + Timer ring */
-    .round { display: flex; align-items: center; gap: 10px; }
-    .round .label { font-size: 13px; color: var(--bb-ink-2); letter-spacing: .08em; text-transform: uppercase; }
-    .timer { position: relative; width: 46px; height: 46px; display: grid; place-items: center; }
-    .timer svg { transform: rotate(-90deg); filter: drop-shadow(0 2px 8px rgba(0,0,0,.5)); }
-    .timer .tspan { position: absolute; font-size: 12px; color: var(--bb-ink); }
-    /* Side rails */
-    .rail { position: fixed; top: 50%; transform: translateY(-50%); display: grid; gap: 12px; z-index: 25; }
-    .rail.left { left: 10px; }
-    .rail.right { right: 10px; }
-    /* Containers */
-    .vertical {
-      height: 100vh; width: 100vw; overflow-y: auto; scroll-snap-type: y mandatory;
-      touch-action: none; overscroll-behavior: contain;
+    @media (max-width:768px){
+      .handle{font-size:12px}
+      .vote{font-size:12px; padding:8px 12px}
     }
-    .hwrap { display: flex; width: 100vw; height: 100vh; scroll-snap-align: start; overflow-x: auto; scroll-snap-type: x mandatory; }
-    .arena { flex: 0 0 100%; height: 100%; display: flex; flex-direction: column; }
-    .content { flex: 1; display: flex; height: 100%; }
-    /* Video panes */
-    .pane { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; isolation: isolate; }
-    video { width: 100%; height: 100%; object-fit: cover; background: #000; }
-    .vignette { position: absolute; inset: 0; background: radial-gradient(80% 100% at 50% 50%, transparent 40%, rgba(0,0,0,.55) 100%); z-index: 1; }
-    .cinfo {
-      position: absolute; top: 68px; display: flex; align-items: center; gap: 10px;
-      background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
-      padding: 8px 14px; border-radius: 999px; z-index: 3;
-      border: 1px solid var(--bb-white-12); box-shadow: var(--bb-shadow);
-    }
-    .pane.left .cinfo { left: 14px; }
-    .pane.right .cinfo { right: 14px; }
-    .cinfo img { width: 32px; height: 32px; border-radius: 50%; outline: 2px solid rgba(255,255,255,.18); }
-    .handle { font-size: 14px; color: var(--bb-ink); }
-    .vote {
-      position: absolute; bottom: 130px; padding: 10px 18px; border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-      border: 1px solid var(--bb-white-16); color: var(--bb-ink); cursor: pointer;
-      font-size: 14px; z-index: 3; backdrop-filter: blur(6px); box-shadow: var(--bb-shadow);
-      transition: transform .12s ease;
-    }
-    .pane.left .vote { left: 14px; }
-    .pane.right .vote { right: 14px; }
-    .vote:active { transform: translateY(1px) scale(.98); }
-    .aud { position: absolute; bottom: 82px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--bb-ink-3); z-index: 2; }
-    .a-avatars { display: inline-flex; gap: 6px; margin-top: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,.35); border: 1px solid var(--bb-white-12); backdrop-filter: blur(4px); }
-    .a-avatars img { width: 26px; height: 26px; border-radius: 50%; }
-    .chat-hint { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); color: var(--bb-ink-3); font-size: 12px; z-index: 6; opacity: .75; }
-    .ripple { position: absolute; border-radius: 50%; transform: scale(0); background: rgba(255,255,255,.25); animation: ripple .6s ease-out forwards; pointer-events: none; }
-    @keyframes ripple { to { transform: scale(10); opacity: 0; } }
   </style>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
+
   <!-- HUD -->
-  <div class="hud">
+  <div class="hud" role="toolbar" aria-label="Top controls">
     <div class="slot">
-      <button class="icon-btn" id="btnSearch" title="Search">🔍</button>
+      <button class="icon-btn" id="btnSearch" title="Search" aria-label="Search">🔍</button>
       <span class="pill" id="categoryPill">ALL</span>
     </div>
     <div class="slot" style="justify-content:center; gap:16px">
       <div class="round">
         <span class="label" id="roundLabel">Round 1</span>
-        <div class="timer">
+        <div class="timer" aria-live="polite">
           <svg width="46" height="46" viewBox="0 0 40 40">
             <circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,.15)" stroke-width="3" fill="none"/>
-            <circle id="timerArc" cx="20" cy="20" r="18" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle id="timerArc" cx="20" cy="20" r="18" stroke="#fff" stroke-opacity=".9" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="113.097" stroke-dashoffset="0"/>
           </svg>
           <span class="tspan" id="timerText">60</span>
         </div>
       </div>
     </div>
     <div class="slot" style="justify-content:flex-end">
-      <button class="icon-btn" id="btnSettings" title="Settings">⚙️</button>
+      <button class="icon-btn" id="btnSettings" title="Settings" aria-label="Settings">⚙️</button>
     </div>
   </div>
+
   <!-- Side Rails -->
-  <div class="rail left">
-    <button class="icon-btn">👤</button>
-    <button class="icon-btn">📺</button>
-    <button class="icon-btn">🏆</button>
+  <div class="rail left" aria-label="Left navigation">
+    <button class="icon-btn" title="Profile" aria-label="Profile">👤</button>
+    <button class="icon-btn" title="Watch" aria-label="Watch">📺</button>
+    <button class="icon-btn" title="Rankings" aria-label="Rankings">🏆</button>
   </div>
-  <div class="rail right">
-    <button class="icon-btn">🏠</button>
-    <button class="icon-btn">💬</button>
-    <button class="icon-btn">⚙️</button>
+  <div class="rail right" aria-label="Right navigation">
+    <button class="icon-btn" title="Home" aria-label="Home">🏠</button>
+    <button class="icon-btn" title="Messages" aria-label="Messages">💬</button>
+    <button class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
   </div>
-  <!-- Content -->
-  <div class="vertical" id="vCont">
+
+  <!-- FEED -->
+  <div class="vertical" id="vCont" aria-label="Categories">
+
+    <!-- ========== ALL (3 slides so horizontal works) ========== -->
     <div class="hwrap" data-category="ALL">
+      <!-- slide 1 -->
       <div class="arena">
         <div class="content">
-          <div class="pane left"><video autoplay muted loop src="user1.mp4"></video><div class="vignette"></div><div class="cinfo"><img src="user1.jpg"><span class="handle">@Alpha</span></div><button class="vote">Vote</button><div class="aud">Live Audience: ● 239<div class="a-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div></div>
-          <div class="pane right"><video autoplay muted loop src="user2.mp4"></video><div class="vignette"></div><div class="cinfo"><img src="user2.jpg"><span class="handle">@Omega</span></div><button class="vote">Vote</button><div class="aud">Live Audience: ● 221<div class="a-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div></div>
+          <div class="pane left">
+            <video autoplay muted loop src="user1.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="user1.jpg" alt=""><span class="handle">@Alpha</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 239
+              <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div>
+            </div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="user2.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="user2.jpg" alt=""><span class="handle">@Omega</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 221
+              <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- slide 2 -->
+      <div class="arena">
+        <div class="content">
+          <div class="pane left">
+            <video autoplay muted loop src="all2-left.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="all2-left.jpg" alt=""><span class="handle">@Nova</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 198
+              <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div>
+            </div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="all2-right.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="all2-right.jpg" alt=""><span class="handle">@Vex</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 204
+              <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- slide 3 -->
+      <div class="arena">
+        <div class="content">
+          <div class="pane left">
+            <video autoplay muted loop src="all3-left.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="all3-left.jpg" alt=""><span class="handle">@Raze</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 176
+              <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div>
+            </div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="all3-right.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="all3-right.jpg" alt=""><span class="handle">@Myth</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 182
+              <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <!-- Additional categories here... -->
+
+    <!-- ========== ART (2 slides) ========== -->
+    <div class="hwrap" data-category="ART">
+      <div class="arena">
+        <div class="content">
+          <div class="pane left">
+            <video autoplay muted loop src="art1.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="art1.jpg" alt=""><span class="handle">@BrushKing</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 97 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="art2.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="art2.jpg" alt=""><span class="handle">@CanvasQueen</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 105 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="arena">
+        <div class="content">
+          <div class="pane left">
+            <video autoplay muted loop src="art3.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="art3.jpg" alt=""><span class="handle">@InkSoul</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 112 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="art4.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="art4.jpg" alt=""><span class="handle">@NeoMuse</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 109 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== FASHION (1 slide) ========== -->
+    <div class="hwrap" data-category="FASHION">
+      <div class="arena">
+        <div class="content">
+          <div class="pane left">
+            <video autoplay muted loop src="fashion1.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="fashion1.jpg" alt=""><span class="handle">@StyleIcon</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 155 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="fashion2.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="fashion2.jpg" alt=""><span class="handle">@ThreadQueen</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 144 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== RAP BATTLE (2 slides) ========== -->
+    <div class="hwrap" data-category="RAP BATTLE">
+      <div class="arena">
+        <div class="content">
+          <div class="pane left">
+            <video autoplay muted loop src="rap1.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="rap1.jpg" alt=""><span class="handle">@MicFlame</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 312 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="rap2.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="rap2.jpg" alt=""><span class="handle">@LyricBeast</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 333 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="arena">
+        <div class="content">
+          <div class="pane left">
+            <video autoplay muted loop src="rap3.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="rap3.jpg" alt=""><span class="handle">@Cipher</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 301 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
+          </div>
+          <div class="pane right">
+            <video autoplay muted loop src="rap4.mp4"></video>
+            <div class="vignette"></div>
+            <div class="cinfo"><img src="rap4.jpg" alt=""><span class="handle">@EightBar</span></div>
+            <button class="vote">Vote</button>
+            <div class="aud">Live Audience: ● 289 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div class="chat-hint">💬 Chat coming soon…</div>
+
+  <div class="chat-hint" aria-hidden="true">💬 Chat coming soon…</div>
+
   <script>
-    const vCont = document.getElementById('vCont');
-    const wraps = [...document.querySelectorAll('.hwrap')];
-    const categoryPill = document.getElementById('categoryPill');
+    // Timer ring
     const roundLabel = document.getElementById('roundLabel');
     const tArc = document.getElementById('timerArc');
     const tText = document.getElementById('timerText');
     const CIRC = 2 * Math.PI * 18;
     tArc.setAttribute('stroke-dasharray', CIRC.toFixed(3));
-    let round = 1; let timeLeft = 60; const maxRounds = 3; let ticking = null;
-    function setTimerUI() {
+    let round = 1, timeLeft = 60, maxRounds = 3, ticking = null;
+    function setTimerUI(){
       roundLabel.textContent = `Round ${round}`;
       tText.textContent = String(timeLeft);
       const ratio = timeLeft / 60;
       tArc.setAttribute('stroke-dashoffset', ((1 - ratio) * CIRC).toFixed(3));
     }
-    function startTimer() {
-      if (ticking) clearInterval(ticking);
-      setTimerUI();
-      ticking = setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft--; setTimerUI();
-        } else {
+    function startTimer(){
+      clearInterval(ticking); setTimerUI();
+      ticking = setInterval(()=>{
+        if(timeLeft>0){ timeLeft--; setTimerUI(); }
+        else{
           clearInterval(ticking);
-          if (round < maxRounds) {
-            round++; tText.textContent = '⏸';
-            setTimeout(() => { timeLeft = 60; startTimer(); }, 6000);
-          } else { tText.textContent = '0'; roundLabel.textContent = 'Battle Over'; }
+          if(round<maxRounds){ round++; tText.textContent='⏸'; setTimeout(()=>{ timeLeft=60; startTimer(); }, 6000); }
+          else{ tText.textContent='0'; roundLabel.textContent='Battle Over'; }
         }
-      }, 1000);
+      },1000);
     }
     startTimer();
-    function syncCategory() {
-      const vh = window.innerHeight;
-      const idx = Math.round(vCont.scrollTop / vh);
+
+    // Category pill
+    const vCont = document.getElementById('vCont');
+    const wraps = Array.from(document.querySelectorAll('.hwrap'));
+    const categoryPill = document.getElementById('categoryPill');
+    function syncCategory(){
+      const idx = Math.round(vCont.scrollTop / window.innerHeight);
       categoryPill.textContent = wraps[idx]?.dataset.category || 'ALL';
     }
-    vCont.addEventListener('scroll', syncCategory);
-    // Oblique drag scroll
-    let drag = { active:false, lastX:0, lastY:0, wrap:null };
-    function getActiveWrap() {
-      const idx = Math.round(vCont.scrollTop / innerHeight);
+    vCont.addEventListener('scroll', syncCategory, {passive:true});
+    window.addEventListener('resize', syncCategory);
+    syncCategory();
+
+    // Hide rails briefly while scrolling horizontally
+    const rails = document.querySelectorAll('.rail');
+    let hideTO;
+    function hideRails(){ rails.forEach(r=>r.style.opacity=.35); clearTimeout(hideTO); hideTO=setTimeout(()=>rails.forEach(r=>r.style.opacity=1), 800); }
+    wraps.forEach(w=>w.addEventListener('scroll', hideRails, {passive:true}));
+    vCont.addEventListener('scroll', hideRails, {passive:true});
+
+    // Vote ripple
+    document.querySelectorAll('.vote').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const r=document.createElement('span'); r.className='ripple';
+        const rect=btn.getBoundingClientRect(), size=Math.max(rect.width,rect.height);
+        r.style.width=r.style.height=size+'px';
+        r.style.left=(e.clientX-rect.left-size/2)+'px';
+        r.style.top=(e.clientY-rect.top-size/2)+'px';
+        btn.appendChild(r); setTimeout(()=>r.remove(),650);
+      });
+    });
+
+    // ---------- Oblique drag (diagonal + native snapping) ----------
+    let drag = {active:false, lastX:0, lastY:0, wrap:null};
+
+    function getActiveWrap(){
+      const idx = Math.round(vCont.scrollTop / window.innerHeight);
       return wraps[idx] || wraps[0];
     }
-    window.addEventListener('pointerdown', (e) => {
-      drag.active = true; drag.lastX = e.clientX; drag.lastY = e.clientY;
-      drag.wrap = getActiveWrap();
-      if (e.target.setPointerCapture) e.target.setPointerCapture(e.pointerId);
-    });
-    window.addEventListener('pointermove', (e) => {
-      if (!drag.active) return;
-      vCont.scrollTop -= (e.clientY - drag.lastY);
-      if (drag.wrap) drag.wrap.scrollLeft -= (e.clientX - drag.lastX);
+
+    vCont.addEventListener('pointerdown', (e)=>{
+      // let taps on buttons/links behave normally
+      if (e.target.closest('button, a')) return;
+      drag.active = true;
       drag.lastX = e.clientX; drag.lastY = e.clientY;
+      drag.wrap = getActiveWrap();
+      try { e.target.setPointerCapture(e.pointerId); } catch(_){}
     });
-    function snapAfterDrag() {
-      const vTarget = Math.round(vCont.scrollTop / innerHeight) * innerHeight;
-      vCont.scrollTo({ top: vTarget, behavior: 'smooth' });
+
+    vCont.addEventListener('pointermove', (e)=>{
+      if(!drag.active) return;
+      // invert movement (drag vs scroll)
+      const dx = e.clientX - drag.lastX;
+      const dy = e.clientY - drag.lastY;
+      vCont.scrollTop -= dy;
+      if (drag.wrap) drag.wrap.scrollLeft -= dx;
+      drag.lastX = e.clientX; drag.lastY = e.clientY;
+      e.preventDefault(); // allow smooth custom pan on mobile
+    }, {passive:false});
+
+    function snapAfterDrag(){
+      // snap vertical
+      const vTarget = Math.round(vCont.scrollTop / window.innerHeight) * window.innerHeight;
+      vCont.scrollTo({top:vTarget, behavior:'smooth'});
+      // snap horizontal of active row
       const w = getActiveWrap();
-      const hTarget = Math.round(w.scrollLeft / innerWidth) * innerWidth;
-      w.scrollTo({ left: hTarget, behavior: 'smooth' });
+      const hTarget = Math.round(w.scrollLeft / window.innerWidth) * window.innerWidth;
+      w.scrollTo({left:hTarget, behavior:'smooth'});
       syncCategory();
     }
-    ['pointerup','pointercancel','pointerleave'].forEach(ev => window.addEventListener(ev, () => {
-      if (!drag.active) return;
-      drag.active = false; snapAfterDrag();
-    }));
+    ['pointerup','pointercancel','pointerleave'].forEach(ev=>{
+      vCont.addEventListener(ev, ()=>{
+        if(!drag.active) return;
+        drag.active=false; snapAfterDrag();
+      });
+    });
   </script>
 </body>
-      </html>
+</html>
