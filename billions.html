@@ -1,21 +1,22 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions — Swipe Arena (Mono)</title>
+  <title>BattleBillions — 3illions Feed (Mono)</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
     /* =====================
        BattleBillions Mono UI
        ===================== */
     :root {
-      --bb-bg-0: #000;             /* page */
-      --bb-bg-1: #0b0c0f;          /* panels */
-      --bb-card: #111317;          /* cards */
-      --bb-line: #1c1f24;          /* borders */
-      --bb-ink: #eef1f5;           /* primary text */
-      --bb-ink-2: #c9d0d7;         /* secondary text */
-      --bb-ink-3: #9aa3ad;         /* tertiary */
+      --bb-bg-0: #000;
+      --bb-bg-1: #0b0c0f;
+      --bb-card: #111317;
+      --bb-line: #1c1f24;
+      --bb-ink: #eef1f5;
+      --bb-ink-2: #c9d0d7;
+      --bb-ink-3: #9aa3ad;
       --bb-pill: rgba(255,255,255,0.04);
       --bb-pill-border: rgba(255,255,255,0.12);
       --bb-focus: 0 0 0 3px rgba(255,255,255,0.12);
@@ -24,269 +25,166 @@
       --bb-white-12: rgba(255,255,255,.12);
       --bb-white-16: rgba(255,255,255,.16);
       --bb-white-24: rgba(255,255,255,.24);
-    }* { box-sizing: border-box; }
-html, body { height: 100%; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: radial-gradient(1200px 1200px at 50% -10%, #15171c 0%, var(--bb-bg-0) 55%);
-  color: var(--bb-ink);
-  font-family: 'Orbitron', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Subtle animated grain for depth (perf-friendly) */
-.grain { position: fixed; inset: 0; pointer-events: none; opacity: .12; mix-blend-mode: overlay; background-image: url('data:image/svg+xml;utf8,\
-  <svg xmlns=\'http://www.w3.org/2000/svg\' width=\'220\' height=\'220\'>\
-    <filter id=\'n\'>\
-      <feTurbulence type=\'fractalNoise\' baseFrequency=\'.85\' numOctaves=\'2\'/><feColorMatrix type=\'saturate\' values=\'0\'/>\
-    </filter>\
-    <rect width=\'100%\' height=\'100%\' filter=\'url(%23n)\' opacity=\'.35\'/>\
-  </svg>'); animation: drift 24s linear infinite; }
-@keyframes drift { from { transform: translate3d(0,0,0) } to { transform: translate3d(-220px,-220px,0) } }
-
-/* HUD */
-.hud {
-  position: fixed; inset: 0 0 auto 0; height: 76px; display: grid;
-  grid-template-columns: 76px 1fr 76px; align-items: center; z-index: 30;
-  pointer-events: none;
-}
-.hud .slot { display: flex; align-items: center; justify-content: center; gap: 12px; pointer-events: auto; }
-
-.icon-btn { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px; border: 1px solid var(--bb-pill-border); background: var(--bb-pill); box-shadow: var(--bb-shadow); cursor: pointer; transition: transform .12s ease, background .2s ease; }
-.icon-btn:hover { transform: translateY(-1px); }
-.icon-btn:active { transform: translateY(0); }
-
-.pill { border: 1px solid var(--bb-pill-border); background: var(--bb-pill); color: var(--bb-ink-2); padding: 8px 14px; border-radius: 999px; font-size: 13px; letter-spacing:.08em; text-transform: uppercase; box-shadow: var(--bb-shadow); }
-
-/* Center HUD = Round + Timer ring */
-.round { display: flex; align-items: center; gap: 10px; }
-.round .label { font-size: 13px; color: var(--bb-ink-2); letter-spacing: .08em; text-transform: uppercase; }
-.timer {
-  position: relative; width: 46px; height: 46px; display: grid; place-items: center;
-}
-.timer svg { transform: rotate(-90deg); filter: drop-shadow(0 2px 8px rgba(0,0,0,.5)); }
-.timer .tspan { position: absolute; font-size: 12px; color: var(--bb-ink); }
-
-/* Side rails */
-.rail { position: fixed; top: 50%; transform: translateY(-50%); display: grid; gap: 12px; z-index: 25; }
-.rail.left { left: 10px; }
-.rail.right { right: 10px; }
-
-/* Containers */
-.vertical { height: 100vh; width: 100vw; overflow-y: auto; scroll-snap-type: y mandatory; scroll-padding-top: 0; }
-.vertical::-webkit-scrollbar { width: 8px; }
-.vertical::-webkit-scrollbar-thumb { background: var(--bb-white-12); border-radius: 8px; }
-
-.hwrap { display: flex; width: 100vw; height: 100vh; scroll-snap-align: start; overflow-x: auto; scroll-snap-type: x mandatory; }
-.hwrap::-webkit-scrollbar { height: 8px; }
-.hwrap::-webkit-scrollbar-thumb { background: var(--bb-white-12); border-radius: 8px; }
-
-.arena { flex: 0 0 100%; height: 100%; position: relative; display: flex; flex-direction: column; }
-.content { flex: 1; display: flex; height: 100%; }
-
-/* Two up video panes */
-.pane { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; isolation: isolate; }
-
-video { width: 100%; height: 100%; object-fit: cover; background: #000; }
-.vignette { position: absolute; inset: 0; background: radial-gradient(80% 100% at 50% 50%, transparent 40%, rgba(0,0,0,.55) 100%); z-index: 1; pointer-events: none; }
-
-.cinfo { position: absolute; top: 68px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); padding: 8px 14px; border-radius: 999px; z-index: 3; border: 1px solid var(--bb-white-12); box-shadow: var(--bb-shadow); }
-.pane.left .cinfo { left: 14px; }
-.pane.right .cinfo { right: 14px; }
-.cinfo img { width: 32px; height: 32px; border-radius: 50%; outline: 2px solid rgba(255,255,255,.18); }
-.cinfo .handle { font-size: 14px; color: var(--bb-ink); }
-
-.vote { position: absolute; bottom: 130px; padding: 10px 18px; border-radius: 999px; background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)); border: 1px solid var(--bb-white-16); color: var(--bb-ink); cursor: pointer; font-size: 14px; z-index: 3; backdrop-filter: blur(6px); box-shadow: var(--bb-shadow); transition: transform .12s ease; }
-.vote:active { transform: translateY(1px) scale(.98); }
-.pane.left .vote { left: 14px; }
-.pane.right .vote { right: 14px; }
-
-.aud { position: absolute; bottom: 82px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--bb-ink-3); z-index: 2; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
-.a-avatars { display: inline-flex; justify-content: center; gap: 6px; margin-top: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,.35); border: 1px solid var(--bb-white-12); backdrop-filter: blur(4px); }
-.a-avatars img { width: 26px; height: 26px; border-radius: 50%; }
-
-.chat-hint { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); color: var(--bb-ink-3); font-size: 12px; z-index: 6; opacity: .75; }
-
-/* Micro-interactions */
-.ripple { position: absolute; border-radius: 50%; transform: scale(0); background: rgba(255,255,255,.25); animation: ripple .6s ease-out forwards; pointer-events: none; }
-@keyframes ripple { to { transform: scale(10); opacity: 0; } }
-
-/* Accessibility: motion */
-@media (prefers-reduced-motion: reduce) {
-  .grain { display: none; }
-  .icon-btn, .vote { transition: none; }
-  .vertical, .hwrap { scroll-behavior: auto; }
-}
-
-/* Responsive tweaks */
-@media (max-width: 768px) {
-  .cinfo .handle { font-size: 12px; }
-  .vote { font-size: 12px; padding: 8px 12px; }
-}
-
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 1200px at 50% -10%, #15171c 0%, var(--bb-bg-0) 55%);
+      color: var(--bb-ink);
+      font-family: 'Orbitron', system-ui, sans-serif;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Grain overlay */
+    .grain {
+      position: fixed; inset: 0; pointer-events: none; opacity: .12;
+      mix-blend-mode: overlay;
+      background-image: url('data:image/svg+xml;utf8,\
+      <svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">\
+      <filter id="n">\
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2"/>\
+      <feColorMatrix type="saturate" values="0"/>\
+      </filter>\
+      <rect width="100%" height="100%" filter="url(%23n)" opacity=".35"/>\
+      </svg>');
+      animation: drift 24s linear infinite;
+    }
+    @keyframes drift { from { transform: translate3d(0,0,0) } to { transform: translate3d(-220px,-220px,0) } }
+    /* HUD */
+    .hud {
+      position: fixed; inset: 0 0 auto 0; height: 76px; display: grid;
+      grid-template-columns: 76px 1fr 76px; align-items: center; z-index: 30;
+      pointer-events: none;
+    }
+    .hud .slot { display: flex; align-items: center; justify-content: center; gap: 12px; pointer-events: auto; }
+    .icon-btn {
+      width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px;
+      border: 1px solid var(--bb-pill-border); background: var(--bb-pill);
+      box-shadow: var(--bb-shadow); cursor: pointer; transition: transform .12s ease, background .2s ease;
+    }
+    .icon-btn:hover { transform: translateY(-1px); }
+    .icon-btn:active { transform: translateY(0); }
+    .pill {
+      border: 1px solid var(--bb-pill-border); background: var(--bb-pill); color: var(--bb-ink-2);
+      padding: 8px 14px; border-radius: 999px; font-size: 13px; letter-spacing:.08em;
+      text-transform: uppercase; box-shadow: var(--bb-shadow);
+    }
+    /* Round + Timer ring */
+    .round { display: flex; align-items: center; gap: 10px; }
+    .round .label { font-size: 13px; color: var(--bb-ink-2); letter-spacing: .08em; text-transform: uppercase; }
+    .timer { position: relative; width: 46px; height: 46px; display: grid; place-items: center; }
+    .timer svg { transform: rotate(-90deg); filter: drop-shadow(0 2px 8px rgba(0,0,0,.5)); }
+    .timer .tspan { position: absolute; font-size: 12px; color: var(--bb-ink); }
+    /* Side rails */
+    .rail { position: fixed; top: 50%; transform: translateY(-50%); display: grid; gap: 12px; z-index: 25; }
+    .rail.left { left: 10px; }
+    .rail.right { right: 10px; }
+    /* Containers */
+    .vertical {
+      height: 100vh; width: 100vw; overflow-y: auto; scroll-snap-type: y mandatory;
+      touch-action: none; overscroll-behavior: contain;
+    }
+    .hwrap { display: flex; width: 100vw; height: 100vh; scroll-snap-align: start; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .arena { flex: 0 0 100%; height: 100%; display: flex; flex-direction: column; }
+    .content { flex: 1; display: flex; height: 100%; }
+    /* Video panes */
+    .pane { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; isolation: isolate; }
+    video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+    .vignette { position: absolute; inset: 0; background: radial-gradient(80% 100% at 50% 50%, transparent 40%, rgba(0,0,0,.55) 100%); z-index: 1; }
+    .cinfo {
+      position: absolute; top: 68px; display: flex; align-items: center; gap: 10px;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
+      padding: 8px 14px; border-radius: 999px; z-index: 3;
+      border: 1px solid var(--bb-white-12); box-shadow: var(--bb-shadow);
+    }
+    .pane.left .cinfo { left: 14px; }
+    .pane.right .cinfo { right: 14px; }
+    .cinfo img { width: 32px; height: 32px; border-radius: 50%; outline: 2px solid rgba(255,255,255,.18); }
+    .handle { font-size: 14px; color: var(--bb-ink); }
+    .vote {
+      position: absolute; bottom: 130px; padding: 10px 18px; border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border: 1px solid var(--bb-white-16); color: var(--bb-ink); cursor: pointer;
+      font-size: 14px; z-index: 3; backdrop-filter: blur(6px); box-shadow: var(--bb-shadow);
+      transition: transform .12s ease;
+    }
+    .pane.left .vote { left: 14px; }
+    .pane.right .vote { right: 14px; }
+    .vote:active { transform: translateY(1px) scale(.98); }
+    .aud { position: absolute; bottom: 82px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--bb-ink-3); z-index: 2; }
+    .a-avatars { display: inline-flex; gap: 6px; margin-top: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,.35); border: 1px solid var(--bb-white-12); backdrop-filter: blur(4px); }
+    .a-avatars img { width: 26px; height: 26px; border-radius: 50%; }
+    .chat-hint { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); color: var(--bb-ink-3); font-size: 12px; z-index: 6; opacity: .75; }
+    .ripple { position: absolute; border-radius: 50%; transform: scale(0); background: rgba(255,255,255,.25); animation: ripple .6s ease-out forwards; pointer-events: none; }
+    @keyframes ripple { to { transform: scale(10); opacity: 0; } }
   </style>
 </head>
 <body>
-  <div class="grain" aria-hidden="true"></div>  <!-- HUD -->  <div class="hud" role="toolbar" aria-label="Top controls">
+  <div class="grain" aria-hidden="true"></div>
+  <!-- HUD -->
+  <div class="hud">
     <div class="slot">
-      <button class="icon-btn" id="btnSearch" title="Search" aria-label="Search">
-        <!-- magnifier icon -->
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="#fff" stroke-opacity=".8"/><path d="m21 21-4.35-4.35" stroke="#fff" stroke-opacity=".8"/></svg>
-      </button>
+      <button class="icon-btn" id="btnSearch" title="Search">🔍</button>
       <span class="pill" id="categoryPill">ALL</span>
-    </div><div class="slot" style="justify-content:center; gap:16px">
-  <div class="round">
-    <span class="label" id="roundLabel">Round 1</span>
-    <div class="timer" aria-live="polite">
-      <svg width="46" height="46" viewBox="0 0 40 40">
-        <circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,.15)" stroke-width="3" fill="none"/>
-        <circle id="timerArc" cx="20" cy="20" r="18" stroke="#fff" stroke-opacity=".9" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="113.097" stroke-dashoffset="0"/>
-      </svg>
-      <span class="tspan" id="timerText">60</span>
+    </div>
+    <div class="slot" style="justify-content:center; gap:16px">
+      <div class="round">
+        <span class="label" id="roundLabel">Round 1</span>
+        <div class="timer">
+          <svg width="46" height="46" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,.15)" stroke-width="3" fill="none"/>
+            <circle id="timerArc" cx="20" cy="20" r="18" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+          <span class="tspan" id="timerText">60</span>
+        </div>
+      </div>
+    </div>
+    <div class="slot" style="justify-content:flex-end">
+      <button class="icon-btn" id="btnSettings" title="Settings">⚙️</button>
     </div>
   </div>
-</div>
-
-<div class="slot" style="justify-content:flex-end">
-  <button class="icon-btn" id="btnSettings" title="Settings" aria-label="Settings">
-    <!-- gear icon -->
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="#fff" stroke-opacity=".8"/><path d="m4 10 1-2 2-1 1-2h4l1 2 2 1 2 1 1 2-1 2-2 1-1 2h-4l-1-2-2-1-2-1-1-2Z" stroke="#fff" stroke-opacity=".35"/></svg>
-  </button>
-</div>
-
-  </div>  <!-- Side Rails -->  <div class="rail left" aria-label="Left navigation">
-    <button class="icon-btn" title="Profile" aria-label="Profile">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="#fff" stroke-opacity=".8"/><path d="M4 20a8 8 0 0 1 16 0" stroke="#fff" stroke-opacity=".35"/></svg>
-    </button>
-    <button class="icon-btn" title="Watch" aria-label="Watch">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 6h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3Z" stroke="#fff" stroke-opacity=".8"/><path d="M10 9v6l5-3-5-3Z" fill="#fff" fill-opacity=".8"/></svg>
-    </button>
-    <button class="icon-btn" title="Rankings" aria-label="Rankings">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 9h3v10H5zM10.5 5h3v14h-3zM16 12h3v7h-3z" fill="#fff" fill-opacity=".8"/></svg>
-    </button>
-  </div>  <div class="rail right" aria-label="Right navigation">
-    <button class="icon-btn" title="Home" aria-label="Home">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m4 10 8-6 8 6v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8Z" stroke="#fff" stroke-opacity=".8"/></svg>
-    </button>
-    <button class="icon-btn" title="Messages" aria-label="Messages">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 6h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9l-5 3V8a2 2 0 0 1 2-2Z" stroke="#fff" stroke-opacity=".8"/></svg>
-    </button>
-    <button class="icon-btn" title="Settings" aria-label="Settings">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="#fff" stroke-opacity=".8"/><path d="m4 10 1-2 2-1 1-2h4l1 2 2 1 2 1 1 2-1 2-2 1-1 2h-4l-1-2-2-1-2-1-1-2Z" stroke="#fff" stroke-opacity=".35"/></svg>
-    </button>
-  </div>  <!-- Content -->  <div class="vertical" id="vCont" aria-label="Categories">
-    <!-- Category: ALL -->
+  <!-- Side Rails -->
+  <div class="rail left">
+    <button class="icon-btn">👤</button>
+    <button class="icon-btn">📺</button>
+    <button class="icon-btn">🏆</button>
+  </div>
+  <div class="rail right">
+    <button class="icon-btn">🏠</button>
+    <button class="icon-btn">💬</button>
+    <button class="icon-btn">⚙️</button>
+  </div>
+  <!-- Content -->
+  <div class="vertical" id="vCont">
     <div class="hwrap" data-category="ALL">
       <div class="arena">
         <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="user1.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="user1.jpg" alt="@Alpha avatar"><span class="handle">@Alpha</span></div>
-            <button class="vote" data-side="left">Vote</button>
-            <div class="aud">Live Audience: <span aria-hidden="true">●</span> 239<div class="a-avatars"><img src="a1.jpg" alt="audience"><img src="a2.jpg" alt="audience"><img src="a3.jpg" alt="audience"></div></div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="user2.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="user2.jpg" alt="@Omega avatar"><span class="handle">@Omega</span></div>
-            <button class="vote" data-side="right">Vote</button>
-            <div class="aud">Live Audience: <span aria-hidden="true">●</span> 221<div class="a-avatars"><img src="b1.jpg" alt="audience"><img src="b2.jpg" alt="audience"><img src="b3.jpg" alt="audience"></div></div>
-          </div>
+          <div class="pane left"><video autoplay muted loop src="user1.mp4"></video><div class="vignette"></div><div class="cinfo"><img src="user1.jpg"><span class="handle">@Alpha</span></div><button class="vote">Vote</button><div class="aud">Live Audience: ● 239<div class="a-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div></div>
+          <div class="pane right"><video autoplay muted loop src="user2.mp4"></video><div class="vignette"></div><div class="cinfo"><img src="user2.jpg"><span class="handle">@Omega</span></div><button class="vote">Vote</button><div class="aud">Live Audience: ● 221<div class="a-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div></div>
         </div>
       </div>
-    </div><!-- Category: ART -->
-<div class="hwrap" data-category="ART">
-  <div class="arena">
-    <div class="content">
-      <div class="pane left">
-        <video autoplay muted loop src="art1.mp4"></video>
-        <div class="vignette"></div>
-        <div class="cinfo"><img src="art1.jpg" alt="@BrushKing avatar"><span class="handle">@BrushKing</span></div>
-        <button class="vote" data-side="left">Vote</button>
-        <div class="aud">Live Audience: <span aria-hidden="true">●</span> 97<div class="a-avatars"><img src="a1.jpg" alt="audience"><img src="a2.jpg" alt="audience"><img src="a3.jpg" alt="audience"></div></div>
-      </div>
-      <div class="pane right">
-        <video autoplay muted loop src="art2.mp4"></video>
-        <div class="vignette"></div>
-        <div class="cinfo"><img src="art2.jpg" alt="@CanvasQueen avatar"><span class="handle">@CanvasQueen</span></div>
-        <button class="vote" data-side="right">Vote</button>
-        <div class="aud">Live Audience: <span aria-hidden="true">●</span> 105<div class="a-avatars"><img src="b1.jpg" alt="audience"><img src="b2.jpg" alt="audience"><img src="b3.jpg" alt="audience"></div></div>
-      </div>
     </div>
+    <!-- Additional categories here... -->
   </div>
-</div>
-
-<!-- Category: FASHION -->
-<div class="hwrap" data-category="FASHION">
-  <div class="arena">
-    <div class="content">
-      <div class="pane left">
-        <video autoplay muted loop src="fashion1.mp4"></video>
-        <div class="vignette"></div>
-        <div class="cinfo"><img src="fashion1.jpg" alt="@StyleIcon avatar"><span class="handle">@StyleIcon</span></div>
-        <button class="vote" data-side="left">Vote</button>
-        <div class="aud">Live Audience: <span aria-hidden="true">●</span> 155<div class="a-avatars"><img src="a1.jpg" alt="audience"><img src="a2.jpg" alt="audience"><img src="a3.jpg" alt="audience"></div></div>
-      </div>
-      <div class="pane right">
-        <video autoplay muted loop src="fashion2.mp4"></video>
-        <div class="vignette"></div>
-        <div class="cinfo"><img src="fashion2.jpg" alt="@ThreadQueen avatar"><span class="handle">@ThreadQueen</span></div>
-        <button class="vote" data-side="right">Vote</button>
-        <div class="aud">Live Audience: <span aria-hidden="true">●</span> 144<div class="a-avatars"><img src="b1.jpg" alt="audience"><img src="b2.jpg" alt="audience"><img src="b3.jpg" alt="audience"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Category: RAP BATTLE -->
-<div class="hwrap" data-category="RAP BATTLE">
-  <div class="arena">
-    <div class="content">
-      <div class="pane left">
-        <video autoplay muted loop src="rap1.mp4"></video>
-        <div class="vignette"></div>
-        <div class="cinfo"><img src="rap1.jpg" alt="@MicFlame avatar"><span class="handle">@MicFlame</span></div>
-        <button class="vote" data-side="left">Vote</button>
-        <div class="aud">Live Audience: <span aria-hidden="true">●</span> 312<div class="a-avatars"><img src="a1.jpg" alt="audience"><img src="a2.jpg" alt="audience"><img src="a3.jpg" alt="audience"></div></div>
-      </div>
-      <div class="pane right">
-        <video autoplay muted loop src="rap2.mp4"></video>
-        <div class="vignette"></div>
-        <div class="cinfo"><img src="rap2.jpg" alt="@LyricBeast avatar"><span class="handle">@LyricBeast</span></div>
-        <button class="vote" data-side="right">Vote</button>
-        <div class="aud">Live Audience: <span aria-hidden="true">●</span> 333<div class="a-avatars"><img src="b1.jpg" alt="audience"><img src="b2.jpg" alt="audience"><img src="b3.jpg" alt="audience"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-  </div>  <div class="chat-hint" aria-hidden="true">💬 Chat coming soon…</div>  <script>
-    /* =====================
-       Interaction Logic
-       ===================== */
+  <div class="chat-hint">💬 Chat coming soon…</div>
+  <script>
     const vCont = document.getElementById('vCont');
     const wraps = [...document.querySelectorAll('.hwrap')];
     const categoryPill = document.getElementById('categoryPill');
     const roundLabel = document.getElementById('roundLabel');
     const tArc = document.getElementById('timerArc');
     const tText = document.getElementById('timerText');
-
-    // Timer setup
-    const CIRC = 2 * Math.PI * 18; // 113.097
+    const CIRC = 2 * Math.PI * 18;
     tArc.setAttribute('stroke-dasharray', CIRC.toFixed(3));
-
-    let round = 1; let timeLeft = 60; const maxRounds = 3; let ticking = null; let paused = false;
-
+    let round = 1; let timeLeft = 60; const maxRounds = 3; let ticking = null;
     function setTimerUI() {
       roundLabel.textContent = `Round ${round}`;
       tText.textContent = String(timeLeft);
       const ratio = timeLeft / 60;
       tArc.setAttribute('stroke-dashoffset', ((1 - ratio) * CIRC).toFixed(3));
     }
-
     function startTimer() {
       if (ticking) clearInterval(ticking);
       setTimerUI();
@@ -296,89 +194,48 @@ video { width: 100%; height: 100%; object-fit: cover; background: #000; }
         } else {
           clearInterval(ticking);
           if (round < maxRounds) {
-            round++; paused = true; tText.textContent = '⏸';
-            setTimeout(() => { timeLeft = 60; paused = false; startTimer(); }, 6000);
+            round++; tText.textContent = '⏸';
+            setTimeout(() => { timeLeft = 60; startTimer(); }, 6000);
           } else { tText.textContent = '0'; roundLabel.textContent = 'Battle Over'; }
         }
       }, 1000);
     }
-
     startTimer();
-
-    // Category label sync (vertical snapping)
     function syncCategory() {
       const vh = window.innerHeight;
       const idx = Math.round(vCont.scrollTop / vh);
-      const cat = wraps[idx]?.dataset.category || 'ALL';
-      categoryPill.textContent = cat;
+      categoryPill.textContent = wraps[idx]?.dataset.category || 'ALL';
     }
-    vCont.addEventListener('scroll', () => { syncCategory(); hideRailsTemporarily(); });
-    window.addEventListener('resize', syncCategory);
-    syncCategory();
-
-    // Hide rails while scrolling horizontally
-    const rails = document.querySelectorAll('.rail');
-    let hideTO;
-    function hideRailsTemporarily() {
-      rails.forEach(r => r.style.opacity = .35);
-      clearTimeout(hideTO);
-      hideTO = setTimeout(() => rails.forEach(r => r.style.opacity = 1), 800);
+    vCont.addEventListener('scroll', syncCategory);
+    // Oblique drag scroll
+    let drag = { active:false, lastX:0, lastY:0, wrap:null };
+    function getActiveWrap() {
+      const idx = Math.round(vCont.scrollTop / innerHeight);
+      return wraps[idx] || wraps[0];
     }
-
-    wraps.forEach(w => w.addEventListener('scroll', hideRailsTemporarily));
-
-    // Vote button micro-interaction (ripple)
-    document.querySelectorAll('.vote').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const r = document.createElement('span');
-        r.className = 'ripple';
-        const rect = btn.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        r.style.width = r.style.height = size + 'px';
-        r.style.left = (e.clientX - rect.left - size/2) + 'px';
-        r.style.top = (e.clientY - rect.top - size/2) + 'px';
-        btn.appendChild(r);
-        setTimeout(() => r.remove(), 650);
-        // TODO: Hook to real vote API
-      });
+    window.addEventListener('pointerdown', (e) => {
+      drag.active = true; drag.lastX = e.clientX; drag.lastY = e.clientY;
+      drag.wrap = getActiveWrap();
+      if (e.target.setPointerCapture) e.target.setPointerCapture(e.pointerId);
     });
-
-    // Keyboard navigation: arrows
-    window.addEventListener('keydown', (e) => {
-      const activeIdx = Math.round(vCont.scrollTop / innerHeight);
-      const activeWrap = wraps[activeIdx];
-      if (!activeWrap) return;
-      if (e.key === 'ArrowRight') activeWrap.scrollBy({ left: innerWidth, behavior: 'smooth' });
-      if (e.key === 'ArrowLeft') activeWrap.scrollBy({ left: -innerWidth, behavior: 'smooth' });
-      if (e.key === 'ArrowDown') vCont.scrollBy({ top: innerHeight, behavior: 'smooth' });
-      if (e.key === 'ArrowUp') vCont.scrollBy({ top: -innerHeight, behavior: 'smooth' });
+    window.addEventListener('pointermove', (e) => {
+      if (!drag.active) return;
+      vCont.scrollTop -= (e.clientY - drag.lastY);
+      if (drag.wrap) drag.wrap.scrollLeft -= (e.clientX - drag.lastX);
+      drag.lastX = e.clientX; drag.lastY = e.clientY;
     });
-
-    // Touch swipe assist for vertical container (snaps confidently)
-    let startY = null, startX = null;
-    vCont.addEventListener('pointerdown', (e) => { startY = e.clientY; startX = e.clientX; });
-    vCont.addEventListener('pointerup', (e) => {
-      if (startY === null) return;
-      const dy = e.clientY - startY; const dx = e.clientX - startX;
-      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) {
-        vCont.scrollBy({ top: dy > 0 ? -innerHeight : innerHeight, behavior: 'smooth' });
-      }
-      startY = startX = null;
-    });
-
-    // Horizontal swipe assist inside each wrapper
-    wraps.forEach(w => {
-      let sx = null, sy = null;
-      w.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; });
-      w.addEventListener('pointerup', (e) => {
-        if (sx === null) return;
-        const dx = e.clientX - sx; const dy = e.clientY - sy;
-        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-          w.scrollBy({ left: dx > 0 ? -innerWidth : innerWidth, behavior: 'smooth' });
-        }
-        sx = sy = null;
-      });
-    });
+    function snapAfterDrag() {
+      const vTarget = Math.round(vCont.scrollTop / innerHeight) * innerHeight;
+      vCont.scrollTo({ top: vTarget, behavior: 'smooth' });
+      const w = getActiveWrap();
+      const hTarget = Math.round(w.scrollLeft / innerWidth) * innerWidth;
+      w.scrollTo({ left: hTarget, behavior: 'smooth' });
+      syncCategory();
+    }
+    ['pointerup','pointercancel','pointerleave'].forEach(ev => window.addEventListener(ev, () => {
+      if (!drag.active) return;
+      drag.active = false; snapAfterDrag();
+    }));
   </script>
 </body>
-</html>
+      </html>
