@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BattleBillions — 3illions Feed (Mono)</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
@@ -10,18 +10,17 @@
       --bb-bg-0:#000; --bb-bg-1:#0b0c0f; --bb-card:#111317; --bb-line:#1c1f24;
       --bb-ink:#eef1f5; --bb-ink-2:#c9d0d7; --bb-ink-3:#9aa3ad;
       --bb-pill:rgba(255,255,255,.04); --bb-pill-border:rgba(255,255,255,.12);
-      --bb-shadow:0 8px 30px rgba(0,0,0,.6);
       --bb-white-12:rgba(255,255,255,.12); --bb-white-16:rgba(255,255,255,.16);
+      --bb-shadow:0 8px 30px rgba(0,0,0,.6);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    html{scroll-behavior:smooth}
     body{
-      margin:0; background:radial-gradient(1200px 1200px at 50% -10%,#15171c 0%,var(--bb-bg-0) 55%);
-      color:var(--bb-ink); font-family:'Orbitron',system-ui,sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent;
+      margin:0; background:radial-gradient(1200px 1200px at 50% -10%, #15171c 0%, var(--bb-bg-0) 55%);
+      color:var(--bb-ink); font-family:'Orbitron', system-ui, sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent;
     }
 
-    /* subtle grain */
+    /* grain */
     .grain{position:fixed; inset:0; pointer-events:none; opacity:.12; mix-blend-mode:overlay;
       background-image:url('data:image/svg+xml;utf8,\
       <svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">\
@@ -36,6 +35,7 @@
     .icon-btn{width:42px; height:42px; display:grid; place-items:center; border-radius:999px; border:1px solid var(--bb-pill-border); background:var(--bb-pill); box-shadow:var(--bb-shadow); cursor:pointer; transition:transform .12s ease}
     .icon-btn:hover{transform:translateY(-1px)}
     .pill{border:1px solid var(--bb-pill-border); background:var(--bb-pill); color:var(--bb-ink-2); padding:8px 14px; border-radius:999px; font-size:13px; letter-spacing:.08em; text-transform:uppercase; box-shadow:var(--bb-shadow)}
+
     .round{display:flex; align-items:center; gap:10px}
     .round .label{font-size:13px; color:var(--bb-ink-2); letter-spacing:.08em; text-transform:uppercase}
     .timer{position:relative; width:46px; height:46px; display:grid; place-items:center}
@@ -45,20 +45,22 @@
     /* rails */
     .rail{position:fixed; top:50%; transform:translateY(-50%); display:grid; gap:12px; z-index:25}
     .rail.left{left:10px} .rail.right{right:10px}
+    .icon-btn span{font-size:16px}
 
     /* containers */
     .vertical{
       height:100vh; width:100vw; overflow-y:auto; scroll-snap-type:y mandatory; scroll-snap-stop:always;
-      /* custom pan on both axes */
       touch-action:none; overscroll-behavior:contain;
     }
-    .vertical::-webkit-scrollbar{width:8px} .vertical::-webkit-scrollbar-thumb{background:var(--bb-white-12); border-radius:8px}
+    .vertical::-webkit-scrollbar{width:8px}
+    .vertical::-webkit-scrollbar-thumb{background:var(--bb-white-12); border-radius:8px}
 
     .hwrap{
       display:flex; width:100vw; height:100vh; scroll-snap-align:start; overflow-x:auto; scroll-snap-type:x mandatory; scroll-snap-stop:always;
       -webkit-overflow-scrolling:touch;
     }
-    .hwrap::-webkit-scrollbar{height:8px} .hwrap::-webkit-scrollbar-thumb{background:var(--bb-white-12); border-radius:8px}
+    .hwrap::-webkit-scrollbar{height:8px}
+    .hwrap::-webkit-scrollbar-thumb{background:var(--bb-white-12); border-radius:8px}
 
     .arena{flex:0 0 100%; height:100%; position:relative; display:flex; flex-direction:column}
     .content{flex:1; display:flex; height:100%}
@@ -81,7 +83,6 @@
     .a-avatars img{width:26px; height:26px; border-radius:50%}
 
     .chat-hint{position:fixed; bottom:12px; left:50%; transform:translateX(-50%); color:var(--bb-ink-3); font-size:12px; z-index:6; opacity:.75}
-
     .ripple{position:absolute; border-radius:50%; transform:scale(0); background:rgba(255,255,255,.25); animation:ripple .6s ease-out forwards; pointer-events:none}
     @keyframes ripple{to{transform:scale(10); opacity:0}}
 
@@ -101,7 +102,7 @@
   <!-- HUD -->
   <div class="hud" role="toolbar" aria-label="Top controls">
     <div class="slot">
-      <button class="icon-btn" id="btnSearch" title="Search" aria-label="Search">🔍</button>
+      <button class="icon-btn" id="btnSearch" title="Search" aria-label="Search"><span>🔍</span></button>
       <span class="pill" id="categoryPill">ALL</span>
     </div>
     <div class="slot" style="justify-content:center; gap:16px">
@@ -117,206 +118,120 @@
       </div>
     </div>
     <div class="slot" style="justify-content:flex-end">
-      <button class="icon-btn" id="btnSettings" title="Settings" aria-label="Settings">⚙️</button>
+      <button class="icon-btn" id="btnSettings" title="Settings" aria-label="Settings"><span>⚙️</span></button>
     </div>
   </div>
 
   <!-- Side Rails -->
   <div class="rail left" aria-label="Left navigation">
-    <button class="icon-btn" title="Profile" aria-label="Profile">👤</button>
-    <button class="icon-btn" title="Watch" aria-label="Watch">📺</button>
-    <button class="icon-btn" title="Rankings" aria-label="Rankings">🏆</button>
+    <button class="icon-btn" title="Profile" aria-label="Profile"><span>👤</span></button>
+    <button class="icon-btn" title="Watch" aria-label="Watch"><span>📺</span></button>
+    <button class="icon-btn" title="Rankings" aria-label="Rankings"><span>🏆</span></button>
   </div>
   <div class="rail right" aria-label="Right navigation">
-    <button class="icon-btn" title="Home" aria-label="Home">🏠</button>
-    <button class="icon-btn" title="Messages" aria-label="Messages">💬</button>
-    <button class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
+    <button class="icon-btn" title="Home" aria-label="Home"><span>🏠</span></button>
+    <button class="icon-btn" title="Messages" aria-label="Messages"><span>💬</span></button>
+    <button class="icon-btn" title="Settings" aria-label="Settings"><span>⚙️</span></button>
   </div>
 
   <!-- FEED -->
   <div class="vertical" id="vCont" aria-label="Categories">
-
-    <!-- ========== ALL (3 slides so horizontal works) ========== -->
-    <div class="hwrap" data-category="ALL">
-      <!-- slide 1 -->
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="user1.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="user1.jpg" alt=""><span class="handle">@Alpha</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 239
-              <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div>
-            </div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="user2.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="user2.jpg" alt=""><span class="handle">@Omega</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 221
-              <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- slide 2 -->
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="all2-left.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="all2-left.jpg" alt=""><span class="handle">@Nova</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 198
-              <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div>
-            </div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="all2-right.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="all2-right.jpg" alt=""><span class="handle">@Vex</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 204
-              <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- slide 3 -->
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="all3-left.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="all3-left.jpg" alt=""><span class="handle">@Raze</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 176
-              <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div>
-            </div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="all3-right.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="all3-right.jpg" alt=""><span class="handle">@Myth</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 182
-              <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== ART (2 slides) ========== -->
-    <div class="hwrap" data-category="ART">
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="art1.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="art1.jpg" alt=""><span class="handle">@BrushKing</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 97 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="art2.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="art2.jpg" alt=""><span class="handle">@CanvasQueen</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 105 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="art3.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="art3.jpg" alt=""><span class="handle">@InkSoul</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 112 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="art4.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="art4.jpg" alt=""><span class="handle">@NeoMuse</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 109 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== FASHION (1 slide) ========== -->
-    <div class="hwrap" data-category="FASHION">
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="fashion1.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="fashion1.jpg" alt=""><span class="handle">@StyleIcon</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 155 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="fashion2.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="fashion2.jpg" alt=""><span class="handle">@ThreadQueen</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 144 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== RAP BATTLE (2 slides) ========== -->
-    <div class="hwrap" data-category="RAP BATTLE">
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="rap1.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="rap1.jpg" alt=""><span class="handle">@MicFlame</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 312 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="rap2.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="rap2.jpg" alt=""><span class="handle">@LyricBeast</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 333 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="arena">
-        <div class="content">
-          <div class="pane left">
-            <video autoplay muted loop src="rap3.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="rap3.jpg" alt=""><span class="handle">@Cipher</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 301 <div class="a-avatars"><img src="a1.jpg" alt=""><img src="a2.jpg" alt=""><img src="a3.jpg" alt=""></div></div>
-          </div>
-          <div class="pane right">
-            <video autoplay muted loop src="rap4.mp4"></video>
-            <div class="vignette"></div>
-            <div class="cinfo"><img src="rap4.jpg" alt=""><span class="handle">@EightBar</span></div>
-            <button class="vote">Vote</button>
-            <div class="aud">Live Audience: ● 289 <div class="a-avatars"><img src="b1.jpg" alt=""><img src="b2.jpg" alt=""><img src="b3.jpg" alt=""></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- JS will populate rows (hwrap) and slides (arena) -->
   </div>
 
   <div class="chat-hint" aria-hidden="true">💬 Chat coming soon…</div>
 
   <script>
-    // Timer ring
+    // ----------- Data: add more categories/slides here -----------
+    const FEED = [
+      { category: 'ALL', slides: [
+        { left:{vid:'user1.mp4', img:'user1.jpg', handle:'@Alpha', aud:239}, right:{vid:'user2.mp4', img:'user2.jpg', handle:'@Omega', aud:221} },
+        { left:{vid:'all2-left.mp4', img:'all2-left.jpg', handle:'@Nova', aud:198}, right:{vid:'all2-right.mp4', img:'all2-right.jpg', handle:'@Vex', aud:204} },
+        { left:{vid:'all3-left.mp4', img:'all3-left.jpg', handle:'@Raze', aud:176}, right:{vid:'all3-right.mp4', img:'all3-right.jpg', handle:'@Myth', aud:182} },
+        { left:{vid:'all4-left.mp4', img:'all4-left.jpg', handle:'@Vanta', aud:190}, right:{vid:'all4-right.mp4', img:'all4-right.jpg', handle:'@Kyro', aud:188} },
+      ]},
+      { category: 'ART', slides: [
+        { left:{vid:'art1.mp4', img:'art1.jpg', handle:'@BrushKing', aud:97}, right:{vid:'art2.mp4', img:'art2.jpg', handle:'@CanvasQueen', aud:105} },
+        { left:{vid:'art3.mp4', img:'art3.jpg', handle:'@InkSoul', aud:112}, right:{vid:'art4.mp4', img:'art4.jpg', handle:'@NeoMuse', aud:109} },
+        { left:{vid:'art5.mp4', img:'art5.jpg', handle:'@Stencil', aud:101}, right:{vid:'art6.mp4', img:'art6.jpg', handle:'@Charcoal', aud:99} },
+      ]},
+      { category: 'FASHION', slides: [
+        { left:{vid:'fashion1.mp4', img:'fashion1.jpg', handle:'@StyleIcon', aud:155}, right:{vid:'fashion2.mp4', img:'fashion2.jpg', handle:'@ThreadQueen', aud:144} },
+        { left:{vid:'fashion3.mp4', img:'fashion3.jpg', handle:'@Runway', aud:138}, right:{vid:'fashion4.mp4', img:'fashion4.jpg', handle:'@Tailor', aud:141} },
+      ]},
+      { category: 'RAP BATTLE', slides: [
+        { left:{vid:'rap1.mp4', img:'rap1.jpg', handle:'@MicFlame', aud:312}, right:{vid:'rap2.mp4', img:'rap2.jpg', handle:'@LyricBeast', aud:333} },
+        { left:{vid:'rap3.mp4', img:'rap3.jpg', handle:'@Cipher', aud:301}, right:{vid:'rap4.mp4', img:'rap4.jpg', handle:'@EightBar', aud:289} },
+        { left:{vid:'rap5.mp4', img:'rap5.jpg', handle:'@Hooksmith', aud:295}, right:{vid:'rap6.mp4', img:'rap6.jpg', handle:'@Metre', aud:284} },
+      ]},
+      { category: 'DANCE', slides: [
+        { left:{vid:'dance1.mp4', img:'dance1.jpg', handle:'@Iso', aud:210}, right:{vid:'dance2.mp4', img:'dance2.jpg', handle:'@Poplock', aud:219} },
+        { left:{vid:'dance3.mp4', img:'dance3.jpg', handle:'@Glide', aud:225}, right:{vid:'dance4.mp4', img:'dance4.jpg', handle:'@Waves', aud:231} },
+        { left:{vid:'dance5.mp4', img:'dance5.jpg', handle:'@Orbit', aud:206}, right:{vid:'dance6.mp4', img:'dance6.jpg', handle:'@Strobe', aud:214} },
+      ]},
+    ];
+
+    // ----------- DOM builders -----------
+    const vCont = document.getElementById('vCont');
+
+    function el(tag, attrs={}, children=[]){
+      const node = document.createElement(tag);
+      for (const [k,v] of Object.entries(attrs)){
+        if (k === 'class') node.className = v;
+        else if (k === 'dataset') Object.entries(v).forEach(([dk,dv]) => node.dataset[dk] = dv);
+        else if (k === 'html') node.innerHTML = v;
+        else node.setAttribute(k, v);
+      }
+      children.forEach(c => node.appendChild(c));
+      return node;
+    }
+
+    function battlePane(side, data){
+      return el('div', {class:`pane ${side}`}, [
+        el('video', {autoplay:'', muted:'', loop:'', src:data.vid}),
+        el('div', {class:'vignette'}),
+        el('div', {class:'cinfo'}, [
+          el('img', {src:data.img, alt:`${data.handle} avatar`}),
+          el('span', {class:'handle', html:data.handle})
+        ]),
+        el('button', {class:'vote', html:'Vote'}),
+        el('div', {class:'aud', html:`Live Audience: ● ${data.aud}`}, [
+          el('div', {class:'a-avatars'}, [
+            el('img', {src:'a1.jpg', alt:''}),
+            el('img', {src:'a2.jpg', alt:''}),
+            el('img', {src:'a3.jpg', alt:''}),
+          ])
+        ])
+      ]);
+    }
+
+    function slideArena(pair){
+      return el('div', {class:'arena'}, [
+        el('div', {class:'content'}, [
+          battlePane('left', pair.left),
+          battlePane('right', pair.right)
+        ])
+      ]);
+    }
+
+    // Build rows and slides
+    FEED.forEach(row => {
+      const hwrap = el('div', {class:'hwrap', dataset:{category:row.category}});
+      row.slides.forEach(pair => hwrap.appendChild(slideArena(pair)));
+      vCont.appendChild(hwrap);
+    });
+
+    // ----------- HUD: category + timer ring -----------
+    const wraps = Array.from(document.querySelectorAll('.hwrap'));
+    const categoryPill = document.getElementById('categoryPill');
+    function syncCategory(){
+      const idx = Math.round(vCont.scrollTop / window.innerHeight);
+      categoryPill.textContent = wraps[idx]?.dataset.category || FEED[0].category;
+    }
+    vCont.addEventListener('scroll', syncCategory, {passive:true});
+    window.addEventListener('resize', syncCategory);
+    syncCategory();
+
     const roundLabel = document.getElementById('roundLabel');
     const tArc = document.getElementById('timerArc');
     const tText = document.getElementById('timerText');
@@ -342,38 +257,27 @@
     }
     startTimer();
 
-    // Category pill
-    const vCont = document.getElementById('vCont');
-    const wraps = Array.from(document.querySelectorAll('.hwrap'));
-    const categoryPill = document.getElementById('categoryPill');
-    function syncCategory(){
-      const idx = Math.round(vCont.scrollTop / window.innerHeight);
-      categoryPill.textContent = wraps[idx]?.dataset.category || 'ALL';
-    }
-    vCont.addEventListener('scroll', syncCategory, {passive:true});
-    window.addEventListener('resize', syncCategory);
-    syncCategory();
-
-    // Hide rails briefly while scrolling horizontally
+    // Rails fade during scroll
     const rails = document.querySelectorAll('.rail');
-    let hideTO;
-    function hideRails(){ rails.forEach(r=>r.style.opacity=.35); clearTimeout(hideTO); hideTO=setTimeout(()=>rails.forEach(r=>r.style.opacity=1), 800); }
-    wraps.forEach(w=>w.addEventListener('scroll', hideRails, {passive:true}));
-    vCont.addEventListener('scroll', hideRails, {passive:true});
+    let fadeTO;
+    function railsFade(){ rails.forEach(r=>r.style.opacity=.35); clearTimeout(fadeTO); fadeTO=setTimeout(()=>rails.forEach(r=>r.style.opacity=1), 800); }
+    vCont.addEventListener('scroll', railsFade, {passive:true});
+    wraps.forEach(w=>w.addEventListener('scroll', railsFade, {passive:true}));
 
     // Vote ripple
-    document.querySelectorAll('.vote').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{
-        const r=document.createElement('span'); r.className='ripple';
-        const rect=btn.getBoundingClientRect(), size=Math.max(rect.width,rect.height);
-        r.style.width=r.style.height=size+'px';
-        r.style.left=(e.clientX-rect.left-size/2)+'px';
-        r.style.top=(e.clientY-rect.top-size/2)+'px';
-        btn.appendChild(r); setTimeout(()=>r.remove(),650);
-      });
+    document.addEventListener('click', e=>{
+      const btn = e.target.closest('.vote');
+      if(!btn) return;
+      const r=document.createElement('span'); r.className='ripple';
+      const rect=btn.getBoundingClientRect(), size=Math.max(rect.width,rect.height);
+      r.style.width=r.style.height=size+'px';
+      r.style.left=(e.clientX-rect.left-size/2)+'px';
+      r.style.top=(e.clientY-rect.top-size/2)+'px';
+      btn.appendChild(r); setTimeout(()=>r.remove(),650);
+      // hook your vote API here
     });
 
-    // ---------- Oblique drag (diagonal + native snapping) ----------
+    // ----------- Oblique drag (diagonal) -----------
     let drag = {active:false, lastX:0, lastY:0, wrap:null};
 
     function getActiveWrap(){
@@ -382,30 +286,26 @@
     }
 
     vCont.addEventListener('pointerdown', (e)=>{
-      // let taps on buttons/links behave normally
-      if (e.target.closest('button, a')) return;
+      if (e.target.closest('button, a')) return; // don't hijack button taps
       drag.active = true;
       drag.lastX = e.clientX; drag.lastY = e.clientY;
       drag.wrap = getActiveWrap();
-      try { e.target.setPointerCapture(e.pointerId); } catch(_){}
+      try{ e.target.setPointerCapture && e.target.setPointerCapture(e.pointerId); }catch(_){}
     });
 
     vCont.addEventListener('pointermove', (e)=>{
       if(!drag.active) return;
-      // invert movement (drag vs scroll)
       const dx = e.clientX - drag.lastX;
       const dy = e.clientY - drag.lastY;
-      vCont.scrollTop -= dy;
-      if (drag.wrap) drag.wrap.scrollLeft -= dx;
+      vCont.scrollTop -= dy;     // vertical
+      if (drag.wrap) drag.wrap.scrollLeft -= dx; // horizontal
       drag.lastX = e.clientX; drag.lastY = e.clientY;
-      e.preventDefault(); // allow smooth custom pan on mobile
+      e.preventDefault(); // required for mobile custom pan
     }, {passive:false});
 
     function snapAfterDrag(){
-      // snap vertical
       const vTarget = Math.round(vCont.scrollTop / window.innerHeight) * window.innerHeight;
       vCont.scrollTo({top:vTarget, behavior:'smooth'});
-      // snap horizontal of active row
       const w = getActiveWrap();
       const hTarget = Math.round(w.scrollLeft / window.innerWidth) * window.innerWidth;
       w.scrollTo({left:hTarget, behavior:'smooth'});
@@ -417,6 +317,16 @@
         drag.active=false; snapAfterDrag();
       });
     });
+
+    // Arrow keys navigation (desktop)
+    window.addEventListener('keydown', (e)=>{
+      const w = getActiveWrap();
+      if (!w) return;
+      if (e.key === 'ArrowRight') w.scrollBy({left: innerWidth, behavior:'smooth'});
+      if (e.key === 'ArrowLeft')  w.scrollBy({left:-innerWidth, behavior:'smooth'});
+      if (e.key === 'ArrowDown')  vCont.scrollBy({top: innerHeight, behavior:'smooth'});
+      if (e.key === 'ArrowUp')    vCont.scrollBy({top:-innerHeight, behavior:'smooth'});
+    });
   </script>
 </body>
-</html>
+    </html>
