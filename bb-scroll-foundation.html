@@ -1,1 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BattleBillions Scroll Foundation</title>
+<style>
+  :root{
+    --bg:#000; --ink:#f2f4f7; --ink2:#c7cbd3; --ink3:#959ca8;
+    --panel:#0b0d10; --card:#121418; --b1:rgba(255,255,255,.12); --b2:rgba(255,255,255,.16);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;overflow:hidden}
 
+  /* Header just to show active row/col for testing */
+  .hud{position:fixed;left:0;right:0;top:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:10;background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,0))}
+  .pill{border:1px solid var(--b1);color:var(--ink2);padding:6px 10px;border-radius:999px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+
+  /* The playground: rows (vertical) → slides (horizontal) */
+  .grid{position:relative;height:100vh;width:100vw;overflow-y:auto;scroll-snap-type:y mandatory;scroll-snap-stop:always;padding-top:56px;touch-action:none;}
+  .row{height:calc(100vh - 56px);scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;padding:10px}
+  .row-title{font-size:12px;color:var(--ink3);letter-spacing:.12em}
+  .slides{flex:1;display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-snap-stop:always;-webkit-overflow-scrolling:touch}
+  .slide{flex:0 0 100vw;height:100%;border:1px solid var(--b1);border-radius:16px;background:var(--card);display:grid;place-items:center}
+  .slide>div{font-size:18px;color:var(--ink2);letter-spacing:.08em}
+
+  /* simple helpers so you can “see” motion immediately */
+  .shade-0{background:#0f1115}.shade-1{background:#111318}.shade-2{background:#13161b}.shade-3{background:#151920}
+  .shade-4{background:#171b23}.shade-5{background:#1a1e27}
+</style>
+</head>
+<body>
+  <div class="hud">
+    <div class="pill" id="labelRow">ROW 1</div>
+    <div class="pill" id="labelCol">COL 1</div>
+    <div class="pill">3illions Foundation</div>
+  </div>
+
+  <!-- GRID: we populate this with JS for clarity -->
+  <main class="grid" id="grid"></main>
+
+<script>
+/**
+ * BattleBillions ScrollGrid — minimal, extensible foundation
+ * - Native vertical (rows) + horizontal (slides) snap
+ * - Oblique drag with momentum (doesn’t block native wheel/touch scroll)
+ * - Public API: window.ScrollGrid.addRow(name, count)
+ */
+
+(function(){
+  const grid = document.getElementById('grid');
+  const labelRow = document.getElementById('labelRow');
+  const labelCol = document.getElementById('labelCol');
+
+  /* ------------ Builder ------------ */
+  const shades = ['shade-0','shade-1','shade-2','shade-3','shade-4','shade-5'];
+
+  function makeRow(name, slideCount=3){
+    const row = document.createElement('section');
+    row.className = 'row';
+    row.dataset.category = name;
+
+    const title = document.createElement('div');
+    title.className = 'row-title';
+    title.textContent = name;
+
+    const slides = document.createElement('div');
+    slides.className = 'slides';
+
+    for (let i=1;i<=slideCount;i++){
+      const slide = document.createElement('div');
+      slide.className = `slide ${shades[(i-1)%shades.length]}`;
+      const inner = document.createElement('div');
+      inner.textContent = `${name} — Slide ${i}`;
+      slide.appendChild(inner);
+      slides.appendChild(slide);
+    }
+
+    row.appendChild(title);
+    row.appendChild(slides);
+    return row;
+  }
+
+  const ScrollGrid = {
+    addRow(name, slideCount){ grid.appendChild(makeRow(name, slideCount)); cacheRows(); syncLabels(); },
+  };
+  window.ScrollGrid = ScrollGrid;
+
+  /* Seed data so you can test immediately */
+  ScrollGrid.addRow('ALL', 4);
+  ScrollGrid.addRow('ART', 3);
+  ScrollGrid.addRow('FASHION', 2);
+  ScrollGrid.addRow('RAP BATTLE', 3);
+  ScrollGrid.addRow('DANCE', 3);
+
+  /* ------------ State/Helpers ------------ */
+  let rows=[], hwraps=[];
+  function cacheRows(){
+    rows = Array.from(document.querySelectorAll('.row'));
+    hwraps = rows.map(r=>r.querySelector('.slides'));
+  }
+  cacheRows();
+
+  function vh(){ return grid.clientHeight; }
+  function vw(){ return grid.clientWidth; }
+  function activeVIndex(){ return Math.round(grid.scrollTop / vh()); }
+  function activeWrap(){ return hwraps[activeVIndex()] || hwraps[0]; }
+  function activeHIndex(){
+    const w = activeWrap(); if (!w) return 0;
+    return Math.round(w.scrollLeft / vw());
+  }
+  function syncLabels(){
+    const r = rows[activeVIndex()];
+    labelRow.textContent = r ? r.dataset.category : 'ROW ?';
+    labelCol.textContent = `COL ${activeHIndex()+1}`;
+  }
+
+  grid.addEventListener('scroll', syncLabels, {passive:true});
+  hwraps.forEach(w=>w.addEventListener('scroll', syncLabels, {passive:true}));
+  window.addEventListener('resize', syncLabels);
+
+  /* ------------ Wheel/Trackpad (desktop) ------------ */
+  // On mobile this rarely fires, but harmless.
+  grid.addEventListener('wheel', (e)=>{
+    const w = activeWrap();
+    if (Math.abs(e.deltaX)>0 || e.shiftKey) {
+      w.scrollLeft += (e.deltaX || e.deltaY);
+      e.preventDefault();
+    }
+    if (Math.abs(e.deltaY)>0) {
+      grid.scrollTop += e.deltaY;
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  /* ------------ Oblique Drag Engine ------------ */
+  // Key rule: do NOT block native scroll. We “assist” both axes and let the
+  // browser also scroll naturally. This is the most universal on mobile.
+  const drag = { on:false, id:null, x:0, y:0, vx:0, vy:0, raf:0, friction:0.92, stop:0.12 };
+
+  function step(dx,dy){
+    // assist both axes (half strength so it feels natural)
+    grid.scrollTop -= dy*0.5;
+    activeWrap().scrollLeft -= dx*0.5;
+    syncLabels();
+  }
+  function snap(){
+    const w = activeWrap();
+    const vTarget = Math.round(grid.scrollTop / vh()) * vh();
+    const hTarget = Math.round(w.scrollLeft / vw()) * vw();
+    grid.scrollTo({top:vTarget, behavior:'smooth'});
+    w.scrollTo({left:hTarget, behavior:'smooth'});
+  }
+  function momentum(){
+    cancelAnimationFrame(drag.raf);
+    drag.raf = requestAnimationFrame(()=>{
+      drag.vx *= drag.friction;
+      drag.vy *= drag.friction;
+      if (Math.abs(drag.vx)<drag.stop && Math.abs(drag.vy)<drag.stop){ snap(); return; }
+      step(drag.vx, drag.vy);
+      momentum();
+    });
+  }
+
+  const usePE = 'onpointerdown' in window;
+
+  function start(x,y,id){ drag.on=true; drag.id=id; drag.x=x; drag.y=y; drag.vx=drag.vy=0; }
+  function move(x,y){
+    if(!drag.on) return;
+    const dx = x - drag.x, dy = y - drag.y;
+    step(dx,dy);
+    drag.vx = drag.vx*0.8 + dx*0.2;
+    drag.vy = drag.vy*0.8 + dy*0.2;
+    drag.x = x; drag.y = y;
+  }
+  function end(){ if(!drag.on) return; drag.on=false; momentum(); }
+
+  if (usePE){
+    grid.addEventListener('pointerdown', (e)=>{
+      if (e.target.closest('button,a')) return;
+      // no preventDefault → native scroll still runs
+      start(e.clientX, e.clientY, e.pointerId);
+    }, {passive:true});
+
+    grid.addEventListener('pointermove', (e)=>{
+      if(!drag.on || drag.id!==e.pointerId) return;
+      move(e.clientX, e.clientY);
+    }, {passive:true});
+
+    const off = (e)=>{ if(drag.id===e.pointerId) end(); };
+    grid.addEventListener('pointerup', off, {passive:true});
+    grid.addEventListener('pointercancel', off, {passive:true});
+  } else {
+    // Touch fallback (older iOS)
+    grid.addEventListener('touchstart', (e)=>{
+      if (e.target.closest('button,a')) return;
+      const t = e.touches[0]; start(t.clientX, t.clientY, 0);
+    }, {passive:true});
+
+    grid.addEventListener('touchmove', (e)=>{
+      const t = e.touches[0]; move(t.clientX, t.clientY);
+    }, {passive:true});
+
+    grid.addEventListener('touchend', end, {passive:true});
+    grid.addEventListener('touchcancel', end, {passive:true});
+  }
+
+  /* ------------ Public hooks to extend later ------------ */
+  // Example: ScrollGrid.snap() you can call after programmatic inserts
+  ScrollGrid.snap = snap;
+  ScrollGrid.sync = ()=>{ cacheRows(); syncLabels(); };
+})();
+</script>
+</body>
+</html>
