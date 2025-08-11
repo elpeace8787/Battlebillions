@@ -15,9 +15,10 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
+    html{scroll-behavior:smooth}
     body{
-      margin:0; background:radial-gradient(1200px 1200px at 50% -10%, #15171c 0%, var(--bb-bg-0) 55%);
-      color:var(--bb-ink); font-family:'Orbitron', system-ui, sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent;
+      margin:0; background:radial-gradient(1200px 1200px at 50% -10%,#15171c 0%,var(--bb-bg-0) 55%);
+      color:var(--bb-ink); font-family:'Orbitron',system-ui,sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent;
     }
 
     /* grain */
@@ -45,11 +46,11 @@
     /* rails */
     .rail{position:fixed; top:50%; transform:translateY(-50%); display:grid; gap:12px; z-index:25}
     .rail.left{left:10px} .rail.right{right:10px}
-    .icon-btn span{font-size:16px}
 
     /* containers */
     .vertical{
       height:100vh; width:100vw; overflow-y:auto; scroll-snap-type:y mandatory; scroll-snap-stop:always;
+      /* custom pan on both axes */
       touch-action:none; overscroll-behavior:contain;
     }
     .vertical::-webkit-scrollbar{width:8px}
@@ -102,7 +103,7 @@
   <!-- HUD -->
   <div class="hud" role="toolbar" aria-label="Top controls">
     <div class="slot">
-      <button class="icon-btn" id="btnSearch" title="Search" aria-label="Search"><span>🔍</span></button>
+      <button class="icon-btn" id="btnSearch" title="Search" aria-label="Search">🔍</button>
       <span class="pill" id="categoryPill">ALL</span>
     </div>
     <div class="slot" style="justify-content:center; gap:16px">
@@ -118,126 +119,138 @@
       </div>
     </div>
     <div class="slot" style="justify-content:flex-end">
-      <button class="icon-btn" id="btnSettings" title="Settings" aria-label="Settings"><span>⚙️</span></button>
+      <button class="icon-btn" id="btnSettings" title="Settings" aria-label="Settings">⚙️</button>
     </div>
   </div>
 
-  <!-- Side Rails -->
+  <!-- Rails -->
   <div class="rail left" aria-label="Left navigation">
-    <button class="icon-btn" title="Profile" aria-label="Profile"><span>👤</span></button>
-    <button class="icon-btn" title="Watch" aria-label="Watch"><span>📺</span></button>
-    <button class="icon-btn" title="Rankings" aria-label="Rankings"><span>🏆</span></button>
+    <button class="icon-btn" title="Profile" aria-label="Profile">👤</button>
+    <button class="icon-btn" title="Watch" aria-label="Watch">📺</button>
+    <button class="icon-btn" title="Rankings" aria-label="Rankings">🏆</button>
   </div>
   <div class="rail right" aria-label="Right navigation">
-    <button class="icon-btn" title="Home" aria-label="Home"><span>🏠</span></button>
-    <button class="icon-btn" title="Messages" aria-label="Messages"><span>💬</span></button>
-    <button class="icon-btn" title="Settings" aria-label="Settings"><span>⚙️</span></button>
+    <button class="icon-btn" title="Home" aria-label="Home">🏠</button>
+    <button class="icon-btn" title="Messages" aria-label="Messages">💬</button>
+    <button class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
   </div>
 
   <!-- FEED -->
-  <div class="vertical" id="vCont" aria-label="Categories">
-    <!-- JS will populate rows (hwrap) and slides (arena) -->
-  </div>
-
+  <div class="vertical" id="vCont" aria-label="Categories"></div>
   <div class="chat-hint" aria-hidden="true">💬 Chat coming soon…</div>
 
   <script>
-    // ----------- Data: add more categories/slides here -----------
+    // ---------- Data ----------
     const FEED = [
-      { category: 'ALL', slides: [
+      { category:'ALL', slides:[
         { left:{vid:'user1.mp4', img:'user1.jpg', handle:'@Alpha', aud:239}, right:{vid:'user2.mp4', img:'user2.jpg', handle:'@Omega', aud:221} },
         { left:{vid:'all2-left.mp4', img:'all2-left.jpg', handle:'@Nova', aud:198}, right:{vid:'all2-right.mp4', img:'all2-right.jpg', handle:'@Vex', aud:204} },
         { left:{vid:'all3-left.mp4', img:'all3-left.jpg', handle:'@Raze', aud:176}, right:{vid:'all3-right.mp4', img:'all3-right.jpg', handle:'@Myth', aud:182} },
         { left:{vid:'all4-left.mp4', img:'all4-left.jpg', handle:'@Vanta', aud:190}, right:{vid:'all4-right.mp4', img:'all4-right.jpg', handle:'@Kyro', aud:188} },
       ]},
-      { category: 'ART', slides: [
+      { category:'ART', slides:[
         { left:{vid:'art1.mp4', img:'art1.jpg', handle:'@BrushKing', aud:97}, right:{vid:'art2.mp4', img:'art2.jpg', handle:'@CanvasQueen', aud:105} },
         { left:{vid:'art3.mp4', img:'art3.jpg', handle:'@InkSoul', aud:112}, right:{vid:'art4.mp4', img:'art4.jpg', handle:'@NeoMuse', aud:109} },
         { left:{vid:'art5.mp4', img:'art5.jpg', handle:'@Stencil', aud:101}, right:{vid:'art6.mp4', img:'art6.jpg', handle:'@Charcoal', aud:99} },
       ]},
-      { category: 'FASHION', slides: [
+      { category:'FASHION', slides:[
         { left:{vid:'fashion1.mp4', img:'fashion1.jpg', handle:'@StyleIcon', aud:155}, right:{vid:'fashion2.mp4', img:'fashion2.jpg', handle:'@ThreadQueen', aud:144} },
         { left:{vid:'fashion3.mp4', img:'fashion3.jpg', handle:'@Runway', aud:138}, right:{vid:'fashion4.mp4', img:'fashion4.jpg', handle:'@Tailor', aud:141} },
       ]},
-      { category: 'RAP BATTLE', slides: [
+      { category:'RAP BATTLE', slides:[
         { left:{vid:'rap1.mp4', img:'rap1.jpg', handle:'@MicFlame', aud:312}, right:{vid:'rap2.mp4', img:'rap2.jpg', handle:'@LyricBeast', aud:333} },
         { left:{vid:'rap3.mp4', img:'rap3.jpg', handle:'@Cipher', aud:301}, right:{vid:'rap4.mp4', img:'rap4.jpg', handle:'@EightBar', aud:289} },
         { left:{vid:'rap5.mp4', img:'rap5.jpg', handle:'@Hooksmith', aud:295}, right:{vid:'rap6.mp4', img:'rap6.jpg', handle:'@Metre', aud:284} },
       ]},
-      { category: 'DANCE', slides: [
+      { category:'DANCE', slides:[
         { left:{vid:'dance1.mp4', img:'dance1.jpg', handle:'@Iso', aud:210}, right:{vid:'dance2.mp4', img:'dance2.jpg', handle:'@Poplock', aud:219} },
         { left:{vid:'dance3.mp4', img:'dance3.jpg', handle:'@Glide', aud:225}, right:{vid:'dance4.mp4', img:'dance4.jpg', handle:'@Waves', aud:231} },
         { left:{vid:'dance5.mp4', img:'dance5.jpg', handle:'@Orbit', aud:206}, right:{vid:'dance6.mp4', img:'dance6.jpg', handle:'@Strobe', aud:214} },
       ]},
     ];
 
-    // ----------- DOM builders -----------
+    // ---------- DOM builders ----------
     const vCont = document.getElementById('vCont');
 
     function el(tag, attrs={}, children=[]){
-      const node = document.createElement(tag);
+      const n = document.createElement(tag);
       for (const [k,v] of Object.entries(attrs)){
-        if (k === 'class') node.className = v;
-        else if (k === 'dataset') Object.entries(v).forEach(([dk,dv]) => node.dataset[dk] = dv);
-        else if (k === 'html') node.innerHTML = v;
-        else node.setAttribute(k, v);
+        if (k==='class') n.className = v;
+        else if (k==='dataset') Object.entries(v).forEach(([dk,dv]) => n.dataset[dk]=dv);
+        else if (k==='html') n.innerHTML = v;
+        else n.setAttribute(k, v);
       }
-      children.forEach(c => node.appendChild(c));
-      return node;
+      for (const c of children) n.appendChild(c);
+      return n;
     }
 
-    function battlePane(side, data){
-      return el('div', {class:`pane ${side}`}, [
-        el('video', {autoplay:'', muted:'', loop:'', src:data.vid}),
-        el('div', {class:'vignette'}),
-        el('div', {class:'cinfo'}, [
-          el('img', {src:data.img, alt:`${data.handle} avatar`}),
-          el('span', {class:'handle', html:data.handle})
+    function pane(side, d){
+      return el('div',{class:`pane ${side}`},[
+        el('video',{autoplay:'', muted:'', loop:'', playsinline:'', src:d.vid}),
+        el('div',{class:'vignette'}),
+        el('div',{class:'cinfo'},[
+          el('img',{src:d.img, alt:`${d.handle} avatar`}),
+          el('span',{class:'handle', html:d.handle})
         ]),
-        el('button', {class:'vote', html:'Vote'}),
-        el('div', {class:'aud', html:`Live Audience: ● ${data.aud}`}, [
-          el('div', {class:'a-avatars'}, [
-            el('img', {src:'a1.jpg', alt:''}),
-            el('img', {src:'a2.jpg', alt:''}),
-            el('img', {src:'a3.jpg', alt:''}),
+        el('button',{class:'vote', html:'Vote'}),
+        el('div',{class:'aud', html:`Live Audience: ● ${d.aud}`},[
+          el('div',{class:'a-avatars'},[
+            el('img',{src:'a1.jpg', alt:''}),
+            el('img',{src:'a2.jpg', alt:''}),
+            el('img',{src:'a3.jpg', alt:''}),
           ])
         ])
       ]);
     }
 
-    function slideArena(pair){
-      return el('div', {class:'arena'}, [
-        el('div', {class:'content'}, [
-          battlePane('left', pair.left),
-          battlePane('right', pair.right)
+    function arena(pair){
+      return el('div',{class:'arena'},[
+        el('div',{class:'content'},[
+          pane('left', pair.left),
+          pane('right', pair.right),
         ])
       ]);
     }
 
-    // Build rows and slides
-    FEED.forEach(row => {
-      const hwrap = el('div', {class:'hwrap', dataset:{category:row.category}});
-      row.slides.forEach(pair => hwrap.appendChild(slideArena(pair)));
-      vCont.appendChild(hwrap);
+    // Build rows/slides
+    FEED.forEach(row=>{
+      const wrap = el('div',{class:'hwrap', dataset:{category:row.category}});
+      row.slides.forEach(pair=>wrap.appendChild(arena(pair)));
+      vCont.appendChild(wrap);
     });
 
-    // ----------- HUD: category + timer ring -----------
+    // ---------- HUD: Category + Timer Ring ----------
     const wraps = Array.from(document.querySelectorAll('.hwrap'));
     const categoryPill = document.getElementById('categoryPill');
-    function syncCategory(){
-      const idx = Math.round(vCont.scrollTop / window.innerHeight);
-      categoryPill.textContent = wraps[idx]?.dataset.category || FEED[0].category;
+
+    function viewportH(){ return vCont.clientHeight || window.innerHeight; }
+    function viewportW(){ return vCont.clientWidth  || window.innerWidth; }
+
+    function activeIndex(){
+      return Math.round(vCont.scrollTop / viewportH());
     }
+
+    function getActiveWrap(){
+      return wraps[activeIndex()] || wraps[0];
+    }
+
+    function syncCategory(){
+      const w = getActiveWrap();
+      categoryPill.textContent = (w && w.dataset.category) ? w.dataset.category : FEED[0].category;
+    }
+
     vCont.addEventListener('scroll', syncCategory, {passive:true});
     window.addEventListener('resize', syncCategory);
     syncCategory();
 
+    // Timer ring
     const roundLabel = document.getElementById('roundLabel');
     const tArc = document.getElementById('timerArc');
     const tText = document.getElementById('timerText');
-    const CIRC = 2 * Math.PI * 18;
+    const CIRC = 2 * Math.PI * 18; // circle length
     tArc.setAttribute('stroke-dasharray', CIRC.toFixed(3));
     let round = 1, timeLeft = 60, maxRounds = 3, ticking = null;
+
     function setTimerUI(){
       roundLabel.textContent = `Round ${round}`;
       tText.textContent = String(timeLeft);
@@ -257,7 +270,7 @@
     }
     startTimer();
 
-    // Rails fade during scroll
+    // Rails fade while moving
     const rails = document.querySelectorAll('.rail');
     let fadeTO;
     function railsFade(){ rails.forEach(r=>r.style.opacity=.35); clearTimeout(fadeTO); fadeTO=setTimeout(()=>rails.forEach(r=>r.style.opacity=1), 800); }
@@ -277,55 +290,123 @@
       // hook your vote API here
     });
 
-    // ----------- Oblique drag (diagonal) -----------
-    let drag = {active:false, lastX:0, lastY:0, wrap:null};
+    // ---------- ADVANCED OBLIQUE ENGINE (momentum + snap) ----------
+    const engine = {
+      dragging:false, lastX:0, lastY:0, lastT:0, vx:0, vy:0, raf:0, wrap:getActiveWrap(),
+      friction:0.92,   // momentum decay per frame
+      minVel:0.15,     // px/frame threshold to stop
+    };
 
-    function getActiveWrap(){
-      const idx = Math.round(vCont.scrollTop / window.innerHeight);
-      return wraps[idx] || wraps[0];
+    function stepScroll(dx, dy){
+      // vertical
+      vCont.scrollTop -= dy;
+      // horizontal (on CURRENT active row)
+      const newWrap = getActiveWrap();
+      if (newWrap !== engine.wrap) engine.wrap = newWrap;
+      if (engine.wrap){
+        engine.wrap.scrollLeft -= dx;
+      }
+      syncCategory();
     }
 
+    function momentumLoop(){
+      cancelAnimationFrame(engine.raf);
+      engine.raf = requestAnimationFrame(()=>{
+        // apply friction
+        engine.vx *= engine.friction;
+        engine.vy *= engine.friction;
+        // stop?
+        if (Math.abs(engine.vx) < engine.minVel && Math.abs(engine.vy) < engine.minVel){
+          snapToNearest();
+          return;
+        }
+        stepScroll(engine.vx, engine.vy);
+        momentumLoop();
+      });
+    }
+
+    function animateTo(getter, setter, target, done){
+      const start = getter();
+      const dist = target - start;
+      const dur = 300;
+      let t0;
+      function easeOutCubic(x){ return 1 - Math.pow(1 - x, 3); }
+      function tick(ts){
+        if(!t0) t0 = ts;
+        const p = Math.min(1, (ts - t0) / dur);
+        setter(start + dist * easeOutCubic(p));
+        if (p < 1) requestAnimationFrame(tick);
+        else done && done();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function clamp(val, min, max){ return Math.max(min, Math.min(max, val)); }
+
+    function snapToNearest(){
+      const vh = viewportH(), vw = viewportW();
+      const maxV = vCont.scrollHeight - vh;
+      const vTarget = clamp(Math.round(vCont.scrollTop / vh) * vh, 0, maxV);
+
+      const w = getActiveWrap();
+      const maxH = w.scrollWidth - vw;
+      const hTarget = clamp(Math.round(w.scrollLeft / vw) * vw, 0, maxH);
+
+      // animate both axes
+      animateTo(()=>vCont.scrollTop, v=>vCont.scrollTop=v, vTarget);
+      animateTo(()=>w.scrollLeft, v=>w.scrollLeft=v, hTarget, syncCategory);
+    }
+
+    // Pointer handling (use vCont as the capture owner for iOS/Safari)
     vCont.addEventListener('pointerdown', (e)=>{
-      if (e.target.closest('button, a')) return; // don't hijack button taps
-      drag.active = true;
-      drag.lastX = e.clientX; drag.lastY = e.clientY;
-      drag.wrap = getActiveWrap();
-      try{ e.target.setPointerCapture && e.target.setPointerCapture(e.pointerId); }catch(_){}
+      // don't hijack UI controls
+      if (e.target.closest('button,a')) return;
+
+      engine.dragging = true;
+      engine.lastX = e.clientX; engine.lastY = e.clientY; engine.lastT = performance.now();
+      engine.vx = engine.vy = 0; // reset momentum
+      engine.wrap = getActiveWrap();
+
+      try { vCont.setPointerCapture && vCont.setPointerCapture(e.pointerId); } catch(_) {}
     });
 
     vCont.addEventListener('pointermove', (e)=>{
-      if(!drag.active) return;
-      const dx = e.clientX - drag.lastX;
-      const dy = e.clientY - drag.lastY;
-      vCont.scrollTop -= dy;     // vertical
-      if (drag.wrap) drag.wrap.scrollLeft -= dx; // horizontal
-      drag.lastX = e.clientX; drag.lastY = e.clientY;
-      e.preventDefault(); // required for mobile custom pan
+      if (!engine.dragging) return;
+
+      const now = performance.now();
+      const dt = Math.max(1, now - engine.lastT); // ms
+      const dx = e.clientX - engine.lastX;
+      const dy = e.clientY - engine.lastY;
+
+      // Move content (invert to match finger drag)
+      stepScroll(dx, dy);
+
+      // velocity in px/frame (@60fps roughly => multiply by 16.7/dt)
+      const k = 16.7 / dt;
+      engine.vx = engine.vx*0.8 + (dx * k)*0.2;
+      engine.vy = engine.vy*0.8 + (dy * k)*0.2;
+
+      engine.lastX = e.clientX; engine.lastY = e.clientY; engine.lastT = now;
+      e.preventDefault(); // required for mobile custom pan (touch-action: none)
     }, {passive:false});
 
-    function snapAfterDrag(){
-      const vTarget = Math.round(vCont.scrollTop / window.innerHeight) * window.innerHeight;
-      vCont.scrollTo({top:vTarget, behavior:'smooth'});
-      const w = getActiveWrap();
-      const hTarget = Math.round(w.scrollLeft / window.innerWidth) * window.innerWidth;
-      w.scrollTo({left:hTarget, behavior:'smooth'});
-      syncCategory();
+    function endDrag(){
+      if (!engine.dragging) return;
+      engine.dragging = false;
+      momentumLoop();
     }
-    ['pointerup','pointercancel','pointerleave'].forEach(ev=>{
-      vCont.addEventListener(ev, ()=>{
-        if(!drag.active) return;
-        drag.active=false; snapAfterDrag();
-      });
-    });
+    vCont.addEventListener('pointerup', endDrag);
+    vCont.addEventListener('pointercancel', endDrag);
+    vCont.addEventListener('pointerleave', endDrag);
 
-    // Arrow keys navigation (desktop)
+    // Keyboard nav (desktop)
     window.addEventListener('keydown', (e)=>{
       const w = getActiveWrap();
-      if (!w) return;
-      if (e.key === 'ArrowRight') w.scrollBy({left: innerWidth, behavior:'smooth'});
-      if (e.key === 'ArrowLeft')  w.scrollBy({left:-innerWidth, behavior:'smooth'});
-      if (e.key === 'ArrowDown')  vCont.scrollBy({top: innerHeight, behavior:'smooth'});
-      if (e.key === 'ArrowUp')    vCont.scrollBy({top:-innerHeight, behavior:'smooth'});
+      const vh = viewportH(), vw = viewportW();
+      if (e.key === 'ArrowRight') w.scrollBy({left: vw, behavior:'smooth'});
+      if (e.key === 'ArrowLeft')  w.scrollBy({left:-vw, behavior:'smooth'});
+      if (e.key === 'ArrowDown')  vCont.scrollBy({top:  vh, behavior:'smooth'});
+      if (e.key === 'ArrowUp')    vCont.scrollBy({top: -vh, behavior:'smooth'});
     });
   </script>
 </body>
