@@ -1,1 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BattleBillions Swipe Arena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      background: #000;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+    }
 
+    .category-label {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,255,255,0.15);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 20;
+      color: #0ff;
+    }
+
+    .round-label {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 20;
+      color: #0ff;
+    }
+
+    .timer-label {
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 20;
+      color: #0ff;
+    }
+
+    .search-icon {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 20;
+      font-size: 18px;
+      color: #0ff;
+    }
+
+    .vertical-container {
+      height: 100vh;
+      width: 100vw;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+    }
+
+    .horizontal-wrapper {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      scroll-snap-align: start;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+
+    .battle-arena {
+      flex: 0 0 100%;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .battle-content {
+      flex: 1;
+      display: flex;
+      height: 100%;
+    }
+
+    .video-half {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .competitor-info {
+      position: absolute;
+      top: 60px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 12px;
+      border-radius: 20px;
+      z-index: 3;
+    }
+
+    .video-half.left .competitor-info { left: 12px; }
+    .video-half.right .competitor-info { right: 12px; }
+
+    .competitor-info img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    .competitor-info span {
+      font-size: 14px;
+      color: #0ff;
+    }
+
+    .vote-btn {
+      position: absolute;
+      bottom: 130px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: rgba(0,255,255,0.2);
+      color: #fff;
+      cursor: pointer;
+      font-size: 15px;
+      z-index: 3;
+      border: none;
+    }
+
+    .video-half.left .vote-btn { left: 12px; }
+    .video-half.right .vote-btn { right: 12px; }
+
+    .audience-section {
+      position: absolute;
+      bottom: 80px;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: #0ff;
+      z-index: 2;
+    }
+
+    .audience-avatars {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .audience-avatars img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+
+    .side-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+      transition: opacity 0.4s;
+    }
+
+    .side-nav.left { left: 8px; }
+    .side-nav.right { right: 8px; }
+
+    .side-nav button {
+      background: none;
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 18px;
+      color: #0ff;
+      cursor: pointer;
+      border: none;
+    }
+
+    .hidden { opacity: 0; }
+
+    .chat-placeholder {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #888;
+      font-size: 12px;
+      z-index: 5;
+    }
+
+    @media (max-width: 768px) {
+      .competitor-info span { font-size: 12px; }
+      .vote-btn { font-size: 12px; padding: 6px 10px; }
+      .search-icon { font-size: 16px; padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-icon">🔍</div>
+  <div class="category-label" id="categoryLabel">ALL</div>
+  <div class="round-label" id="roundLabel">Round 1</div>
+  <div class="timer-label" id="timerLabel">60s</div>
+
+  <div class="side-nav left" id="leftNav">
+    <button>👤</button>
+    <button>📺</button>
+    <button>🏆</button>
+  </div>
+
+  <div class="side-nav right" id="rightNav">
+    <button>🏠</button>
+    <button>💬</button>
+    <button>⚙️</button>
+  </div>
+
+  <div class="vertical-container" id="verticalContainer">
+    <!-- CATEGORY: ALL -->
+    <div class="horizontal-wrapper">
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="user1.mp4"></video>
+            <div class="competitor-info"><img src="user1.jpg"><span>@Alpha</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 239<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="user2.mp4"></video>
+            <div class="competitor-info"><img src="user2.jpg"><span>@Omega</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 221<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORY: ART -->
+    <div class="horizontal-wrapper">
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="art1.mp4"></video>
+            <div class="competitor-info"><img src="art1.jpg"><span>@BrushKing</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 97<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="art2.mp4"></video>
+            <div class="competitor-info"><img src="art2.jpg"><span>@CanvasQueen</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 105<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORY: FASHION -->
+    <div class="horizontal-wrapper">
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="fashion1.mp4"></video>
+            <div class="competitor-info"><img src="fashion1.jpg"><span>@StyleIcon</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 155<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="fashion2.mp4"></video>
+            <div class="competitor-info"><img src="fashion2.jpg"><span>@ThreadQueen</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 144<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORY: RAP BATTLE -->
+    <div class="horizontal-wrapper">
+      <div class="battle-arena">
+        <div class="battle-content">
+          <div class="video-half left">
+            <video autoplay muted loop src="rap1.mp4"></video>
+            <div class="competitor-info"><img src="rap1.jpg"><span>@MicFlame</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 312<div class="audience-avatars"><img src="a1.jpg"><img src="a2.jpg"><img src="a3.jpg"></div></div>
+          </div>
+          <div class="video-half right">
+            <video autoplay muted loop src="rap2.mp4"></video>
+            <div class="competitor-info"><img src="rap2.jpg"><span>@LyricBeast</span></div>
+            <button class="vote-btn">Vote</button>
+            <div class="audience-section">Live Audience: 🔴 333<div class="audience-avatars"><img src="b1.jpg"><img src="b2.jpg"><img src="b3.jpg"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-placeholder">💬 Chat feature coming soon...</div>
+
+  <script>
+    const leftNav = document.getElementById('leftNav');
+    const rightNav = document.getElementById('rightNav');
+    const categoryLabel = document.getElementById('categoryLabel');
+    const roundLabel = document.getElementById('roundLabel');
+    const timerLabel = document.getElementById('timerLabel');
+    const categories = ['ALL', 'ART', 'FASHION', 'RAP BATTLE'];
+
+    document.querySelectorAll('.horizontal-wrapper').forEach((wrapper) => {
+      wrapper.addEventListener('scroll', () => {
+        leftNav.classList.add('hidden');
+        rightNav.classList.add('hidden');
+        clearTimeout(wrapper.hideTimeout);
+        wrapper.hideTimeout = setTimeout(() => {
+          leftNav.classList.remove('hidden');
+          rightNav.classList.remove('hidden');
+        }, 1000);
+      });
+    });
+
+    document.getElementById('verticalContainer').addEventListener('scroll', (e) => {
+      const scrollTop = e.target.scrollTop;
+      const containerHeight = window.innerHeight;
+      const verticalIndex = Math.round(scrollTop / containerHeight);
+      categoryLabel.innerText = categories[verticalIndex] || 'ALL';
+    });
+
+    let round = 1;
+    let timer = 60;
+    const maxRounds = 3;
+    let inPause = false;
+
+    const updateTimerUI = () => {
+      roundLabel.innerText = `Round ${round}`;
+      timerLabel.innerText = `${timer}s`;
+    };
+
+    const startTimer = () => {
+      updateTimerUI();
+      const interval = setInterval(() => {
+        if (timer > 0) {
+          timer--;
+          timerLabel.innerText = `${timer}s`;
+        } else {
+          clearInterval(interval);
+          if (round < maxRounds) {
+            round++;
+            inPause = true;
+            timerLabel.innerText = "⏸ Pause...";
+            setTimeout(() => {
+              timer = 60;
+              inPause = false;
+              startTimer();
+            }, 6000);
+          } else {
+            roundLabel.innerText = "Battle Over";
+            timerLabel.innerText = "0s";
+          }
+        }
+      }, 1000);
+    };
+
+    startTimer();
+  </script>
+
+</body>
+  </html>
