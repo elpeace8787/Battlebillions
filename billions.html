@@ -1,95 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-/>
-<title>BattleBillions — 3illions (Mobile)</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>3illions — Mobile Safe Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#000; --card:#111317; --ink:#eef1f5; --ink2:#c9d0d7; --ink3:#9aa3ad;
-    --b1:rgba(255,255,255,.12); --b2:rgba(255,255,255,.16); --pill:rgba(255,255,255,.05);
-    --shadow:0 10px 30px rgba(0,0,0,.55);
+    --bg:#000; --panel:#0b0c0f; --card:#111317;
+    --ink:#eef1f5; --ink2:#c9d0d7; --ink3:#9aa3ad;
+    --b1:rgba(255,255,255,.12); --b2:rgba(255,255,255,.16); --pill:rgba(255,255,255,.06);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;width:100%}
-  body{
-    margin:0; background:#000; color:var(--ink);
-    font-family:'Orbitron',system-ui,sans-serif; overflow:hidden;
-  }
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Orbitron',system-ui,sans-serif;overflow:hidden}
 
-  /* HUD (mobile-friendly, safe area) */
+  /* HUD */
   .hud{
-    position:fixed; left:0; right:0; top:0; height:64px; padding:0 12px env(safe-area-inset-top) 0 12px;
-    display:flex; align-items:center; justify-content:space-between; z-index:50;
-    background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,0));
-    pointer-events:none;
+    position:fixed; left:0; right:0; top:0; height:64px;
+    padding:env(safe-area-inset-top) 12px 0 12px; /* top, right, bottom, left */
+    display:flex; align-items:center; justify-content:space-between;
+    background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,0));
+    z-index:10;
   }
-  .hud > *{pointer-events:auto}
-  .brand{display:flex; align-items:center; gap:10px}
-  .logo{width:34px; height:34px; border-radius:12px; border:1px solid var(--b1); background:linear-gradient(180deg,#1a1c21,#0d0f13)}
-  .pill{border:1px solid var(--b1); background:var(--pill); color:var(--ink2); padding:7px 12px; border-radius:999px; font-size:12px; letter-spacing:.08em; text-transform:uppercase}
-  .timer{position:relative; width:42px; height:42px; display:grid; place-items:center}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:34px;height:34px;border-radius:10px;border:1px solid var(--b1);background:linear-gradient(#1a1c21,#0d0f13)}
+  .pill{border:1px solid var(--b1);background:var(--pill);color:var(--ink2);padding:7px 12px;border-radius:999px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  .timer{position:relative;width:42px;height:42px;display:grid;place-items:center}
   .timer svg{transform:rotate(-90deg)}
-  .tspan{position:absolute; font-size:11px}
+  .tspan{position:absolute;font-size:11px}
 
-  /* Dock (bottom) */
-  .dock{
-    position:fixed; left:0; right:0; bottom:env(safe-area-inset-bottom); height:58px;
-    display:flex; align-items:center; justify-content:center; gap:10px; z-index:50;
-    pointer-events:none;
-  }
-  .dock .btn{pointer-events:auto; height:44px; padding:0 14px; display:flex; align-items:center; gap:8px; border-radius:999px; border:1px solid var(--b1); background:rgba(0,0,0,.35); backdrop-filter:blur(6px); color:var(--ink2)}
+  /* Bottom space for safe area */
+  .spacer{height:calc(env(safe-area-inset-bottom) + 8px)}
 
-  /* Containers */
+  /* Containers — NATIVE scroll first */
   .vertical{
-    position:relative;
-    height:100vh; width:100vw;
-    overflow: hidden; /* we handle scrolling via touch engine */
-    padding-top:64px; padding-bottom:74px; /* space for HUD + Dock */
-    touch-action: none; /* capture pointer on mobile */
+    position:relative; height:100vh; width:100vw;
+    overflow-y:auto; scroll-snap-type:y mandatory; scroll-snap-stop:always;
+    padding-top:64px; /* HUD space */
+    background:var(--bg);
   }
   .section{
-    width:100%; height:calc(100vh - 64px - 74px);
-    display:flex; flex-direction:column; gap:10px;
+    height:calc(100vh - 64px); /* fits under HUD */
+    scroll-snap-align:start;
+    display:flex; flex-direction:column; gap:12px;
+    padding:10px 10px 0;
+    background:var(--bg);
   }
-  .head{display:flex; align-items:center; justify-content:space-between; padding:0 10px}
-  .head .name{font-size:12px; letter-spacing:.12em; color:var(--ink3)}
-  .head .hint{font-size:11px; color:var(--ink3)}
+  .head{display:flex;align-items:center;justify-content:space-between}
+  .head .name{font-size:12px;color:var(--ink3);letter-spacing:.12em}
+  .head .hint{font-size:11px;color:var(--ink3)}
 
   .row{
     flex:1; width:100%;
-    display:flex; gap:10px;
+    display:flex; gap:12px;
+    overflow-x:auto; scroll-snap-type:x mandatory; scroll-snap-stop:always;
+    -webkit-overflow-scrolling:touch;
   }
-
-  /* Battle card (2-up inside one card) */
   .card{
     flex:0 0 100vw; height:100%;
-    position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--b1); background:var(--card);
-    display:grid; grid-template-columns:1fr 1fr; box-shadow:var(--shadow);
+    border:1px solid var(--b1); border-radius:16px; overflow:hidden;
+    background:var(--card);
+    display:grid; grid-template-columns:1fr 1fr;
   }
   .pane{
-    position:relative; overflow:hidden; background:linear-gradient(150deg,#0f1216,#07090c);
-    display:flex; align-items:flex-end; justify-content:flex-start;
+    position:relative; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(150deg,#0f1216,#07090c);
+    color:#7b828d; font-size:16px; letter-spacing:.08em;
   }
-  .pane::before{
-    content:attr(data-bg); position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    color:#6a6f78; font-size:16px; letter-spacing:.08em;
+  .badge{
+    position:absolute; top:10px; left:10px;
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; color:var(--ink);
+    padding:6px 10px; border-radius:999px; border:1px solid var(--b1); background:rgba(0,0,0,.45); backdrop-filter:blur(6px)
   }
-  .overlay{position:absolute; inset:0; background:radial-gradient(80% 100% at 50% 50%, transparent 40%, rgba(0,0,0,.55) 100%)}
-  .chip{position:absolute; top:10px; left:10px; display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--b1); background:rgba(0,0,0,.45); backdrop-filter:blur(6px); font-size:12px}
   .aud{position:absolute; bottom:10px; right:10px; font-size:12px; color:var(--ink3)}
-  .vote{position:absolute; bottom:10px; left:10px; padding:8px 14px; border-radius:999px; border:1px solid var(--b2); background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04)); color:var(--ink); font-size:12px}
-
-  /* Helper text */
-  .hintbar{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(env(safe-area-inset-bottom) + 62px); color:var(--ink3); font-size:12px; z-index:40}
+  .vote{position:absolute; bottom:10px; left:10px; font-size:12px; color:var(--ink); padding:8px 14px; border-radius:999px; border:1px solid var(--b2); background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04))}
 </style>
 </head>
 <body>
-  <div class="hud">
+  <header class="hud">
     <div class="brand"><div class="logo"></div><div>3illions</div></div>
     <div class="pill" id="catPill">ALL</div>
     <div class="timer" aria-live="polite">
@@ -99,240 +89,103 @@
       </svg>
       <span class="tspan" id="tTxt">60</span>
     </div>
-  </div>
+  </header>
 
-  <div class="dock">
-    <div class="btn">Live</div>
-    <div class="btn">Trending</div>
-    <div class="btn">Recent</div>
-  </div>
-
-  <div class="hintbar">drag anywhere ↕ ↔ ↗</div>
-
-  <main class="vertical" id="viewport"></main>
+  <main class="vertical" id="vp">
+    <!-- Sections/rows are injected by JS so you see content immediately -->
+  </main>
+  <div class="spacer"></div>
 
 <script>
-/* ---------- DATA ---------- */
+/* --- DATA (placeholders so you’ll see content even w/o assets) --- */
 const FEED = [
   { category:'ALL', slides:[
     {L:'USER 1', l:'@Alpha', la:239, R:'USER 2', r:'@Omega', ra:221},
     {L:'NOVA', l:'@Nova', la:198, R:'VEX', r:'@Vex', ra:204},
-    {L:'RAZE', l:'@Raze', la:176, R:'MYTH', r:'@Myth', ra:182},
-    {L:'VANTA', l:'@Vanta', la:190, R:'KYRO', r:'@Kyro', ra:188},
+    {L:'RAZE', l:'@Raze', la:176, R:'MYTH', r:'@Myth', ra:182}
   ]},
   { category:'ART', slides:[
     {L:'BRUSH', l:'@BrushKing', la:97, R:'CANVAS', r:'@CanvasQueen', ra:105},
-    {L:'INK', l:'@InkSoul', la:112, R:'MUSE', r:'@NeoMuse', ra:109},
-    {L:'STENCIL', l:'@Stencil', la:101, R:'CHARCOAL', r:'@Charcoal', ra:99},
+    {L:'INK', l:'@InkSoul', la:112, R:'MUSE', r:'@NeoMuse', ra:109}
   ]},
   { category:'FASHION', slides:[
-    {L:'STYLE', l:'@StyleIcon', la:155, R:'THREAD', r:'@ThreadQueen', ra:144},
-    {L:'RUNWAY', l:'@Runway', la:138, R:'TAILOR', r:'@Tailor', ra:141},
+    {L:'STYLE', l:'@StyleIcon', la:155, R:'THREAD', r:'@ThreadQueen', ra:144}
   ]},
   { category:'RAP BATTLE', slides:[
     {L:'FLAME', l:'@MicFlame', la:312, R:'LYRIC', r:'@LyricBeast', ra:333},
-    {L:'CIPHER', l:'@Cipher', la:301, R:'8-BAR', r:'@EightBar', ra:289},
-    {L:'HOOK', l:'@Hooksmith', la:295, R:'METRE', r:'@Metre', ra:284},
-  ]},
-  { category:'DANCE', slides:[
-    {L:'ISO', l:'@Iso', la:210, R:'POPLOCK', r:'@Poplock', ra:219},
-    {L:'GLIDE', l:'@Glide', la:225, R:'WAVES', r:'@Waves', ra:231},
-    {L:'ORBIT', l:'@Orbit', la:206, R:'STROBE', r:'@Strobe', ra:214},
+    {L:'CIPHER', l:'@Cipher', la:301, R:'8-BAR', r:'@EightBar', ra:289}
   ]},
 ];
 
-/* ---------- BUILD ---------- */
-const vp = document.getElementById('viewport');
-
-function el(tag, attrs={}, kids=[]){
-  const n = document.createElement(tag);
-  for (const [k,v] of Object.entries(attrs)){
-    if (k === 'class') n.className = v;
-    else if (k === 'dataset') for (const [dk,dv] of Object.entries(v)) n.dataset[dk]=dv;
-    else if (k === 'html') n.innerHTML = v;
-    else n.setAttribute(k, v);
-  }
-  kids.forEach(k => n.appendChild(k));
-  return n;
-}
-
+const vp = document.getElementById('vp');
+function el(t,a={},kids=[]){const n=document.createElement(t);for(const[k,v]of Object.entries(a)){if(k==='class')n.className=v;else if(k==='dataset')Object.entries(v).forEach(([dk,dv])=>n.dataset[dk]=dv);else if(k==='html')n.innerHTML=v;else n.setAttribute(k,v)}kids.forEach(c=>n.appendChild(c));return n;}
 function pane(label, handle, aud){
-  const p = el('div', {class:'pane', 'data-bg':label}, [
-    el('div', {class:'overlay'})
-  ]);
-  const chip = el('div', {class:'chip'}, [
-    el('span', {html:handle})
-  ]);
-  const vote = el('button', {class:'vote', html:'Vote'});
-  const audience = el('div', {class:'aud', html:`● ${aud}`});
-  const wrap = el('div', {style:'position:relative;height:100%;'}, [p, chip, vote, audience]);
-  return wrap;
+  const p = el('div',{class:'pane',html:label});
+  const badge = el('div',{class:'badge',html:handle});
+  const vote = el('button',{class:'vote',html:'Vote'});
+  const aud = el('div',{class:'aud',html:`● ${aud}`});
+  const box = el('div',{style:'position:relative;height:100%'},[p,badge,vote,aud]);
+  return box;
 }
-function card(pair){
-  const c = el('div', {class:'card'});
-  c.appendChild(pane(pair.L, pair.l, pair.la));
-  c.appendChild(pane(pair.R, pair.r, pair.ra));
-  return c;
-}
-
+function card(s){ const c=el('div',{class:'card'}); c.appendChild(pane(s.L,s.l,s.la)); c.appendChild(pane(s.R,s.r,s.ra)); return c; }
 FEED.forEach(row=>{
-  const sec = el('section', {class:'section'});
-  sec.appendChild(el('div', {class:'head'}, [
-    el('div', {class:'name', html:row.category}),
-    el('div', {class:'hint', html:'Swipe →'})
+  const sec = el('section',{class:'section'});
+  sec.appendChild(el('div',{class:'head'},[
+    el('div',{class:'name',html:row.category}),
+    el('div',{class:'hint',html:'Swipe →'})
   ]));
-  const rowEl = el('div', {class:'row', dataset:{category:row.category}});
-  row.slides.forEach(s => rowEl.appendChild(card(s)));
+  const rowEl = el('div',{class:'row',dataset:{category:row.category}});
+  row.slides.forEach(s=>rowEl.appendChild(card(s)));
   sec.appendChild(rowEl);
   vp.appendChild(sec);
 });
 
-/* ---------- HUD: category + timer ---------- */
+/* --- HUD: Category + Timer --- */
 const catPill = document.getElementById('catPill');
 const tArc = document.getElementById('tArc');
 const tTxt = document.getElementById('tTxt');
-const ARC = 2*Math.PI*18;
-tArc.setAttribute('stroke-dasharray', ARC.toFixed(3));
-
-let round = 1, timeLeft = 60, maxRounds = 3, tInt=null;
-function setTimerUI(){
-  tTxt.textContent = String(timeLeft);
-  const r = timeLeft/60;
-  tArc.setAttribute('stroke-dashoffset', ((1-r)*ARC).toFixed(3));
-}
-function startTimer(){
-  clearInterval(tInt); setTimerUI();
-  tInt = setInterval(()=>{
-    if (timeLeft>0){ timeLeft--; setTimerUI(); }
-    else {
-      clearInterval(tInt);
-      if (round<maxRounds){ round++; tTxt.textContent='⏸'; setTimeout(()=>{ timeLeft=60; startTimer(); }, 6000); }
-      else { tTxt.textContent='0'; }
-    }
-  }, 1000);
-}
+const CIRC = 2*Math.PI*18; tArc.setAttribute('stroke-dasharray', CIRC.toFixed(3));
+let round=1, timeLeft=60, maxRounds=3, tInt=null;
+function setTimer(){ tTxt.textContent=String(timeLeft); const r=timeLeft/60; tArc.setAttribute('stroke-dashoffset',((1-r)*CIRC).toFixed(3)); }
+function startTimer(){ clearInterval(tInt); setTimer(); tInt=setInterval(()=>{ if(timeLeft>0){timeLeft--;setTimer();} else {clearInterval(tInt); if(round<maxRounds){round++; tTxt.textContent='⏸'; setTimeout(()=>{timeLeft=60; startTimer();}, 6000);} else {tTxt.textContent='0';}} },1000); }
 startTimer();
 
-/* ---------- MOBILE SCROLL ENGINE (touch/pointer) ---------- */
-/* Works on Chrome Android & Safari iOS. It routes a single gesture
-   to BOTH axes: vertical container + active horizontal row. */
-
+/* --- Native scroll-aware label --- */
 const rows = Array.from(document.querySelectorAll('.row'));
+function vh(){return vp.clientHeight;}
+function activeVIndex(){return Math.round(vp.scrollTop/vh());}
+function activeRow(){return rows[activeVIndex()]||rows[0];}
+function syncCat(){ catPill.textContent = activeRow()?.dataset.category || FEED[0].category; }
+vp.addEventListener('scroll', ()=>{ syncCat(); }, {passive:true}); syncCat();
 
-function vh(){ return vp.clientHeight; }
-function vw(){ return vp.clientWidth; }
-function activeVIndex(){ return Math.round(vp.scrollTop / vh()); }
-function activeRow(){ return rows[activeVIndex()] || rows[0]; }
+/* --- Optional diagonal drag that DOES NOT block native scrolling --- */
+let drag={on:false,id:null,x:0,y:0};
+const hasPE='onpointerdown'in window;
 
-function syncCategory(){
-  const r = activeRow();
-  catPill.textContent = r?.dataset.category || FEED[0].category;
+/* We never call preventDefault on move; native scrolling stays alive. */
+function startDrag(x,y,id){ drag.on=true; drag.id=id; drag.x=x; drag.y=y; }
+function moveDrag(x,y){
+  if(!drag.on) return;
+  const dx=x-drag.x, dy=y-drag.y;
+  // assist both axes (small nudge) while native scroll also runs
+  vp.scrollTop -= dy*0.5;
+  activeRow().scrollLeft -= dx*0.5;
+  drag.x=x; drag.y=y;
 }
-syncCategory();
+function endDrag(){ drag.on=false; }
 
-let drag = {
-  on:false, id:null, x:0, y:0, t:0,
-  vx:0, vy:0, raf:0,
-  friction:0.92, stop:0.12
-};
-
-function step(dx, dy){
-  // invert to match finger
-  vp.scrollTop -= dy;
-  const row = activeRow();
-  row.scrollLeft -= dx;
-  syncCategory();
+if(hasPE){
+  vp.addEventListener('pointerdown',e=>{ if(e.target.closest('button,a')) return; startDrag(e.clientX,e.clientY,e.pointerId); },{passive:true});
+  vp.addEventListener('pointermove',e=>{ if(!drag.on||drag.id!==e.pointerId) return; moveDrag(e.clientX,e.clientY); },{passive:true});
+  const off=e=>{ if(drag.id===e.pointerId) endDrag(); };
+  vp.addEventListener('pointerup',off,{passive:true});
+  vp.addEventListener('pointercancel',off,{passive:true});
+}else{
+  vp.addEventListener('touchstart',e=>{ if(e.target.closest('button,a')) return; const t=e.touches[0]; startDrag(t.clientX,t.clientY,0); },{passive:true});
+  vp.addEventListener('touchmove',e=>{ const t=e.touches[0]; moveDrag(t.clientX,t.clientY); },{passive:true});
+  vp.addEventListener('touchend',endDrag,{passive:true});
+  vp.addEventListener('touchcancel',endDrag,{passive:true});
 }
-
-function snap(){
-  const r = activeRow();
-  const vTarget = Math.round(vp.scrollTop / vh()) * vh();
-  const hTarget = Math.round(r.scrollLeft / vw()) * vw();
-  vp.scrollTo({top:vTarget, behavior:'smooth'});
-  r.scrollTo({left:hTarget, behavior:'smooth'});
-}
-
-function momentum(){
-  cancelAnimationFrame(drag.raf);
-  drag.raf = requestAnimationFrame(()=>{
-    drag.vx *= drag.friction;
-    drag.vy *= drag.friction;
-    if (Math.abs(drag.vx) < drag.stop && Math.abs(drag.vy) < drag.stop){
-      snap(); return;
-    }
-    step(drag.vx, drag.vy);
-    momentum();
-  });
-}
-
-/* Use Pointer Events where available; fall back to touch */
-const PE = 'onpointerdown' in window;
-
-const start = (x,y,id)=>{
-  drag.on = true; drag.id = id; drag.x=x; drag.y=y; drag.t=performance.now(); drag.vx=0; drag.vy=0;
-};
-const move = (x,y)=>{
-  if (!drag.on) return;
-  const now = performance.now();
-  const dt = Math.max(1, now - drag.t);
-  const dx = x - drag.x;
-  const dy = y - drag.y;
-  // route movement to both axes (diagonal supported)
-  step(dx, dy);
-  // velocity smoothing (~60fps normalize)
-  const k = 16.7 / dt;
-  drag.vx = drag.vx*0.8 + (dx*k)*0.2;
-  drag.vy = drag.vy*0.8 + (dy*k)*0.2;
-  drag.x = x; drag.y = y; drag.t = now;
-};
-const end = ()=>{
-  if (!drag.on) return;
-  drag.on = false; momentum();
-};
-
-/* Pointer events */
-if (PE){
-  vp.addEventListener('pointerdown', (e)=>{
-    if (e.target.closest('button,a')) return;
-    vp.setPointerCapture?.(e.pointerId);
-    start(e.clientX, e.clientY, e.pointerId);
-    e.preventDefault();
-  }, {passive:false});
-
-  vp.addEventListener('pointermove', (e)=>{
-    if (!drag.on || drag.id!==e.pointerId) return;
-    move(e.clientX, e.clientY);
-    e.preventDefault();
-  }, {passive:false});
-
-  const peEnd = (e)=>{ if (drag.id===e.pointerId) end(); };
-  vp.addEventListener('pointerup', peEnd);
-  vp.addEventListener('pointercancel', peEnd);
-} else {
-  /* Touch fallback (older iOS) */
-  vp.addEventListener('touchstart', (e)=>{
-    if (e.target.closest('button,a')) return;
-    const t = e.touches[0]; start(t.clientX, t.clientY, 0);
-  }, {passive:true});
-
-  vp.addEventListener('touchmove', (e)=>{
-    if (!drag.on) return;
-    const t = e.touches[0]; move(t.clientX, t.clientY);
-    e.preventDefault(); // needed to take over scrolling
-  }, {passive:false});
-
-  vp.addEventListener('touchend', end, {passive:true});
-  vp.addEventListener('touchcancel', end, {passive:true});
-}
-
-/* Keyboard (no-op on mobile, but handy in emulators) */
-window.addEventListener('keydown',(e)=>{
-  const r = activeRow();
-  if (e.key==='ArrowRight') r.scrollBy({left:vw(), behavior:'smooth'});
-  if (e.key==='ArrowLeft')  r.scrollBy({left:-vw(), behavior:'smooth'});
-  if (e.key==='ArrowDown')  vp.scrollBy({top:vh(), behavior:'smooth'});
-  if (e.key==='ArrowUp')    vp.scrollBy({top:-vh(), behavior:'smooth'});
-});
 </script>
 </body>
-      </html>
+</html>
