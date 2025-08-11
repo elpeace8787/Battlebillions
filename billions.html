@@ -18,7 +18,9 @@
     html{scroll-behavior:smooth}
     body{
       margin:0; background:radial-gradient(1200px 1200px at 50% -10%,#15171c 0%,var(--bb-bg-0) 55%);
-      color:var(--bb-ink); font-family:'Orbitron',system-ui,sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent;
+      color:var(--bb-ink); font-family:'Orbitron',system-ui,sans-serif; overflow:hidden;
+      -webkit-tap-highlight-color:transparent; user-select:none;
+      cursor: default;
     }
 
     /* grain */
@@ -49,15 +51,20 @@
 
     /* containers */
     .vertical{
-      height:100vh; width:100vw; overflow-y:auto; scroll-snap-type:y mandatory; scroll-snap-stop:always;
-      /* custom pan on both axes */
-      touch-action:none; overscroll-behavior:contain;
+      position:relative;
+      height:100vh; width:100vw;
+      overflow-y:auto; scroll-snap-type:y mandatory; scroll-snap-stop:always;
+      /* custom pan for touch; wheel still works */
+      touch-action:pan-x pan-y; overscroll-behavior:contain;
+      cursor: grab;
     }
+    .vertical:active{cursor:grabbing}
     .vertical::-webkit-scrollbar{width:8px}
     .vertical::-webkit-scrollbar-thumb{background:var(--bb-white-12); border-radius:8px}
 
     .hwrap{
-      display:flex; width:100vw; height:100vh; scroll-snap-align:start; overflow-x:auto; scroll-snap-type:x mandatory; scroll-snap-stop:always;
+      display:flex; width:100vw; height:100vh;
+      scroll-snap-align:start; overflow-x:auto; scroll-snap-type:x mandatory; scroll-snap-stop:always;
       -webkit-overflow-scrolling:touch;
     }
     .hwrap::-webkit-scrollbar{height:8px}
@@ -140,7 +147,9 @@
   <div class="chat-hint" aria-hidden="true">💬 Chat coming soon…</div>
 
   <script>
-    // ---------- Data ----------
+    /***************
+     * DATA SOURCE *
+     ***************/
     const FEED = [
       { category:'ALL', slides:[
         { left:{vid:'user1.mp4', img:'user1.jpg', handle:'@Alpha', aud:239}, right:{vid:'user2.mp4', img:'user2.jpg', handle:'@Omega', aud:221} },
@@ -169,7 +178,9 @@
       ]},
     ];
 
-    // ---------- DOM builders ----------
+    /****************
+     * DOM BUILDERS *
+     ****************/
     const vCont = document.getElementById('vCont');
 
     function el(tag, attrs={}, children=[]){
@@ -180,7 +191,7 @@
         else if (k==='html') n.innerHTML = v;
         else n.setAttribute(k, v);
       }
-      for (const c of children) n.appendChild(c);
+      children.forEach(c => n.appendChild(c));
       return n;
     }
 
@@ -219,38 +230,32 @@
       vCont.appendChild(wrap);
     });
 
-    // ---------- HUD: Category + Timer Ring ----------
+    /**********************
+     * HUD + TIMER + SNAP *
+     **********************/
     const wraps = Array.from(document.querySelectorAll('.hwrap'));
     const categoryPill = document.getElementById('categoryPill');
+    const roundLabel = document.getElementById('roundLabel');
+    const tArc = document.getElementById('timerArc');
+    const tText = document.getElementById('timerText');
+    const CIRC = 2 * Math.PI * 18;
+    tArc.setAttribute('stroke-dasharray', CIRC.toFixed(3));
 
-    function viewportH(){ return vCont.clientHeight || window.innerHeight; }
-    function viewportW(){ return vCont.clientWidth  || window.innerWidth; }
-
-    function activeIndex(){
-      return Math.round(vCont.scrollTop / viewportH());
-    }
-
-    function getActiveWrap(){
-      return wraps[activeIndex()] || wraps[0];
-    }
+    function vh(){ return vCont.clientHeight || window.innerHeight; }
+    function vw(){ return vCont.clientWidth  || window.innerWidth; }
+    function activeVIndex(){ return Math.round(vCont.scrollTop / vh()); }
+    function activeWrap(){ return wraps[activeVIndex()] || wraps[0]; }
 
     function syncCategory(){
-      const w = getActiveWrap();
+      const w = activeWrap();
       categoryPill.textContent = (w && w.dataset.category) ? w.dataset.category : FEED[0].category;
     }
-
     vCont.addEventListener('scroll', syncCategory, {passive:true});
     window.addEventListener('resize', syncCategory);
     syncCategory();
 
-    // Timer ring
-    const roundLabel = document.getElementById('roundLabel');
-    const tArc = document.getElementById('timerArc');
-    const tText = document.getElementById('timerText');
-    const CIRC = 2 * Math.PI * 18; // circle length
-    tArc.setAttribute('stroke-dasharray', CIRC.toFixed(3));
+    // timer
     let round = 1, timeLeft = 60, maxRounds = 3, ticking = null;
-
     function setTimerUI(){
       roundLabel.textContent = `Round ${round}`;
       tText.textContent = String(timeLeft);
@@ -270,14 +275,14 @@
     }
     startTimer();
 
-    // Rails fade while moving
+    // rails fade
     const rails = document.querySelectorAll('.rail');
     let fadeTO;
     function railsFade(){ rails.forEach(r=>r.style.opacity=.35); clearTimeout(fadeTO); fadeTO=setTimeout(()=>rails.forEach(r=>r.style.opacity=1), 800); }
     vCont.addEventListener('scroll', railsFade, {passive:true});
     wraps.forEach(w=>w.addEventListener('scroll', railsFade, {passive:true}));
 
-    // Vote ripple
+    // vote ripple
     document.addEventListener('click', e=>{
       const btn = e.target.closest('.vote');
       if(!btn) return;
@@ -287,127 +292,111 @@
       r.style.left=(e.clientX-rect.left-size/2)+'px';
       r.style.top=(e.clientY-rect.top-size/2)+'px';
       btn.appendChild(r); setTimeout(()=>r.remove(),650);
-      // hook your vote API here
     });
 
-    // ---------- ADVANCED OBLIQUE ENGINE (momentum + snap) ----------
+    /******************************
+     * UNIVERSAL SCROLL CONTROLS  *
+     ******************************/
+
+    // 1) Wheel/Trackpad: vertical & horizontal (Shift or natural deltaX)
+    vCont.addEventListener('wheel', (e)=>{
+      const w = activeWrap();
+      // Allow browser default first, then map diagonals to both axes
+      // If deltaX exists OR Shift held, push horizontal on the active row
+      if (Math.abs(e.deltaX) > 0 || e.shiftKey) {
+        w.scrollLeft += e.deltaX || e.deltaY; // shift+wheel maps vertical to horizontal
+        e.preventDefault();
+      }
+      // Always pass vertical to container
+      if (Math.abs(e.deltaY) > 0) {
+        vCont.scrollTop += e.deltaY;
+        e.preventDefault();
+      }
+    }, {passive:false});
+
+    // 2) Drag-to-pan (mouse & touch via Pointer Events)
     const engine = {
-      dragging:false, lastX:0, lastY:0, lastT:0, vx:0, vy:0, raf:0, wrap:getActiveWrap(),
-      friction:0.92,   // momentum decay per frame
-      minVel:0.15,     // px/frame threshold to stop
+      dragging:false, lastX:0, lastY:0, lastT:0, vx:0, vy:0, raf:0, wrap:activeWrap(),
+      friction:0.92, minVel:0.15
     };
 
     function stepScroll(dx, dy){
-      // vertical
+      // invert: drag right = scrollLeft -, drag down = scrollTop -
       vCont.scrollTop -= dy;
-      // horizontal (on CURRENT active row)
-      const newWrap = getActiveWrap();
-      if (newWrap !== engine.wrap) engine.wrap = newWrap;
-      if (engine.wrap){
-        engine.wrap.scrollLeft -= dx;
-      }
+      const w = activeWrap();
+      if (w !== engine.wrap) engine.wrap = w;
+      engine.wrap.scrollLeft -= dx;
       syncCategory();
     }
 
-    function momentumLoop(){
+    function snapToNearest(){
+      const w = activeWrap();
+      const vTarget = Math.round(vCont.scrollTop / vh()) * vh();
+      const hTarget = Math.round(w.scrollLeft / vw()) * vw();
+      vCont.scrollTo({top:vTarget, behavior:'smooth'});
+      w.scrollTo({left:hTarget, behavior:'smooth'});
+    }
+
+    function momentum(){
       cancelAnimationFrame(engine.raf);
       engine.raf = requestAnimationFrame(()=>{
-        // apply friction
         engine.vx *= engine.friction;
         engine.vy *= engine.friction;
-        // stop?
-        if (Math.abs(engine.vx) < engine.minVel && Math.abs(engine.vy) < engine.minVel){
-          snapToNearest();
-          return;
-        }
+        if (Math.abs(engine.vx) < engine.minVel && Math.abs(engine.vy) < engine.minVel) { snapToNearest(); return; }
         stepScroll(engine.vx, engine.vy);
-        momentumLoop();
+        momentum();
       });
     }
 
-    function animateTo(getter, setter, target, done){
-      const start = getter();
-      const dist = target - start;
-      const dur = 300;
-      let t0;
-      function easeOutCubic(x){ return 1 - Math.pow(1 - x, 3); }
-      function tick(ts){
-        if(!t0) t0 = ts;
-        const p = Math.min(1, (ts - t0) / dur);
-        setter(start + dist * easeOutCubic(p));
-        if (p < 1) requestAnimationFrame(tick);
-        else done && done();
-      }
-      requestAnimationFrame(tick);
-    }
-
-    function clamp(val, min, max){ return Math.max(min, Math.min(max, val)); }
-
-    function snapToNearest(){
-      const vh = viewportH(), vw = viewportW();
-      const maxV = vCont.scrollHeight - vh;
-      const vTarget = clamp(Math.round(vCont.scrollTop / vh) * vh, 0, maxV);
-
-      const w = getActiveWrap();
-      const maxH = w.scrollWidth - vw;
-      const hTarget = clamp(Math.round(w.scrollLeft / vw) * vw, 0, maxH);
-
-      // animate both axes
-      animateTo(()=>vCont.scrollTop, v=>vCont.scrollTop=v, vTarget);
-      animateTo(()=>w.scrollLeft, v=>w.scrollLeft=v, hTarget, syncCategory);
-    }
-
-    // Pointer handling (use vCont as the capture owner for iOS/Safari)
     vCont.addEventListener('pointerdown', (e)=>{
-      // don't hijack UI controls
-      if (e.target.closest('button,a')) return;
-
+      if (e.target.closest('button,a')) return; // let UI elements click
       engine.dragging = true;
       engine.lastX = e.clientX; engine.lastY = e.clientY; engine.lastT = performance.now();
-      engine.vx = engine.vy = 0; // reset momentum
-      engine.wrap = getActiveWrap();
-
-      try { vCont.setPointerCapture && vCont.setPointerCapture(e.pointerId); } catch(_) {}
+      engine.vx = engine.vy = 0; engine.wrap = activeWrap();
+      try { vCont.setPointerCapture && vCont.setPointerCapture(e.pointerId); } catch(_){}
     });
 
-    vCont.addEventListener('pointermove', (e)=>{
+    // IMPORTANT: listen on window so drag continues even if pointer exits the container
+    window.addEventListener('pointermove', (e)=>{
       if (!engine.dragging) return;
-
       const now = performance.now();
-      const dt = Math.max(1, now - engine.lastT); // ms
+      const dt = Math.max(1, now - engine.lastT);
       const dx = e.clientX - engine.lastX;
       const dy = e.clientY - engine.lastY;
-
-      // Move content (invert to match finger drag)
       stepScroll(dx, dy);
-
-      // velocity in px/frame (@60fps roughly => multiply by 16.7/dt)
       const k = 16.7 / dt;
       engine.vx = engine.vx*0.8 + (dx * k)*0.2;
       engine.vy = engine.vy*0.8 + (dy * k)*0.2;
-
       engine.lastX = e.clientX; engine.lastY = e.clientY; engine.lastT = now;
-      e.preventDefault(); // required for mobile custom pan (touch-action: none)
+      e.preventDefault();
     }, {passive:false});
 
     function endDrag(){
       if (!engine.dragging) return;
       engine.dragging = false;
-      momentumLoop();
+      momentum();
     }
-    vCont.addEventListener('pointerup', endDrag);
-    vCont.addEventListener('pointercancel', endDrag);
-    vCont.addEventListener('pointerleave', endDrag);
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+    window.addEventListener('pointerleave', endDrag);
 
-    // Keyboard nav (desktop)
+    // 3) Keyboard
     window.addEventListener('keydown', (e)=>{
-      const w = getActiveWrap();
-      const vh = viewportH(), vw = viewportW();
-      if (e.key === 'ArrowRight') w.scrollBy({left: vw, behavior:'smooth'});
-      if (e.key === 'ArrowLeft')  w.scrollBy({left:-vw, behavior:'smooth'});
-      if (e.key === 'ArrowDown')  vCont.scrollBy({top:  vh, behavior:'smooth'});
-      if (e.key === 'ArrowUp')    vCont.scrollBy({top: -vh, behavior:'smooth'});
+      const w = activeWrap();
+      if (e.key === 'ArrowRight') w.scrollBy({left: vw(), behavior:'smooth'});
+      if (e.key === 'ArrowLeft')  w.scrollBy({left:-vw(), behavior:'smooth'});
+      if (e.key === 'ArrowDown')  vCont.scrollBy({top:  vh(), behavior:'smooth'});
+      if (e.key === 'ArrowUp')    vCont.scrollBy({top: -vh(), behavior:'smooth'});
     });
+
+    // 4) Snap after user scroll stops (wheel/trackpad)
+    let snapTO;
+    function debounceSnap(){
+      clearTimeout(snapTO);
+      snapTO = setTimeout(snapToNearest, 180);
+    }
+    vCont.addEventListener('scroll', debounceSnap, {passive:true});
+    wraps.forEach(w => w.addEventListener('scroll', debounceSnap, {passive:true}));
   </script>
 </body>
-    </html>
+  </html>
