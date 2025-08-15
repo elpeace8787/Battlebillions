@@ -1,337 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>BattleBillions — 2D Swipe OS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#000000" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><rect width='100%' height='100%' fill='black'/><text x='50%' y='56%' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='Arial' font-size='64'>BB</text></svg>">
-  <style>
-    :root{
-      --bg:#000; --ink:#eef1f5; --ink2:#c7cdd6; --ink3:#969eaa;
-      --card:#111317; --b1:rgba(255,255,255,.12); --b2:rgba(255,255,255,.16);
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;margin:0}
-    body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
-
-    /* HUD */
-    .hud{position:fixed;left:0;right:0;top:0;height:64px;z-index:40;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:env(safe-area-inset-top) 12px 0 12px;
-      background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0))}
-    .pill{border:1px solid var(--b1);padding:7px 12px;border-radius:999px;font-size:12px;color:var(--ink2);letter-spacing:.08em;text-transform:uppercase}
-    .mini{opacity:.8}
-
-    /* 2D surface */
-    .surface{
-      position:fixed; inset:0; z-index:1;
-      overflow:auto; /* both axes */
-      scroll-snap-type: both mandatory;
-      scroll-snap-stop: always;
-      -webkit-overflow-scrolling:touch;
-      touch-action: pan-x pan-y; /* allow diagonal */
-      display:grid; /* sized by JS */
-      gap:0; background:var(--bg);
-      padding-top:64px; /* HUD clearance */
-    }
-
-    /* One full-screen cell */
-    .cell{
-      width:100vw; height:calc(100vh - 64px);
-      scroll-snap-align:start;
-      border-right:1px solid var(--b1);
-      border-bottom:1px solid var(--b1);
-      display:flex; flex-direction:column; gap:10px; padding:10px;
-    }
-    .title{font-size:12px;color:var(--ink3);letter-spacing:.12em;display:flex;align-items:center;gap:10px}
-    .card{flex:1;border:1px solid var(--b1);border-radius:16px;background:var(--card);overflow:hidden;display:grid;place-items:center}
-    .card-inner{display:grid;gap:12px;justify-items:center}
-    .btn{border:1px solid var(--b2);border-radius:999px;padding:10px 14px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));color:var(--ink);font-size:13px}
-
-    /* grayscale tints so screens are visibly different */
-    .g0{background:#0f1115}.g1{background:#111318}.g2{background:#13161b}
-    .g3{background:#151a20}.g4{background:#171c23}.g5{background:#1a1f27}
-
-    /* minimap */
-    .map{position:fixed;right:10px;top:70px;z-index:50;border:1px solid var(--b1);border-radius:10px;padding:6px 8px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);display:grid;gap:4px}
-    .map-row{display:flex;gap:4px}
-    .dot{width:8px;height:8px;border-radius:2px;background:#323742}
-    .dot.active{background:#e6e9ef}
-
-    /* error banner */
-    .err{position:fixed;left:10px;right:10px;bottom:10px;background:#1a1f27;color:#fff;border:1px solid #444;border-radius:10px;padding:10px;font-size:12px;z-index:99;display:none;white-space:pre-wrap}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>BattleBillions — Clean Start (Web Component)</title>
+<style>
+  /* Host page keeps a dark backdrop only; everything else is isolated in the component */
+  html,body{height:100%;margin:0;background:#000;color:#eef1f5;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  body{display:grid;place-items:center}
+</style>
 </head>
 <body>
-  <div id="app"></div>
 
-  <!-- React + GSAP (CDN, file works locally) -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+<!-- Drop this anywhere on your site; it’s self-contained -->
+<bb-os></bb-os>
 
-  <script>
-  (function(){
-    const { useEffect, useRef, useState, useMemo } = React;
+<script>
+class BBOS extends HTMLElement{
+  constructor(){
+    super();
+    this.attachShadow({mode:'open'});
+    const r = (css)=>css.replace(/\s+/g,' ').trim(); // minify a bit
+    const style = `
+      :host{display:block;inline-size:100vw;block-size:100vh;background:#000;color:#eef1f5}
+      .hud{
+        position:fixed; inset-block-start:0; inset-inline:0; block-size:64px; z-index:10;
+        display:flex; align-items:center; justify-content:space-between;
+        padding:0 12px; background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0))
+      }
+      .pill{border:1px solid rgba(255,255,255,.12); padding:7px 12px; border-radius:999px; font-size:12px; color:#c7cdd6; letter-spacing:.08em; text-transform:uppercase}
+      .mini{opacity:.85}
 
-    /* ---------- Screen registry (extend freely) ---------- */
-    const SCREENS = {
-      "0,0":  { name:"Feed",         tint:"g2", body: (p)=>Body("Feed", p) },
-      "1,0":  { name:"Profile",      tint:"g3", body: (p)=>Body("Profile", p) },
-      "-1,0": { name:"Explore",      tint:"g1", body: (p)=>Body("Explore", p) },
-      "0,1":  { name:"Messages",     tint:"g4", body: (p)=>Body("Messages", p) },
-      "0,-1": { name:"Wallet",       tint:"g5", body: (p)=>Body("Wallet", p) },
-      "1,1":  { name:"Settings",     tint:"g0", body: (p)=>Body("Settings", p) },
-      "-1,1": { name:"Live",         tint:"g3", body: (p)=>Body("Live", p) },
-      "1,-1": { name:"Notifications",tint:"g1", body: (p)=>Body("Notifications", p) },
-      "-1,-1":{ name:"Leaderboard",  tint:"g4", body: (p)=>Body("Leaderboard", p) },
+      .surface{
+        position:fixed; inset:0; z-index:1;
+        overflow:auto; scroll-snap-type: both mandatory; scroll-snap-stop:always;
+        -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y;
+        display:grid; gap:0; background:#000; padding-top:64px;
+        grid-template-columns:repeat(5,100vw); grid-template-rows:repeat(5,calc(100vh - 64px));
+      }
+      .cell{
+        inline-size:100vw; block-size:calc(100vh - 64px);
+        scroll-snap-align:start;
+        border-inline-end:1px solid rgba(255,255,255,.12);
+        border-block-end:1px solid rgba(255,255,255,.12);
+        display:flex; flex-direction:column; gap:10px; padding:10px;
+      }
+      .title{font-size:12px; color:#9aa3ad; letter-spacing:.12em; display:flex; align-items:center; gap:10px}
+      .card{flex:1; border:1px solid rgba(255,255,255,.12); border-radius:16px; background:#111317; overflow:hidden; display:grid; place-items:center}
+      .card-inner{display:grid; gap:12px; justify-items:center}
+      .btn{border:1px solid rgba(255,255,255,.16); border-radius:999px; padding:10px 14px; background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04)); color:#eef1f5; font-size:13px}
 
-      /* spokes for growth */
-      "2,0":  { name:"Creator Hub",  tint:"g0", body: (p)=>Body("Creator Hub", p) },
-      "0,2":  { name:"Requests",     tint:"g1", body: (p)=>Body("Requests", p) },
-      "-2,0": { name:"Clubs",        tint:"g5", body: (p)=>Body("Clubs", p) },
-      "0,-2": { name:"Tournaments",  tint:"g2", body: (p)=>Body("Tournaments", p) },
+      /* grayscale tints so each screen is distinct immediately */
+      .g0{background:#0f1115}.g1{background:#111318}.g2{background:#13161b}.g3{background:#151a20}.g4{background:#171c23}.g5{background:#1a1f27}
+
+      /* minimap */
+      .map{position:fixed; inset-block-start:70px; inset-inline-end:10px; z-index:20; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:6px 8px; background:rgba(0,0,0,.45); backdrop-filter:blur(6px); display:grid; gap:4px}
+      .map-row{display:flex; gap:4px}
+      .dot{inline-size:8px; block-size:8px; border-radius:2px; background:#323742}
+      .dot.active{background:#e6e9ef}
+
+      .hint{position:fixed; inset-inline-start:50%; transform:translateX(-50%); inset-block-end:10px; z-index:20; color:#9aa3ad; font-size:12px; opacity:.9}
+    `;
+
+    const html = `
+      <div class="hud">
+        <div class="pill mini" id="pos">0,0</div>
+        <div class="pill" id="label">Feed</div>
+        <div class="pill mini">BattleBillions</div>
+      </div>
+
+      <div class="map" id="map" aria-hidden="true">
+        ${[-2,-1,0,1,2].map(y=>`
+          <div class="map-row">
+            ${[-2,-1,0,1,2].map(x=>`<div class="dot" data-x="${x}" data-y="${y}"></div>`).join('')}
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="hint">Swipe/drag ↕ ↔ ↗ or use arrow keys</div>
+
+      <!-- 2D SURFACE (static inside shadow—immune to outside CSS/JS) -->
+      <main class="surface" id="surface" aria-label="2D Web OS">
+        ${this._cellsHTML()}
+      </main>
+    `;
+
+    const tpl = document.createElement('template');
+    tpl.innerHTML = `<style>${r(style)}</style>${html}`;
+    this.shadowRoot.appendChild(tpl.content.cloneNode(true));
+  }
+
+  connectedCallback(){
+    const root = this.shadowRoot;
+    const surface = root.getElementById('surface');
+    const label = root.getElementById('label');
+    const posPill = root.getElementById('pos');
+    const dots = Array.from(root.querySelectorAll('.dot'));
+
+    // Center on (0,0) at mount
+    const centerOn = (x,y, smooth=true)=>{
+      const col = x + 3; // 1..5
+      const row = y + 3;
+      const left = (col-1) * window.innerWidth;
+      const top  = (row-1) * (window.innerHeight - 64);
+      surface.scrollTo({left, top, behavior: smooth ? 'smooth' : 'auto'});
     };
 
-    function Body(title, {x,y}){
-      return React.createElement('div',{className:'card-inner'},
-        React.createElement('div',null,`${title} (${x},${y})`),
-        React.createElement('button',{className:'btn', onClick:()=>alert(title+' action')}, 'Primary action')
-      );
-    }
+    const currentXY = ()=>{
+      const col = Math.round(surface.scrollLeft / window.innerWidth) + 1;
+      const row = Math.round(surface.scrollTop  / (window.innerHeight - 64)) + 1;
+      return { x: col - 3, y: row - 3 };
+    };
 
-    /* ---------- Helpers for bounds and grid mapping ---------- */
-    const coords = Object.keys(SCREENS).map(k => k.split(',').map(n=>parseInt(n,10)));
-    const minX = Math.min(...coords.map(c=>c[0]));
-    const maxX = Math.max(...coords.map(c=>c[0]));
-    const minY = Math.min(...coords.map(c=>c[1]));
-    const maxY = Math.max(...coords.map(c=>c[1]));
-    const COLS = (maxX - minX + 1);
-    const ROWS = (maxY - minY + 1);
+    const setHUD = ()=>{
+      const {x,y} = currentXY();
+      posPill.textContent = `${x},${y}`;
+      const cell = root.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+      const title = cell ? cell.querySelector('.title')?.textContent || 'Screen' : 'Screen';
+      label.textContent = title.replace(/\s*\([-0-9,]+\)\s*$/,'');
+      dots.forEach(d=>d.classList.remove('active'));
+      const hit = dots.find(d=> +d.dataset.x===x && +d.dataset.y===y );
+      if (hit) hit.classList.add('active');
+    };
 
-    function toGrid(x,y){ return {col: x - minX + 1, row: y - minY + 1}; }
+    // Init
+    centerOn(0,0,false); setHUD();
+    surface.addEventListener('scroll', setHUD, {passive:true});
+    this._resizeHandler = ()=>setHUD();
+    window.addEventListener('resize', this._resizeHandler);
 
-    /* ---------- App ---------- */
-    function App(){
-      const surfaceRef = useRef(null);
-      const [pos, setPos] = useState({x:0,y:0});
-      const [label, setLabel] = useState('Feed');
-      const [err, setErr] = useState('');
+    // Arrow keys (desktop)
+    this._keyHandler = (e)=>{
+      const {x,y} = currentXY();
+      if (e.key==='ArrowRight') centerOn(Math.min(2, x+1), y);
+      if (e.key==='ArrowLeft')  centerOn(Math.max(-2, x-1), y);
+      if (e.key==='ArrowDown')  centerOn(x, Math.min(2, y+1));
+      if (e.key==='ArrowUp')    centerOn(x, Math.max(-2, y-1));
+    };
+    window.addEventListener('keydown', this._keyHandler);
+  }
 
-      // minimap
-      const mapDots = [];
-      for(let ry=minY; ry<=maxY; ry++){
-        const row = [];
-        for(let cx=minX; cx<=maxX; cx++){
-          row.push({x:cx,y:ry});
-        }
-        mapDots.push(row);
+  disconnectedCallback(){
+    window.removeEventListener('resize', this._resizeHandler);
+    window.removeEventListener('keydown', this._keyHandler);
+  }
+
+  /* Build static cells (5x5 around 0,0) */
+  _cellsHTML(){
+    const cell = (col,row,x,y, title, tint, inner)=>`
+      <section class="cell" style="grid-column:${col};grid-row:${row}" data-x="${x}" data-y="${y}">
+        <div class="title">${title} (${x},${y})</div>
+        <div class="card ${tint}"><div class="card-inner">${inner||''}</div></div>
+      </section>`;
+    // grid columns 1..5 map to x: -2..+2 ; rows 1..5 map to y: -2..+2
+    const at = (col,row)=>({x: col-3, y: row-3});
+    const t = (name)=>name; // simple label helper
+
+    let out = '';
+    for (let r=1;r<=5;r++){
+      for (let c=1;c<=5;c++){
+        const {x,y} = at(c,r);
+        // Choose screen titles around center
+        let title = 'Screen', tint='g2', inner='';
+        if (x===0 && y===0){ title=t('Feed'); tint='g4'; inner='<div>Swipe → Profile, ← Explore, ↓ Messages, ↑ Wallet</div><button class="btn">Open Battle</button>'; }
+        else if (x=== 1 && y=== 0){ title=t('Profile'); tint='g3'; inner='<div>@you</div><button class="btn">Edit</button>'; }
+        else if (x===-1 && y=== 0){ title=t('Explore'); tint='g3'; inner='<div>Discover battles</div><button class="btn">Search</button>'; }
+        else if (x=== 0 && y=== 1){ title=t('Messages'); tint='g5'; inner='<div>DMs</div><button class="btn">New message</button>'; }
+        else if (x=== 0 && y===-1){ title=t('Wallet'); tint='g3'; inner='<div>Balance: 0</div><button class="btn">Deposit</button>'; }
+        else if (x=== 1 && y=== 1){ title=t('Settings'); tint='g0'; inner='<div>App settings</div>'; }
+        else if (x===-1 && y=== 1){ title=t('Live'); tint='g4'; inner='<div>Live rooms</div>'; }
+        else if (x=== 1 && y===-1){ title=t('Notifications'); tint='g1'; inner='<div>No alerts</div>'; }
+        else if (x===-1 && y===-1){ title=t('Leaderboard'); tint='g2'; inner='<div>Top players</div>'; }
+        else if (x=== 2 && y=== 0){ title=t('Settings'); tint='g2'; inner='<div>Preferences</div>'; }
+        else if (x===-2 && y=== 0){ title=t('Clubs'); tint='g2'; inner='<div>Create/Join clubs</div>'; }
+        else if (x=== 0 && y=== 2){ title=t('Requests'); tint='g0'; inner='<div>Requests</div>'; }
+        else if (x=== 0 && y===-2){ title=t('Tournaments'); tint='g2'; inner='<div>Seasons</div>'; }
+        else { title=t('More'); tint=['g0','g1','g2','g3','g4','g5'][(c+r)%6]; inner='<div>—</div>'; }
+        out += cell(c,r,x,y,title,tint,inner);
       }
-
-      // center on 0,0 on mount
-      useEffect(()=>{
-        try {
-          const el = surfaceRef.current;
-          el.style.gridTemplateColumns = `repeat(${COLS}, 100vw)`;
-          el.style.gridTemplateRows    = `repeat(${ROWS}, calc(100vh - 64px))`;
-          centerOn(0,0,'auto');
-        } catch(e){ setErr(String(e)); }
-      },[]);
-
-      // update HUD during scroll
-      useEffect(()=>{
-        const el = surfaceRef.current;
-        function onScroll(){
-          const col = Math.round(el.scrollLeft / window.innerWidth) + 1;
-          const row = Math.round(el.scrollTop  / (window.innerHeight - 64)) + 1;
-          const x = (col-1) + minX;
-          const y = (row-1) + minY;
-          setPos({x,y});
-          const key = `${x},${y}`;
-          setLabel(SCREENS[key]?.name || 'Unknown');
-        }
-        el.addEventListener('scroll', onScroll, {passive:true});
-        return ()=>el.removeEventListener('scroll', onScroll);
-      },[]);
-
-      function centerOn(x,y, behavior='smooth'){
-        const el = surfaceRef.current;
-        const {col,row} = toGrid(x,y);
-        const left = (col-1)*window.innerWidth;
-        const top  = (row-1)*(window.innerHeight-64);
-        gsap.to(el, {scrollTo:{x:left, y:top}, duration:(behavior==='auto'?0:0.35), ease:'power2.out'});
-        setPos({x,y});
-        setLabel(SCREENS[`${x},${y}`]?.name || 'Unknown');
-      }
-
-      // diagonal/oblique assist (does not block native scroll)
-      useEffect(()=>{
-        const el = surfaceRef.current;
-        const drag = {on:false,id:null,x:0,y:0,vx:0,vy:0,raf:0,friction:0.92,stop:0.12};
-        const hasPE = 'onpointerdown' in window;
-
-        function step(dx,dy){ el.scrollLeft -= dx*0.5; el.scrollTop -= dy*0.5; }
-        function snap(){
-          const tx = Math.round(el.scrollLeft / window.innerWidth)*window.innerWidth;
-          const ty = Math.round(el.scrollTop  / (window.innerHeight-64))*(window.innerHeight-64);
-          gsap.to(el, {scrollTo:{x:tx,y:ty}, duration:0.25, ease:'power2.out'});
-        }
-        function momentum(){
-          cancelAnimationFrame(drag.raf);
-          drag.raf = requestAnimationFrame(()=>{
-            drag.vx*=drag.friction; drag.vy*=drag.friction;
-            if (Math.abs(drag.vx)<drag.stop && Math.abs(drag.vy)<drag.stop){ snap(); return; }
-            step(drag.vx, drag.vy);
-            momentum();
-          });
-        }
-        function begin(x,y,id){ drag.on=true; drag.id=id; drag.x=x; drag.y=y; drag.vx=drag.vy=0; }
-        function move(x,y){
-          if(!drag.on) return;
-          const dx=x-drag.x, dy=y-drag.y;
-          step(dx,dy);
-          drag.vx = drag.vx*0.8 + dx*0.2;
-          drag.vy = drag.vy*0.8 + dy*0.2;
-          drag.x=x; drag.y=y;
-        }
-        function end(){ if(!drag.on) return; drag.on=false; momentum(); }
-
-        if (hasPE){
-          const down = (e)=>{ if(e.target.closest('button,a')) return; begin(e.clientX,e.clientY,e.pointerId); };
-          const moveEv= (e)=>{ if(!drag.on||drag.id!==e.pointerId) return; move(e.clientX,e.clientY); };
-          const up   = (e)=>{ if(drag.id===e.pointerId) end(); };
-          el.addEventListener('pointerdown', down, {passive:true});
-          el.addEventListener('pointermove', moveEv, {passive:true});
-          el.addEventListener('pointerup', up, {passive:true});
-          el.addEventListener('pointercancel', up, {passive:true});
-          return ()=>{ el.removeEventListener('pointerdown',down); el.removeEventListener('pointermove',moveEv); el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up); };
-        } else {
-          const ts = (e)=>{ if(e.target.closest('button,a')) return; const t=e.touches[0]; begin(t.clientX,t.clientY,0); };
-          const tm = (e)=>{ const t=e.touches[0]; move(t.clientX,t.clientY); };
-          const te = ()=>end();
-          el.addEventListener('touchstart', ts, {passive:true});
-          el.addEventListener('touchmove', tm, {passive:true});
-          el.addEventListener('touchend', te, {passive:true});
-          el.addEventListener('touchcancel', te, {passive:true});
-          return ()=>{ el.removeEventListener('touchstart',ts); el.removeEventListener('touchmove',tm); el.removeEventListener('touchend',te); el.removeEventListener('touchcancel',te); };
-        }
-      },[]);
-
-      // keyboard for dev convenience
-      useEffect(()=>{
-        function onKey(e){
-          const {x,y} = pos;
-          if (e.key==='ArrowRight') centerOn(x+1,y);
-          if (e.key==='ArrowLeft')  centerOn(x-1,y);
-          if (e.key==='ArrowDown')  centerOn(x,y+1);
-          if (e.key==='ArrowUp')    centerOn(x,y-1);
-        }
-        window.addEventListener('keydown', onKey);
-        return ()=>window.removeEventListener('keydown', onKey);
-      },[pos]);
-
-      // error surface
-      useEffect(()=>{
-        const onErr = (e)=>setErr(String(e.message||e));
-        const onRej = (e)=>setErr(String(e.reason||e));
-        window.addEventListener('error', onErr);
-        window.addEventListener('unhandledrejection', onRej);
-        return ()=>{ window.removeEventListener('error', onErr); window.removeEventListener('unhandledrejection', onRej); };
-      },[]);
-
-      return React.createElement(React.Fragment,null,
-        React.createElement('header',{className:'hud'},
-          React.createElement('div',{className:'pill mini'}, `${pos.x},${pos.y}`),
-          React.createElement('div',{className:'pill'}, label),
-          React.createElement('div',{className:'pill mini'}, '3illions')
-        ),
-
-        React.createElement('main',{id:'surface',ref:surfaceRef,className:'surface', 'aria-label':'2D app surface'},
-          Object.entries(SCREENS).map(([key,def])=>{
-            const [x,y] = key.split(',').map(n=>parseInt(n,10));
-            const {col,row} = toGrid(x,y);
-            return React.createElement('section',{
-              key:key, className:'cell', style:{gridColumn:String(col),gridRow:String(row)}, 'data-x':x, 'data-y':y
-            },
-              React.createElement('div',{className:'title'}, def.name),
-              React.createElement('div',{className:`card ${def.tint}`},
-                def.body({x,y})
-              )
-            );
-          })
-        ),
-
-        React.createElement('div',{id:'minimap',className:'map','aria-hidden':'true'},
-          mapDots.map((r,ri)=>
-            React.createElement('div',{className:'map-row',key:'r'+ri},
-              r.map((d,di)=>{
-                const active = (pos.x===d.x && pos.y===d.y);
-                return React.createElement('div',{
-                  key:'d'+ri+'-'+di,
-                  className:'dot'+(active?' active':'')
-                });
-              })
-            )
-          )
-        ),
-
-        React.createElement('div',{id:'err',className:'err',style:{display: err ? 'block' : 'none'}}, err)
-      );
     }
-
-    ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(App));
-
-    // PWA SW
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-    }
-  })();
-  </script>
-  <!-- gsap ScrollToPlugin via UMD (for smooth snap) -->
-  <script src="https://unpkg.com/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
-</body>
-    </html>
-{
-  "name": "BattleBillions — 3illions",
-  "short_name": "3illions",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "icons": [
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192'><rect width='100%' height='100%' fill='black'/><text x='50%' y='56%' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='Arial' font-size='72'>BB</text></svg>",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+    return out;
+  }
 }
-// Minimal offline shell for BattleBillions — 3illions
-const CACHE = 'bbos-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.webmanifest'
-];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  self.skipWaiting();
-});
+customElements.define('bb-os', BBOS);
+</script>
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.map(k => (k===CACHE?null:caches.delete(k)))))
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  e.respondWith(
-    caches.match(req).then(hit => hit || fetch(req).catch(()=>caches.match('./index.html')))
-  );
-});
+</body>
+</html>
