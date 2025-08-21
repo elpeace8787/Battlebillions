@@ -119,23 +119,22 @@
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .hidden{display:none !important;}
 
-    /* Embedded page host */
-    #pageHost{
-      display:grid; gap:10px;
-      width:min(92vw, 980px);
+    /* Arena Feed basic layout (kept for future use) */
+    .feed-grid{
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+      gap:14px; width:min(92vw,980px);
     }
-    #hostBar{
-      display:flex; justify-content:space-between; align-items:center;
+    .card{
+      background:rgba(20,20,24,.45);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px; padding:14px;
+      backdrop-filter: blur(6px) saturate(120%);
+      box-shadow:0 4px 24px rgba(0,0,0,.25);
     }
-    #pageFrame{
-      width:100%;
-      height:min(70vh, 900px);
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(15,15,17,.35);
-      border-radius:16px;
-      box-shadow:0 10px 40px rgba(0,0,0,.35);
-      overflow:hidden;
-    }
+    .card h3{margin:0 0 6px 0; font-size:16px}
+    .card p{margin:0; color:var(--ink-2); font-size:13px}
+    .feed-actions{display:flex; gap:8px; margin-top:10px}
+    .pill{padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); font-size:12px}
 
     @media (prefers-reduced-motion: reduce){ #bg3d{opacity:.6} header h1{animation:none} }
   </style>
@@ -218,14 +217,71 @@
         <p id="status" class="status" role="status" aria-live="polite"></p>
       </section>
 
-      <!-- ===== VIEW: EMBED HOST (loads arena.html / createaccount.html in-page) ===== -->
-      <section id="pageHost" class="hidden">
-        <div id="hostBar">
-          <button id="backBtn" class="btn ghost" style="width:auto">← Back</button>
-          <span id="hostTitle" style="font-size:13px;color:var(--ink-2)">Loading…</span>
+      <!-- ===== VIEW: SIGNUP (kept, but we now link to external createaccount.html) ===== -->
+      <section id="view-signup" class="hidden">
+        <form id="signupForm" class="form" autocomplete="on">
+          <div class="row">
+            <label for="su-email">Email</label>
+            <input id="su-email" type="email" placeholder="you@example.com" required />
+          </div>
+          <div class="row">
+            <label for="su-password">Password</label>
+            <div class="pw-wrap">
+              <input id="su-password" type="password" minlength="6" placeholder="Create a password" required />
+              <button type="button" id="togglePw2" class="pw-toggle" aria-label="Show password">👁</button>
+            </div>
+          </div>
+          <div class="row">
+            <label for="su-password2">Confirm Password</label>
+            <input id="su-password2" type="password" minlength="6" placeholder="Re-enter password" required />
+          </div>
+          <div class="actions">
+            <button id="createBtn" type="submit" class="btn primary">Create Account</button>
+            <button id="backToLoginBtn" type="button" class="btn ghost">Back to Sign in</button>
+          </div>
+        </form>
+        <p id="status-signup" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- ===== VIEW: ARENA FEED (kept for legacy; external page will be used now) ===== -->
+      <section id="view-feed" class="hidden">
+        <div class="actions" style="justify-content:flex-end;margin-top:0;">
+          <button id="logoutBtn" class="btn ghost" style="max-width:180px;">← Back to Login</button>
         </div>
-        <iframe id="pageFrame" title="Embedded Page" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
-        <p id="hostStatus" class="status" aria-live="polite"></p>
+        <div class="feed-grid" style="margin-top:6px;">
+          <div class="card">
+            <h3>Arena — Global Highlights</h3>
+            <p>Welcome to the Arena feed. Your network’s latest plays, wins, and drops appear here.</p>
+            <div class="feed-actions">
+              <span class="pill">🔥 Trending</span>
+              <span class="pill">New</span>
+            </div>
+          </div>
+          <div class="card">
+            <h3>@Nova hit a 12x streak</h3>
+            <p>Combo crusher unlocked. 4m ago</p>
+          </div>
+          <div class="card">
+            <h3>@Kiro — Vault Unlocked</h3>
+            <p>Rare skin “Gilded Ember” obtained. 12m ago</p>
+          </div>
+          <div class="card">
+            <h3>Clan: NightRunners</h3>
+            <p>Weekly challenge cleared. +2,500 points to the board.</p>
+          </div>
+          <div class="card">
+            <h3>@Ari queued Ranked</h3>
+            <p>Division: Platinum II. Join in?</p>
+            <div class="feed-actions">
+              <button class="btn" style="width:auto;">Join Queue</button>
+              <button class="btn ghost" style="width:auto;">Spectate</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Patch 1.3.7</h3>
+            <p>Balance: Shockwave rings now scale slower. Visual polish to explosions.</p>
+          </div>
+        </div>
       </section>
 
     </div>
@@ -240,7 +296,18 @@
       googleProvider, facebookProvider
     } from "./js/firebase.js";
 
-    // Elements (auth)
+    /* ===========================
+       🔗 GITHUB PAGES DESTINATIONS
+       Replace the placeholders below with your actual GitHub Pages URLs.
+       Example if your repo is USERNAME/USERNAME.github.io:
+       const GITHUB_ARENA_URL  = "https://USERNAME.github.io/arena.html";
+       const GITHUB_CREATE_URL = "https://USERNAME.github.io/createaccount.html";
+       Or if using a project site: https://USERNAME.github.io/REPO/arena.html
+    ============================ */
+    const GITHUB_ARENA_URL  = "https://YOUR_USERNAME.github.io/arena.html";
+    const GITHUB_CREATE_URL = "https://YOUR_USERNAME.github.io/createaccount.html";
+
+    // Elements
     const statusEl = document.getElementById("status");
     const submitBtn = document.getElementById("submitBtn");
     const modeBtn = document.getElementById("modeBtn");
@@ -252,67 +319,61 @@
     const pwEl = document.getElementById("password");
     const togglePw = document.getElementById("togglePw");
 
-    // Views
     const viewAuth = document.getElementById("view-auth");
-    const pageHost = document.getElementById("pageHost");
-    const pageFrame = document.getElementById("pageFrame");
-    const hostTitle = document.getElementById("hostTitle");
-    const hostStatus = document.getElementById("hostStatus");
-    const backBtn = document.getElementById("backBtn");
+    const viewSignup = document.getElementById("view-signup");
+    const viewFeed = document.getElementById("view-feed");
+
+    const signupForm = document.getElementById("signupForm");
+    const suEmail = document.getElementById("su-email");
+    const suPw = document.getElementById("su-password");
+    const suPw2 = document.getElementById("su-password2");
+    const togglePw2 = document.getElementById("togglePw2");
+    const statusSignup = document.getElementById("status-signup");
+    const backToLoginBtn = document.getElementById("backToLoginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    function showAuth(){
-      pageHost.classList.add("hidden");
-      viewAuth.classList.remove("hidden");
-      statusEl.textContent = "";
-      hostStatus.textContent = "";
-      hostTitle.textContent = "";
-      // clear iframe to stop any running scripts if desired
-      pageFrame.src = "about:blank";
-    }
-    function showHost(){
+    // View switching (kept for backwards compatibility)
+    function showView(name){
       viewAuth.classList.add("hidden");
-      pageHost.classList.remove("hidden");
+      viewSignup.classList.add("hidden");
+      viewFeed.classList.add("hidden");
+      if(name==="auth") viewAuth.classList.remove("hidden");
+      if(name==="signup") viewSignup.classList.remove("hidden");
+      if(name==="feed") viewFeed.classList.remove("hidden");
+      statusEl.textContent = "";
+      statusSignup.textContent = "";
     }
+
+    let isSignup = false; // maintained for minimal code delta
     function setLoading(v,msg=""){
       submitBtn.disabled=v; googleBtn.disabled=v; facebookBtn.disabled=v; instagramBtn.disabled=v; tiktokBtn.disabled=v;
       statusEl.textContent=msg;
     }
-
-    // Load external page (same origin recommended) into iframe
-    function loadInlinePage(url, titleText){
-      hostStatus.textContent = "";
-      hostTitle.textContent = titleText || url;
-      showHost();
-      try{
-        pageFrame.src = url; // if same-origin, we can also auto-resize below
-      }catch(e){
-        hostStatus.textContent = "Unable to load: " + url;
+    function setMode(v){
+      // NEW: redirect to external create account page instead of switching local view
+      isSignup=v;
+      if(v){
+        window.location.href = GITHUB_CREATE_URL;
+      }else{
+        showView("auth");
       }
     }
+    modeBtn.addEventListener("click",()=>setMode(true));
+    backToLoginBtn.addEventListener("click",()=>setMode(false));
 
-    // Optional: auto-iframe-height for same-origin pages
-    pageFrame.addEventListener("load", ()=>{
-      hostStatus.textContent = "";
-      // Attempt to resize if same-origin
-      try{
-        const doc = pageFrame.contentDocument || pageFrame.contentWindow.document;
-        const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
-        pageFrame.style.height = Math.min(Math.max(h, 600), 1200) + "px";
-      }catch(_){ /* cross-origin, ignore */ }
-    });
-
-    backBtn.addEventListener("click", showAuth);
-
-    // Toggle password
-    togglePw.addEventListener("click", ()=>{
+    // Password toggles
+    togglePw.addEventListener("click",()=>{
       pwEl.type = pwEl.type==="password" ? "text" : "password";
       togglePw.setAttribute("aria-label", pwEl.type==="password" ? "Show password" : "Hide password");
     });
+    togglePw2.addEventListener("click",()=>{
+      suPw.type = suPw.type==="password" ? "text" : "password";
+      togglePw2.setAttribute("aria-label", suPw.type==="password" ? "Show password" : "Hide password");
+    });
 
-    // ===== Actions -> open arena.html or createaccount.html inside the page =====
-    // Email/password login -> arena.html in-page
+    // Email/password login -> redirect to GitHub Arena
     document.getElementById("authForm").addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = emailEl.value.trim(), password = pwEl.value;
@@ -320,7 +381,7 @@
       try{
         setLoading(true, "Signing you in...");
         await signInWithEmailAndPassword(auth,email,password);
-        loadInlinePage("arena.html", "Arena Feed");
+        window.location.href = GITHUB_ARENA_URL;
       }catch(err){
         statusEl.textContent = niceError(err);
       }finally{
@@ -328,30 +389,36 @@
       }
     });
 
-    // Create account (opens your createaccount.html)
-    modeBtn.addEventListener("click", ()=>{
-      loadInlinePage("createaccount.html", "Create Account");
-    });
-
-    // OAuth providers -> arena.html in-page
+    // Provider buttons -> redirect to GitHub Arena
     googleBtn.addEventListener("click", async ()=>{
-      try{ setLoading(true,"Opening Google..."); await signInWithPopup(auth, googleProvider); loadInlinePage("arena.html","Arena Feed"); }
+      try{ setLoading(true,"Opening Google..."); await signInWithPopup(auth, googleProvider); window.location.href = GITHUB_ARENA_URL; }
       catch(err){ statusEl.textContent = niceError(err); }
       finally{ setLoading(false); }
     });
 
     facebookBtn.addEventListener("click", async ()=>{
-      try{ setLoading(true,"Opening Facebook..."); await signInWithPopup(auth, facebookProvider); loadInlinePage("arena.html","Arena Feed"); }
+      try{ setLoading(true,"Opening Facebook..."); await signInWithPopup(auth, facebookProvider); window.location.href = GITHUB_ARENA_URL; }
       catch(err){ statusEl.textContent = niceError(err); }
       finally{ setLoading(false); }
     });
 
-    // Instagram/TikTok placeholders -> still route to arena.html demo
-    instagramBtn.addEventListener("click", ()=>{ statusEl.textContent = "Instagram sign-in not configured — showing Arena demo."; loadInlinePage("arena.html","Arena Feed"); });
-    tiktokBtn.addEventListener("click", ()=>{ statusEl.textContent = "TikTok sign-in not configured — showing Arena demo."; loadInlinePage("arena.html","Arena Feed"); });
+    // Instagram/TikTok placeholders -> still redirect to Arena on tap
+    instagramBtn.addEventListener("click", ()=>{ statusEl.textContent = "Instagram sign-in not configured — continuing to Arena."; window.location.href = GITHUB_ARENA_URL; });
+    tiktokBtn.addEventListener("click", ()=>{ statusEl.textContent = "TikTok sign-in not configured — continuing to Arena."; window.location.href = GITHUB_ARENA_URL; });
 
-    // If already signed in, directly show the arena page
-    onAuthStateChanged(auth, (user)=>{ if(user){ loadInlinePage("arena.html","Arena Feed"); } });
+    // Signup form (kept) -> now redirect to external create account page
+    signupForm.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      window.location.href = GITHUB_CREATE_URL;
+    });
+
+    // Auth state -> if already signed in, go to GitHub Arena
+    onAuthStateChanged(auth, (user)=>{ if(user){ window.location.href = GITHUB_ARENA_URL; } });
+
+    // "Logout" just returns to login view in this file
+    logoutBtn.addEventListener("click", ()=>{
+      showView("auth");
+    });
 
     function niceError(err){
       const m=String(err?.message||err).toLowerCase();
@@ -365,7 +432,7 @@
     }
 
     // start in auth view
-    showAuth();
+    setMode(false);
   </script>
 
   <!-- Three.js (advanced 3D background) -->
@@ -442,7 +509,7 @@
     // ===== Explosion (no center object) =====
     class Explosion {
       constructor(){
-        const x = rand(-0.42*width) / 6;
+        const x = rand(-0.42*width, 0.42*width) / 6;
         const y = rand(-0.45*height, 0.45*height) / 6;
         const z = rand(-60, 20);
         this.center = new THREE.Vector3(x,y,z);
