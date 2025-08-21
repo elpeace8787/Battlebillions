@@ -157,14 +157,17 @@
     setMode(false);
   </script>
 
-  <!-- Full-screen smoke → gold explosions with fighter flash -->
+  <!-- Full-screen smoke (grey build-up) → gold explosion timed to punch impact -->
   <script>
   (function () {
     const canvas = document.getElementById("bg");
     const ctx = canvas.getContext("2d", { alpha: true });
 
-    const DPR_LIMIT = 1.25, QUALITY = 0.9, MAX_ENTITIES = 220; // slightly higher to include fighters
-    const BLAST_INTERVAL = 800, AMBIENT_WISPS = 3;
+    // Perf and pacing
+    const DPR_LIMIT = 1.25, QUALITY = 0.9;
+    const MAX_ENTITIES = 230;          // includes fighters + smoke + rings
+    const BLAST_INTERVAL = 900;        // time between fights
+    const AMBIENT_WISPS = 2;           // low idle motion
 
     let scale=1,w=0,h=0;
     function resize(){
@@ -176,6 +179,7 @@
     }
     addEventListener("resize",resize,{passive:true}); resize();
 
+    // --------- Sprites ----------
     function makeRadial(size,stops){
       const c=document.createElement("canvas"); c.width=c.height=size;
       const g=c.getContext("2d");
@@ -184,22 +188,24 @@
       g.fillStyle=grad; g.fillRect(0,0,size,size);
       return c;
     }
+    // grey smoke for build-up
     const SMOKE=makeRadial(128,[
       [0,"rgba(255,255,255,0.45)"],
-      [0.4,"rgba(200,200,200,0.2)"],
+      [0.4,"rgba(200,200,200,0.20)"],
       [0.75,"rgba(120,120,120,0.08)"],
-      [1,"rgba(0,0,0,0)"]
+      [1,"rgba(0,0,0,0.00)"]
     ]);
+    // gold explosion
     const GOLD=makeRadial(128,[
-      [0,"rgba(255,230,150,0.6)"],
-      [0.35,"rgba(255,200,80,0.35)"],
+      [0,"rgba(255,230,150,0.65)"],
+      [0.35,"rgba(255,200,80,0.38)"],
       [0.7,"rgba(255,160,0,0.18)"],
-      [1,"rgba(255,120,0,0)"]
+      [1,"rgba(255,120,0,0.00)"]
     ]);
     function makeRing(size=128){
       const c=document.createElement("canvas"); c.width=c.height=size;
       const g=c.getContext("2d");
-      g.strokeStyle="rgba(255,215,0,0.8)";
+      g.strokeStyle="rgba(255,215,0,0.85)";
       g.lineWidth=size*0.12;
       g.beginPath(); g.arc(size/2,size/2,size*0.35,0,Math.PI*2); g.stroke();
       return c;
@@ -210,87 +216,89 @@
     const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
     const entities=[];
 
+    // colorMode: 0 = auto grey→gold by life; 1 = force gold
     class Puff{
-      constructor(x,y,r,life,vx,vy,grow=22){
+      constructor(x,y,r,life,vx,vy,grow=22,colorMode=0){
         this.t=0; this.life=life; this.x=x; this.y=y; this.r=r;
-        this.vx=vx; this.vy=vy; this.grow=grow;
+        this.vx=vx; this.vy=vy; this.grow=grow; this.colorMode=colorMode;
       }
       step(dt){ this.t+=dt; this.x+=this.vx*60*dt; this.y+=this.vy*60*dt; this.r+=this.grow*dt; return this.t<this.life; }
       draw(){
-        const f=this.t/this.life, a=(1-f)*0.4; if(a<=0) return;
+        const f=this.t/this.life; let a=(1-f)*0.4; if(a<=0) return;
         const s=this.r*2; ctx.globalAlpha=a;
-        if(f<0.5){ ctx.drawImage(SMOKE,this.x-s/2,this.y-s/2,s,s); }
-        else{ ctx.drawImage(GOLD,this.x-s/2,this.y-s/2,s,s); }
+        if(this.colorMode===1){ ctx.drawImage(GOLD,this.x-s/2,this.y-s/2,s,s); }
+        else { ctx.drawImage(f<0.5?SMOKE:GOLD,this.x-s/2,this.y-s/2,s,s); }
         ctx.globalAlpha=1;
       }
     }
     class Ring{
-      constructor(x,y){ this.t=0; this.life=1; this.x=x; this.y=y; this.r=40; this.grow=420; }
+      constructor(x,y){ this.t=0; this.life=0.95; this.x=x; this.y=y; this.r=42; this.grow=460; }
       step(dt){ this.t+=dt; this.r+=this.grow*dt; return this.t<this.life; }
-      draw(){
-        const a=(1-this.t/this.life); if(a<=0) return;
-        const s=this.r*2; ctx.globalAlpha=a;
-        ctx.drawImage(RING,this.x-s/2,this.y-s/2,s,s);
-        ctx.globalAlpha=1;
-      }
+      draw(){ const a=(1-this.t/this.life); if(a<=0) return; const s=this.r*2; ctx.globalAlpha=a; ctx.drawImage(RING,this.x-s/2,this.y-s/2,s,s); ctx.globalAlpha=1; }
     }
 
-    // --- Fighters: tiny outline figures that flash briefly in the blast ---
+    // Fighters that collide; on impact -> trigger gold explosion
     class Fighters {
-      constructor(x,y){
-        this.x=x; this.y=y; this.t=0; this.life=0.45;
-        this.rot=rnd(-Math.PI, Math.PI);             // random orientation
-        this.scale=rnd(0.6, 1.0);                    // size of the pair
+      constructor(x,y,impactCallback){
+        this.cx=x; this.cy=y; this.t=0; this.life=0.6;
+        this.rot=rnd(-Math.PI, Math.PI);
+        this.scale=rnd(0.75, 1.1);
+        this.hitTime=0.26;              // moment of impact (seconds)
+        this.didHit=false;
+        this.impact = impactCallback;   // function(cx,cy)
       }
-      step(dt){ this.t+=dt; return this.t < this.life; }
+      step(dt){
+        this.t+=dt;
+        if(!this.didHit && this.t>=this.hitTime){
+          this.didHit=true;
+          this.impact?.(this.cx, this.cy);
+        }
+        return this.t < this.life;
+      }
       draw(){
-        const f = this.t/this.life;                  // 0..1
-        const alpha = (1 - f) * 0.95;                // bright flash that fades
-        const punch = Math.sin(f * Math.PI * 2);     // arm swing animation
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rot + f*0.6);                // slight spin as it fades
-        ctx.scale(this.scale, this.scale);
+        const f=this.t/this.life;
+        const approach = Math.max(0, 1 - (this.t/this.hitTime)); // 1 -> 0
+        const spread = Math.max(0, (this.t - this.hitTime) / (this.life - this.hitTime)); // 0 -> 1 after hit
+        const alpha = (1 - f) * 0.95;
 
-        // outline style shifts from white to gold as it fades
-        const line = `rgba(${Math.floor(255)}, ${Math.floor(215 + 40*f)}, ${Math.floor(0 + 120*f)}, ${alpha})`;
-        ctx.strokeStyle = line;
+        ctx.save();
+        ctx.translate(this.cx, this.cy);
+        ctx.rotate(this.rot + f*0.5);
+        ctx.scale(this.scale, this.scale);
+        ctx.strokeStyle = `rgba(${255}, ${215 + Math.floor(40*f)}, ${Math.floor(30+180*f)}, ${alpha})`;
         ctx.lineWidth = 2;
 
-        drawFighter(-16, 0, +punch); // left fighter
-        drawFighter( 16, 0, -punch); // right fighter (mirrored motion)
+        // left and right fighter positions (rush in, then recoil slightly)
+        const lx = -16*approach + -8*spread;
+        const rx =  16*approach +  8*spread;
 
+        // simple punch animation curve
+        const punch = Math.sin(Math.min(1, f/this.hitTime) * Math.PI);
+        drawFighter(lx, 0, +punch, +1); // left
+        drawFighter(rx, 0, -punch, -1); // right
         ctx.restore();
 
-        function drawFighter(cx, cy, phase){
+        function drawFighter(cx, cy, phase, dir){
           // head
-          ctx.beginPath();
-          ctx.arc(cx, cy-12, 5, 0, Math.PI*2);
-          ctx.stroke();
-
+          ctx.beginPath(); ctx.arc(cx, cy-12, 5, 0, Math.PI*2); ctx.stroke();
           // torso
-          ctx.beginPath();
-          ctx.moveTo(cx, cy-7);
-          ctx.lineTo(cx, cy+10);
-          ctx.stroke();
-
-          // arms (punching toward centerline)
+          ctx.beginPath(); ctx.moveTo(cx, cy-7); ctx.lineTo(cx, cy+10); ctx.stroke();
+          // lead arm (toward center) – extends to punch
           ctx.beginPath();
           ctx.moveTo(cx, cy-4);
-          ctx.lineTo(cx - 10*sign(cx) + 8*phase*sign(cx), cy+2 - 4*Math.abs(phase)); // lead arm
-          ctx.moveTo(cx, cy-2);
-          ctx.lineTo(cx - 8*sign(cx) - 6*phase*sign(cx), cy+6 + 3*Math.abs(phase));  // rear arm
+          ctx.lineTo(cx + dir*(10 + 12*phase), cy + 2 - 4*Math.abs(phase));
           ctx.stroke();
-
-          // legs (stance)
+          // rear arm (balances)
           ctx.beginPath();
-          ctx.moveTo(cx, cy+10);
-          ctx.lineTo(cx - 7*sign(cx), cy+18);
-          ctx.moveTo(cx, cy+10);
-          ctx.lineTo(cx + 4*sign(cx), cy+20);
+          ctx.moveTo(cx, cy-2);
+          ctx.lineTo(cx + dir*( -6 + 6*phase), cy + 6 + 3*Math.abs(phase));
+          ctx.stroke();
+          // legs
+          ctx.beginPath();
+          ctx.moveTo(cx, cy+10); ctx.lineTo(cx - 7*dir, cy+18);
+          ctx.moveTo(cx, cy+10); ctx.lineTo(cx + 4*dir, cy+20);
           ctx.stroke();
         }
-        function sign(v){ return v<0 ? -1 : 1; }
       }
     }
 
@@ -298,22 +306,41 @@
       for(let i=0;i<AMBIENT_WISPS;i++){
         entities.push(new Puff(
           rnd(0,w), rnd(0,h),
-          rnd(8,20), rnd(1.5,2.2),
-          rnd(-0.25,0.25), rnd(-0.25,0.25), 18
+          rnd(8,20), rnd(1.4,2.1),
+          rnd(-0.25,0.25), rnd(-0.25,0.25), 18, 0
         ));
       }
     }
-    function blast(){
-      const cx=rnd(0,w), cy=rnd(0,h);
-      entities.push(new Ring(cx,cy));
-      entities.push(new Fighters(cx,cy));            // add fighter flash
 
-      const base=rnd(26,40), life=rnd(1.1,1.7);
-      for(let i=0;i<20;i++){
-        const ang=rnd(0,Math.PI*2), dist=rnd(0,base*2);
+    // build-up smoke before impact (grey)
+    function preSmoke(cx, cy){
+      const base = rnd(22,34), life = rnd(0.8,1.2);
+      for(let i=0;i<14;i++){
+        const ang=rnd(0,Math.PI*2), dist=rnd(0,base*1.8);
         const x=cx+Math.cos(ang)*dist, y=cy+Math.sin(ang)*dist;
-        entities.push(new Puff(x,y,rnd(base*0.7,base*1.5),life,rnd(-0.5,0.5),rnd(-0.5,0.5),24));
+        entities.push(new Puff(x,y,rnd(base*0.6,base*1.2),life,rnd(-0.35,0.35),rnd(-0.35,0.35),20,0));
       }
+    }
+
+    // gold explosion exactly at impact
+    function goldExplosion(cx, cy){
+      entities.push(new Ring(cx,cy));
+      const base = rnd(30,44), life=rnd(1.0,1.6);
+      for(let i=0;i<20;i++){
+        const ang=rnd(0,Math.PI*2), dist=rnd(0,base*2.2);
+        const x=cx+Math.cos(ang)*dist, y=cy+Math.sin(ang)*dist;
+        entities.push(new Puff(x,y,rnd(base*0.7,base*1.6),life,rnd(-0.6,0.6),rnd(-0.6,0.6),26,1)); // gold-only
+      }
+    }
+
+    function fightBlast(){
+      const cx=rnd(0,w), cy=rnd(0,h);
+
+      // grey build-up first
+      preSmoke(cx, cy);
+
+      // fighters appear and call the gold explosion on hit
+      entities.push(new Fighters(cx, cy, goldExplosion));
     }
 
     let prev=performance.now(), last=prev;
@@ -321,10 +348,9 @@
       const dt=clamp((now-prev)/1000,0,0.05); prev=now;
       ctx.clearRect(0,0,w,h);
 
-      if(now-last>BLAST_INTERVAL){ blast(); last=now; }
+      if(now-last>BLAST_INTERVAL){ fightBlast(); last=now; }
       ambientWisps();
 
-      // keep within cap
       if(entities.length>MAX_ENTITIES) entities.splice(0,entities.length-MAX_ENTITIES);
 
       for(let i=0;i<entities.length;i++){
@@ -339,4 +365,4 @@
 
   <noscript>Enable JavaScript to use BattleBillions.</noscript>
 </body>
-  </html>
+            </html>
