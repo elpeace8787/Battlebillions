@@ -1,91 +1,147 @@
-:root {
-  --bg: #000;          /* Pure black background */
-  --card: #111;        /* Dark grey card */
-  --line: #2a2a2a;     /* Divider lines */
-  --ink: #f5f5f5;      /* White text */
-  --ink-2: #cfcfcf;    /* Light grey */
-  --muted: #7a7a7a;    /* Muted grey */
-  --accent: #fff;      /* White accent */
-  --r: 18px;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BattleBillions — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
 
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; font-family: "Inter", sans-serif; }
+  <!-- Inline CSS so it never renders as text on the page -->
+  <style>
+    :root { --bg:#000; --card:#111; --line:#2a2a2a; --ink:#f5f5f5; --ink-2:#cfcfcf; --muted:#7a7a7a; --r:18px; }
+    *{box-sizing:border-box} html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    body{display:grid;place-items:center;background:radial-gradient(circle at 30% 20%,#111,#000 70%);color:var(--ink)}
+    .auth-shell{width:100%;max-width:420px;padding:20px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:32px 28px;box-shadow:0 0 30px rgba(255,255,255,.05);animation:fadeInUp .6s ease-out}
+    .card-head{text-align:center;margin-bottom:20px}
+    .logo{width:140px;margin:0 auto 10px;filter:drop-shadow(0 0 6px rgba(255,255,255,.2))}
+    h1{font-size:24px;margin:6px 0;letter-spacing:.5px}
+    .sub{color:var(--muted);font-size:13px}
+    .providers{display:grid;gap:12px;margin-bottom:16px}
+    .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:var(--r);font-weight:600;cursor:pointer;transition:all .2s;border:1px solid var(--line);color:var(--ink);background:#1a1a1a}
+    .btn:hover{background:#222;transform:translateY(-2px)}
+    .btn.social img{width:20px;height:20px}
+    .btn.primary{background:#fff;color:#000;border:none}
+    .btn.primary:hover{background:#eaeaea}
+    .btn.ghost{background:transparent;border:1px solid var(--muted)}
+    .btn.ghost:hover{border-color:var(--ink)}
+    .divider{display:flex;align-items:center;gap:10px;margin:12px 0}
+    .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+    .divider span{font-size:12px;color:var(--muted)}
+    .form{display:grid;gap:14px}
+    .row label{font-size:12px;color:var(--ink-2);margin-bottom:6px;display:block}
+    input{width:100%;padding:12px;border-radius:var(--r);border:1px solid var(--line);background:#0d0d0d;color:var(--ink);font-size:14px}
+    input:focus{border-color:#fff;outline:0;box-shadow:0 0 6px rgba(255,255,255,.2)}
+    .pw-wrap{position:relative}
+    .pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--muted);cursor:pointer}
+    .actions{display:flex;gap:12px;margin-top:8px}
+    .status{min-height:18px;font-size:12px;text-align:center;margin-top:12px;color:var(--muted)}
+    .foot{text-align:center;font-size:12px;margin-top:16px;color:var(--muted)}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <main class="auth-shell">
+    <div class="card">
+      <header class="card-head">
+        <img src="./assets/Logopit_1697753255912.png" alt="BattleBillions" class="logo" />
+        <h1>Welcome back</h1>
+        <p class="sub">Enter Battles. Billions. Respect.</p>
+      </header>
 
-body {
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at 30% 20%, #111, #000 70%);
-  color: var(--ink);
-}
+      <section class="providers">
+        <button id="googleBtn" class="btn social">
+          <img src="./assets/google.svg" alt="" /> Continue with Google
+        </button>
+        <button id="facebookBtn" class="btn social">
+          <img src="./assets/facebook.svg" alt="" /> Continue with Facebook
+        </button>
+        <div class="divider"><span>or</span></div>
+      </section>
 
-.auth-shell { width: 100%; max-width: 420px; padding: 20px; }
+      <form id="authForm" class="form" autocomplete="on">
+        <div class="row">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="you@example.com" required />
+        </div>
+        <div class="row">
+          <label for="password">Password</label>
+          <div class="pw-wrap">
+            <input id="password" type="password" minlength="6" placeholder="••••••••" required />
+            <button type="button" id="togglePw" class="pw-toggle" aria-label="Show password">👁</button>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="submitBtn" type="submit" class="btn primary">Sign In</button>
+          <button id="modeBtn" type="button" class="btn ghost">Create account</button>
+        </div>
+      </form>
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 32px 28px;
-  box-shadow: 0 0 30px rgba(255,255,255,0.05);
-  animation: fadeInUp .6s ease-out;
-}
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </div>
+    <footer class="foot">© <span id="year"></span> BattleBillions</footer>
+  </main>
 
-.card-head { text-align: center; margin-bottom: 20px; }
-.logo {
-  width: 140px;
-  margin: 0 auto 10px;
-  filter: drop-shadow(0 0 6px rgba(255,255,255,.2));
-}
-h1 { font-size: 24px; margin: 6px 0; letter-spacing: .5px; }
-.sub { color: var(--muted); font-size: 13px; }
+  <!-- Module scripts must be served via HTTP(S), not file:// -->
+  <script type="module">
+    import {
+      auth, onAuthStateChanged, signInWithPopup,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      googleProvider, facebookProvider
+    } from "./js/firebase.js";
 
-.providers { display: grid; gap: 12px; margin-bottom: 16px; }
+    const statusEl = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
+    const modeBtn = document.getElementById("modeBtn");
+    const googleBtn = document.getElementById("googleBtn");
+    const facebookBtn = document.getElementById("facebookBtn");
+    const emailEl = document.getElementById("email");
+    const pwEl = document.getElementById("password");
+    const togglePw = document.getElementById("togglePw");
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-.btn {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  width: 100%; padding: 12px 16px;
-  border-radius: var(--r);
-  font-weight: 600; cursor: pointer; transition: all .2s;
-  border: 1px solid var(--line); color: var(--ink);
-  background: #1a1a1a;
-}
-.btn:hover { background: #222; transform: translateY(-2px); }
-.btn.social img { width: 20px; height: 20px; }
-.btn.primary {
-  background: #fff; color: #000; border: none;
-}
-.btn.primary:hover { background: #eaeaea; }
+    let isSignup = false;
+    function setLoading(v,msg=""){submitBtn.disabled=v;googleBtn.disabled=v;facebookBtn.disabled=v;statusEl.textContent=msg;}
+    function setMode(v){isSignup=v;submitBtn.textContent=v?"Create Account":"Sign In";modeBtn.textContent=v?"Have an account? Sign in":"Create account";statusEl.textContent="";}
+    modeBtn.addEventListener("click",()=>setMode(!isSignup));
+    togglePw.addEventListener("click",()=>{pwEl.type=pwEl.type==="password"?"text":"password";togglePw.setAttribute("aria-label",pwEl.type==="password"?"Show password":"Hide password");});
 
-.btn.ghost { background: transparent; border: 1px solid var(--muted); }
-.btn.ghost:hover { border-color: var(--ink); }
+    document.getElementById("authForm").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const email = emailEl.value.trim(), password = pwEl.value;
+      if(!email || !password){statusEl.textContent="Email and password required.";return;}
+      try{
+        setLoading(true, isSignup ? "Creating your account..." : "Signing you in...");
+        if(isSignup){ await createUserWithEmailAndPassword(auth,email,password); }
+        else{ await signInWithEmailAndPassword(auth,email,password); }
+      }catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
+    });
 
-.divider { display:flex; align-items:center; gap:10px; margin:12px 0; }
-.divider::before, .divider::after { content:""; flex:1; height:1px; background: var(--line); }
-.divider span { font-size: 12px; color: var(--muted); }
+    googleBtn.addEventListener("click", async ()=>{
+      try{ setLoading(true,"Opening Google..."); await signInWithPopup(auth, googleProvider); }
+      catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
+    });
 
-.form { display: grid; gap: 14px; }
+    facebookBtn.addEventListener("click", async ()=>{
+      try{ setLoading(true,"Opening Facebook..."); await signInWithPopup(auth, facebookProvider); }
+      catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
+    });
 
-.row label { font-size: 12px; color: var(--ink-2); margin-bottom: 6px; display:block; }
-input {
-  width: 100%; padding: 12px;
-  border-radius: var(--r); border: 1px solid var(--line);
-  background: #0d0d0d; color: var(--ink); font-size: 14px;
-}
-input:focus { border-color: #fff; outline: none; box-shadow: 0 0 6px rgba(255,255,255,.2); }
+    onAuthStateChanged(auth, (user)=>{ if(user){ window.location.href="./dashboard.html"; } });
 
-.pw-wrap { position: relative; }
-.pw-toggle {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  border: none; background: transparent; color: var(--muted); cursor: pointer;
-}
+    function niceError(err){
+      const m=String(err?.message||err).toLowerCase();
+      if(m.includes("auth/invalid-credential")) return "Invalid email or password.";
+      if(m.includes("auth/invalid-email")) return "Enter a valid email.";
+      if(m.includes("auth/weak-password")) return "Password must be at least 6 characters.";
+      if(m.includes("auth/email-already-in-use")) return "That email is already in use.";
+      if(m.includes("popup-closed-by-user")) return "Popup closed — try again.";
+      if(m.includes("auth/account-exists-with-different-credential")) return "Account exists with a different sign-in method for this email.";
+      return "Error: " + (err?.message || "Something went wrong.");
+    }
+    setMode(false);
+  </script>
 
-.actions { display: flex; gap: 12px; margin-top: 8px; }
-
-.status { min-height: 18px; font-size: 12px; text-align: center; margin-top: 12px; color: var(--muted); }
-
-.foot { text-align: center; font-size: 12px; margin-top: 16px; color: var(--muted); }
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  <noscript>Enable JavaScript to use BattleBillions.</noscript>
+</body>
+  </html>
