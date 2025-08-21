@@ -242,7 +242,7 @@
 
     const DPR_LIMIT = 1.75;
     const MAX_EXPLOSIONS = reduced ? 6 : 12;
-    const BLAST_INTERVAL = reduced ? 1500 : 1000;
+    const BLAST_INTERVAL = reduced ? 1400 : 900;
     const START_WITH_BLAST = true;
 
     const canvas = document.getElementById('bg3d');
@@ -282,6 +282,98 @@
     const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
     const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
 
+    // ===== Procedural FLAME badge (centerpiece) =====
+    const FLAME_CACHE = new Map(); // key: palette name -> material
+
+    function getFlameMaterial(p){
+      const key = JSON.stringify(p);
+      if(!FLAME_CACHE.has(key)){
+        const tex = makeFlameTexture(p);
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent:true, opacity:1, side:THREE.DoubleSide });
+        FLAME_CACHE.set(key, mat);
+      }
+      return FLAME_CACHE.get(key).clone(); // independent opacity per explosion
+    }
+
+    function pickDarkPalette(){
+      // A set of moody/dark flame themes (outer -> inner colors)
+      const palettes = [
+        { name:'violet-ember', outer:'#140A1A', mid:'#2B1040', inner:'#8A52FF' },
+        { name:'cyan-abyss',   outer:'#061418', mid:'#0B2830', inner:'#36E1FF' },
+        { name:'teal-char',    outer:'#061A16', mid:'#0F3B30', inner:'#28D1A6' },
+        { name:'crimson-night',outer:'#16070A', mid:'#300C12', inner:'#FF4B6E' },
+        { name:'indigo-smoke', outer:'#0B0E1A', mid:'#151E3D', inner:'#6A8CFF' },
+        { name:'obsidian-gold',outer:'#0F0F0F', mid:'#1F1A0D', inner:'#E7C165' },
+        { name:'emerald-glow', outer:'#07140D', mid:'#0E2A1B', inner:'#55FF9C' }
+      ];
+      return palettes[(Math.random()*palettes.length)|0];
+    }
+
+    function makeFlameTexture(palette){
+      const W = 320, H = 320;
+      const c = document.createElement('canvas'); c.width=W; c.height=H;
+      const g = c.getContext('2d');
+      g.clearRect(0,0,W,H);
+
+      // soft outer glow
+      const glow = g.createRadialGradient(W/2,H*0.62, 10, W/2,H*0.62, W*0.48);
+      glow.addColorStop(0, hexA(palette.inner, 0.25));
+      glow.addColorStop(0.5, hexA(palette.mid,   0.18));
+      glow.addColorStop(1, hexA(palette.outer,  0.00));
+      g.fillStyle = glow; g.fillRect(0,0,W,H);
+
+      // flame shape (layered)
+      function flamePath(scale=1, yOffset=0){
+        g.beginPath();
+        const cx=W/2, cy=H*0.65 + yOffset, s=120*scale;
+        g.moveTo(cx, cy - s*0.9);
+        g.bezierCurveTo(cx + s*0.35, cy - s*1.05, cx + s*0.55, cy - s*0.1, cx + s*0.2, cy + s*0.15);
+        g.bezierCurveTo(cx + s*0.05, cy + s*0.35, cx + s*0.05, cy + s*0.55, cx, cy + s*0.6);
+        g.bezierCurveTo(cx - s*0.05, cy + s*0.55, cx - s*0.05, cy + s*0.35, cx - s*0.2, cy + s*0.15);
+        g.bezierCurveTo(cx - s*0.55, cy - s*0.1, cx - s*0.35, cy - s*1.05, cx, cy - s*0.9);
+        g.closePath();
+      }
+
+      // outer flame
+      const gradOuter = g.createLinearGradient(0,H*0.1, 0,H*0.9);
+      gradOuter.addColorStop(0, hexA(palette.mid, 0.85));
+      gradOuter.addColorStop(1, hexA(palette.outer, 0.9));
+      g.fillStyle = gradOuter;
+      flamePath(1.0, 0); g.fill();
+
+      // inner flame
+      const gradInner = g.createLinearGradient(0,H*0.2, 0,H*0.9);
+      gradInner.addColorStop(0, hexA('#ffffff', 0.7));
+      gradInner.addColorStop(1, hexA(palette.inner, 0.9));
+      g.fillStyle = gradInner;
+      flamePath(0.65, 10); g.fill();
+
+      // core spark
+      g.beginPath();
+      g.ellipse(W/2, H*0.63, 16, 24, 0, 0, Math.PI*2);
+      g.fillStyle = hexA('#ffffff', 0.9);
+      g.fill();
+
+      // subtle rim highlight
+      g.lineWidth = 3;
+      g.strokeStyle = hexA('#ffffff', 0.25);
+      flamePath(1.0, 0); g.stroke();
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
+      return tex;
+
+      function hexA(hex, a){
+        const {r,g:b,bl} = hexToRgb(hex);
+        return `rgba(${r},${b},${bl},${a})`;
+      }
+      function hexToRgb(hex){
+        const h = hex.replace('#','');
+        const bigint = parseInt(h.length===3 ? h.split('').map(ch=>ch+ch).join('') : h, 16);
+        return { r: (bigint>>16)&255, g: (bigint>>8)&255, bl: bigint&255 };
+      }
+    }
+
     // pool for points
     const pool = [];
     function getPoints(count){
@@ -304,61 +396,7 @@
     }
     function releasePoints(points){ points.visible=false; pool.push(points); }
 
-    // Build a simple stick figure (male or female)
-    function buildStickFigure(isFemale=false){
-      const group = new THREE.Group();
-
-      const lineMat = new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.95 });
-      const headMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.95 });
-
-      // Head (circle outline)
-      const headGeo = new THREE.RingGeometry(2.6, 3.4, 32);
-      const head = new THREE.Mesh(headGeo, headMat);
-      head.position.y = 9;
-      group.add(head);
-
-      // Body line
-      const bodyGeo = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0,7,0), new THREE.Vector3(0,-4,0) ]);
-      const body = new THREE.Line(bodyGeo, lineMat);
-      group.add(body);
-
-      // Arms
-      const armsGeo = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(-6,3,0), new THREE.Vector3(0,7,0), new THREE.Vector3(6,3,0) ]);
-      const arms = new THREE.Line(armsGeo, lineMat);
-      group.add(arms);
-
-      // Legs (default)
-      const legsGeo = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(-5,-4,0), new THREE.Vector3(0,-4,0), new THREE.Vector3(5,-4,0) ]);
-      const legs = new THREE.Line(legsGeo, lineMat);
-      group.add(legs);
-
-      if(isFemale){
-        // simple skirt triangle
-        const skirtMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.95, side:THREE.DoubleSide });
-        const skirtGeo = new THREE.BufferGeometry();
-        const verts = new Float32Array([
-          -4.5, -1.5, 0,
-           4.5, -1.5, 0,
-           0.0, -4.2, 0
-        ]);
-        skirtGeo.setAttribute('position', new THREE.BufferAttribute(verts,3));
-        skirtGeo.setIndex([0,1,2]);
-        skirtGeo.computeVertexNormals?.();
-        const skirt = new THREE.Mesh(skirtGeo, skirtMat);
-        group.add(skirt);
-      }
-
-      // subtle glow ring behind figure on charge
-      const glowMat = new THREE.MeshBasicMaterial({ color:0xffeeaa, transparent:true, opacity:0.0, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
-      const glow = new THREE.Mesh(new THREE.RingGeometry(5, 8.5, 48), glowMat);
-      glow.position.z = -0.1;
-      group.add(glow);
-
-      group.userData = { lineMat, headMat, glowMat, glow };
-
-      return group;
-    }
-
+    // ===== Explosion =====
     class Explosion {
       constructor(){
         const x = rand(-0.42*width, 0.42*width) / 6;
@@ -366,34 +404,15 @@
         const z = rand(-60, 20);
         this.center = new THREE.Vector3(x,y,z);
 
-        // Phase timing
-        this.chargeTime = reduced ? 0.5 : 0.75;  // stick figure power-up duration
-        this.life = reduced ? 1.4 : 1.8;         // particle life after blast
+        // lifetimes
+        this.life = reduced ? 1.4 : 1.8;
         this.t = 0;
-        this.blasted = false;
 
-        // Stick figure
-        const female = Math.random() < 0.5;
-        this.figure = buildStickFigure(female);
-        this.figure.position.copy(this.center);
-        this.figure.scale.set(1,1,1);
-        scene.add(this.figure);
-
-        // Pre-allocate but don't add particle/rings until blast
-        this.points = null;
+        // particles
         this.count = (Math.random()*60 + (reduced? 90 : 140)) | 0;
-        this.vel = null;
-        this.ring1 = null;
-        this.ring2 = null;
-        this.r1 = 6; this.r2 = 6;
-
-        this.shake = 0.7;
-      }
-
-      doBlast(){
-        // Particles
         this.points = getPoints(this.count);
         this.points.position.copy(this.center);
+
         const g = this.points.geometry;
         const pos = g.getAttribute('position').array;
         const col = g.getAttribute('color').array;
@@ -406,66 +425,45 @@
           this.vel[i*3+0] = dirv.x*speed;
           this.vel[i*3+1] = dirv.y*speed;
           this.vel[i*3+2] = dirv.z*speed;
-
-          pos[i*3+0] = dirv.x*2;
+pos[i*3+0] = dirv.x*2;
           pos[i*3+1] = dirv.y*2;
           pos[i*3+2] = dirv.z*2;
 
+          // bright start -> will warm to gold
           col[i*3+0] = 1.0; col[i*3+1] = 1.0; col[i*3+2] = 1.0;
           siz[i] = rand(10, 18);
         }
         g.getAttribute('position').needsUpdate = true;
         g.getAttribute('color').needsUpdate    = true;
         g.getAttribute('size').needsUpdate     = true;
+
         scene.add(this.points);
 
-        // Shockwaves
+        // shockwaves
         const ringGeo = new THREE.RingGeometry(6, 7.6, 64);
         this.ring1 = new THREE.Mesh(ringGeo, ringMatStrong.clone());
         this.ring2 = new THREE.Mesh(ringGeo, ringMatSoft.clone());
         this.ring1.position.copy(this.center);
         this.ring2.position.copy(this.center);
+        this.r1 = 6; this.r2 = 6;
         scene.add(this.ring1, this.ring2);
 
-        this.blasted = true;
+        // central FLAME (single)
+        const pal = pickDarkPalette();
+        const mat = getFlameMaterial(pal);
+        const size = 12;
+        this.flame = new THREE.Mesh(new THREE.PlaneGeometry(size, size), mat);
+        this.flame.position.copy(this.center).add(new THREE.Vector3(0, 0, 0.1));
+        // slight float animation base
+        this.floatT = Math.random()*Math.PI*2;
+        scene.add(this.flame);
 
-        // make figure quickly fade after blast
-        const { lineMat, headMat, glowMat } = this.figure.userData;
-        lineMat.opacity = headMat.opacity = 0.75;
-        glowMat.opacity = Math.min(0.6, glowMat.opacity+0.2);
+        this.shake = 0.5;
       }
 
       update(dt){
         this.t += dt;
-
-        // CHARGE PHASE
-        if(!this.blasted){
-          const f = Math.min(1, this.t / this.chargeTime);
-          // power-up stretch + slight glow
-          const stretch = 1 + f*0.65; // scale Y up to ~1.65
-          const pop = 1 + f*0.1;      // small scale on X/Z
-          this.figure.scale.set(pop, stretch, pop);
-          this.figure.lookAt(camera.position);
-
-          const { lineMat, headMat, glowMat, glow } = this.figure.userData;
-          const glowOpacity = reduced ? (0.15*f) : (0.25 + 0.45*f);
-          glowMat.opacity = Math.min(0.7, glowOpacity);
-          glow.scale.setScalar(1 + f*0.8);
-
-          // shake camera gently while charging
-          const s = this.shake * 0.25 * (1 - Math.cos(f*Math.PI));
-          camera.position.x += (Math.random()-0.5)*s;
-          camera.position.y += (Math.random()-0.5)*s;
-
-          if(this.t >= this.chargeTime){
-            this.doBlast();
-          }
-          return true;
-        }
-
-        // BLAST PHASE
-        const blastT = this.t - this.chargeTime;
-        const f = blastT / this.life;
+        const f = this.t/this.life;
 
         // particles
         const g = this.points.geometry;
@@ -507,13 +505,13 @@
         this.ring1.lookAt(camera.position);
         this.ring2.lookAt(camera.position);
 
-        // fade out figure during blast
-        if(this.figure){
-          const { lineMat, headMat, glowMat } = this.figure.userData;
-          const fade = Math.max(0, 0.95 - f*1.6);
-          lineMat.opacity = headMat.opacity = fade;
-          glowMat.opacity = Math.max(0, glowMat.opacity - dt*0.8);
-          this.figure.lookAt(camera.position);
+        // flame: face camera, float slightly, fade faster than particles
+        if(this.flame){
+          this.flame.lookAt(camera.position);
+          this.floatT += dt*2;
+          this.flame.position.y = this.center.y + Math.sin(this.floatT)*0.6;
+          const flameOpacity = Math.max(0, 1.0 - f*1.5);
+          this.flame.material.opacity = flameOpacity;
         }
 
         // camera shake decays
@@ -523,14 +521,14 @@
           camera.position.y += (Math.random()-0.5)*s;
         }
 
-        return blastT < this.life;
+        return this.t < this.life;
       }
 
       dispose(){
-        if(this.points){ scene.remove(this.points); releasePoints(this.points); }
-        if(this.ring1){ scene.remove(this.ring1); }
-        if(this.ring2){ scene.remove(this.ring2); }
-        if(this.figure){ scene.remove(this.figure); }
+        scene.remove(this.points); releasePoints(this.points);
+        scene.remove(this.ring1); scene.remove(this.ring2);
+        if(this.flame){ scene.remove(this.flame); this.flame.geometry.dispose(); }
+        // cached flame materials/textures kept
       }
     }
 
@@ -610,7 +608,7 @@
       ambient.position.y = Math.sin(ambient.userData.t)*2;
       ambient.rotation.z += dt*0.02;
 
-      // schedule new charge-ups -> blasts
+      // schedule explosions
       if(now - lastBlast > BLAST_INTERVAL){
         if(explosions.length > MAX_EXPLOSIONS){
           const old = explosions.shift(); old.dispose();
@@ -619,7 +617,7 @@
         lastBlast = now;
       }
 
-      // update all
+      // update explosions
       for(let i=explosions.length-1;i>=0;i--){
         if(!explosions[i].update(dt)){
           explosions[i].dispose();
@@ -638,3 +636,5 @@
   <noscript>Enable JavaScript to use BattleBillions.</noscript>
 </body>
 </html>
+
+     
