@@ -1,7 +1,3 @@
-Absolutely—kept your UI/auth and the 3D engine intact, and swapped the inner “flame” for two country flags (stylized outlines) that appear side-by-side at the center of each explosion, face the camera, wobble slightly, and fade with the blast. Flags are rendered from lightweight canvas textures (no external files), chosen randomly from a set of recognizable designs (JP, FR, DE, IT, NL, RU, UA, NG, BE, IE). Performance is still mobile-friendly.
-
-Here’s your full updated index.html:
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -238,10 +234,11 @@ Here’s your full updated index.html:
     setMode(false);
   </script>
 
-  <!-- Three.js (advanced 3D background with flags in explosions) -->
+  <!-- Three.js (advanced 3D background) -->
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
   (function(){
+    // Motion profile
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const DPR_LIMIT = 1.75;
@@ -250,8 +247,6 @@ Here’s your full updated index.html:
     const START_WITH_BLAST = true;
 
     const canvas = document.getElementById('bg3d');
-
-    // Check WebGL
     try{
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if(!gl) throw new Error('WebGL not supported');
@@ -266,8 +261,7 @@ Here’s your full updated index.html:
     scene.fog = new THREE.FogExp2(0x000000, reduced ? 0.0008 : 0.0012);
 
     let width = window.innerWidth, height = window.innerHeight;
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
-    renderer.setPixelRatio(pixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT));
     renderer.setSize(width, height, false);
 
     const camera = new THREE.PerspectiveCamera(55, width/height, 0.1, 3000);
@@ -278,113 +272,31 @@ Here’s your full updated index.html:
     dir.position.set(60, 80, 120);
     scene.add(hemi, dir);
 
-    // Soft particle sprite
+    // soft particle sprite
     const particleTex = makeSpriteTexture();
     const baseMat = new THREE.PointsMaterial({
       size: (reduced? 18 : 24), map: particleTex, transparent:true, depthWrite:false,
       blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
     });
 
-    // Shockwave rings
+    // shockwave rings
     const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
     const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
 
-    // Flag generator (returns THREE.CanvasTexture)
-    function makeFlagTexture(code, w=256, h=170){
-      const c = document.createElement('canvas'); c.width=w; c.height=h;
-      const g = c.getContext('2d');
+    // ==== CATEGORY SYMBOLS (replace flags) ====
+    const CATEGORY_CACHE = new Map();
+    const CATEGORY_CODES = ['rap','dance','gaming','art','sports','comedy','fashion','tech','sing','poetry'];
 
-      // background transparent
-      g.clearRect(0,0,w,h);
-
-      // draw flag content
-      switch(code){
-        case 'JP': // white with red disc
-          g.fillStyle = '#ffffff'; g.globalAlpha = 0.92; roundedRect(g, 4,4,w-8,h-8,12,true,false);
-          g.globalAlpha = 1.0;
-          g.fillStyle = '#BC002D';
-          g.beginPath(); g.arc(w/2, h/2, Math.min(w,h)*0.22, 0, Math.PI*2); g.fill();
-          break;
-        case 'FR': // blue white red vertical
-          drawTricolor(g, ['#0055A4','#FFFFFF','#EF4135'], true, w, h);
-          break;
-        case 'DE': // black red gold horizontal
-          drawTricolor(g, ['#000000','#DD0000','#FFCE00'], false, w, h);
-          break;
-        case 'IT': // green white red vertical
-          drawTricolor(g, ['#009246','#FFFFFF','#CE2B37'], true, w, h);
-          break;
-        case 'NL': // red white blue horizontal
-          drawTricolor(g, ['#AE1C28','#FFFFFF','#21468B'], false, w, h);
-          break;
-        case 'RU': // white blue red horizontal
-          drawTricolor(g, ['#FFFFFF','#0033A0','#D52B1E'], false, w, h);
-          break;
-        case 'UA': // blue yellow horizontal
-          drawTricolor(g, ['#0057B7','#FFD700'], false, w, h);
-          break;
-        case 'NG': // green white green vertical
-          drawTricolor(g, ['#008753','#FFFFFF','#008753'], true, w, h);
-          break;
-        case 'BE': // black yellow red vertical
-          drawTricolor(g, ['#000000','#FDDA24','#EF3340'], true, w, h);
-          break;
-        case 'IE': // green white orange vertical
-          drawTricolor(g, ['#169B62','#FFFFFF','#FF883E'], true, w, h);
-          break;
-        default:
-          drawTricolor(g, ['#ffffff','#cccccc','#ffffff'], false, w, h);
+    function getCategoryMaterial(code){
+      if(!CATEGORY_CACHE.has(code)){
+        const tex = makeCategoryTexture(code);
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent:true, opacity:1, side:THREE.DoubleSide });
+        CATEGORY_CACHE.set(code, mat);
       }
-
-      // outline
-      g.lineWidth = 6; g.strokeStyle = 'rgba(255,255,255,0.95)';
-      roundedRect(g, 3,3,w-6,h-6,12,false,true);
-      g.lineWidth = 2; g.strokeStyle = 'rgba(0,0,0,0.45)';
-      roundedRect(g, 3,3,w-6,h-6,12,false,true);
-
-      const tex = new THREE.CanvasTexture(c);
-      tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter;
-      tex.anisotropy = 1; tex.needsUpdate = true;
-      return tex;
-
-      function roundedRect(ctx,x,y,w,h,r,fill,stroke){
-        ctx.beginPath();
-        ctx.moveTo(x+r,y);
-        ctx.arcTo(x+w,y,x+w,y+h,r);
-        ctx.arcTo(x+w,y+h,x,y+h,r);
-        ctx.arcTo(x,y+h,x,y,r);
-        ctx.arcTo(x,y,x+w,y,r);
-        if(fill) ctx.fill(); if(stroke) ctx.stroke();
-      }
-      function drawTricolor(ctx, colors, vertical, w, h){
-        const n = colors.length;
-        for(let i=0;i<n;i++){
-          ctx.fillStyle = colors[i];
-          if(vertical){
-            const sw = (w-8)/n;
-            ctx.fillRect(4+i*sw, 4, sw, h-8);
-          }else{
-            const sh = (h-8)/n;
-            ctx.fillRect(4, 4+i*sh, w-8, sh);
-          }
-        }
-        // subtle white base to keep translucency consistent
-        ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        roundedRect(ctx, 4,4,w-8,h-8,12,true,false);
-        ctx.globalCompositeOperation = 'source-over';
-      }
+      return CATEGORY_CACHE.get(code).clone(); // independent opacity per explosion
     }
 
-    const FLAG_SET = ['JP','FR','DE','IT','NL','RU','UA','NG','BE','IE'];
-    function randomTwoFlags(){
-      const a = FLAG_SET[(Math.random()*FLAG_SET.length)|0];
-      let b = FLAG_SET[(Math.random()*FLAG_SET.length)|0];
-      if(b===a){ b = FLAG_SET[(Math.random()*FLAG_SET.length)|0]; if(b===a){ b = FLAG_SET[(Math.random()*FLAG_SET.length)|0]; } }
-      return [a,b];
-    }
-
-    // Pool for particles
+    // pool for points
     const pool = [];
     function getPoints(count){
       for(let i=pool.length-1;i>=0;i--){
@@ -406,6 +318,7 @@ Here’s your full updated index.html:
     }
     function releasePoints(points){ points.visible=false; pool.push(points); }
 
+    // explosions list
     const explosions = [];
     class Explosion {
       constructor(){
@@ -438,7 +351,7 @@ Here’s your full updated index.html:
           pos[i*3+1] = dirv.y*2;
           pos[i*3+2] = dirv.z*2;
 
-          // start bright so visible behind flags
+          // bright start
           col[i*3+0] = 1.0; col[i*3+1] = 1.0; col[i*3+2] = 1.0;
           siz[i] = rand(10, 18);
         }
@@ -457,34 +370,21 @@ Here’s your full updated index.html:
         this.r1 = 6; this.r2 = 6;
         scene.add(this.ring1, this.ring2);
 
-        // --- NEW: two flags in the center ---
-        const [fa, fb] = randomTwoFlags();
-        const texA = makeFlagTexture(fa);
-        const texB = makeFlagTexture(fb);
-
-        const flagMatA = new THREE.MeshBasicMaterial({ map:texA, transparent:true, opacity:1, side:THREE.DoubleSide });
-        const flagMatB = new THREE.MeshBasicMaterial({ map:texB, transparent:true, opacity:1, side:THREE.DoubleSide });
-
-        // maintain 3:2 aspect (256x170 ~ 1.5)
-        const w = 22, h = w * (170/256); // scale looks good on screen
+        // --- central CATEGORY SYMBOLS (two different categories) ---
+        const [c1, c2] = pickTwoCategories();
+        const mat1 = getCategoryMaterial(c1);
+        const mat2 = getCategoryMaterial(c2);
+        const aspect = 1; // square badge icons
+        const h = 10; const w = h*aspect;
         const geo = new THREE.PlaneGeometry(w, h);
 
-        this.flagA = new THREE.Mesh(geo, flagMatA);
-        this.flagB = new THREE.Mesh(geo, flagMatB);
+        this.cat1 = new THREE.Mesh(geo, mat1);
+        this.cat2 = new THREE.Mesh(geo, mat2);
+        this.cat1.position.copy(this.center).add(new THREE.Vector3(-w*0.7, 0, 0.1));
+        this.cat2.position.copy(this.center).add(new THREE.Vector3( w*0.7, 0, 0.1));
+        scene.add(this.cat1, this.cat2);
 
-        // small gap between them
-        this.flagA.position.copy(this.center).add(new THREE.Vector3(-w*0.55, 0, 0));
-        this.flagB.position.copy(this.center).add(new THREE.Vector3(+w*0.55, 0, 0));
-
-        // slight angle for depth
-        this.flagA.rotation.y = -0.15;
-        this.flagB.rotation.y =  0.15;
-
-        // add to scene
-        scene.add(this.flagA, this.flagB);
-
-        // subtle camera kick
-        this.shake = 0.45;
+        this.shake = 0.5;
       }
       update(dt){
         this.t += dt;
@@ -506,7 +406,7 @@ Here’s your full updated index.html:
           this.vel[ix+1] *= drag;
           this.vel[ix+2] *= drag;
 
-          // shift grey/white -> gold (still present, but flags now take center focus)
+          // shift grey/white -> gold
           const toGold = smoothstep(0.25, 0.55, f);
           col[ix+0] = lerp(1.0, 1.00, toGold);
           col[ix+1] = lerp(1.0, 0.72, toGold);
@@ -515,7 +415,6 @@ Here’s your full updated index.html:
           siz[i] *= (1 - dt*0.1);
           siz[i] = Math.max(8, siz[i]);
         }
-
         g.getAttribute('position').needsUpdate = true;
         g.getAttribute('color').needsUpdate    = true;
         g.getAttribute('size').needsUpdate     = true;
@@ -530,20 +429,12 @@ Here’s your full updated index.html:
         this.ring1.lookAt(camera.position);
         this.ring2.lookAt(camera.position);
 
-        // flags: face camera, wobble, fade
-        const wob = 0.12*Math.sin(this.t*6);
-        this.flagA.lookAt(camera.position);
-        this.flagB.lookAt(camera.position);
-        this.flagA.rotation.y += wob*0.4;
-        this.flagB.rotation.y -= wob*0.4;
-
-        const flagOpacity = Math.max(0, 1.0 - f*1.2);
-        this.flagA.material.opacity = flagOpacity;
-        this.flagB.material.opacity = flagOpacity;
-
-        const scalePulse = 1.0 + 0.12*Math.sin(Math.min(f,0.5)*Math.PI*2);
-        this.flagA.scale.setScalar(scalePulse);
-        this.flagB.scale.setScalar(scalePulse);
+        // category icons: face camera, glow and fade
+        this.cat1.lookAt(camera.position);
+        this.cat2.lookAt(camera.position);
+        const iconOpacity = Math.max(0, 1.0 - f*1.6); // fade a bit faster
+        this.cat1.material.opacity = iconOpacity;
+        this.cat2.material.opacity = iconOpacity;
 
         if(this.shake>0){
           const s = this.shake*(1-f);
@@ -555,13 +446,10 @@ Here’s your full updated index.html:
       dispose(){
         scene.remove(this.points); releasePoints(this.points);
         scene.remove(this.ring1); scene.remove(this.ring2);
-        // dispose flags & textures
-        if(this.flagA){
-          this.flagA.material.map.dispose(); this.flagA.material.dispose(); scene.remove(this.flagA);
-        }
-        if(this.flagB){
-          this.flagB.material.map.dispose(); this.flagB.material.dispose(); scene.remove(this.flagB);
-        }
+        scene.remove(this.cat1); scene.remove(this.cat2);
+        this.cat1.geometry.dispose();
+        this.cat2.geometry.dispose();
+        // cached materials/textures kept
       }
     }
 
@@ -595,6 +483,7 @@ Here’s your full updated index.html:
       return p;
     }
 
+    // sprite texture (soft disc)
     function makeSpriteTexture(){
       const size = 128;
       const c = document.createElement('canvas');
@@ -610,6 +499,174 @@ Here’s your full updated index.html:
       return tex;
     }
 
+    // === Procedural Category Icon Textures (square badge with icon) ===
+    function makeCategoryTexture(code){
+      const W = 256, H = 256;
+      const c = document.createElement('canvas'); c.width=W; c.height=H;
+      const g = c.getContext('2d');
+      g.clearRect(0,0,W,H);
+
+      // badge background (glass + gold rim)
+      const bgGrad = g.createRadialGradient(W/2,H/2,0, W/2,H/2,W/1.2);
+      bgGrad.addColorStop(0, 'rgba(255,255,255,0.06)');
+      bgGrad.addColorStop(1, 'rgba(255,255,255,0.00)');
+      g.fillStyle = 'rgba(0,0,0,0.25)';
+      roundRect(g, 20,20, W-40, H-40, 28, true, false);
+      g.fillStyle = bgGrad;
+      roundRect(g, 20,20, W-40, H-40, 28, true, false);
+      g.lineWidth = 4;
+      g.strokeStyle = 'rgba(255,215,0,0.75)'; // soft gold rim
+      roundRect(g, 20,20, W-40, H-40, 28, false, true);
+
+      // icon draw area
+      g.save();
+      g.translate(W/2, H/2);
+      g.strokeStyle = 'rgba(255,255,255,0.95)';
+      g.fillStyle   = 'rgba(255,255,255,0.95)';
+      g.lineCap = 'round'; g.lineJoin='round';
+
+      const S = 70; // base scale
+      switch(code){
+        case 'rap': { // microphone
+          g.lineWidth = 10;
+          // head
+          g.beginPath(); g.arc(0,-S*0.4, S*0.35, 0, Math.PI*2); g.stroke();
+          // body
+          g.beginPath(); g.moveTo(0,-S*0.05); g.lineTo(0, S*0.5); g.stroke();
+          // handle
+          g.beginPath(); g.moveTo(-S*0.25, S*0.2); g.lineTo(S*0.25, S*0.2); g.stroke();
+          // sound lines
+          g.lineWidth = 6;
+          g.beginPath(); g.moveTo(S*0.55,-S*0.45); g.quadraticCurveTo(S*0.8,-S*0.25, S*0.55,0); g.stroke();
+          g.beginPath(); g.moveTo(-S*0.55,-S*0.45); g.quadraticCurveTo(-S*0.8,-S*0.25, -S*0.55,0); g.stroke();
+          break;
+        }
+        case 'dance': { // shoe silhouette
+          g.lineWidth = 10;
+          g.beginPath();
+          g.moveTo(-S*0.9, 0);
+          g.quadraticCurveTo(-S*0.2, -S*0.6, S*0.4, -S*0.2);
+          g.quadraticCurveTo(S*0.6, 0, S*0.9, 0.1);
+          g.quadraticCurveTo(S*0.2, S*0.5, -S*0.6, S*0.35);
+          g.closePath(); g.stroke();
+          break;
+        }
+        case 'gaming': { // game controller
+          g.lineWidth = 10;
+          g.beginPath();
+          g.moveTo(-S, 0); g.quadraticCurveTo(-S*0.7, -S*0.7, 0, -S*0.6);
+          g.quadraticCurveTo(S*0.7, -S*0.7, S, 0);
+          g.quadraticCurveTo(S*0.6, S*0.7, 0, S*0.5);
+          g.quadraticCurveTo(-S*0.6, S*0.7, -S, 0); g.stroke();
+          // D-pad
+          g.beginPath(); g.moveTo(-S*0.25, -S*0.05); g.lineTo(-S*0.25, -S*0.35); g.moveTo(-S*0.4,-S*0.2); g.lineTo(-S*0.1,-S*0.2); g.stroke();
+          // buttons
+          g.beginPath(); g.arc(S*0.35, -S*0.15, 6, 0, Math.PI*2); g.fill();
+          g.beginPath(); g.arc(S*0.48, -S*0.05, 6, 0, Math.PI*2); g.fill();
+          g.beginPath(); g.arc(S*0.32,  S*0.02, 6, 0, Math.PI*2); g.fill();
+          break;
+        }
+        case 'art': { // palette + brush
+          g.lineWidth = 10;
+          // palette
+          g.beginPath();
+          g.arc(-S*0.15, 0, S*0.6, Math.PI*0.2, Math.PI*1.7);
+          g.quadraticCurveTo(S*0.3, S*0.15, S*0.2, -S*0.2);
+          g.stroke();
+          // holes (dots)
+          for(const p of [[-50,-10],[-30,30],[-5,-35],[20,10]]){ g.beginPath(); g.arc(p[0],p[1],6,0,Math.PI*2); g.fill(); }
+          // brush
+          g.beginPath(); g.moveTo(S*0.55,-S*0.55); g.lineTo(0, S*0.4); g.stroke();
+          g.beginPath(); g.moveTo(S*0.6,-S*0.6); g.quadraticCurveTo(S*0.85,-S*0.85, S*0.9,-S*0.55); g.stroke();
+          break;
+        }
+        case 'sports': { // basketball
+          g.lineWidth = 10;
+          g.beginPath(); g.arc(0,0,S*0.55,0,Math.PI*2); g.stroke();
+          g.beginPath(); g.moveTo(-S*0.55,0); g.lineTo(S*0.55,0); g.stroke();
+          g.beginPath(); g.moveTo(0,-S*0.55); g.lineTo(0,S*0.55); g.stroke();
+          g.beginPath(); g.ellipse(0,0,S*0.55,S*0.2,0,0,Math.PI*2); g.stroke();
+          g.beginPath(); g.ellipse(0,0,S*0.2,S*0.55,0,0,Math.PI*2); g.stroke();
+          break;
+        }
+        case 'comedy': { // smile mask
+          g.lineWidth = 10;
+          g.beginPath();
+          g.moveTo(-S*0.7,-S*0.2); g.quadraticCurveTo(0, -S*0.6, S*0.7,-S*0.2);
+          g.quadraticCurveTo(0, S*0.9, -S*0.7,-S*0.2); g.stroke();
+          // eyes
+          g.beginPath(); g.arc(-S*0.25,0,6,0,Math.PI*2); g.fill();
+          g.beginPath(); g.arc(S*0.25,0,6,0,Math.PI*2); g.fill();
+          // smile
+          g.beginPath(); g.moveTo(-S*0.35, S*0.25); g.quadraticCurveTo(0,S*0.45, S*0.35,S*0.25); g.stroke();
+          break;
+        }
+        case 'fashion': { // t-shirt
+          g.lineWidth = 10;
+          g.beginPath();
+          g.moveTo(-S*0.7,-S*0.5); g.lineTo(-S*0.3,-S*0.2); g.lineTo(-S*0.3,S*0.6);
+          g.lineTo(S*0.3,S*0.6); g.lineTo(S*0.3,-S*0.2); g.lineTo(S*0.7,-S*0.5);
+          g.lineTo(S*0.4,-S*0.9); g.lineTo(-S*0.4,-S*0.9); g.closePath(); g.stroke();
+          break;
+        }
+        case 'tech': { // CPU chip
+          g.lineWidth = 10;
+          g.strokeRect(-S*0.5,-S*0.5,S,S);
+          g.lineWidth = 8;
+          for(let i=-3;i<=3;i++){
+            const o = i*14;
+            g.beginPath(); g.moveTo(-S*0.6, o); g.lineTo(-S*0.5, o); g.stroke();
+            g.beginPath(); g.moveTo(S*0.5, o); g.lineTo(S*0.6, o); g.stroke();
+            g.beginPath(); g.moveTo(o, -S*0.6); g.lineTo(o, -S*0.5); g.stroke();
+            g.beginPath(); g.moveTo(o, S*0.5); g.lineTo(o, S*0.6); g.stroke();
+          }
+          break;
+        }
+        case 'sing': { // music note
+          g.lineWidth = 10;
+          g.beginPath(); g.moveTo(-S*0.2,S*0.4); g.arc(-S*0.2,S*0.4,12,0,Math.PI*2); g.fill();
+          g.beginPath(); g.moveTo(S*0.15,S*0.28); g.arc(S*0.15,S*0.28,12,0,Math.PI*2); g.fill();
+          g.beginPath(); g.moveTo(-S*0.2,S*0.35); g.lineTo(-S*0.2,-S*0.5); g.lineTo(S*0.15,-S*0.4); g.lineTo(S*0.15,S*0.23); g.stroke();
+          break;
+        }
+        case 'poetry': default: { // quill & paper
+          g.lineWidth = 10;
+          // paper
+          g.strokeRect(-S*0.5,-S*0.5,S*0.7,S*0.9);
+          // quill
+          g.beginPath();
+          g.moveTo(S*0.15,-S*0.55);
+          g.quadraticCurveTo(S*0.55,-S*0.2, S*0.1, S*0.35);
+          g.quadraticCurveTo(S*0.3,S*0.15, S*0.4,-S*0.1);
+          g.stroke();
+          break;
+        }
+      }
+      g.restore();
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
+      return tex;
+
+      function roundRect(ctx,x,y,w,h,r,fill,stroke){
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.arcTo(x+w,y, x+w,y+h, r);
+        ctx.arcTo(x+w,y+h, x,y+h, r);
+        ctx.arcTo(x,y+h, x,y, r);
+        ctx.arcTo(x,y, x+w,y, r);
+        if(fill) ctx.fill();
+        if(stroke) ctx.stroke();
+      }
+    }
+
+    function pickTwoCategories(){
+      const a = (Math.random()*CATEGORY_CODES.length)|0;
+      let b = (Math.random()*CATEGORY_CODES.length)|0;
+      if(b===a) b = (b+1) % CATEGORY_CODES.length;
+      return [CATEGORY_CODES[a], CATEGORY_CODES[b]];
+    }
+
     function rand(a,b){ return a + Math.random()*(b-a); }
     function lerp(a,b,t){ return a + (b-a)*t; }
     function smoothstep(a,b,x){
@@ -617,11 +674,10 @@ Here’s your full updated index.html:
       return t*t*(3 - 2*t);
     }
 
-    // resize handling
+    // resize handling (including DPR changes)
     function resize(){
       width = window.innerWidth; height = window.innerHeight;
-      const pr = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
-      renderer.setPixelRatio(pr);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT));
       renderer.setSize(width, height, false);
       camera.aspect = width/height;
       camera.updateProjectionMatrix();
@@ -630,6 +686,7 @@ Here’s your full updated index.html:
 
     // main loop
     let prev = performance.now(), lastBlast = prev;
+
     if(START_WITH_BLAST){ explosions.push(new Explosion()); }
 
     function loop(now){
@@ -640,6 +697,7 @@ Here’s your full updated index.html:
       ambient.position.y = Math.sin(ambient.userData.t)*2;
       ambient.rotation.z += dt*0.02;
 
+      // schedule explosions
       if(now - lastBlast > BLAST_INTERVAL){
         if(explosions.length > MAX_EXPLOSIONS){
           const old = explosions.shift(); old.dispose();
@@ -648,6 +706,7 @@ Here’s your full updated index.html:
         lastBlast = now;
       }
 
+      // update explosions
       for(let i=explosions.length-1;i>=0;i--){
         if(!explosions[i].update(dt)){
           explosions[i].dispose();
@@ -666,4 +725,3 @@ Here’s your full updated index.html:
   <noscript>Enable JavaScript to use BattleBillions.</noscript>
 </body>
 </html>
-  
