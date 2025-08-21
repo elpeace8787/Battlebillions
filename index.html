@@ -21,14 +21,14 @@
       pointer-events:none; background:radial-gradient(1200px 800px at 30% 20%, #101012 0%, #000 70%);
     }
     .auth-shell{position:relative; z-index:1; min-height:100vh; display:grid; place-items:center; padding:32px;}
-    .stack{width:min(92vw,520px); display:grid; gap:16px}
+    .stack{width:min(92vw,980px); display:grid; gap:16px}
     header{text-align:center}
 
     /* ===== 3D Metallic Title to match explosions ===== */
     header h1{
       margin:0;
-      font-size:33px;
-      letter-spacing:.5px;
+      font-size:42px;
+      letter-spacing:.6px;
       text-transform:uppercase;
       color:#eaeaea;
       transform:translateZ(0);
@@ -61,7 +61,7 @@
       100%{ filter:drop-shadow(0 6px 10px rgba(255,215,0,.10)) }
     }
 
-    /* Inputs & primary actions */
+    /* Shared UI */
     .form{display:grid; gap:12px}
     .btn, input{
       width:100%; padding:12px 16px; border-radius:14px;
@@ -117,6 +117,24 @@
     .foot{position:fixed;left:0;right:0;bottom:12px;text-align:center;font-size:12px;color:var(--muted)}
 
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .hidden{display:none !important;}
+
+    /* Arena Feed basic layout */
+    .feed-grid{
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+      gap:14px; width:min(92vw,980px);
+    }
+    .card{
+      background:rgba(20,20,24,.45);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px; padding:14px;
+      backdrop-filter: blur(6px) saturate(120%);
+      box-shadow:0 4px 24px rgba(0,0,0,.25);
+    }
+    .card h3{margin:0 0 6px 0; font-size:16px}
+    .card p{margin:0; color:var(--ink-2); font-size:13px}
+    .feed-actions{display:flex; gap:8px; margin-top:10px}
+    .pill{padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); font-size:12px}
 
     @media (prefers-reduced-motion: reduce){ #bg3d{opacity:.6} header h1{animation:none} }
   </style>
@@ -127,74 +145,145 @@
 
   <main class="auth-shell">
     <div class="stack">
-      <header>
-        <h1>3ATTLE33ILLIONS</h1>
-      </header>
 
-      <!-- EMAIL/PASSWORD ABOVE PROVIDERS -->
-      <form id="authForm" class="form" autocomplete="on">
-        <div class="row">
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" required />
-        </div>
-        <div class="row">
-          <label for="password">Password</label>
-          <div class="pw-wrap">
-            <input id="password" type="password" minlength="6" placeholder="••••••••" required />
-            <button type="button" id="togglePw" class="pw-toggle" aria-label="Show password">👁</button>
+      <!-- HEADER -->
+      <header><h1>3ATTLE33ILLIONS</h1></header>
+
+      <!-- ===== VIEW: AUTH (Login) ===== -->
+      <section id="view-auth">
+        <!-- EMAIL/PASSWORD ABOVE PROVIDERS -->
+        <form id="authForm" class="form" autocomplete="on">
+          <div class="row">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="you@example.com" required />
           </div>
+          <div class="row">
+            <label for="password">Password</label>
+            <div class="pw-wrap">
+              <input id="password" type="password" minlength="6" placeholder="••••••••" required />
+              <button type="button" id="togglePw" class="pw-toggle" aria-label="Show password">👁</button>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="submitBtn" type="submit" class="btn primary">Sign In</button>
+            <button id="modeBtn" type="button" class="btn ghost">Create account</button>
+          </div>
+        </form>
+
+        <div class="divider"><span>or continue with</span></div>
+
+        <!-- SMALL SQUARE PROVIDER ICONS -->
+        <section class="providers">
+          <div class="provider-bar">
+            <!-- Google -->
+            <button id="googleBtn" class="pbtn google" title="Continue with Google" aria-label="Continue with Google">
+              <span class="sr-only">Continue with Google</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#EA4335" d="M12 10.2v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-3.03 0-5.5-2.5-5.5-5.6s2.47-5.6 5.5-5.6c1.73 0 2.9.73 3.57 1.36l2.43-2.36C16.7 3.7 14.55 2.8 12 2.8 6.98 2.8 2.9 6.88 2.9 12s4.08 9.2 9.1 9.2c5.25 0 8.7-3.68 8.7-8.86 0-.6-.06-1.06-.14-1.54H12z"/>
+                <path fill="#FBBC05" d="M12 21.2c2.88 0 5.3-.94 7.07-2.56l-3.3-2.7c-.89.6-2.07.96-3.77.96-3.01 0-5.54-2.5-5.54-5.6 0-.87.2-1.69.55-2.41L3.5 7.4A9.16 9.16 0 0 0 2.9 12c0 5.12 4.08 9.2 9.1 9.2z"/>
+                <path fill="#34A853" d="M21.1 12c0-.6-.06-1.06-.14-1.54H12v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-1.89 0-3.5-.79-4.6-2.05l-3.3 2.56A9.2 9.2 0 0 0 12 21.2c5.25 0 8.7-3.68 8.7-8.86z"/>
+              </svg>
+            </button>
+
+            <!-- Facebook -->
+            <button id="facebookBtn" class="pbtn facebook" title="Continue with Facebook" aria-label="Continue with Facebook">
+              <span class="sr-only">Continue with Facebook</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#FFFFFF" d="M22 12.07C22 6.47 17.52 2 11.93 2 6.34 2 1.86 6.47 1.86 12.07c0 4.99 3.64 9.14 8.4 9.95v-7.03H7.96v-2.92h2.3V9.77c0-2.27 1.35-3.53 3.42-3.53.99 0 2.03.18 2.03.18v2.23h-1.14c-1.12 0-1.47.7-1.47 1.42v1.71h2.5l-.4 2.92h-2.1V22c4.77-.81 8.4-4.96 8.4-9.93z"/>
+              </svg>
+            </button>
+
+            <!-- Instagram -->
+            <button id="instagramBtn" class="pbtn instagram" title="Continue with Instagram" aria-label="Continue with Instagram">
+              <span class="sr-only">Continue with Instagram</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5" ry="5" fill="none" stroke="white" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4.5" fill="none" stroke="white" stroke-width="2"/>
+                <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
+              </svg>
+            </button>
+
+            <!-- TikTok -->
+            <button id="tiktokBtn" class="pbtn tiktok" title="Continue with TikTok" aria-label="Continue with TikTok">
+              <span class="sr-only">Continue with TikTok</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14.5 2v9.2a3.8 3.8 0 1 1-3-3.7" fill="none" stroke="#69C9D0" stroke-width="2" stroke-linecap="round"/>
+                <path d="M14.5 4.2c.9 1.6 2.6 3 4.5 3.2V10c-1.9-.1-3.4-.7-4.5-1.5v4.7a5.8 5.8 0 1 1-4.6-5.6" fill="none" stroke="#EE1D52" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </section>
+
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- ===== VIEW: SIGNUP ===== -->
+      <section id="view-signup" class="hidden">
+        <form id="signupForm" class="form" autocomplete="on">
+          <div class="row">
+            <label for="su-email">Email</label>
+            <input id="su-email" type="email" placeholder="you@example.com" required />
+          </div>
+          <div class="row">
+            <label for="su-password">Password</label>
+            <div class="pw-wrap">
+              <input id="su-password" type="password" minlength="6" placeholder="Create a password" required />
+              <button type="button" id="togglePw2" class="pw-toggle" aria-label="Show password">👁</button>
+            </div>
+          </div>
+          <div class="row">
+            <label for="su-password2">Confirm Password</label>
+            <input id="su-password2" type="password" minlength="6" placeholder="Re-enter password" required />
+          </div>
+          <div class="actions">
+            <button id="createBtn" type="submit" class="btn primary">Create Account</button>
+            <button id="backToLoginBtn" type="button" class="btn ghost">Back to Sign in</button>
+          </div>
+        </form>
+        <p id="status-signup" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- ===== VIEW: ARENA FEED ===== -->
+      <section id="view-feed" class="hidden">
+        <div class="actions" style="justify-content:flex-end;margin-top:0;">
+          <button id="logoutBtn" class="btn ghost" style="max-width:180px;">← Back to Login</button>
         </div>
-        <div class="actions">
-          <button id="submitBtn" type="submit" class="btn primary">Sign In</button>
-          <button id="modeBtn" type="button" class="btn ghost">Create account</button>
-        </div>
-      </form>
-
-      <div class="divider"><span>or continue with</span></div>
-
-      <!-- SMALL SQUARE PROVIDER ICONS -->
-      <section class="providers">
-        <div class="provider-bar">
-          <!-- Google -->
-          <button id="googleBtn" class="pbtn google" title="Continue with Google" aria-label="Continue with Google">
-            <span class="sr-only">Continue with Google</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#EA4335" d="M12 10.2v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-3.03 0-5.5-2.5-5.5-5.6s2.47-5.6 5.5-5.6c1.73 0 2.9.73 3.57 1.36l2.43-2.36C16.7 3.7 14.55 2.8 12 2.8 6.98 2.8 2.9 6.88 2.9 12s4.08 9.2 9.1 9.2c5.25 0 8.7-3.68 8.7-8.86 0-.6-.06-1.06-.14-1.54H12z"/>
-              <path fill="#FBBC05" d="M12 21.2c2.88 0 5.3-.94 7.07-2.56l-3.3-2.7c-.89.6-2.07.96-3.77.96-3.01 0-5.54-2.5-5.54-5.6 0-.87.2-1.69.55-2.41L3.5 7.4A9.16 9.16 0 0 0 2.9 12c0 5.12 4.08 9.2 9.1 9.2z"/>
-              <path fill="#34A853" d="M21.1 12c0-.6-.06-1.06-.14-1.54H12v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-1.89 0-3.5-.79-4.6-2.05l-3.3 2.56A9.2 9.2 0 0 0 12 21.2c5.25 0 8.7-3.68 8.7-8.86z"/>
-            </svg>
-          </button>
-
-          <!-- Facebook -->
-          <button id="facebookBtn" class="pbtn facebook" title="Continue with Facebook" aria-label="Continue with Facebook">
-            <span class="sr-only">Continue with Facebook</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#FFFFFF" d="M22 12.07C22 6.47 17.52 2 11.93 2 6.34 2 1.86 6.47 1.86 12.07c0 4.99 3.64 9.14 8.4 9.95v-7.03H7.96v-2.92h2.3V9.77c0-2.27 1.35-3.53 3.42-3.53.99 0 2.03.18 2.03.18v2.23h-1.14c-1.12 0-1.47.7-1.47 1.42v1.71h2.5l-.4 2.92h-2.1V22c4.77-.81 8.4-4.96 8.4-9.93z"/>
-            </svg>
-          </button>
-
-          <!-- Instagram -->
-          <button id="instagramBtn" class="pbtn instagram" title="Continue with Instagram" aria-label="Continue with Instagram">
-            <span class="sr-only">Continue with Instagram</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="5" ry="5" fill="none" stroke="white" stroke-width="2"/>
-              <circle cx="12" cy="12" r="4.5" fill="none" stroke="white" stroke-width="2"/>
-              <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
-            </svg>
-          </button>
-
-          <!-- TikTok -->
-          <button id="tiktokBtn" class="pbtn tiktok" title="Continue with TikTok" aria-label="Continue with TikTok">
-            <span class="sr-only">Continue with TikTok</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M14.5 2v9.2a3.8 3.8 0 1 1-3-3.7" fill="none" stroke="#69C9D0" stroke-width="2" stroke-linecap="round"/>
-              <path d="M14.5 4.2c.9 1.6 2.6 3 4.5 3.2V10c-1.9-.1-3.4-.7-4.5-1.5v4.7a5.8 5.8 0 1 1-4.6-5.6" fill="none" stroke="#EE1D52" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
+        <div class="feed-grid" style="margin-top:6px;">
+          <div class="card">
+            <h3>Arena — Global Highlights</h3>
+            <p>Welcome to the Arena feed. Your network’s latest plays, wins, and drops appear here.</p>
+            <div class="feed-actions">
+              <span class="pill">🔥 Trending</span>
+              <span class="pill">New</span>
+            </div>
+          </div>
+          <div class="card">
+            <h3>@Nova hit a 12x streak</h3>
+            <p>Combo crusher unlocked. 4m ago</p>
+          </div>
+          <div class="card">
+            <h3>@Kiro — Vault Unlocked</h3>
+            <p>Rare skin “Gilded Ember” obtained. 12m ago</p>
+          </div>
+          <div class="card">
+            <h3>Clan: NightRunners</h3>
+            <p>Weekly challenge cleared. +2,500 points to the board.</p>
+          </div>
+          <div class="card">
+            <h3>@Ari queued Ranked</h3>
+            <p>Division: Platinum II. Join in?</p>
+            <div class="feed-actions">
+              <button class="btn" style="width:auto;">Join Queue</button>
+              <button class="btn ghost" style="width:auto;">Spectate</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Patch 1.3.7</h3>
+            <p>Balance: Shockwave rings now scale slower. Visual polish to explosions.</p>
+          </div>
         </div>
       </section>
 
-      <p id="status" class="status" role="status" aria-live="polite"></p>
     </div>
     <footer class="foot">© <span id="year"></span> BattleBillions</footer>
   </main>
@@ -207,6 +296,7 @@
       googleProvider, facebookProvider
     } from "./js/firebase.js";
 
+    // Elements
     const statusEl = document.getElementById("status");
     const submitBtn = document.getElementById("submitBtn");
     const modeBtn = document.getElementById("modeBtn");
@@ -217,45 +307,116 @@
     const emailEl = document.getElementById("email");
     const pwEl = document.getElementById("password");
     const togglePw = document.getElementById("togglePw");
+
+    const viewAuth = document.getElementById("view-auth");
+    const viewSignup = document.getElementById("view-signup");
+    const viewFeed = document.getElementById("view-feed");
+
+    const signupForm = document.getElementById("signupForm");
+    const suEmail = document.getElementById("su-email");
+    const suPw = document.getElementById("su-password");
+    const suPw2 = document.getElementById("su-password2");
+    const togglePw2 = document.getElementById("togglePw2");
+    const statusSignup = document.getElementById("status-signup");
+    const backToLoginBtn = document.getElementById("backToLoginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    let isSignup = false;
+    // View switching
+    function showView(name){
+      viewAuth.classList.add("hidden");
+      viewSignup.classList.add("hidden");
+      viewFeed.classList.add("hidden");
+      if(name==="auth") viewAuth.classList.remove("hidden");
+      if(name==="signup") viewSignup.classList.remove("hidden");
+      if(name==="feed") viewFeed.classList.remove("hidden");
+      // clear statuses
+      statusEl.textContent = "";
+      statusSignup.textContent = "";
+    }
+
+    let isSignup = false; // maintained for minimal code delta
     function setLoading(v,msg=""){
       submitBtn.disabled=v; googleBtn.disabled=v; facebookBtn.disabled=v; instagramBtn.disabled=v; tiktokBtn.disabled=v;
       statusEl.textContent=msg;
     }
     function setMode(v){
-      isSignup=v; submitBtn.textContent=v?"Create Account":"Sign In"; modeBtn.textContent=v?"Have an account? Sign in":"Create account"; statusEl.textContent="";
+      // Instead of swapping text fields, route to signup view.
+      isSignup=v;
+      if(v){ showView("signup"); }
+      else { showView("auth"); }
     }
-    modeBtn.addEventListener("click",()=>setMode(!isSignup));
-    togglePw.addEventListener("click",()=>{pwEl.type=pwEl.type==="password"?"text":"password";togglePw.setAttribute("aria-label",pwEl.type==="password"?"Show password":"Hide password");});
+    modeBtn.addEventListener("click",()=>setMode(true));
+    backToLoginBtn.addEventListener("click",()=>setMode(false));
 
+    // Password toggles
+    togglePw.addEventListener("click",()=>{
+      pwEl.type = pwEl.type==="password" ? "text" : "password";
+      togglePw.setAttribute("aria-label", pwEl.type==="password" ? "Show password" : "Hide password");
+    });
+    togglePw2.addEventListener("click",()=>{
+      suPw.type = suPw.type==="password" ? "text" : "password";
+      togglePw2.setAttribute("aria-label", suPw.type==="password" ? "Show password" : "Hide password");
+    });
+
+    // Login form -> show Arena feed (same page) after successful sign-in
     document.getElementById("authForm").addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email = emailEl.value.trim(), password = pwEl.value;
       if(!email || !password){statusEl.textContent="Email and password required.";return;}
       try{
-        setLoading(true, isSignup ? "Creating your account..." : "Signing you in...");
-        if(isSignup){ await createUserWithEmailAndPassword(auth,email,password); }
-        else{ await signInWithEmailAndPassword(auth,email,password); }
-      }catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
+        setLoading(true, "Signing you in...");
+        await signInWithEmailAndPassword(auth,email,password);
+        showView("feed");
+      }catch(err){
+        statusEl.textContent = niceError(err);
+      }finally{
+        setLoading(false);
+      }
     });
 
+    // Provider buttons -> Arena feed on same page
     googleBtn.addEventListener("click", async ()=>{
-      try{ setLoading(true,"Opening Google..."); await signInWithPopup(auth, googleProvider); }
-      catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
+      try{ setLoading(true,"Opening Google..."); await signInWithPopup(auth, googleProvider); showView("feed"); }
+      catch(err){ statusEl.textContent = niceError(err); }
+      finally{ setLoading(false); }
     });
 
     facebookBtn.addEventListener("click", async ()=>{
-      try{ setLoading(true,"Opening Facebook..."); await signInWithPopup(auth, facebookProvider); }
-      catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
+      try{ setLoading(true,"Opening Facebook..."); await signInWithPopup(auth, facebookProvider); showView("feed"); }
+      catch(err){ statusEl.textContent = niceError(err); }
+      finally{ setLoading(false); }
     });
 
-    // Instagram/TikTok placeholders (hook up later via custom OAuth)
-    instagramBtn.addEventListener("click", ()=>{ statusEl.textContent = "Instagram sign-in not configured yet."; });
-    tiktokBtn.addEventListener("click", ()=>{ statusEl.textContent = "TikTok sign-in not configured yet."; });
+    // Instagram/TikTok placeholders -> also route to feed on tap (demo flow)
+    instagramBtn.addEventListener("click", ()=>{ statusEl.textContent = "Instagram sign-in not configured — showing Arena demo."; showView("feed"); });
+    tiktokBtn.addEventListener("click", ()=>{ statusEl.textContent = "TikTok sign-in not configured — showing Arena demo."; showView("feed"); });
 
-    onAuthStateChanged(auth, (user)=>{ if(user){ window.location.href="./dashboard.html"; } });
+    // Signup form -> create account then show feed (same page)
+    signupForm.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const email = suEmail.value.trim(), p1 = suPw.value, p2 = suPw2.value;
+      if(!email || !p1 || !p2){ statusSignup.textContent="Please fill all fields."; return; }
+      if(p1 !== p2){ statusSignup.textContent="Passwords do not match."; return; }
+      try{
+        statusSignup.textContent = "Creating your account...";
+        await createUserWithEmailAndPassword(auth, email, p1);
+        showView("feed");
+      }catch(err){
+        statusSignup.textContent = niceError(err);
+      }
+    });
+
+    // Auth state -> show feed without leaving page
+    onAuthStateChanged(auth, (user)=>{ if(user){ showView("feed"); } });
+
+    // "Logout" just returns to login view for this single-page flow
+    logoutBtn.addEventListener("click", ()=>{
+      // optional: sign out via Firebase if desired
+      // import { signOut } from "./js/firebase.js"; signOut(auth);
+      showView("auth");
+    });
 
     function niceError(err){
       const m=String(err?.message||err).toLowerCase();
@@ -267,6 +428,8 @@
       if(m.includes("auth/account-exists-with-different-credential")) return "Account exists with a different sign-in method for this email.";
       return "Error: " + (err?.message || "Something went wrong.");
     }
+
+    // start in auth view
     setMode(false);
   </script>
 
