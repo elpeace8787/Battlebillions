@@ -157,17 +157,17 @@
     setMode(false);
   </script>
 
-  <!-- Full-screen smoke (grey build-up) → gold explosion timed to punch impact -->
+  <!-- Full-screen smoke (grey build-up) → timed gold explosion with double shockwave and varied moves -->
   <script>
   (function () {
     const canvas = document.getElementById("bg");
     const ctx = canvas.getContext("2d", { alpha: true });
 
-    // Perf and pacing
+    // Perf & pacing
     const DPR_LIMIT = 1.25, QUALITY = 0.9;
-    const MAX_ENTITIES = 230;          // includes fighters + smoke + rings
-    const BLAST_INTERVAL = 900;        // time between fights
-    const AMBIENT_WISPS = 2;           // low idle motion
+    const MAX_ENTITIES = 260;          // room for fighters + rings + smoke
+    const BLAST_INTERVAL = 900;        // ms between fights
+    const AMBIENT_WISPS = 2;           // idle motion
 
     let scale=1,w=0,h=0;
     function resize(){
@@ -202,25 +202,26 @@
       [0.7,"rgba(255,160,0,0.18)"],
       [1,"rgba(255,120,0,0.00)"]
     ]);
-    function makeRing(size=128){
+    // ring sprites
+    function makeRing(size=128, strong=true){
       const c=document.createElement("canvas"); c.width=c.height=size;
       const g=c.getContext("2d");
-      g.strokeStyle="rgba(255,215,0,0.85)";
-      g.lineWidth=size*0.12;
+      g.strokeStyle = strong ? "rgba(255,215,0,0.9)" : "rgba(255,220,120,0.55)";
+      g.lineWidth = strong ? size*0.12 : size*0.08;
       g.beginPath(); g.arc(size/2,size/2,size*0.35,0,Math.PI*2); g.stroke();
       return c;
     }
-    const RING=makeRing(128);
+    const RING_STRONG=makeRing(128,true);
+    const RING_SOFT=makeRing(128,false);
 
     const rnd=(a,b)=>a+Math.random()*(b-a);
     const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
     const entities=[];
 
-    // colorMode: 0 = auto grey→gold by life; 1 = force gold
     class Puff{
       constructor(x,y,r,life,vx,vy,grow=22,colorMode=0){
         this.t=0; this.life=life; this.x=x; this.y=y; this.r=r;
-        this.vx=vx; this.vy=vy; this.grow=grow; this.colorMode=colorMode;
+        this.vx=vx; this.vy=vy; this.grow=grow; this.colorMode=colorMode; // 0 auto grey→gold, 1 gold-only
       }
       step(dt){ this.t+=dt; this.x+=this.vx*60*dt; this.y+=this.vy*60*dt; this.r+=this.grow*dt; return this.t<this.life; }
       draw(){
@@ -232,71 +233,116 @@
       }
     }
     class Ring{
-      constructor(x,y){ this.t=0; this.life=0.95; this.x=x; this.y=y; this.r=42; this.grow=460; }
-      step(dt){ this.t+=dt; this.r+=this.grow*dt; return this.t<this.life; }
-      draw(){ const a=(1-this.t/this.life); if(a<=0) return; const s=this.r*2; ctx.globalAlpha=a; ctx.drawImage(RING,this.x-s/2,this.y-s/2,s,s); ctx.globalAlpha=1; }
+      constructor(x,y,strong=true,delay=0){
+        this.x=x; this.y=y; this.t=-delay; this.life=0.95; this.r=42; this.grow=460; this.strong=strong;
+      }
+      step(dt){ this.t+=dt; if(this.t<0) return true; this.r+=this.grow*dt; return this.t<this.life; }
+      draw(){
+        if(this.t<0) return;
+        const a=(1-this.t/this.life); if(a<=0) return; const s=this.r*2; ctx.globalAlpha=a;
+        ctx.drawImage(this.strong?RING_STRONG:RING_SOFT,this.x-s/2,this.y-s/2,s,s);
+        ctx.globalAlpha=1;
+      }
     }
 
-    // Fighters that collide; on impact -> trigger gold explosion
+    // ---- FIGHTERS with varied moves ----
+    // Moves: each defines arm/leg targets and a motion curve
+    const MOVES = [
+      { name:"straight",  hitTime:0.28, leadArm:[14, -2], rearArm:[-6, 6], leadLeg:[-6, 18], rearLeg:[4, 20],  lunge:10, recoil:8, kick:false },
+      { name:"hook",      hitTime:0.30, leadArm:[10, -4], rearArm:[-8, 8], leadLeg:[-6, 18], rearLeg:[6, 20],  lunge:12, recoil:10, hook:true, kick:false },
+      { name:"uppercut",  hitTime:0.32, leadArm:[10, -10], rearArm:[-6, 6], leadLeg:[-7, 18], rearLeg:[6, 20],  lunge:9,  recoil:9,  upper:true, kick:false },
+      { name:"frontkick", hitTime:0.34, leadArm:[-4, 4],  rearArm:[-6, 6], leadLeg:[14, 6],  rearLeg:[-6, 18], lunge:14, recoil:12, kick:true,  round:false },
+      { name:"roundhouse",hitTime:0.36, leadArm:[-4, 6],  rearArm:[-8, 8], leadLeg:[18, 2],  rearLeg:[-8, 18], lunge:16, recoil:14, kick:true,  round:true }
+    ];
+
     class Fighters {
       constructor(x,y,impactCallback){
-        this.cx=x; this.cy=y; this.t=0; this.life=0.6;
+        this.cx=x; this.cy=y; this.t=0; this.life=0.7;
         this.rot=rnd(-Math.PI, Math.PI);
-        this.scale=rnd(0.75, 1.1);
-        this.hitTime=0.26;              // moment of impact (seconds)
+        this.scale=rnd(0.8, 1.15);
+        this.move = MOVES[(Math.random()*MOVES.length)|0];
+        this.hitTime=this.move.hitTime;
         this.didHit=false;
-        this.impact = impactCallback;   // function(cx,cy)
+        this.impact = impactCallback;
       }
       step(dt){
         this.t+=dt;
         if(!this.didHit && this.t>=this.hitTime){
           this.didHit=true;
-          this.impact?.(this.cx, this.cy);
+          this.impact?.(this.cx, this.cy); // trigger explosion at impact
         }
         return this.t < this.life;
       }
       draw(){
-        const f=this.t/this.life;
-        const approach = Math.max(0, 1 - (this.t/this.hitTime)); // 1 -> 0
-        const spread = Math.max(0, (this.t - this.hitTime) / (this.life - this.hitTime)); // 0 -> 1 after hit
-        const alpha = (1 - f) * 0.95;
+        const f=this.t/this.life;                         // 0..1
+        const a=(1-f)*0.95;
+        const pre = Math.min(1, this.t/this.hitTime);     // pre-hit ramp 0..1
+        const post = Math.max(0, (this.t - this.hitTime)/(this.life - this.hitTime)); // 0..1
+        // Step-in (lunge), then recoil
+        const lungeAmt = this.move.lunge*pre - this.move.recoil*post;
 
         ctx.save();
         ctx.translate(this.cx, this.cy);
-        ctx.rotate(this.rot + f*0.5);
+        ctx.rotate(this.rot + pre*0.4 - post*0.2);
         ctx.scale(this.scale, this.scale);
-        ctx.strokeStyle = `rgba(${255}, ${215 + Math.floor(40*f)}, ${Math.floor(30+180*f)}, ${alpha})`;
+        ctx.strokeStyle = `rgba(255, ${210 + Math.floor(45*f)}, ${Math.floor(40 + 150*f)}, ${a})`;
         ctx.lineWidth = 2;
 
-        // left and right fighter positions (rush in, then recoil slightly)
-        const lx = -16*approach + -8*spread;
-        const rx =  16*approach +  8*spread;
+        // Positions left/right; they don't overlap: start apart, step in a bit, then recoil apart.
+        const baseGap = 18;
+        const offset = baseGap - lungeAmt*0.6 + post*6;
+        const lx = -offset, rx = offset;
 
-        // simple punch animation curve
-        const punch = Math.sin(Math.min(1, f/this.hitTime) * Math.PI);
-        drawFighter(lx, 0, +punch, +1); // left
-        drawFighter(rx, 0, -punch, -1); // right
+        // Arm/leg anim helpers
+        const punchCurve = Math.sin(pre*Math.PI);         // 0..1..0 smooth
+        const kickCurve  = this.move.kick ? Math.sin(pre*Math.PI) : 0;
+
+        // Left fighter (faces right, dir=+1)
+        drawFighter(lx, 0, +1, punchCurve, kickCurve, this.move);
+        // Right fighter (faces left, dir=-1) mirrored
+        drawFighter(rx, 0, -1, punchCurve, kickCurve, this.move, true);
+
         ctx.restore();
 
-        function drawFighter(cx, cy, phase, dir){
-          // head
+        function drawFighter(cx, cy, dir, pc, kc, mv, mirror=false){
+          // Head
           ctx.beginPath(); ctx.arc(cx, cy-12, 5, 0, Math.PI*2); ctx.stroke();
-          // torso
+          // Torso
           ctx.beginPath(); ctx.moveTo(cx, cy-7); ctx.lineTo(cx, cy+10); ctx.stroke();
-          // lead arm (toward center) – extends to punch
+
+          // Arms
+          const laX = mv.leadArm[0]*dir, laY = mv.leadArm[1];
+          const raX = mv.rearArm[0]*dir, raY = mv.rearArm[1];
+          // Lead arm extends further at impact (pc)
           ctx.beginPath();
           ctx.moveTo(cx, cy-4);
-          ctx.lineTo(cx + dir*(10 + 12*phase), cy + 2 - 4*Math.abs(phase));
+          let leadReachX = cx + laX + (mv.hook ? (6*dir*pc) : (12*dir*pc));
+          let leadReachY = cy + laY + (mv.upper ? (-8*pc) : (-4*Math.abs(pc)));
+          ctx.lineTo(leadReachX, leadReachY);
           ctx.stroke();
-          // rear arm (balances)
+
+          // Rear arm balances / slight motion
           ctx.beginPath();
           ctx.moveTo(cx, cy-2);
-          ctx.lineTo(cx + dir*( -6 + 6*phase), cy + 6 + 3*Math.abs(phase));
+          ctx.lineTo(cx + raX*(0.6+0.4*pc), cy + raY + 3*Math.abs(pc));
           ctx.stroke();
-          // legs
+
+          // Legs
+          const llX = mv.leadLeg[0]*dir, llY = mv.leadLeg[1];
+          const rlX = mv.rearLeg[0]*dir, rlY = mv.rearLeg[1];
+
+          // If kick move: lead leg whips forward at impact
           ctx.beginPath();
-          ctx.moveTo(cx, cy+10); ctx.lineTo(cx - 7*dir, cy+18);
-          ctx.moveTo(cx, cy+10); ctx.lineTo(cx + 4*dir, cy+20);
+          ctx.moveTo(cx, cy+10);
+          const kickReachX = mv.kick ? (cx + llX + dir*(mv.round ? 18*kc : 14*kc)) : (cx + llX);
+          const kickReachY = mv.kick ? (cy + Math.min(llY, 10 + (mv.round ? 0 : -6*kc))) : (cy + llY);
+          ctx.lineTo(kickReachX, kickReachY);
+          ctx.stroke();
+
+          // Rear leg anchors / pivots
+          ctx.beginPath();
+          ctx.moveTo(cx, cy+10);
+          ctx.lineTo(cx + rlX*(0.7+0.3*pc), cy + rlY);
           ctx.stroke();
         }
       }
@@ -312,7 +358,7 @@
       }
     }
 
-    // build-up smoke before impact (grey)
+    // pre-hit build-up smoke (grey)
     function preSmoke(cx, cy){
       const base = rnd(22,34), life = rnd(0.8,1.2);
       for(let i=0;i<14;i++){
@@ -322,11 +368,15 @@
       }
     }
 
-    // gold explosion exactly at impact
+    // gold explosion exactly at impact + delayed second ring + gold smoke burst
     function goldExplosion(cx, cy){
-      entities.push(new Ring(cx,cy));
+      // Strong ring at impact
+      entities.push(new Ring(cx,cy,true,0));
+      // Softer, slightly larger follow-up ring a beat later
+      entities.push(new Ring(cx,cy,false,0.08));
+
       const base = rnd(30,44), life=rnd(1.0,1.6);
-      for(let i=0;i<20;i++){
+      for(let i=0;i<22;i++){
         const ang=rnd(0,Math.PI*2), dist=rnd(0,base*2.2);
         const x=cx+Math.cos(ang)*dist, y=cy+Math.sin(ang)*dist;
         entities.push(new Puff(x,y,rnd(base*0.7,base*1.6),life,rnd(-0.6,0.6),rnd(-0.6,0.6),26,1)); // gold-only
@@ -335,14 +385,11 @@
 
     function fightBlast(){
       const cx=rnd(0,w), cy=rnd(0,h);
-
-      // grey build-up first
-      preSmoke(cx, cy);
-
-      // fighters appear and call the gold explosion on hit
-      entities.push(new Fighters(cx, cy, goldExplosion));
+      preSmoke(cx, cy);                                    // build-up smoke
+      entities.push(new Fighters(cx, cy, goldExplosion));  // fighters call explosion on hit
     }
 
+    // Loop
     let prev=performance.now(), last=prev;
     function tick(now){
       const dt=clamp((now-prev)/1000,0,0.05); prev=now;
@@ -365,4 +412,4 @@
 
   <noscript>Enable JavaScript to use BattleBillions.</noscript>
 </body>
-            </html>
+  </html>
