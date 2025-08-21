@@ -12,56 +12,95 @@
       --facebook:#1877F2;
       --tiktok:#000000;
       --ig1:#f58529; --ig2:#dd2a7b; --ig3:#8134af; --ig4:#515bd4;
+      --accent:#ffd700;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#000;color:var(--ink)}
-    /* 3D canvas pinned to background */
+    /* Background canvas */
     #bg3d{
       position:fixed; inset:0; width:100%; height:100%; display:block;
       pointer-events:none; background:radial-gradient(1200px 800px at 30% 20%, #101012 0%, #000 70%);
     }
     .auth-shell{position:relative; z-index:1; min-height:100vh; display:grid; place-items:center; padding:32px;}
-    .stack{width:min(92vw,980px); display:grid; gap:16px}
+    .stack{width:min(92vw,980px); display:grid; gap:18px}
     header{text-align:center}
 
-    /* ===== 3D Metallic Title to match explosions ===== */
-    header h1{
-      margin:0;
-      font-size:42px;
-      letter-spacing:.6px;
-      text-transform:uppercase;
-      color:#eaeaea;
-      transform:translateZ(0);
-      text-shadow:
-        0 1px 0 #cfcfcf,
-        0 2px 0 #c9c9c9,
-        0 3px 0 #bdbdbd,
-        0 4px 0 #b0b0b0,
-        0 6px 2px rgba(0,0,0,.25),
-        0 0 6px rgba(255,215,0,.25),
-        0 2px 10px rgba(255,215,0,.22),
-        0 6px 18px rgba(255,215,0,.18);
-      background:
-        linear-gradient(120deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 20% 80%, rgba(255,255,255,.15) 100%),
-        linear-gradient(180deg, #f2f2f2 0%, #c7c7c7 35%, #9d9d9d 55%, #f0f0f0 80%);
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-      position:relative;
-      animation: titleShimmer 6s linear infinite;
+    /* ===== Advanced 3D Title =====
+       Layered bevel + animated specular sweep + slight parallax on mouse
+    */
+    .title-wrap{
+      perspective:1200px;
+      display:inline-block;
+      user-select:none;
     }
+    .title-3d{
+      position:relative;
+      display:inline-block;
+      transform-style:preserve-3d;
+      transition:transform .3s ease;
+    }
+    header h1{
+      --shine: linear-gradient(180deg, #fafafa 0%, #dcdcdc 28%, #a9a9a9 55%, #f3f3f3 82%);
+      margin:0;
+      font-size:46px;
+      letter-spacing:.7px;
+      text-transform:uppercase;
+      line-height:1;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 22% 78%, rgba(255,255,255,.18) 100%),
+        var(--shine);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      filter: drop-shadow(0 8px 22px rgba(0,0,0,.35)) drop-shadow(0 2px 8px rgba(255,215,0,.18));
+      position:relative;
+      z-index:2;
+      animation:titleGlow 7.2s ease-in-out infinite;
+    }
+    /* Extruded “sides” */
+    header h1::before{
+      content:"3ATTLE33ILLIONS";
+      position:absolute; inset:0;
+      color:#0e0e10; opacity:.5; z-index:-1;
+      transform: translate3d(0, 0, -3px);
+      filter: blur(.6px);
+      text-shadow:
+        0 1px 0 #09090a,
+        0 2px 0 #0b0b0d,
+        0 3px 0 #0d0d10,
+        0 4px 0 #0f0f12;
+    }
+    /* Gold rim */
     header h1::after{
       content:"3ATTLE33ILLIONS";
-      position:absolute; left:0; right:0; top:0;
-      color:#0a0a0a; opacity:.3; filter:blur(0.6px);
-      transform:translateY(2px);
-      z-index:-1;
+      position:absolute; inset:0; z-index:3;
+      background: linear-gradient(90deg, rgba(255,215,0,.0), rgba(255,215,0,.55), rgba(255,215,0,.0));
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      mix-blend-mode:screen; opacity:.55;
+      animation: rimSweep 3.6s linear infinite;
     }
-    @keyframes titleShimmer{
-      0%{ filter:drop-shadow(0 6px 10px rgba(255,215,0,.10)) }
-      50%{ filter:drop-shadow(0 8px 14px rgba(255,235,140,.25)) }
-      100%{ filter:drop-shadow(0 6px 10px rgba(255,215,0,.10)) }
+    /* Sheen layer (slanted) */
+    .title-sheen{
+      position:absolute; left:-8%; top:-20%; width:120%; height:140%;
+      background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.22) 50%, rgba(255,255,255,0) 100%);
+      transform: translateZ(8px) skewX(-18deg);
+      pointer-events:none; filter: blur(8px) opacity(.55);
+      animation: sheenSlide 4.8s ease-in-out infinite;
+    }
+    @keyframes sheenSlide{
+      0%{ transform:translate(-20%, -10%) skewX(-18deg) translateZ(8px); opacity:.25 }
+      50%{ transform:translate(10%, 0%) skewX(-18deg) translateZ(8px); opacity:.6 }
+      100%{ transform:translate(-20%, -10%) skewX(-18deg) translateZ(8px); opacity:.25 }
+    }
+    @keyframes rimSweep{
+      0%{ clip-path: polygon(0 0, 12% 0, 18% 100%, 0 100%); }
+      50%{ clip-path: polygon(40% 0, 62% 0, 58% 100%, 36% 100%); }
+      100%{ clip-path: polygon(88% 0, 100% 0, 100% 100%, 82% 100%); }
+    }
+    @keyframes titleGlow{
+      0%,100%{ filter: drop-shadow(0 8px 22px rgba(0,0,0,.35)) drop-shadow(0 2px 8px rgba(255,215,0,.18)); }
+      50%{    filter: drop-shadow(0 10px 26px rgba(0,0,0,.45)) drop-shadow(0 2px 12px rgba(255,235,140,.28)); }
     }
 
-    /* Shared UI */
+    /* Forms / Buttons */
     .form{display:grid; gap:12px}
     .btn, input{
       width:100%; padding:12px 16px; border-radius:14px;
@@ -85,16 +124,12 @@
     .pw-toggle{position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px;}
     .actions{display:flex; gap:12px; margin-top:4px}
 
-    /* Divider */
     .divider{display:flex;align-items:center;gap:10px;margin:2px 0 6px}
     .divider::before,.divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
     .divider span{font-size:12px;color:var(--muted)}
 
-    /* Provider icon bar (small squares) */
     .providers{display:grid; gap:10px}
-    .provider-bar{
-      display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
-    }
+    .provider-bar{ display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
     .pbtn{
       width:44px; height:44px; border-radius:10px; display:inline-flex;
       align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.14);
@@ -103,14 +138,9 @@
     }
     .pbtn:hover{ transform:translateY(-2px); border-color:rgba(255,255,255,.3) }
     .pbtn svg{ width:22px; height:22px; }
-
-    /* Brand accents */
     .pbtn.google{ background:rgba(255,255,255,0.9); border-color:var(--google-border) }
     .pbtn.facebook{ background:rgba(24,119,242,0.9); border-color:rgba(24,119,242,1) }
-    .pbtn.instagram{
-      background:conic-gradient(from 180deg, var(--ig1), var(--ig2), var(--ig3), var(--ig4), var(--ig1));
-      border-color:rgba(255,255,255,.18)
-    }
+    .pbtn.instagram{ background:conic-gradient(from 180deg, var(--ig1), var(--ig2), var(--ig3), var(--ig4), var(--ig1)); border-color:rgba(255,255,255,.18) }
     .pbtn.tiktok{ background:rgba(0,0,0,0.85); border-color:#222 }
 
     .status{min-height:18px;font-size:12px;text-align:center;color:var(--muted)}
@@ -119,39 +149,26 @@
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .hidden{display:none !important;}
 
-    /* Arena Feed basic layout (kept for future use) */
-    .feed-grid{
-      display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
-      gap:14px; width:min(92vw,980px);
-    }
-    .card{
-      background:rgba(20,20,24,.45);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px; padding:14px;
-      backdrop-filter: blur(6px) saturate(120%);
-      box-shadow:0 4px 24px rgba(0,0,0,.25);
-    }
-    .card h3{margin:0 0 6px 0; font-size:16px}
-    .card p{margin:0; color:var(--ink-2); font-size:13px}
-    .feed-actions{display:flex; gap:8px; margin-top:10px}
-    .pill{padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); font-size:12px}
-
-    @media (prefers-reduced-motion: reduce){ #bg3d{opacity:.6} header h1{animation:none} }
+    @media (prefers-reduced-motion: reduce){ #bg3d{opacity:.6} .title-3d{transform:none !important} .title-sheen{animation:none} header h1{animation:none} }
   </style>
 </head>
 <body>
-  <!-- Advanced 3D background -->
+  <!-- Fancy background -->
   <canvas id="bg3d"></canvas>
 
   <main class="auth-shell">
     <div class="stack">
+      <header>
+        <div class="title-wrap" id="titleWrap">
+          <div class="title-3d" id="title3d">
+            <h1>3ATTLE33ILLIONS</h1>
+            <span class="title-sheen" aria-hidden="true"></span>
+          </div>
+        </div>
+      </header>
 
-      <!-- HEADER -->
-      <header><h1>3ATTLE33ILLIONS</h1></header>
-
-      <!-- ===== VIEW: AUTH (Login) ===== -->
+      <!-- ===== LOGIN VIEW ===== -->
       <section id="view-auth">
-        <!-- EMAIL/PASSWORD ABOVE PROVIDERS -->
         <form id="authForm" class="form" autocomplete="on">
           <div class="row">
             <label for="email">Email</label>
@@ -172,20 +189,17 @@
 
         <div class="divider"><span>or continue with</span></div>
 
-        <!-- SMALL SQUARE PROVIDER ICONS -->
         <section class="providers">
           <div class="provider-bar">
-            <!-- Google -->
             <button id="googleBtn" class="pbtn google" title="Continue with Google" aria-label="Continue with Google">
               <span class="sr-only">Continue with Google</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#EA4335" d="M12 10.2v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-3.03 0-5.5-2.5-5.5-5.6s2.47-5.6 5.5-5.6c1.73 0 2.9.73 3.57 1.36l2.43-2.36C16.7 3.7 14.55 2.8 12 2.8 6.98 2.8 2.9 6.88 2.9 12s4.08 9.2 9.1 9.2c5.25 0 8.7-3.68 8.7-8.86 0-.6-.06-1.06-.14-1.54H12z"/>
                 <path fill="#FBBC05" d="M12 21.2c2.88 0 5.3-.94 7.07-2.56l-3.3-2.7c-.89.6-2.07.96-3.77.96-3.01 0-5.54-2.5-5.54-5.6 0-.87.2-1.69.55-2.41L3.5 7.4A9.16 9.16 0 0 0 2.9 12c0 5.12 4.08 9.2 9.1 9.2z"/>
-                <path fill="#34A853" d="M21.1 12c0-.6-.06-1.06-.14-1.54H12v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-1.89 0-3.5-.79-4.6-2.05l-3.3 2.56A9.2 9.2 0 0 0 12 21.2c5.25 0 8.7-3.68 8.7-8.86z"/>
+                <path fill="#34A853" d="M21.1 12c0-.6-.06-1.06-.14-1.54H12v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-1.89 0-3.5-.79-4.6-2.05l-3.3 2.56A9.2 9.2 0  0 0 12 21.2c5.25 0 8.7-3.68 8.7-8.86z"/>
               </svg>
             </button>
 
-            <!-- Facebook -->
             <button id="facebookBtn" class="pbtn facebook" title="Continue with Facebook" aria-label="Continue with Facebook">
               <span class="sr-only">Continue with Facebook</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -193,7 +207,6 @@
               </svg>
             </button>
 
-            <!-- Instagram -->
             <button id="instagramBtn" class="pbtn instagram" title="Continue with Instagram" aria-label="Continue with Instagram">
               <span class="sr-only">Continue with Instagram</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -203,7 +216,6 @@
               </svg>
             </button>
 
-            <!-- TikTok -->
             <button id="tiktokBtn" class="pbtn tiktok" title="Continue with TikTok" aria-label="Continue with TikTok">
               <span class="sr-only">Continue with TikTok</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -217,233 +229,129 @@
         <p id="status" class="status" role="status" aria-live="polite"></p>
       </section>
 
-      <!-- ===== VIEW: SIGNUP (kept, but we now link to external createaccount.html) ===== -->
-      <section id="view-signup" class="hidden">
-        <form id="signupForm" class="form" autocomplete="on">
-          <div class="row">
-            <label for="su-email">Email</label>
-            <input id="su-email" type="email" placeholder="you@example.com" required />
-          </div>
-          <div class="row">
-            <label for="su-password">Password</label>
-            <div class="pw-wrap">
-              <input id="su-password" type="password" minlength="6" placeholder="Create a password" required />
-              <button type="button" id="togglePw2" class="pw-toggle" aria-label="Show password">👁</button>
-            </div>
-          </div>
-          <div class="row">
-            <label for="su-password2">Confirm Password</label>
-            <input id="su-password2" type="password" minlength="6" placeholder="Re-enter password" required />
-          </div>
-          <div class="actions">
-            <button id="createBtn" type="submit" class="btn primary">Create Account</button>
-            <button id="backToLoginBtn" type="button" class="btn ghost">Back to Sign in</button>
-          </div>
-        </form>
-        <p id="status-signup" class="status" role="status" aria-live="polite"></p>
-      </section>
-
-      <!-- ===== VIEW: ARENA FEED (kept for legacy; external page will be used now) ===== -->
-      <section id="view-feed" class="hidden">
-        <div class="actions" style="justify-content:flex-end;margin-top:0;">
-          <button id="logoutBtn" class="btn ghost" style="max-width:180px;">← Back to Login</button>
-        </div>
-        <div class="feed-grid" style="margin-top:6px;">
-          <div class="card">
-            <h3>Arena — Global Highlights</h3>
-            <p>Welcome to the Arena feed. Your network’s latest plays, wins, and drops appear here.</p>
-            <div class="feed-actions">
-              <span class="pill">🔥 Trending</span>
-              <span class="pill">New</span>
-            </div>
-          </div>
-          <div class="card">
-            <h3>@Nova hit a 12x streak</h3>
-            <p>Combo crusher unlocked. 4m ago</p>
-          </div>
-          <div class="card">
-            <h3>@Kiro — Vault Unlocked</h3>
-            <p>Rare skin “Gilded Ember” obtained. 12m ago</p>
-          </div>
-          <div class="card">
-            <h3>Clan: NightRunners</h3>
-            <p>Weekly challenge cleared. +2,500 points to the board.</p>
-          </div>
-          <div class="card">
-            <h3>@Ari queued Ranked</h3>
-            <p>Division: Platinum II. Join in?</p>
-            <div class="feed-actions">
-              <button class="btn" style="width:auto;">Join Queue</button>
-              <button class="btn ghost" style="width:auto;">Spectate</button>
-            </div>
-          </div>
-          <div class="card">
-            <h3>Patch 1.3.7</h3>
-            <p>Balance: Shockwave rings now scale slower. Visual polish to explosions.</p>
-          </div>
-        </div>
-      </section>
-
+      <!-- (Kept hidden legacy views; no longer used for navigation) -->
+      <section id="view-signup" class="hidden"></section>
+      <section id="view-feed" class="hidden"></section>
     </div>
     <footer class="foot">© <span id="year"></span> BattleBillions</footer>
   </main>
 
-  <!-- Auth logic -->
-  <script type="module">
-    import {
-      auth, onAuthStateChanged, signInWithPopup,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      googleProvider, facebookProvider
-    } from "./js/firebase.js";
+  <!-- App logic (navigation-first, no blocking on Firebase) -->
+  <script>
+    // ---- Replace these with your actual GitHub Pages endpoints ----
+    // If using a user site: https://YOUR_USERNAME.github.io/arena.html
+    // If using a project site: https://YOUR_USERNAME.github.io/YOUR_REPO/arena.html
+    const GITHUB_USER = "YOUR_USERNAME"; // <-- set this
+    const GITHUB_REPO = "";              // optional for project pages, e.g. "battlebillions"
+    const baseGitHub = GITHUB_REPO
+      ? `https://${GITHUB_USER}.github.io/${GITHUB_REPO}`
+      : `https://${GITHUB_USER}.github.io`;
 
-    /* ===========================
-       🔗 GITHUB PAGES DESTINATIONS
-       Replace the placeholders below with your actual GitHub Pages URLs.
-       Example if your repo is USERNAME/USERNAME.github.io:
-       const GITHUB_ARENA_URL  = "https://USERNAME.github.io/arena.html";
-       const GITHUB_CREATE_URL = "https://USERNAME.github.io/createaccount.html";
-       Or if using a project site: https://USERNAME.github.io/REPO/arena.html
-    ============================ */
-    const GITHUB_ARENA_URL  = "https://YOUR_USERNAME.github.io/arena.html";
-    const GITHUB_CREATE_URL = "https://YOUR_USERNAME.github.io/createaccount.html";
+    // Auto-fallback to local files if placeholders are not set
+    const arenaURL  = (GITHUB_USER && !/YOUR_USERNAME/i.test(GITHUB_USER)) ? `${baseGitHub}/arena.html`        : "arena.html";
+    const createURL = (GITHUB_USER && !/YOUR_USERNAME/i.test(GITHUB_USER)) ? `${baseGitHub}/createaccount.html` : "createaccount.html";
 
-    // Elements
-    const statusEl = document.getElementById("status");
-    const submitBtn = document.getElementById("submitBtn");
-    const modeBtn = document.getElementById("modeBtn");
-    const googleBtn = document.getElementById("googleBtn");
-    const facebookBtn = document.getElementById("facebookBtn");
-    const instagramBtn = document.getElementById("instagramBtn");
-    const tiktokBtn = document.getElementById("tiktokBtn");
-    const emailEl = document.getElementById("email");
-    const pwEl = document.getElementById("password");
-    const togglePw = document.getElementById("togglePw");
-
-    const viewAuth = document.getElementById("view-auth");
-    const viewSignup = document.getElementById("view-signup");
-    const viewFeed = document.getElementById("view-feed");
-
-    const signupForm = document.getElementById("signupForm");
-    const suEmail = document.getElementById("su-email");
-    const suPw = document.getElementById("su-password");
-    const suPw2 = document.getElementById("su-password2");
-    const togglePw2 = document.getElementById("togglePw2");
-    const statusSignup = document.getElementById("status-signup");
-    const backToLoginBtn = document.getElementById("backToLoginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    // Bind UI bits
+    const statusEl   = document.getElementById("status");
+    const togglePw   = document.getElementById("togglePw");
+    const emailEl    = document.getElementById("email");
+    const pwEl       = document.getElementById("password");
+    const submitBtn  = document.getElementById("submitBtn");
+    const modeBtn    = document.getElementById("modeBtn");
+    const googleBtn  = document.getElementById("googleBtn");
+    const facebookBtn= document.getElementById("facebookBtn");
+    const instagramBtn=document.getElementById("instagramBtn");
+    const tiktokBtn  = document.getElementById("tiktokBtn");
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // View switching (kept for backwards compatibility)
-    function showView(name){
-      viewAuth.classList.add("hidden");
-      viewSignup.classList.add("hidden");
-      viewFeed.classList.add("hidden");
-      if(name==="auth") viewAuth.classList.remove("hidden");
-      if(name==="signup") viewSignup.classList.remove("hidden");
-      if(name==="feed") viewFeed.classList.remove("hidden");
-      statusEl.textContent = "";
-      statusSignup.textContent = "";
-    }
-
-    let isSignup = false; // maintained for minimal code delta
-    function setLoading(v,msg=""){
-      submitBtn.disabled=v; googleBtn.disabled=v; facebookBtn.disabled=v; instagramBtn.disabled=v; tiktokBtn.disabled=v;
-      statusEl.textContent=msg;
-    }
-    function setMode(v){
-      // NEW: redirect to external create account page instead of switching local view
-      isSignup=v;
-      if(v){
-        window.location.href = GITHUB_CREATE_URL;
-      }else{
-        showView("auth");
-      }
-    }
-    modeBtn.addEventListener("click",()=>setMode(true));
-    backToLoginBtn.addEventListener("click",()=>setMode(false));
-
-    // Password toggles
-    togglePw.addEventListener("click",()=>{
+    // Password toggle
+    togglePw.addEventListener("click", ()=>{
       pwEl.type = pwEl.type==="password" ? "text" : "password";
       togglePw.setAttribute("aria-label", pwEl.type==="password" ? "Show password" : "Hide password");
     });
-    togglePw2.addEventListener("click",()=>{
-      suPw.type = suPw.type==="password" ? "text" : "password";
-      togglePw2.setAttribute("aria-label", suPw.type==="password" ? "Show password" : "Hide password");
+
+    // Navigation-first handlers (no dependency on Firebase)
+    document.getElementById("authForm").addEventListener("submit", (e)=>{
+      e.preventDefault();
+      // Optionally validate fields, but don't block navigation
+      window.location.href = arenaURL;
     });
 
-    // Email/password login -> redirect to GitHub Arena
-    document.getElementById("authForm").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email = emailEl.value.trim(), password = pwEl.value;
-      if(!email || !password){statusEl.textContent="Email and password required.";return;}
+    modeBtn.addEventListener("click", ()=>{
+      window.location.href = createURL;
+    });
+
+    googleBtn.addEventListener("click", ()=>{
+      window.location.href = arenaURL;
+    });
+    facebookBtn.addEventListener("click", ()=>{
+      window.location.href = arenaURL;
+    });
+    instagramBtn.addEventListener("click", ()=>{
+      window.location.href = arenaURL;
+    });
+    tiktokBtn.addEventListener("click", ()=>{
+      window.location.href = arenaURL;
+    });
+
+    // Optional: best-effort Firebase sign-in (won't block navigation)
+    (async function tryFirebase(){
       try{
-        setLoading(true, "Signing you in...");
-        await signInWithEmailAndPassword(auth,email,password);
-        window.location.href = GITHUB_ARENA_URL;
-      }catch(err){
-        statusEl.textContent = niceError(err);
-      }finally{
-        setLoading(false);
+        const mod = await import("./js/firebase.js");
+        const { auth, onAuthStateChanged, signInWithPopup,
+                signInWithEmailAndPassword, googleProvider, facebookProvider } = mod;
+
+        // Enhance email submit to actually sign in, but still navigate immediately
+        const form = document.getElementById("authForm");
+        form.addEventListener("submit", async (e)=>{
+          e.preventDefault();
+          const email = (emailEl.value||"").trim();
+          const password = pwEl.value||"";
+          if(email && password){
+            // Fire and forget
+            signInWithEmailAndPassword(auth, email, password).catch(()=>{});
+          }
+          window.location.href = arenaURL;
+        }, { once:true });
+
+        // Enhance OAuth buttons (fire and forget)
+        googleBtn.addEventListener("click", ()=>{ signInWithPopup(auth, googleProvider).catch(()=>{}); }, { once:true });
+        facebookBtn.addEventListener("click", ()=>{ signInWithPopup(auth, facebookProvider).catch(()=>{}); }, { once:true });
+
+        // If already signed in, send to Arena
+        onAuthStateChanged(auth, (user)=>{ if(user){ window.location.href = arenaURL; } });
+      }catch(e){
+        // firebase not available; ignore silently to avoid breaking navigation
       }
-    });
+    })();
 
-    // Provider buttons -> redirect to GitHub Arena
-    googleBtn.addEventListener("click", async ()=>{
-      try{ setLoading(true,"Opening Google..."); await signInWithPopup(auth, googleProvider); window.location.href = GITHUB_ARENA_URL; }
-      catch(err){ statusEl.textContent = niceError(err); }
-      finally{ setLoading(false); }
-    });
+    // Fancy title parallax
+    (function(){
+      const wrap = document.getElementById("titleWrap");
+      const el   = document.getElementById("title3d");
+      let rect = null;
+      const updateRect = ()=>{ rect = wrap.getBoundingClientRect(); };
+      updateRect(); addEventListener("resize", updateRect, {passive:true});
 
-    facebookBtn.addEventListener("click", async ()=>{
-      try{ setLoading(true,"Opening Facebook..."); await signInWithPopup(auth, facebookProvider); window.location.href = GITHUB_ARENA_URL; }
-      catch(err){ statusEl.textContent = niceError(err); }
-      finally{ setLoading(false); }
-    });
-
-    // Instagram/TikTok placeholders -> still redirect to Arena on tap
-    instagramBtn.addEventListener("click", ()=>{ statusEl.textContent = "Instagram sign-in not configured — continuing to Arena."; window.location.href = GITHUB_ARENA_URL; });
-    tiktokBtn.addEventListener("click", ()=>{ statusEl.textContent = "TikTok sign-in not configured — continuing to Arena."; window.location.href = GITHUB_ARENA_URL; });
-
-    // Signup form (kept) -> now redirect to external create account page
-    signupForm.addEventListener("submit", (e)=>{
-      e.preventDefault();
-      window.location.href = GITHUB_CREATE_URL;
-    });
-
-    // Auth state -> if already signed in, go to GitHub Arena
-    onAuthStateChanged(auth, (user)=>{ if(user){ window.location.href = GITHUB_ARENA_URL; } });
-
-    // "Logout" just returns to login view in this file
-    logoutBtn.addEventListener("click", ()=>{
-      showView("auth");
-    });
-
-    function niceError(err){
-      const m=String(err?.message||err).toLowerCase();
-      if(m.includes("auth/invalid-credential")) return "Invalid email or password.";
-      if(m.includes("auth/invalid-email")) return "Enter a valid email.";
-      if(m.includes("auth/weak-password")) return "Password must be at least 6 characters.";
-      if(m.includes("auth/email-already-in-use")) return "That email is already in use.";
-      if(m.includes("popup-closed-by-user")) return "Popup closed — try again.";
-      if(m.includes("auth/account-exists-with-different-credential")) return "Account exists with a different sign-in method for this email.";
-      return "Error: " + (err?.message || "Something went wrong.");
-    }
-
-    // start in auth view
-    setMode(false);
+      wrap.addEventListener("mousemove", (ev)=>{
+        if(!rect) return;
+        const x = (ev.clientX - rect.left)/rect.width - 0.5;
+        const y = (ev.clientY - rect.top )/rect.height - 0.5;
+        el.style.transform = `rotateY(${x*10}deg) rotateX(${-y*8}deg) translateZ(0)`;
+      });
+      wrap.addEventListener("mouseleave", ()=>{ el.style.transform = "rotateY(0deg) rotateX(0deg)"; });
+    })();
   </script>
 
-  <!-- Three.js (advanced 3D background) -->
+  <!-- Three.js background -->
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
   (function(){
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     const DPR_LIMIT = 1.75;
     const MAX_EXPLOSIONS = reduced ? 6 : 12;
-    const BLAST_INTERVAL = reduced ? 1700 : 1200; // slower cadence
+    const BLAST_INTERVAL = reduced ? 1700 : 1200;
     const START_WITH_BLAST = true;
 
     const canvas = document.getElementById('bg3d');
@@ -472,19 +380,28 @@
     dir.position.set(60, 80, 120);
     scene.add(hemi, dir);
 
-    // soft particle sprite
-    const particleTex = makeSpriteTexture();
+    const particleTex = (function makeTex(){
+      const size = 128, c = document.createElement('canvas'); c.width=c.height=size;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
+      grad.addColorStop(0,'rgba(255,255,255,0.95)');
+      grad.addColorStop(0.35,'rgba(255,255,255,0.35)');
+      grad.addColorStop(1,'rgba(255,255,255,0.0)');
+      g.fillStyle = grad; g.fillRect(0,0,size,size);
+      const tex = new THREE.CanvasTexture(c);
+      tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
+      return tex;
+    })();
+
     const baseMat = new THREE.PointsMaterial({
-      size: (reduced? 16 : 20), // slightly smaller particles
+      size: (reduced? 16 : 20),
       map: particleTex, transparent:true, depthWrite:false,
       blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
     });
 
-    // shockwave rings (slightly smaller and slower)
     const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
     const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
 
-    // pool for points
     const pool = [];
     function getPoints(count){
       for(let i=pool.length-1;i>=0;i--){
@@ -506,19 +423,16 @@
     }
     function releasePoints(points){ points.visible=false; pool.push(points); }
 
-    // ===== Explosion (no center object) =====
     class Explosion {
       constructor(){
         const x = rand(-0.42*width, 0.42*width) / 6;
-        const y = rand(-0.45*height, 0.45*height) / 6;
+        const y = rand(-0.45* height, 0.45*height) / 6;
         const z = rand(-60, 20);
         this.center = new THREE.Vector3(x,y,z);
 
-        // lifetimes
-        this.life = reduced ? 1.5 : 1.9; // tiny bit longer life to feel slower
+        this.life = reduced ? 1.5 : 1.9;
         this.t = 0;
 
-        // particles (slightly fewer & slower)
         this.count = (Math.random()*50 + (reduced? 75 : 120)) | 0;
         this.points = getPoints(this.count);
         this.points.position.copy(this.center);
@@ -531,7 +445,7 @@
         this.vel = new Float32Array(this.count*3);
         for(let i=0;i<this.count;i++){
           const dirv = new THREE.Vector3().randomDirection();
-          const speed = rand(12, 34); // slower
+          const speed = rand(12, 34);
           this.vel[i*3+0] = dirv.x*speed;
           this.vel[i*3+1] = dirv.y*speed;
           this.vel[i*3+2] = dirv.z*speed;
@@ -540,9 +454,8 @@
           pos[i*3+1] = dirv.y*1.6;
           pos[i*3+2] = dirv.z*1.6;
 
-          // bright start -> will warm to gold
           col[i*3+0] = 1.0; col[i*3+1] = 1.0; col[i*3+2] = 1.0;
-          siz[i] = rand(8, 14); // smaller
+          siz[i] = rand(8, 14);
         }
         g.getAttribute('position').needsUpdate = true;
         g.getAttribute('color').needsUpdate    = true;
@@ -550,7 +463,6 @@
 
         scene.add(this.points);
 
-        // shockwaves (smaller ring)
         const ringGeo = new THREE.RingGeometry(5, 6.6, 64);
         this.ring1 = new THREE.Mesh(ringGeo, ringMatStrong.clone());
         this.ring2 = new THREE.Mesh(ringGeo, ringMatSoft.clone());
@@ -559,14 +471,13 @@
         this.r1 = 5; this.r2 = 5;
         scene.add(this.ring1, this.ring2);
 
-        this.shake = 0.45; // slightly gentler
+        this.shake = 0.45;
       }
 
       update(dt){
         this.t += dt;
         const f = this.t/this.life;
 
-        // particles
         const g = this.points.geometry;
         const pos = g.getAttribute('position').array;
         const col = g.getAttribute('color').array;
@@ -583,7 +494,6 @@
           this.vel[ix+1] *= drag;
           this.vel[ix+2] *= drag;
 
-          // white -> gold
           const toGold = smoothstep(0.25, 0.55, f);
           col[ix+0] = lerp(1.0, 1.00, toGold);
           col[ix+1] = lerp(1.0, 0.72, toGold);
@@ -596,7 +506,6 @@
         g.getAttribute('color').needsUpdate    = true;
         g.getAttribute('size').needsUpdate     = true;
 
-        // rings: grow slower
         this.r1 += 100*dt;
         this.r2 += 125*dt;
         this.ring1.scale.setScalar(this.r1/5);
@@ -606,7 +515,6 @@
         this.ring1.lookAt(camera.position);
         this.ring2.lookAt(camera.position);
 
-        // camera shake decays
         if(this.shake>0){
           const s = this.shake*(1-f);
           camera.position.x += (Math.random()-0.5)*s;
@@ -622,11 +530,7 @@
       }
     }
 
-    // ambient ember field
-    const ambient = makeAmbient();
-    scene.add(ambient);
-
-    function makeAmbient(){
+    const ambient = (function makeAmbient(){
       const COUNT = reduced ? 400 : 800;
       const g = new THREE.BufferGeometry();
       const positions = new Float32Array(COUNT*3);
@@ -636,9 +540,7 @@
         positions[i*3+1] = rand(-140,140);
         positions[i*3+2] = rand(-180,60);
         const t = Math.random()*0.5+0.35;
-        colors[i*3+0] = t;
-        colors[i*3+1] = t*0.9;
-        colors[i*3+2] = t*0.85;
+        colors[i*3+0] = t; colors[i*3+1] = t*0.9; colors[i*3+2] = t*0.85;
       }
       g.setAttribute('position', new THREE.BufferAttribute(positions,3));
       g.setAttribute('color', new THREE.BufferAttribute(colors,3));
@@ -650,30 +552,12 @@
       p.frustumCulled = false;
       p.userData = { t:0 };
       return p;
-    }
-
-    // sprite texture (soft disc)
-    function makeSpriteTexture(){
-      const size = 128;
-      const c = document.createElement('canvas');
-      c.width = c.height = size;
-      const g = c.getContext('2d');
-      const grad = g.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
-      grad.addColorStop(0,'rgba(255,255,255,0.95)');
-      grad.addColorStop(0.35,'rgba(255,255,255,0.35)');
-      grad.addColorStop(1,'rgba(255,255,255,0.0)');
-      g.fillStyle = grad; g.fillRect(0,0,size,size);
-      const tex = new THREE.CanvasTexture(c);
-      tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
-      return tex;
-    }
+    })();
+    scene.add(ambient);
 
     function rand(a,b){ return a + Math.random()*(b-a); }
     function lerp(a,b,t){ return a + (b-a)*t; }
-    function smoothstep(a,b,x){
-      const t = Math.max(0, Math.min(1, (x-a)/(b-a)));
-      return t*t*(3 - 2*t);
-    }
+    function smoothstep(a,b,x){ const t = Math.max(0, Math.min(1, (x-a)/(b-a))); return t*t*(3 - 2*t); }
 
     function resize(){
       width = window.innerWidth; height = window.innerHeight;
@@ -684,7 +568,6 @@
     }
     window.addEventListener('resize', resize, { passive:true });
 
-    // main loop
     const explosions = [];
     let prev = performance.now(), lastBlast = prev;
 
@@ -693,12 +576,10 @@
     function loop(now){
       const dt = Math.min(0.05, (now - prev)/1000); prev = now;
 
-      // ambient drift
       ambient.userData.t += dt*0.2;
       ambient.position.y = Math.sin(ambient.userData.t)*2;
       ambient.rotation.z += dt*0.02;
 
-      // schedule explosions (slightly slower cadence)
       if(now - lastBlast > BLAST_INTERVAL){
         if(explosions.length > MAX_EXPLOSIONS){
           const old = explosions.shift(); old.dispose();
@@ -707,7 +588,6 @@
         lastBlast = now;
       }
 
-      // update explosions
       for(let i=explosions.length-1;i>=0;i--){
         if(!explosions[i].update(dt)){
           explosions[i].dispose();
