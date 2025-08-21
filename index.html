@@ -242,7 +242,7 @@
 
     const DPR_LIMIT = 1.75;
     const MAX_EXPLOSIONS = reduced ? 6 : 12;
-    const BLAST_INTERVAL = reduced ? 1400 : 900;
+    const BLAST_INTERVAL = reduced ? 1700 : 1200; // slower cadence
     const START_WITH_BLAST = true;
 
     const canvas = document.getElementById('bg3d');
@@ -274,105 +274,14 @@
     // soft particle sprite
     const particleTex = makeSpriteTexture();
     const baseMat = new THREE.PointsMaterial({
-      size: (reduced? 18 : 24), map: particleTex, transparent:true, depthWrite:false,
+      size: (reduced? 16 : 20), // slightly smaller particles
+      map: particleTex, transparent:true, depthWrite:false,
       blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
     });
 
-    // shockwave rings
+    // shockwave rings (slightly smaller and slower)
     const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
     const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
-
-    // ===== Procedural FLAME badge (centerpiece) =====
-    const FLAME_CACHE = new Map(); // key: palette name -> material
-
-    function getFlameMaterial(p){
-      const key = JSON.stringify(p);
-      if(!FLAME_CACHE.has(key)){
-        const tex = makeFlameTexture(p);
-        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent:true, opacity:1, side:THREE.DoubleSide });
-        FLAME_CACHE.set(key, mat);
-      }
-      return FLAME_CACHE.get(key).clone(); // independent opacity per explosion
-    }
-
-    function pickDarkPalette(){
-      // A set of moody/dark flame themes (outer -> inner colors)
-      const palettes = [
-        { name:'violet-ember', outer:'#140A1A', mid:'#2B1040', inner:'#8A52FF' },
-        { name:'cyan-abyss',   outer:'#061418', mid:'#0B2830', inner:'#36E1FF' },
-        { name:'teal-char',    outer:'#061A16', mid:'#0F3B30', inner:'#28D1A6' },
-        { name:'crimson-night',outer:'#16070A', mid:'#300C12', inner:'#FF4B6E' },
-        { name:'indigo-smoke', outer:'#0B0E1A', mid:'#151E3D', inner:'#6A8CFF' },
-        { name:'obsidian-gold',outer:'#0F0F0F', mid:'#1F1A0D', inner:'#E7C165' },
-        { name:'emerald-glow', outer:'#07140D', mid:'#0E2A1B', inner:'#55FF9C' }
-      ];
-      return palettes[(Math.random()*palettes.length)|0];
-    }
-
-    function makeFlameTexture(palette){
-      const W = 320, H = 320;
-      const c = document.createElement('canvas'); c.width=W; c.height=H;
-      const g = c.getContext('2d');
-      g.clearRect(0,0,W,H);
-
-      // soft outer glow
-      const glow = g.createRadialGradient(W/2,H*0.62, 10, W/2,H*0.62, W*0.48);
-      glow.addColorStop(0, hexA(palette.inner, 0.25));
-      glow.addColorStop(0.5, hexA(palette.mid,   0.18));
-      glow.addColorStop(1, hexA(palette.outer,  0.00));
-      g.fillStyle = glow; g.fillRect(0,0,W,H);
-
-      // flame shape (layered)
-      function flamePath(scale=1, yOffset=0){
-        g.beginPath();
-        const cx=W/2, cy=H*0.65 + yOffset, s=120*scale;
-        g.moveTo(cx, cy - s*0.9);
-        g.bezierCurveTo(cx + s*0.35, cy - s*1.05, cx + s*0.55, cy - s*0.1, cx + s*0.2, cy + s*0.15);
-        g.bezierCurveTo(cx + s*0.05, cy + s*0.35, cx + s*0.05, cy + s*0.55, cx, cy + s*0.6);
-        g.bezierCurveTo(cx - s*0.05, cy + s*0.55, cx - s*0.05, cy + s*0.35, cx - s*0.2, cy + s*0.15);
-        g.bezierCurveTo(cx - s*0.55, cy - s*0.1, cx - s*0.35, cy - s*1.05, cx, cy - s*0.9);
-        g.closePath();
-      }
-
-      // outer flame
-      const gradOuter = g.createLinearGradient(0,H*0.1, 0,H*0.9);
-      gradOuter.addColorStop(0, hexA(palette.mid, 0.85));
-      gradOuter.addColorStop(1, hexA(palette.outer, 0.9));
-      g.fillStyle = gradOuter;
-      flamePath(1.0, 0); g.fill();
-
-      // inner flame
-      const gradInner = g.createLinearGradient(0,H*0.2, 0,H*0.9);
-      gradInner.addColorStop(0, hexA('#ffffff', 0.7));
-      gradInner.addColorStop(1, hexA(palette.inner, 0.9));
-      g.fillStyle = gradInner;
-      flamePath(0.65, 10); g.fill();
-
-      // core spark
-      g.beginPath();
-      g.ellipse(W/2, H*0.63, 16, 24, 0, 0, Math.PI*2);
-      g.fillStyle = hexA('#ffffff', 0.9);
-      g.fill();
-
-      // subtle rim highlight
-      g.lineWidth = 3;
-      g.strokeStyle = hexA('#ffffff', 0.25);
-      flamePath(1.0, 0); g.stroke();
-
-      const tex = new THREE.CanvasTexture(c);
-      tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
-      return tex;
-
-      function hexA(hex, a){
-        const {r,g:b,bl} = hexToRgb(hex);
-        return `rgba(${r},${b},${bl},${a})`;
-      }
-      function hexToRgb(hex){
-        const h = hex.replace('#','');
-        const bigint = parseInt(h.length===3 ? h.split('').map(ch=>ch+ch).join('') : h, 16);
-        return { r: (bigint>>16)&255, g: (bigint>>8)&255, bl: bigint&255 };
-      }
-    }
 
     // pool for points
     const pool = [];
@@ -396,7 +305,7 @@
     }
     function releasePoints(points){ points.visible=false; pool.push(points); }
 
-    // ===== Explosion =====
+    // ===== Explosion (no center object) =====
     class Explosion {
       constructor(){
         const x = rand(-0.42*width, 0.42*width) / 6;
@@ -405,11 +314,11 @@
         this.center = new THREE.Vector3(x,y,z);
 
         // lifetimes
-        this.life = reduced ? 1.4 : 1.8;
+        this.life = reduced ? 1.5 : 1.9; // tiny bit longer life to feel slower
         this.t = 0;
 
-        // particles
-        this.count = (Math.random()*60 + (reduced? 90 : 140)) | 0;
+        // particles (slightly fewer & slower)
+        this.count = (Math.random()*50 + (reduced? 75 : 120)) | 0;
         this.points = getPoints(this.count);
         this.points.position.copy(this.center);
 
@@ -421,17 +330,18 @@
         this.vel = new Float32Array(this.count*3);
         for(let i=0;i<this.count;i++){
           const dirv = new THREE.Vector3().randomDirection();
-          const speed = rand(14, 42);
+          const speed = rand(12, 34); // slower
           this.vel[i*3+0] = dirv.x*speed;
           this.vel[i*3+1] = dirv.y*speed;
           this.vel[i*3+2] = dirv.z*speed;
-pos[i*3+0] = dirv.x*2;
-          pos[i*3+1] = dirv.y*2;
-          pos[i*3+2] = dirv.z*2;
+
+          pos[i*3+0] = dirv.x*1.6;
+          pos[i*3+1] = dirv.y*1.6;
+          pos[i*3+2] = dirv.z*1.6;
 
           // bright start -> will warm to gold
           col[i*3+0] = 1.0; col[i*3+1] = 1.0; col[i*3+2] = 1.0;
-          siz[i] = rand(10, 18);
+          siz[i] = rand(8, 14); // smaller
         }
         g.getAttribute('position').needsUpdate = true;
         g.getAttribute('color').needsUpdate    = true;
@@ -439,26 +349,16 @@ pos[i*3+0] = dirv.x*2;
 
         scene.add(this.points);
 
-        // shockwaves
-        const ringGeo = new THREE.RingGeometry(6, 7.6, 64);
+        // shockwaves (smaller ring)
+        const ringGeo = new THREE.RingGeometry(5, 6.6, 64);
         this.ring1 = new THREE.Mesh(ringGeo, ringMatStrong.clone());
         this.ring2 = new THREE.Mesh(ringGeo, ringMatSoft.clone());
         this.ring1.position.copy(this.center);
         this.ring2.position.copy(this.center);
-        this.r1 = 6; this.r2 = 6;
+        this.r1 = 5; this.r2 = 5;
         scene.add(this.ring1, this.ring2);
 
-        // central FLAME (single)
-        const pal = pickDarkPalette();
-        const mat = getFlameMaterial(pal);
-        const size = 12;
-        this.flame = new THREE.Mesh(new THREE.PlaneGeometry(size, size), mat);
-        this.flame.position.copy(this.center).add(new THREE.Vector3(0, 0, 0.1));
-        // slight float animation base
-        this.floatT = Math.random()*Math.PI*2;
-        scene.add(this.flame);
-
-        this.shake = 0.5;
+        this.shake = 0.45; // slightly gentler
       }
 
       update(dt){
@@ -489,30 +389,21 @@ pos[i*3+0] = dirv.x*2;
           col[ix+2] = lerp(1.0, 0.28, toGold);
 
           siz[i] *= (1 - dt*0.1);
-          siz[i] = Math.max(8, siz[i]);
+          siz[i] = Math.max(7, siz[i]);
         }
         g.getAttribute('position').needsUpdate = true;
         g.getAttribute('color').needsUpdate    = true;
         g.getAttribute('size').needsUpdate     = true;
 
-        // rings
-        this.r1 += 120*dt;
-        this.r2 += 150*dt;
-        this.ring1.scale.setScalar(this.r1/6);
-        this.ring2.scale.setScalar(this.r2/6);
-        this.ring1.material.opacity = Math.max(0, 0.95 - f*1.3);
-        this.ring2.material.opacity = Math.max(0, 0.65 - f*1.4);
+        // rings: grow slower
+        this.r1 += 100*dt;
+        this.r2 += 125*dt;
+        this.ring1.scale.setScalar(this.r1/5);
+        this.ring2.scale.setScalar(this.r2/5);
+        this.ring1.material.opacity = Math.max(0, 0.95 - f*1.25);
+        this.ring2.material.opacity = Math.max(0, 0.65 - f*1.3);
         this.ring1.lookAt(camera.position);
         this.ring2.lookAt(camera.position);
-
-        // flame: face camera, float slightly, fade faster than particles
-        if(this.flame){
-          this.flame.lookAt(camera.position);
-          this.floatT += dt*2;
-          this.flame.position.y = this.center.y + Math.sin(this.floatT)*0.6;
-          const flameOpacity = Math.max(0, 1.0 - f*1.5);
-          this.flame.material.opacity = flameOpacity;
-        }
 
         // camera shake decays
         if(this.shake>0){
@@ -527,8 +418,6 @@ pos[i*3+0] = dirv.x*2;
       dispose(){
         scene.remove(this.points); releasePoints(this.points);
         scene.remove(this.ring1); scene.remove(this.ring2);
-        if(this.flame){ scene.remove(this.flame); this.flame.geometry.dispose(); }
-        // cached flame materials/textures kept
       }
     }
 
@@ -608,7 +497,7 @@ pos[i*3+0] = dirv.x*2;
       ambient.position.y = Math.sin(ambient.userData.t)*2;
       ambient.rotation.z += dt*0.02;
 
-      // schedule explosions
+      // schedule explosions (slightly slower cadence)
       if(now - lastBlast > BLAST_INTERVAL){
         if(explosions.length > MAX_EXPLOSIONS){
           const old = explosions.shift(); old.dispose();
@@ -636,5 +525,3 @@ pos[i*3+0] = dirv.x*2;
   <noscript>Enable JavaScript to use BattleBillions.</noscript>
 </body>
 </html>
-
-     
