@@ -1,1 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arena — 3ATTLE33ILLIONS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --ink:#f5f5f5; --ink-2:#cecece; --muted:#a1a1a1;
+      --glass: rgba(20,20,24,.45);
+      --stroke: rgba(255,255,255,.10);
+      --accent: #ffd700;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:transparent;color:var(--ink)}
+    .page{min-height:100%; padding:16px; display:grid; gap:14px}
 
+    /* Top bar */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px 14px; border:1px solid var(--stroke); border-radius:16px;
+      background:var(--glass); backdrop-filter: blur(8px) saturate(120%);
+      box-shadow:0 8px 32px rgba(0,0,0,.3);
+    }
+    .brand{
+      display:flex; align-items:baseline; gap:10px;
+    }
+    .brand h1{
+      margin:0; font-size:18px; letter-spacing:.4px;
+      background:linear-gradient(180deg,#fff 0%, #cfcfcf 35%, #9f9f9f 55%, #f2f2f2 80%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow:0 1px 0 #cfcfcf, 0 0 12px rgba(255,215,0,.18);
+    }
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--stroke);
+      padding:6px; border-radius:999px;
+    }
+    .tab{
+      padding:8px 12px; border-radius:999px; font-size:12px; color:var(--ink-2);
+      background:transparent; border:1px solid transparent; cursor:pointer;
+    }
+    .tab.active{
+      color:#000; background:#fff; border-color:transparent; font-weight:700;
+      box-shadow:0 6px 20px rgba(255,255,255,.08);
+    }
+    .actions{display:flex; gap:8px}
+    .btn{
+      padding:10px 14px; border-radius:12px; border:1px solid var(--stroke);
+      background:rgba(255,255,255,.06); color:var(--ink); cursor:pointer;
+      transition:transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+    .btn:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,.25) }
+    .btn.primary{ background:#fff; color:#000; border-color:transparent }
+    .btn.ghost{ background:transparent }
+
+    /* Composer */
+    .composer{
+      padding:12px; border-radius:16px; border:1px solid var(--stroke); background:var(--glass);
+      display:grid; gap:10px; box-shadow:0 8px 28px rgba(0,0,0,.25);
+    }
+    .composer textarea{
+      width:100%; min-height:70px; resize:vertical;
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
+      border-radius:12px; padding:12px; color:var(--ink);
+      outline:none; transition:border-color .16s ease, box-shadow .16s ease;
+    }
+    .composer textarea:focus{ border-color:#fff; box-shadow:0 0 6px rgba(255,255,255,.25) }
+    .composer .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .hint{ font-size:12px; color:var(--muted) }
+
+    /* Feed grid */
+    .feed{
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap:14px;
+    }
+    .card{
+      background:var(--glass); border:1px solid var(--stroke);
+      border-radius:16px; padding:14px; box-shadow:0 6px 26px rgba(0,0,0,.25);
+      display:grid; gap:8px;
+    }
+    .card h3{ margin:0; font-size:16px }
+    .meta{ font-size:12px; color:var(--muted) }
+    .pill{ padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); font-size:12px; }
+    .reacts{ display:flex; gap:8px }
+    .react{ padding:6px 10px; border:1px solid rgba(255,255,255,.12); border-radius:999px; background:rgba(255,255,255,.04); font-size:12px; cursor:pointer }
+    .react:hover{ border-color:rgba(255,255,255,.25) }
+
+    /* Section titles */
+    .section-title{ display:flex; align-items:center; gap:10px; margin:2px 2px 0 2px; }
+    .section-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px rgba(255,215,0,.65) }
+
+    /* Empty states */
+    .empty{
+      padding:20px; border:1px dashed rgba(255,255,255,.14); border-radius:12px; text-align:center; color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="brand">
+        <h1>ARENA</h1>
+        <span class="pill" title="Live">● Live</span>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Arena Views">
+        <button class="tab active" data-tab="feed" role="tab" aria-selected="true">Feed</button>
+        <button class="tab" data-tab="trending" role="tab" aria-selected="false">Trending</button>
+        <button class="tab" data-tab="following" role="tab" aria-selected="false">Following</button>
+      </div>
+      <div class="actions">
+        <button id="newPostBtn" class="btn">New Post</button>
+        <button id="refreshBtn" class="btn ghost">Refresh</button>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <section class="composer" aria-label="Compose">
+      <div class="row">
+        <strong>What’s happening in your Arena?</strong>
+        <span class="hint" id="ticker">—</span>
+      </div>
+      <textarea id="composerInput" placeholder="Share a clutch play, big win, or squad update…"></textarea>
+      <div class="row">
+        <div style="display:flex; gap:8px;">
+          <span class="pill">#Highlights</span>
+          <span class="pill">#Squad</span>
+          <span class="pill">#Wins</span>
+        </div>
+        <button id="postBtn" class="btn primary">Post</button>
+      </div>
+    </section>
+
+    <!-- Sections -->
+    <div class="section-title"><span class="dot"></span><strong>Global Feed</strong></div>
+    <section id="pane-feed" class="feed" role="region" aria-live="polite">
+      <!-- cards injected by JS -->
+    </section>
+
+    <div class="section-title"><span class="dot"></span><strong>Trending</strong></div>
+    <section id="pane-trending" class="feed" style="display:none">
+      <div class="card">
+        <h3>Top Clip: Gilded Ember Finish</h3>
+        <p class="meta">32k views · 1h ago · #Highlights</p>
+        <div class="reacts">
+          <button class="react">👍 1.2k</button>
+          <button class="react">💬 182</button>
+          <button class="react">↗ Share</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Meta Watch: Shockwave builds</h3>
+        <p class="meta">Balance notes & counter-picks · 2h ago</p>
+      </div>
+    </section>
+
+    <div class="section-title"><span class="dot"></span><strong>Following</strong></div>
+    <section id="pane-following" class="feed" style="display:none">
+      <div class="empty">Follow players and clans to see their posts here.</div>
+    </section>
+  </div>
+
+  <script>
+    // ===== Mock Data & Utilities =====
+    const feedEl   = document.getElementById('pane-feed');
+    const trendEl  = document.getElementById('pane-trending');
+    const followEl = document.getElementById('pane-following');
+    const tabs     = document.querySelectorAll('.tab');
+    const ticker   = document.getElementById('ticker');
+
+    const seed = [
+      {u:'@Nova',    t:'12x streak — Combo crusher unlocked.', meta:'4m ago · Platinum II', tags:['#Wins']},
+      {u:'@Kiro',    t:'Vault unlocked: “Gilded Ember”.', meta:'12m ago · Drop Rate 1.8%', tags:['#Drop']},
+      {u:'@Ari',     t:'Ranked queue popped — who’s in?', meta:'19m ago · Squad: 3/5', tags:['#Squad']},
+      {u:'NightRunners', t:'Weekly challenge cleared. +2,500 pts', meta:'25m ago · Clan', tags:['#Clan']},
+      {u:'@Vale',    t:'Perfect retake on Ember Pit 🔥', meta:'36m ago · VOD 48s', tags:['#Highlights']},
+    ];
+
+    function cardHTML(item){
+      const tags = (item.tags||[]).map(t=>`<span class="pill">${t}</span>`).join(' ');
+      return `
+        <article class="card">
+          <h3>${escapeHTML(item.u)} — ${escapeHTML(item.t)}</h3>
+          <p class="meta">${escapeHTML(item.meta)}</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">${tags}</div>
+          <div class="reacts">
+            <button class="react">👍 ${Math.floor(Math.random()*200)+12}</button>
+            <button class="react">💬 ${Math.floor(Math.random()*80)+1}</button>
+            <button class="react">↗ Share</button>
+          </div>
+        </article>`;
+    }
+
+    function renderFeed(list){
+      feedEl.innerHTML = list.map(cardHTML).join('');
+    }
+
+    function escapeHTML(s){
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ===== Initial Render =====
+    renderFeed(seed);
+
+    // ===== Tabs =====
+    tabs.forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        tabs.forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+        const which = tab.dataset.tab;
+        feedEl.style.display     = which==='feed'      ? '' : 'none';
+        trendEl.style.display    = which==='trending'  ? '' : 'none';
+        followEl.style.display   = which==='following' ? '' : 'none';
+      });
+    });
+
+    // ===== Composer =====
+    const input = document.getElementById('composerInput');
+    document.getElementById('newPostBtn').addEventListener('click', ()=>{
+      input.focus();
+      input.value = '';
+      input.placeholder = "Drop your freshest highlight…";
+    });
+    document.getElementById('refreshBtn').addEventListener('click', ()=>{
+      // Simple shuffle to simulate refresh
+      const shuffled = [...seed].sort(()=>Math.random()-.5);
+      renderFeed(shuffled);
+    });
+    document.getElementById('postBtn').addEventListener('click', ()=>{
+      const text = input.value.trim();
+      if(!text){ input.focus(); return; }
+      const post = {u:'@You', t:text, meta:'Just now', tags:['#Player']};
+      feedEl.insertAdjacentHTML('afterbegin', cardHTML(post));
+      input.value='';
+    });
+
+    // ===== Live ticker (mock) =====
+    const headlines = [
+      'Patch 1.3.7 deployed — shockwave rings scale slower.',
+      'Tournament signups open — 64-team bracket.',
+      'Creator spotlight: @Ryn — Ember Pit lineups.',
+      'Clan Wars week — bonus XP online.',
+      'New drop: Obsidian Trail effect.'
+    ];
+    let hi = 0;
+    function cycleTicker(){
+      ticker.textContent = headlines[hi % headlines.length];
+      hi++;
+    }
+    cycleTicker();
+    setInterval(cycleTicker, 5000);
+
+    // ===== Optional: tell parent our scrollHeight (same-origin friendly alternative to your parent’s auto-resize) =====
+    function postHeight(){
+      try{
+        const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+        parent.postMessage({arenaHeight: h}, '*'); // parent may ignore if not listening
+      }catch(_){}
+    }
+    postHeight();
+    new ResizeObserver(postHeight).observe(document.body);
+  </script>
+</body>
+  </html>
