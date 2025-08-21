@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --ink:#f5f5f5; --ink-2:#cecece; --muted:#8a8a8a; --line:#2a2a2a;
+      --ink:#f5f5f5; --ink-2:#cecece; --muted:#8a8a8a;
       --google-border:#dadce0;
       --facebook:#1877F2;
       --tiktok:#000000;
@@ -15,12 +15,12 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#000;color:var(--ink)}
-    #bg{position:fixed;inset:0;width:100%;height:100%;display:block;background:radial-gradient(circle at 30% 20%, #101012 0%, #000 70%)}
+    /* 3D canvas pinned to background */
+    #bg3d{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;}
     .auth-shell{position:relative; z-index:1; min-height:100vh; display:grid; place-items:center; padding:32px;}
     .stack{width:min(92vw,520px); display:grid; gap:16px}
     header{text-align:center}
-    header h1{margin:0 0 6px; font-size:30px; letter-spacing:.4px; text-shadow:0 2px 18px rgba(255,255,255,.08)}
-    header .sub{margin:0 0 12px; color:var(--muted); font-size:13px}
+    header h1{margin:0; font-size:30px; letter-spacing:.4px; text-shadow:0 2px 18px rgba(255,255,255,.08)}
 
     /* Inputs & primary actions */
     .form{display:grid; gap:12px}
@@ -65,7 +65,7 @@
     .pbtn:hover{ transform:translateY(-2px); border-color:rgba(255,255,255,.3) }
     .pbtn svg{ width:22px; height:22px; }
 
-    /* Brand accents inside the square buttons (background mostly translucent to keep animation visible) */
+    /* Brand accents */
     .pbtn.google{ background:rgba(255,255,255,0.9); border-color:var(--google-border) }
     .pbtn.facebook{ background:rgba(24,119,242,0.9); border-color:rgba(24,119,242,1) }
     .pbtn.instagram{
@@ -77,22 +77,22 @@
     .status{min-height:18px;font-size:12px;text-align:center;color:var(--muted)}
     .foot{position:fixed;left:0;right:0;bottom:12px;text-align:center;font-size:12px;color:var(--muted)}
 
-    /* Accessibility helper */
     .sr-only{
       position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
     }
 
-    @media (prefers-reduced-motion: reduce){ #bg{background:#000} }
+    @media (prefers-reduced-motion: reduce){ #bg3d{display:none} }
   </style>
 </head>
 <body>
-  <canvas id="bg" aria-hidden="true"></canvas>
+  <!-- Advanced 3D background -->
+  <canvas id="bg3d"></canvas>
 
   <main class="auth-shell">
     <div class="stack">
       <header>
         <h1>3ATTLE33ILLIONS</h1>
-        <p class="sub">Enter Battles. Billions. Respect.</p>
+        <!-- Slogan removed as requested -->
       </header>
 
       <!-- EMAIL/PASSWORD ABOVE PROVIDERS -->
@@ -215,7 +215,7 @@
       catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
     });
 
-    // Instagram/TikTok placeholders (UI small buttons; hook these up later)
+    // Instagram/TikTok placeholders (hook up later via custom OAuth)
     instagramBtn.addEventListener("click", ()=>{
       statusEl.textContent = "Instagram sign-in not configured yet.";
     });
@@ -238,248 +238,308 @@
     setMode(false);
   </script>
 
-  <!-- Full-screen smoke (grey build-up) → timed gold explosion with double shockwave and varied moves -->
+  <!-- Three.js (advanced 3D background) -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
-  (function () {
-    const canvas = document.getElementById("bg");
-    const ctx = canvas.getContext("2d", { alpha: true });
+  (function(){
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce) return;
 
-    // Perf & pacing
-    const DPR_LIMIT = 1.25, QUALITY = 0.9;
-    const MAX_ENTITIES = 260;          // room for fighters + rings + smoke
-    const BLAST_INTERVAL = 900;        // ms between fights
-    const AMBIENT_WISPS = 2;           // idle motion
+    const DPR_LIMIT = 1.5; // cap for mobile perf
+    const MAX_EXPLOSIONS = 10;
+    const BLAST_INTERVAL = 950; // ms
+    const W = { value: window.innerWidth }, H = { value: window.innerHeight };
 
-    let scale=1,w=0,h=0;
-    function resize(){
-      const dpr=Math.min(window.devicePixelRatio||1,DPR_LIMIT);
-      scale=dpr*QUALITY; w=innerWidth; h=innerHeight;
-      canvas.width=Math.floor(w*scale); canvas.height=Math.floor(h*scale);
-      canvas.style.width=w+"px"; canvas.style.height=h+"px";
-      ctx.setTransform(scale,0,0,scale,0,0);
-    }
-    addEventListener("resize",resize,{passive:true}); resize();
+    const canvas = document.getElementById('bg3d');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
+    renderer.setPixelRatio(pixelRatio);
+    renderer.setSize(W.value, H.value, false);
 
-    // --------- Sprites ----------
-    function makeRadial(size,stops){
-      const c=document.createElement("canvas"); c.width=c.height=size;
-      const g=c.getContext("2d");
-      const grad=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
-      for(const[s,col] of stops) grad.addColorStop(s,col);
-      g.fillStyle=grad; g.fillRect(0,0,size,size);
-      return c;
-    }
-    // grey smoke for build-up
-    const SMOKE=makeRadial(128,[
-      [0,"rgba(255,255,255,0.45)"],
-      [0.4,"rgba(200,200,200,0.20)"],
-      [0.75,"rgba(120,120,120,0.08)"],
-      [1,"rgba(0,0,0,0.00)"]
-    ]);
-    // gold explosion
-    const GOLD=makeRadial(128,[
-      [0,"rgba(255,230,150,0.65)"],
-      [0.35,"rgba(255,200,80,0.38)"],
-      [0.7,"rgba(255,160,0,0.18)"],
-      [1,"rgba(255,120,0,0.00)"]
-    ]);
-    // ring sprites
-    function makeRing(size=128, strong=true){
-      const c=document.createElement("canvas"); c.width=c.height=size;
-      const g=c.getContext("2d");
-      g.strokeStyle = strong ? "rgba(255,215,0,0.9)" : "rgba(255,220,120,0.55)";
-      g.lineWidth = strong ? size*0.12 : size*0.08;
-      g.beginPath(); g.arc(size/2,size/2,size*0.35,0,Math.PI*2); g.stroke();
-      return c;
-    }
-    const RING_STRONG=makeRing(128,true);
-    const RING_SOFT=makeRing(128,false);
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.002);
 
-    const rnd=(a,b)=>a+Math.random()*(b-a);
-    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-    const entities=[];
+    const camera = new THREE.PerspectiveCamera(55, W.value/H.value, 0.1, 2000);
+    camera.position.set(0, 0, 140);
 
-    class Puff{
-      constructor(x,y,r,life,vx,vy,grow=22,colorMode=0){
-        this.t=0; this.life=life; this.x=x; this.y=y; this.r=r;
-        this.vx=vx; this.vy=vy; this.grow=grow; this.colorMode=colorMode; // 0 auto grey→gold, 1 gold-only
+    // Subtle moving gradient light
+    const hemi = new THREE.HemisphereLight(0x888888, 0x080808, 0.6);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffdd88, 0.5);
+    dir.position.set(60, 80, 100);
+    scene.add(dir);
+
+    // Shared particle sprite (soft circle)
+    const particleTex = makeSpriteTexture();
+    const baseMat = new THREE.PointsMaterial({
+      size: 16, map: particleTex, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
+    });
+
+    // Shockwave materials
+    const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.8, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+    const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.55, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+
+    // Particle pool to avoid GC thrash
+    const pool = [];
+    function getPoints(count){
+      if(pool.length){
+        const p = pool.pop();
+        if(p.geometry.getAttribute('position').count >= count) return p;
       }
-      step(dt){ this.t+=dt; this.x+=this.vx*60*dt; this.y+=this.vy*60*dt; this.r+=this.grow*dt; return this.t<this.life; }
-      draw(){
-        const f=this.t/this.life; let a=(1-f)*0.4; if(a<=0) return;
-        const s=this.r*2; ctx.globalAlpha=a;
-        if(this.colorMode===1){ ctx.drawImage(GOLD,this.x-s/2,this.y-s/2,s,s); }
-        else { ctx.drawImage(f<0.5?SMOKE:GOLD,this.x-s/2,this.y-s/2,s,s); }
-        ctx.globalAlpha=1;
-      }
+      const g = new THREE.BufferGeometry();
+      const positions = new Float32Array(count*3);
+      const colors    = new Float32Array(count*3);
+      const sizes     = new Float32Array(count);
+      g.setAttribute('position', new THREE.BufferAttribute(positions,3));
+      g.setAttribute('color',    new THREE.BufferAttribute(colors,3));
+      g.setAttribute('size',     new THREE.BufferAttribute(sizes,1));
+      const m = baseMat.clone();
+      const points = new THREE.Points(g, m);
+      points.frustumCulled = false;
+      return points;
     }
-    class Ring{
-      constructor(x,y,strong=true,delay=0){
-        this.x=x; this.y=y; this.t=-delay; this.life=0.95; this.r=42; this.grow=460; this.strong=strong;
-      }
-      step(dt){ this.t+=dt; if(this.t<0) return true; this.r+=this.grow*dt; return this.t<this.life; }
-      draw(){
-        if(this.t<0) return;
-        const a=(1-this.t/this.life); if(a<=0) return; const s=this.r*2; ctx.globalAlpha=a;
-        ctx.drawImage(this.strong?RING_STRONG:RING_SOFT,this.x-s/2,this.y-s/2,s,s);
-        ctx.globalAlpha=1;
-      }
+    function releasePoints(points){
+      pool.push(points);
     }
 
-    // ---- FIGHTERS with varied moves ----
-    const MOVES = [
-      { name:"straight",  hitTime:0.28, leadArm:[14, -2], rearArm:[-6, 6], leadLeg:[-6, 18], rearLeg:[4, 20],  lunge:10, recoil:8,  kick:false },
-      { name:"hook",      hitTime:0.30, leadArm:[10, -4], rearArm:[-8, 8], leadLeg:[-6, 18], rearLeg:[6, 20],  lunge:12, recoil:10, hook:true,  kick:false },
-      { name:"uppercut",  hitTime:0.32, leadArm:[10,-10], rearArm:[-6, 6], leadLeg:[-7, 18], rearLeg:[6, 20],  lunge:9,  recoil:9,  upper:true, kick:false },
-      { name:"frontkick", hitTime:0.34, leadArm:[-4, 4],  rearArm:[-6, 6], leadLeg:[14, 6],  rearLeg:[-6, 18], lunge:14, recoil:12, kick:true,  round:false },
-      { name:"roundhouse",hitTime:0.36, leadArm:[-4, 6],  rearArm:[-8, 8], leadLeg:[18, 2],  rearLeg:[-8, 18], lunge:16, recoil:14, kick:true,  round:true }
-    ];
+    // Explosion system
+    const explosions = [];
+    class Explosion {
+      constructor(){
+        // Random 3D center
+        const x = rand(-80, 80), y = rand(-45, 45), z = rand(-40, 20);
+        this.center = new THREE.Vector3(x,y,z);
 
-    class Fighters {
-      constructor(x,y,impactCallback){
-        this.cx=x; this.cy=y; this.t=0; this.life=0.7;
-        this.rot=rnd(-Math.PI, Math.PI);
-        this.scale=rnd(0.8, 1.15);
-        this.move = MOVES[(Math.random()*MOVES.length)|0];
-        this.hitTime=this.move.hitTime;
-        this.didHit=false;
-        this.impact = impactCallback;
-      }
-      step(dt){
-        this.t+=dt;
-        if(!this.didHit && this.t>=this.hitTime){
-          this.didHit=true;
-          this.impact?.(this.cx, this.cy); // trigger explosion at impact
+        // Particle counts
+        this.count = (Math.random()*40 + 120) | 0; // 120..160
+        this.points = getPoints(this.count);
+        this.points.position.copy(this.center);
+
+        // Initialize buffers
+        const g = this.points.geometry;
+        const pos = g.getAttribute('position').array;
+        const col = g.getAttribute('color').array;
+        const siz = g.getAttribute('size').array;
+
+        this.vel = new Float32Array(this.count*3);
+        this.life = 1.6; // seconds
+        this.t = 0;
+
+        for(let i=0;i<this.count;i++){
+          // start compact around center (build-up)
+          const dirv = new THREE.Vector3().randomDirection();
+          const speed = rand(12, 38);
+          this.vel[i*3+0] = dirv.x*speed;
+          this.vel[i*3+1] = dirv.y*speed;
+          this.vel[i*3+2] = dirv.z*speed;
+
+          // slight initial offset
+          pos[i*3+0] = dirv.x*2;
+          pos[i*3+1] = dirv.y*2;
+          pos[i*3+2] = dirv.z*2;
+
+          // start grey/white
+          col[i*3+0] = 0.9;
+          col[i*3+1] = 0.9;
+          col[i*3+2] = 0.9;
+
+          siz[i] = rand(8, 16);
         }
-        return this.t < this.life;
+
+        g.getAttribute('position').needsUpdate = true;
+        g.getAttribute('color').needsUpdate    = true;
+        g.getAttribute('size').needsUpdate     = true;
+
+        scene.add(this.points);
+
+        // Double shockwave rings (planes facing camera)
+        const ringGeo = new THREE.RingGeometry(6, 7.4, 64);
+        this.ring1 = new THREE.Mesh(ringGeo, ringMatStrong.clone());
+        this.ring2 = new THREE.Mesh(ringGeo, ringMatSoft.clone());
+        this.ring1.position.copy(this.center);
+        this.ring2.position.copy(this.center);
+
+        this.r1 = 6; this.r2 = 6;
+        this.ring1.rotation.x = Math.random()*Math.PI;
+        this.ring1.rotation.y = Math.random()*Math.PI;
+        this.ring2.rotation.x = Math.random()*Math.PI;
+        this.ring2.rotation.y = Math.random()*Math.PI;
+
+        scene.add(this.ring1);
+        scene.add(this.ring2);
+
+        // subtle camera kick
+        this.shake = 0.4;
       }
-      draw(){
-        const f=this.t/this.life;
-        const a=(1-f)*0.95;
-        const pre = Math.min(1, this.t/this.hitTime);
-        const post = Math.max(0, (this.t - this.hitTime)/(this.life - this.hitTime));
-        const lungeAmt = this.move.lunge*pre - this.move.recoil*post;
+      update(dt){
+        this.t += dt;
+        const f = this.t/this.life;
 
-        ctx.save();
-        ctx.translate(this.cx, this.cy);
-        ctx.rotate(this.rot + pre*0.4 - post*0.2);
-        ctx.scale(this.scale, this.scale);
-        ctx.strokeStyle = `rgba(255, ${210 + Math.floor(45*f)}, ${Math.floor(40 + 150*f)}, ${a})`;
-        ctx.lineWidth = 2;
+        // particles expand and fade; color shift grey→gold
+        const g = this.points.geometry;
+        const pos = g.getAttribute('position').array;
+        const col = g.getAttribute('color').array;
+        const siz = g.getAttribute('size').array;
 
-        const baseGap = 18;
-        const offset = baseGap - lungeAmt*0.6 + post*6;
-        const lx = -offset, rx = offset;
+        const drag = 1.0 - Math.min(0.04*dt*60, 0.04); // speed clamp
 
-        const pc = Math.sin(pre*Math.PI); // punch curve 0..1..0
-        const kc = this.move.kick ? Math.sin(pre*Math.PI) : 0;
+        for(let i=0;i<this.count;i++){
+          const ix = i*3;
+          // integrate velocity
+          pos[ix+0] += this.vel[ix+0]*dt;
+          pos[ix+1] += this.vel[ix+1]*dt;
+          pos[ix+2] += this.vel[ix+2]*dt;
+          // drag
+          this.vel[ix+0] *= drag;
+          this.vel[ix+1] *= drag;
+          this.vel[ix+2] *= drag;
 
-        drawFighter(lx, 0, +1, pc, kc, this.move);
-        drawFighter(rx, 0, -1, pc, kc, this.move, true);
+          // color blend
+          const toGold = smoothstep(0.35, 0.55, f);
+          const r = lerp(0.9, 1.0, toGold);
+          const gld = lerp(0.9, 0.70, toGold);
+          const b = lerp(0.9, 0.25, toGold);
+          col[ix+0] = r;
+          col[ix+1] = gld;
+          col[ix+2] = b;
 
-        ctx.restore();
+          // size pulse early then fade
+          const sPulse = 1.0 + 0.6*Math.sin(Math.min(f,0.5)*Math.PI);
+          siz[i] *= (1 - dt*0.12);
+          siz[i] = Math.max(6, siz[i]) * sPulse;
+        }
 
-        function drawFighter(cx, cy, dir, pc, kc, mv, mirror=false){
-          // Head
-          ctx.beginPath(); ctx.arc(cx, cy-12, 5, 0, Math.PI*2); ctx.stroke();
-          // Torso
-          ctx.beginPath(); ctx.moveTo(cx, cy-7); ctx.lineTo(cx, cy+10); ctx.stroke();
+        g.getAttribute('position').needsUpdate = true;
+        g.getAttribute('color').needsUpdate    = true;
+        g.getAttribute('size').needsUpdate     = true;
 
-          // Arms
-          const laX = mv.leadArm[0]*dir, laY = mv.leadArm[1];
-          const raX = mv.rearArm[0]*dir, raY = mv.rearArm[1];
-          // Lead arm extends toward center with move-specific flavor
-          ctx.beginPath();
-          ctx.moveTo(cx, cy-4);
-          let leadReachX = cx + laX + dir*(mv.hook ? 8*pc : mv.upper ? 10*pc : 14*pc);
-          let leadReachY = cy + laY + (mv.upper ? (-10*pc) : (-4*Math.abs(pc)));
-          ctx.lineTo(leadReachX, leadReachY);
-          ctx.stroke();
+        // Shockwave growth & fade
+        this.r1 += 110*dt;
+        this.r2 += 140*dt;
+        this.ring1.scale.setScalar(this.r1/6);
+        this.ring2.scale.setScalar(this.r2/6);
 
-          // Rear arm balances
-          ctx.beginPath();
-          ctx.moveTo(cx, cy-2);
-          ctx.lineTo(cx + raX*(0.7+0.3*pc), cy + raY + 3*Math.abs(pc));
-          ctx.stroke();
+        const o1 = Math.max(0, 0.9 - f*1.2);
+        const o2 = Math.max(0, 0.6 - f*1.4);
+        this.ring1.material.opacity = o1;
+        this.ring2.material.opacity = o2;
 
-          // Legs
-          const llX = mv.leadLeg[0]*dir, llY = mv.leadLeg[1];
-          const rlX = mv.rearLeg[0]*dir, rlY = mv.rearLeg[1];
+        // Align rings face camera for visibility
+        this.ring1.lookAt(camera.position);
+        this.ring2.lookAt(camera.position);
 
-          // Lead leg: kicks on kick-moves
-          ctx.beginPath();
-          ctx.moveTo(cx, cy+10);
-          const kickReachX = mv.kick ? (cx + llX + dir*(mv.round ? 20*kc : 16*kc)) : (cx + llX);
-          const kickReachY = mv.kick ? (cy + Math.min(llY, 10 + (mv.round ? 2 : -6*kc))) : (cy + llY);
-          ctx.lineTo(kickReachX, kickReachY);
-          ctx.stroke();
+        // camera micro-shake
+        if(this.shake>0){
+          const s = this.shake*(1-f);
+          camera.position.x += (Math.random()-0.5)*s;
+          camera.position.y += (Math.random()-0.5)*s;
+        }
 
-          // Rear leg anchors
-          ctx.beginPath();
-          ctx.moveTo(cx, cy+10);
-          ctx.lineTo(cx + rlX*(0.7+0.3*pc), cy + rlY);
-          ctx.stroke();
+        return (this.t < this.life);
+      }
+      dispose(){
+        scene.remove(this.points);
+        releasePoints(this.points);
+        scene.remove(this.ring1);
+        scene.remove(this.ring2);
+      }
+    }
+
+    // Ambient floating embers
+    const ambient = makeAmbient();
+    scene.add(ambient);
+
+    function makeAmbient(){
+      const COUNT = 600;
+      const g = new THREE.BufferGeometry();
+      const positions = new Float32Array(COUNT*3);
+      const colors    = new Float32Array(COUNT*3);
+      for(let i=0;i<COUNT;i++){
+        positions[i*3+0] = rand(-200,200);
+        positions[i*3+1] = rand(-120,120);
+        positions[i*3+2] = rand(-160,40);
+        const t = Math.random()*0.4+0.2;
+        colors[i*3+0] = t;
+        color [i*3+1] = t*0.9;
+        colors[i*3+2] = t*0.8;
+      }
+      g.setAttribute('position', new THREE.BufferAttribute(positions,3));
+      g.setAttribute('color', new THREE.BufferAttribute(colors,3));
+      const m = new THREE.PointsMaterial({ size:2.2, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
+      const p = new THREE.Points(g,m);
+      p.frustumCulled = false;
+      p.userData = { t:0 };
+      return p;
+    }
+
+    // Sprite texture generator
+    function makeSpriteTexture(){
+      const size = 128;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
+      grad.addColorStop(0,'rgba(255,255,255,0.9)');
+      grad.addColorStop(0.35,'rgba(255,255,255,0.25)');
+      grad.addColorStop(1,'rgba(255,255,255,0.0)');
+      g.fillStyle = grad; g.fillRect(0,0,size,size);
+      const tex = new THREE.CanvasTexture(c);
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.anisotropy = 1;
+      return tex;
+    }
+
+    // Helpers
+    function rand(a,b){ return a + Math.random()*(b-a); }
+    function lerp(a,b,t){ return a + (b-a)*t; }
+    function smoothstep(a,b,x){
+      const t = Math.max(0, Math.min(1, (x-a)/(b-a)));
+      return t*t*(3 - 2*t);
+    }
+
+    // Resize
+    function onResize(){
+      W.value = window.innerWidth; H.value = window.innerHeight;
+      camera.aspect = W.value/H.value;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W.value, H.value, false);
+    }
+    window.addEventListener('resize', onResize, { passive:true });
+
+    // Spawn loop
+    let prev = performance.now(), lastBlast = prev;
+    function loop(now){
+      const dt = Math.min(0.05, (now - prev)/1000); prev = now;
+
+      // ambient drift
+      ambient.userData.t += dt*0.2;
+      ambient.position.y = Math.sin(ambient.userData.t)*2;
+      ambient.rotation.z += dt*0.02;
+
+      // schedule explosions
+      if(now - lastBlast > BLAST_INTERVAL){
+        if(explosions.length > MAX_EXPLOSIONS){
+          const old = explosions.shift(); old.dispose();
+        }
+        explosions.push(new Explosion());
+        lastBlast = now;
+      }
+
+      // update explosions
+      for(let i=explosions.length-1;i>=0;i--){
+        if(!explosions[i].update(dt)){
+          explosions[i].dispose();
+          explosions.splice(i,1);
         }
       }
+
+      // slow, subtle camera auto-orbit
+      camera.lookAt(0,0,0);
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
     }
-
-    function ambientWisps(){
-      for(let i=0;i<AMBIENT_WISPS;i++){
-        entities.push(new Puff(
-          rnd(0,w), rnd(0,h),
-          rnd(8,20), rnd(1.4,2.1),
-          rnd(-0.25,0.25), rnd(-0.25,0.25), 18, 0
-        ));
-      }
-    }
-
-    // pre-hit build-up smoke (grey)
-    function preSmoke(cx, cy){
-      const base = rnd(22,34), life = rnd(0.8,1.2);
-      for(let i=0;i<14;i++){
-        const ang=rnd(0,Math.PI*2), dist=rnd(0,base*1.8);
-        const x=cx+Math.cos(ang)*dist, y=cy+Math.sin(ang)*dist;
-        entities.push(new Puff(x,y,rnd(base*0.6,base*1.2),life,rnd(-0.35,0.35),rnd(-0.35,0.35),20,0));
-      }
-    }
-
-    // gold explosion exactly at impact + delayed second ring + gold smoke burst
-    function goldExplosion(cx, cy){
-      entities.push(new Ring(cx,cy,true,0));     // strong ring at impact
-      entities.push(new Ring(cx,cy,false,0.08)); // softer second ring
-
-      const base = rnd(30,44), life=rnd(1.0,1.6);
-      for(let i=0;i<22;i++){
-        const ang=rnd(0,Math.PI*2), dist=rnd(0,base*2.2);
-        const x=cx+Math.cos(ang)*dist, y=cy+Math.sin(ang)*dist;
-        entities.push(new Puff(x,y,rnd(base*0.7,base*1.6),life,rnd(-0.6,0.6),rnd(-0.6,0.6),26,1)); // gold-only
-      }
-    }
-
-    function fightBlast(){
-      const cx=rnd(0,w), cy=rnd(0,h);
-      preSmoke(cx, cy);                                    // build-up smoke
-      entities.push(new Fighters(cx, cy, goldExplosion));  // fighters call explosion on hit
-    }
-
-    // Loop
-    let prev=performance.now(), last=prev;
-    function tick(now){
-      const dt=clamp((now-prev)/1000,0,0.05); prev=now;
-      ctx.clearRect(0,0,w,h);
-
-      if(now-last>BLAST_INTERVAL){ fightBlast(); last=now; }
-      ambientWisps();
-
-      if(entities.length>260) entities.splice(0,entities.length-260);
-
-      for(let i=0;i<entities.length;i++){
-        if(!entities[i].step(dt)){ entities.splice(i,1); i--; continue; }
-        entities[i].draw(ctx);
-      }
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
+    requestAnimationFrame(loop);
   })();
   </script>
 
