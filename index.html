@@ -7,27 +7,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --ink:#f5f5f5; --ink-2:#cecece; --muted:#8a8a8a;
-      --line:#2a2a2a; --white:#fff;
+      --ink:#f5f5f5; --ink-2:#cecece; --muted:#8a8a8a; --line:#2a2a2a;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#000;color:var(--ink)}
-    /* Full-bleed animated background */
     #bg{position:fixed;inset:0;width:100%;height:100%;display:block;background:radial-gradient(circle at 30% 20%, #101012 0%, #000 70%)}
-    /* No card — just centered stack */
-    .auth-shell{
-      position:relative; z-index:1; min-height:100vh;
-      display:grid; place-items:center; padding:32px;
-    }
+    .auth-shell{position:relative; z-index:1; min-height:100vh; display:grid; place-items:center; padding:32px;}
     .stack{width:min(92vw,520px); display:grid; gap:16px}
-    header{ text-align:center; }
-    header h1{
-      margin:0 0 6px; font-size:30px; letter-spacing:.4px;
-      text-shadow:0 2px 18px rgba(255,255,255,.08);
-    }
+    header{text-align:center}
+    header h1{margin:0 0 6px; font-size:30px; letter-spacing:.4px; text-shadow:0 2px 18px rgba(255,255,255,.08)}
     header .sub{margin:0 0 12px; color:var(--muted); font-size:13px}
 
-    /* Buttons/inputs float over bg with subtle glass */
     .providers,.form{display:grid; gap:12px}
     .btn, input{
       width:100%; padding:12px 16px; border-radius:14px;
@@ -47,10 +37,7 @@
     label{font-size:12px;color:var(--ink-2)}
     input:focus{outline:0;border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,.25)}
     .pw-wrap{position:relative}
-    .pw-toggle{
-      position:absolute; right:10px; top:50%; transform:translateY(-50%);
-      border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px;
-    }
+    .pw-toggle{position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px;}
     .actions{display:flex; gap:12px; margin-top:4px}
 
     .divider{display:flex;align-items:center;gap:10px;margin:6px 0}
@@ -64,7 +51,6 @@
   </style>
 </head>
 <body>
-  <!-- Fast grayscale mushroom-smoke explosions -->
   <canvas id="bg" aria-hidden="true"></canvas>
 
   <main class="auth-shell">
@@ -76,12 +62,10 @@
 
       <section class="providers">
         <button id="googleBtn" class="btn">
-          <!-- Monochrome Google G -->
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M21.35 12.18c0-.64-.06-1.25-.18-1.84H12v3.48h5.28a4.51 4.51 0 0 1-1.95 2.96v2.46h3.16c1.85-1.7 2.86-4.2 2.86-7.06z"/><path fill="#dcdcdc" d="M12 22c2.7 0 4.96-.89 6.61-2.4l-3.16-2.46c-.88.59-2 .94-3.45.94-2.65 0-4.9-1.79-5.7-4.2H3.03v2.64A10 10 0 0 0 12 22z"/><path fill="#a9a9a9" d="M6.3 13.88a6 6 0 0 1 0-3.76V7.48H3.03A10 10 0 0 0 2 12c0 1.6.38 3.1 1.03 4.52L6.3 13.88z"/><path fill="#8b8b8b" d="M12 6.5c1.46 0 2.77.5 3.8 1.48l2.84-2.84A9.98 9.98 0 0 0 12 2 10 10 0 0 0 3.03 7.48L6.3 10.12C7.1 7.71 9.35 6.5 12 6.5z"/></svg>
           Continue with Google
         </button>
         <button id="facebookBtn" class="btn">
-          <!-- Monochrome Facebook f -->
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M22 12.07C22 6.47 17.52 2 11.93 2 6.34 2 1.86 6.47 1.86 12.07c0 4.99 3.64 9.14 8.4 9.95v-7.03H7.96v-2.92h2.3V9.77c0-2.27 1.35-3.53 3.42-3.53.99 0 2.03.18 2.03.18v2.23h-1.14c-1.12 0-1.47.7-1.47 1.42v1.71h2.5l-.4 2.92h-2.1V22c4.77-.81 8.4-4.96 8.4-9.93z"/></svg>
           Continue with Facebook
         </button>
@@ -171,152 +155,204 @@
     setMode(false);
   </script>
 
-  <!-- Fast, phone-friendly mushroom smoke -->
+  <!-- DBZ-style grayscale explosion engine (fast & mobile-friendly) -->
   <script>
     (function () {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const canvas = document.getElementById("bg");
       const ctx = canvas.getContext("2d", { alpha: true });
 
-      // ---- perf knobs ----
-      const DPR_LIMIT = 1.25;          // clamp high DPR phones
-      const QUALITY = 0.8;             // render scale <1 = faster
-      const MAX_PARTICLES = 120;       // hard cap
-      const SPAWN_MS = 420;            // spawn cadence (lower = more)
-      const AMBIENT_PER_SPAWN = 4;     // wisps per spawn
-      const MUSHROOM_CHANCE = 0.7;     // chance to spawn a mushroom burst
-      // --------------------
+      // Perf controls
+      const DPR_LIMIT = 1.25;
+      const QUALITY = 0.85;
+      const MAX_ENTITIES = 160;     // total puffs + rings + dust + streaks
+      const BLAST_INTERVAL = 900;   // ms between major blasts
+      const AMBIENT_WISPS = 3;      // background wisps per tick
 
       let scale = 1, w = 0, h = 0;
       function resize() {
         const dpr = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
         scale = dpr * QUALITY;
-        w = Math.max(320, window.innerWidth);
-        h = Math.max(480, window.innerHeight);
+        w = Math.max(320, innerWidth);
+        h = Math.max(480, innerHeight);
         canvas.width = Math.floor(w * scale);
         canvas.height = Math.floor(h * scale);
         canvas.style.width = w + "px";
         canvas.style.height = h + "px";
-        ctx.setTransform(scale, 0, 0, scale, 0, 0); // draw in CSS pixels
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
       }
-      window.addEventListener("resize", resize, { passive: true });
+      addEventListener("resize", resize, { passive: true });
       resize();
 
-      // Pre-render a soft smoke sprite (no runtime blur/filter!)
-      function makeSprite(size = 128, inner = 0.0, outer = 1.0) {
-        const off = document.createElement("canvas");
-        off.width = off.height = size;
-        const octx = off.getContext("2d");
-        const grad = octx.createRadialGradient(
-          size / 2, size / 2, size * inner,
-          size / 2, size / 2, size * outer
-        );
-        grad.addColorStop(0.0, "rgba(255,255,255,0.35)");
-        grad.addColorStop(0.4, "rgba(220,220,220,0.22)");
-        grad.addColorStop(0.8, "rgba(160,160,160,0.10)");
-        grad.addColorStop(1.0, "rgba(0,0,0,0.00)");
-        octx.fillStyle = grad;
-        octx.fillRect(0, 0, size, size);
-        return off;
+      // ---- Sprites (no runtime blur/filters) ----
+      function makeRadial(size, stops) {
+        const c = document.createElement("canvas");
+        c.width = c.height = size;
+        const g = c.getContext("2d");
+        const grad = g.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+        for (const [pos, col] of stops) grad.addColorStop(pos, col);
+        g.fillStyle = grad; g.fillRect(0,0,size,size);
+        return c;
       }
-      const SPRITE = makeSprite(128, 0.0, 0.9);
+      // Soft smoke
+      const SMOKE = makeRadial(128, [
+        [0.00, "rgba(255,255,255,0.40)"],
+        [0.35, "rgba(220,220,220,0.22)"],
+        [0.75, "rgba(160,160,160,0.10)"],
+        [1.00, "rgba(0,0,0,0.00)"]
+      ]);
+      // Shockwave edge (ring sprite)
+      function makeRing(size=128){
+        const c = document.createElement("canvas"); c.width = c.height = size;
+        const g = c.getContext("2d");
+        g.lineWidth = size*0.06;
+        g.strokeStyle = "rgba(240,240,240,0.8)";
+        g.beginPath(); g.arc(size/2,size/2,size*0.36,0,Math.PI*2); g.stroke();
+        g.strokeStyle = "rgba(255,255,255,0.25)";
+        g.lineWidth = size*0.14;
+        g.beginPath(); g.arc(size/2,size/2,size*0.36,0,Math.PI*2); g.stroke();
+        return c;
+      }
+      const RING = makeRing(128);
 
       const rnd = (a, b) => a + Math.random() * (b - a);
       const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-      let parts = [];
-      let lastSpawn = 0;
-      let prev = performance.now();
-
+      // ---- Entities ----
+      const entities = [];
       class Puff {
-        constructor(x, y, r, life) {
-          this.x = x; this.y = y;
-          this.r = r;                // radius px
-          this.life = life;          // seconds
-          this.age = 0;
-          this.vx = rnd(-0.35, 0.35);  // faster lateral
-          this.vy = rnd(-1.1, -0.45);  // faster rise
-          this.scaleJitter = rnd(0.9, 1.15);
+        constructor(x, y, r, life, vx, vy, grow=20){
+          this.t=0; this.life=life; this.x=x; this.y=y; this.r=r; this.vx=vx; this.vy=vy; this.grow=grow; this.j=rnd(0.9,1.15);
         }
-        step(dt) {
-          this.age += dt;
-          this.x += this.vx * 60 * dt;
-          this.y += this.vy * 60 * dt;
-          this.r += 22 * dt; // quick expansion
-          return this.age < this.life;
-        }
-        draw(ctx) {
-          const t = this.age / this.life;            // 0..1
-          const a = (1 - t) * 0.28;                  // fade out
-          const s = this.r * 2 * this.scaleJitter;   // sprite size (diameter)
-          if (a <= 0 || s <= 2) return;
+        step(dt){ this.t+=dt; this.x+=this.vx*60*dt; this.y+=this.vy*60*dt; this.r+=this.grow*dt; return this.t<this.life; }
+        draw(){
+          const a = (1 - this.t/this.life) * 0.35;
+          if(a<=0) return;
+          const s = this.r*2*this.j;
           ctx.globalAlpha = a;
-          ctx.drawImage(SPRITE, this.x - s / 2, this.y - s / 2, s, s);
+          ctx.drawImage(SMOKE, this.x - s/2, this.y - s/2, s, s);
           ctx.globalAlpha = 1;
         }
       }
-
-      function spawnMushroom() {
-        const cx = rnd(w * 0.18, w * 0.82);
-        const cy = rnd(h * 0.58, h * 0.88);
-        const base = rnd(28, 42);            // smaller base for speed
-        const life = rnd(1.2, 2.0);          // shorter life = snappier
-
-        // cap (cluster)
-        for (let i = 0; i < 14; i++) {
-          const ang = rnd(-Math.PI, 0);
-          const dist = rnd(0, base * 2.1);
-          const x = cx + Math.cos(ang) * dist;
-          const y = cy + Math.sin(ang) * dist - rnd(8, 20);
-          parts.push(new Puff(x, y, rnd(base * 0.8, base * 1.6), life));
+      class Dust { // fast ground-hugging dust
+        constructor(x,y,dir,speed,life){ this.t=0; this.life=life; this.x=x; this.y=y; this.dir=dir; this.speed=speed; this.r=rnd(6,16); }
+        step(dt){ this.t+=dt; this.x+=Math.cos(this.dir)*this.speed*dt; this.y+=Math.sin(this.dir)*this.speed*dt; this.r+=14*dt; return this.t<this.life; }
+        draw(){
+          const a = (1 - this.t/this.life) * 0.25, s = this.r*2;
+          if(a<=0) return;
+          ctx.globalAlpha=a; ctx.drawImage(SMOKE, this.x - s/2, this.y - s/2, s, s); ctx.globalAlpha=1;
         }
-        // stalk plume
-        for (let i = 0; i < 8; i++) {
-          const x = cx + rnd(-10, 10);
-          const y = cy + rnd(0, 34) + i * 1.4;
-          parts.push(new Puff(x, y, rnd(base * 0.5, base * 0.9), life * 0.9));
+      }
+      class Ring {
+        constructor(x,y){ this.t=0; this.life=0.9; this.x=x; this.y=y; this.r=40; this.grow=360; }
+        step(dt){ this.t+=dt; this.r+=this.grow*dt; return this.t<this.life; }
+        draw(){
+          const a = (1 - this.t/this.life);
+          if(a<=0) return;
+          const s=this.r*2;
+          ctx.globalAlpha = 0.55*a + 0.15;
+          ctx.drawImage(RING, this.x - s/2, this.y - s/2, s, s);
+          ctx.globalAlpha = 1;
+        }
+      }
+      class Streak { // tiny anime debris
+        constructor(x,y,angle,speed,life){ this.t=0; this.life=life; this.x=x; this.y=y; this.ax=Math.cos(angle)*speed; this.ay=Math.sin(angle)*speed; this.len=rnd(8,22); }
+        step(dt){ this.t+=dt; this.x+=this.ax*dt; this.y+=this.ay*dt; this.ay+= -8*dt; return this.t<this.life; }
+        draw(){
+          const a = (1 - this.t/this.life)*0.8;
+          if(a<=0) return;
+          ctx.globalAlpha=a;
+          ctx.strokeStyle="rgba(230,230,230,0.9)";
+          ctx.lineWidth=1.2;
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(this.x - this.ax*0.03*this.len, this.y - this.ay*0.03*this.len);
+          ctx.stroke();
+          ctx.globalAlpha=1;
         }
       }
 
-      function spawnAmbient(n = AMBIENT_PER_SPAWN) {
-        for (let i = 0; i < n; i++) {
-          parts.push(new Puff(
-            rnd(0, w),
-            rnd(h * 0.65, h),
-            rnd(10, 22),
-            rnd(1.0, 2.2)
+      function ambientWisps(){
+        for(let i=0;i<AMBIENT_WISPS;i++){
+          entities.push(new Puff(
+            rnd(0,w), rnd(h*0.65,h),
+            rnd(10,22), rnd(1.0,2.0),
+            rnd(-0.25,0.25), rnd(-0.9,-0.35), 16
           ));
         }
       }
 
-      // warm start
-      for (let i = 0; i < 18; i++) spawnAmbient();
+      function dbzBlast() {
+        const cx = rnd(w*0.2, w*0.8);
+        const cy = rnd(h*0.58, h*0.86);
 
-      function tick(now) {
-        if (reduce) return;
+        // Shockwave ring
+        entities.push(new Ring(cx, cy));
 
-        const dt = clamp((now - prev) / 1000, 0, 0.05);
+        // Cap plumes (billowing top)
+        const base = rnd(26, 40);
+        const life = rnd(1.1, 1.7);
+        for(let i=0;i<16;i++){
+          const ang = rnd(-Math.PI, 0);
+          const dist = rnd(0, base*2.0);
+          const x = cx + Math.cos(ang)*dist;
+          const y = cy + Math.sin(ang)*dist - rnd(8, 22);
+          entities.push(new Puff(x,y,rnd(base*0.9, base*1.7), life, rnd(-0.3,0.3), rnd(-1.1,-0.45), 24));
+        }
+
+        // Stalk plume (column)
+        for(let i=0;i<9;i++){
+          const x = cx + rnd(-10,10);
+          const y = cy + rnd(0,34) + i*1.5;
+          entities.push(new Puff(x,y,rnd(base*0.5, base*0.9), life*0.95, rnd(-0.18,0.18), rnd(-0.95,-0.5), 20));
+        }
+
+        // Ground dust ring racing outward
+        const dustCount = 14;
+        for(let i=0;i<dustCount;i++){
+          const theta = (i/dustCount)*Math.PI*2;
+          entities.push(new Dust(cx, cy+base*0.6, theta, rnd(260, 420), rnd(0.5,0.9)));
+        }
+
+        // Debris streaks for anime pop
+        for(let i=0;i<8;i++){
+          entities.push(new Streak(cx, cy, rnd(0,Math.PI*2), rnd(240,360), rnd(0.25,0.45)));
+        }
+      }
+
+      // Warm start
+      for(let i=0;i<18;i++) ambientWisps();
+
+      let prev = performance.now();
+      let lastBlast = prev;
+
+      function tick(now){
+        if(reduce) return;
+        const dt = clamp((now - prev)/1000, 0, 0.05);
         prev = now;
 
-        // Clear background hard (fast) + subtle vignette
-        ctx.clearRect(0, 0, w, h);
-        const vg = ctx.createRadialGradient(w * 0.3, h * 0.2, 0, w * 0.3, h * 0.2, Math.max(w, h) * 0.8);
-        vg.addColorStop(0, "rgba(16,16,18,0.25)");
-        vg.addColorStop(1, "rgba(0,0,0,0.0)");
-        ctx.fillStyle = vg;
-        ctx.fillRect(0, 0, w, h);
+        // Clear + vignette
+        ctx.clearRect(0,0,w,h);
+        const vg = ctx.createRadialGradient(w*0.3,h*0.2,0,w*0.3,h*0.2,Math.max(w,h)*0.8);
+        vg.addColorStop(0,"rgba(16,16,18,0.22)");
+        vg.addColorStop(1,"rgba(0,0,0,0)");
+        ctx.fillStyle = vg; ctx.fillRect(0,0,w,h);
 
-        // spawn logic (fast but capped)
-        if (now - lastSpawn > SPAWN_MS) {
-          if (Math.random() < MUSHROOM_CHANCE) spawnMushroom(); else spawnAmbient();
-          lastSpawn = now;
+        // Trigger blasts regularly
+        if(now - lastBlast > BLAST_INTERVAL){
+          dbzBlast();
+          lastBlast = now;
         }
-        if (parts.length > MAX_PARTICLES) parts.splice(0, parts.length - MAX_PARTICLES);
+        // Ambient motion
+        ambientWisps();
 
-        // draw/update
-        for (let i = 0; i < parts.length; i++) {
-          if (!parts[i].step(dt)) { parts.splice(i, 1); i--; continue; }
-          parts[i].draw(ctx);
+        // Cap total entities
+        if(entities.length > MAX_ENTITIES) entities.splice(0, entities.length - MAX_ENTITIES);
+
+        // Update/draw
+        for(let i=0;i<entities.length;i++){
+          if(!entities[i].step(dt)){ entities.splice(i,1); i--; continue; }
+          entities[i].draw(ctx);
         }
 
         requestAnimationFrame(tick);
