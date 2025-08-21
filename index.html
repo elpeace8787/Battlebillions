@@ -11,7 +11,6 @@
       --google-border:#dadce0;
       --facebook:#1877F2;
       --tiktok:#000000;
-      /* Instagram gradient stops (approx official) */
       --ig1:#f58529; --ig2:#dd2a7b; --ig3:#8134af; --ig4:#515bd4;
     }
     *{box-sizing:border-box}
@@ -23,7 +22,8 @@
     header h1{margin:0 0 6px; font-size:30px; letter-spacing:.4px; text-shadow:0 2px 18px rgba(255,255,255,.08)}
     header .sub{margin:0 0 12px; color:var(--muted); font-size:13px}
 
-    .providers,.form{display:grid; gap:12px}
+    /* Inputs & primary actions */
+    .form{display:grid; gap:12px}
     .btn, input{
       width:100%; padding:12px 16px; border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
@@ -34,44 +34,53 @@
       cursor:pointer;
     }
     .btn:hover{transform:translateY(-2px)}
-    .btn svg{width:20px;height:20px;vertical-align:middle;margin-right:10px}
-
-    /* Brand styles */
-    .btn.google{
-      background:#fff; color:#000; border-color:var(--google-border);
-      box-shadow:0 1px 1px rgba(0,0,0,.06);
-    }
-    .btn.google:hover{box-shadow:0 2px 6px rgba(0,0,0,.12)}
-    .btn.facebook{ background:var(--facebook); color:#fff; border-color:transparent }
-    .btn.facebook:hover{box-shadow:0 2px 6px rgba(24,119,242,.35)}
-    .btn.instagram{
-      background:linear-gradient(135deg,var(--ig1),var(--ig2),var(--ig3),var(--ig4));
-      color:#fff; border-color:transparent;
-    }
-    .btn.instagram:hover{box-shadow:0 2px 6px rgba(221,42,123,.35)}
-    .btn.tiktok{
-      background:#000; color:#fff; border-color:#222;
-    }
-    .btn.tiktok:hover{box-shadow:0 2px 6px rgba(0,0,0,.35)}
-    /* Primary + ghost (email/password) */
     .btn.primary{background:#fff;color:#000;border-color:transparent}
     .btn.primary:hover{background:#ececec}
     .btn.ghost{background:transparent;border-color:#3a3a3a}
     .btn.ghost:hover{border-color:#fff}
 
     label{font-size:12px;color:var(--ink-2)}
-    input:focus{outline:0;border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,.25)}
     input{color:#eaeaea}
+    input:focus{outline:0;border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,.25)}
     .pw-wrap{position:relative}
     .pw-toggle{position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px;}
     .actions{display:flex; gap:12px; margin-top:4px}
 
-    .divider{display:flex;align-items:center;gap:10px;margin:6px 0}
+    /* Divider */
+    .divider{display:flex;align-items:center;gap:10px;margin:2px 0 6px}
     .divider::before,.divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
     .divider span{font-size:12px;color:var(--muted)}
 
+    /* Provider icon bar (small squares) */
+    .providers{display:grid; gap:10px}
+    .provider-bar{
+      display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+    }
+    .pbtn{
+      width:44px; height:44px; border-radius:10px; display:inline-flex;
+      align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.14);
+      background:rgba(15,15,17,.35); backdrop-filter: blur(6px) saturate(120%);
+      transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .pbtn:hover{ transform:translateY(-2px); border-color:rgba(255,255,255,.3) }
+    .pbtn svg{ width:22px; height:22px; }
+
+    /* Brand accents inside the square buttons (background mostly translucent to keep animation visible) */
+    .pbtn.google{ background:rgba(255,255,255,0.9); border-color:var(--google-border) }
+    .pbtn.facebook{ background:rgba(24,119,242,0.9); border-color:rgba(24,119,242,1) }
+    .pbtn.instagram{
+      background:conic-gradient(from 180deg, var(--ig1), var(--ig2), var(--ig3), var(--ig4), var(--ig1));
+      border-color:rgba(255,255,255,.18)
+    }
+    .pbtn.tiktok{ background:rgba(0,0,0,0.85); border-color:#222 }
+
     .status{min-height:18px;font-size:12px;text-align:center;color:var(--muted)}
     .foot{position:fixed;left:0;right:0;bottom:12px;text-align:center;font-size:12px;color:var(--muted)}
+
+    /* Accessibility helper */
+    .sr-only{
+      position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
 
     @media (prefers-reduced-motion: reduce){ #bg{background:#000} }
   </style>
@@ -86,52 +95,7 @@
         <p class="sub">Enter Battles. Billions. Respect.</p>
       </header>
 
-      <section class="providers">
-        <!-- Google -->
-        <button id="googleBtn" class="btn google" aria-label="Continue with Google">
-          <!-- Official multicolor G -->
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#EA4335" d="M12 10.2v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-3.03 0-5.5-2.5-5.5-5.6s2.47-5.6 5.5-5.6c1.73 0 2.9.73 3.57 1.36l2.43-2.36C16.7 3.7 14.55 2.8 12 2.8 6.98 2.8 2.9 6.88 2.9 12s4.08 9.2 9.1 9.2c5.25 0 8.7-3.68 8.7-8.86 0-.6-.06-1.06-.14-1.54H12z"/>
-            <path fill="#4285F4" d="M3.5 7.4l2.96 2.17C7.23 7.6 9.41 6.4 12 6.4c1.73 0 2.9.73 3.57 1.36l2.43-2.36C16.7 3.7 14.55 2.8 12 2.8 8.83 2.8 6.04 4.52 4.5 7.02z" opacity=".001"/>
-            <path fill="#FBBC05" d="M12 21.2c2.88 0 5.3-.94 7.07-2.56l-3.3-2.7c-.89.6-2.07.96-3.77.96-3.01 0-5.54-2.5-5.54-5.6 0-.87.2-1.69.55-2.41L3.5 7.4A9.16 9.16 0 0 0 2.9 12c0 5.12 4.08 9.2 9.1 9.2z"/>
-            <path fill="#34A853" d="M21.1 12c0-.6-.06-1.06-.14-1.54H12v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-1.89 0-3.5-.79-4.6-2.05l-3.3 2.56A9.2 9.2 0 0 0 12 21.2c5.25 0 8.7-3.68 8.7-8.86z"/>
-            <path fill="#EA4335" d="M3.5 7.4l2.96 2.17" opacity=".001"/>
-          </svg>
-          Continue with Google
-        </button>
-
-        <!-- Facebook -->
-        <button id="facebookBtn" class="btn facebook" aria-label="Continue with Facebook">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#FFFFFF" d="M22 12.07C22 6.47 17.52 2 11.93 2 6.34 2 1.86 6.47 1.86 12.07c0 4.99 3.64 9.14 8.4 9.95v-7.03H7.96v-2.92h2.3V9.77c0-2.27 1.35-3.53 3.42-3.53.99 0 2.03.18 2.03.18v2.23h-1.14c-1.12 0-1.47.7-1.47 1.42v1.71h2.5l-.4 2.92h-2.1V22c4.77-.81 8.4-4.96 8.4-9.93z"/>
-          </svg>
-          Continue with Facebook
-        </button>
-
-        <!-- Instagram (UI-ready; needs backend/OAuth hookup) -->
-        <button id="instagramBtn" class="btn instagram" aria-label="Continue with Instagram">
-          <!-- Simple outline camera matching brand feel -->
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="5" ry="5" fill="none" stroke="white" stroke-width="2"/>
-            <circle cx="12" cy="12" r="4.5" fill="none" stroke="white" stroke-width="2"/>
-            <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
-          </svg>
-          Continue with Instagram
-        </button>
-
-        <!-- TikTok (UI-ready; needs backend/OAuth hookup) -->
-        <button id="tiktokBtn" class="btn tiktok" aria-label="Continue with TikTok">
-          <!-- TikTok note with brand duotone -->
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M14.5 2v9.2a3.8 3.8 0 1 1-3-3.7" fill="none" stroke="#69C9D0" stroke-width="2" stroke-linecap="round"/>
-            <path d="M14.5 4.2c.9 1.6 2.6 3 4.5 3.2V10c-1.9-.1-3.4-.7-4.5-1.5v4.7a5.8 5.8 0 1 1-4.6-5.6" fill="none" stroke="#EE1D52" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          Continue with TikTok
-        </button>
-
-        <div class="divider"><span>or</span></div>
-      </section>
-
+      <!-- EMAIL/PASSWORD ABOVE PROVIDERS -->
       <form id="authForm" class="form" autocomplete="on">
         <div class="row">
           <label for="email">Email</label>
@@ -149,6 +113,50 @@
           <button id="modeBtn" type="button" class="btn ghost">Create account</button>
         </div>
       </form>
+
+      <div class="divider"><span>or continue with</span></div>
+
+      <!-- SMALL SQUARE PROVIDER ICONS -->
+      <section class="providers">
+        <div class="provider-bar">
+          <!-- Google -->
+          <button id="googleBtn" class="pbtn google" title="Continue with Google" aria-label="Continue with Google">
+            <span class="sr-only">Continue with Google</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#EA4335" d="M12 10.2v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-3.03 0-5.5-2.5-5.5-5.6s2.47-5.6 5.5-5.6c1.73 0 2.9.73 3.57 1.36l2.43-2.36C16.7 3.7 14.55 2.8 12 2.8 6.98 2.8 2.9 6.88 2.9 12s4.08 9.2 9.1 9.2c5.25 0 8.7-3.68 8.7-8.86 0-.6-.06-1.06-.14-1.54H12z"/>
+              <path fill="#FBBC05" d="M12 21.2c2.88 0 5.3-.94 7.07-2.56l-3.3-2.7c-.89.6-2.07.96-3.77.96-3.01 0-5.54-2.5-5.54-5.6 0-.87.2-1.69.55-2.41L3.5 7.4A9.16 9.16 0 0 0 2.9 12c0 5.12 4.08 9.2 9.1 9.2z"/>
+              <path fill="#34A853" d="M21.1 12c0-.6-.06-1.06-.14-1.54H12v3.6h5.02c-.22 1.3-1.52 3.8-5.02 3.8-1.89 0-3.5-.79-4.6-2.05l-3.3 2.56A9.2 9.2 0 0 0 12 21.2c5.25 0 8.7-3.68 8.7-8.86z"/>
+            </svg>
+          </button>
+
+          <!-- Facebook -->
+          <button id="facebookBtn" class="pbtn facebook" title="Continue with Facebook" aria-label="Continue with Facebook">
+            <span class="sr-only">Continue with Facebook</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#FFFFFF" d="M22 12.07C22 6.47 17.52 2 11.93 2 6.34 2 1.86 6.47 1.86 12.07c0 4.99 3.64 9.14 8.4 9.95v-7.03H7.96v-2.92h2.3V9.77c0-2.27 1.35-3.53 3.42-3.53.99 0 2.03.18 2.03.18v2.23h-1.14c-1.12 0-1.47.7-1.47 1.42v1.71h2.5l-.4 2.92h-2.1V22c4.77-.81 8.4-4.96 8.4-9.93z"/>
+            </svg>
+          </button>
+
+          <!-- Instagram -->
+          <button id="instagramBtn" class="pbtn instagram" title="Continue with Instagram" aria-label="Continue with Instagram">
+            <span class="sr-only">Continue with Instagram</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" ry="5" fill="none" stroke="white" stroke-width="2"/>
+              <circle cx="12" cy="12" r="4.5" fill="none" stroke="white" stroke-width="2"/>
+              <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
+            </svg>
+          </button>
+
+          <!-- TikTok -->
+          <button id="tiktokBtn" class="pbtn tiktok" title="Continue with TikTok" aria-label="Continue with TikTok">
+            <span class="sr-only">Continue with TikTok</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.5 2v9.2a3.8 3.8 0 1 1-3-3.7" fill="none" stroke="#69C9D0" stroke-width="2" stroke-linecap="round"/>
+              <path d="M14.5 4.2c.9 1.6 2.6 3 4.5 3.2V10c-1.9-.1-3.4-.7-4.5-1.5v4.7a5.8 5.8 0 1 1-4.6-5.6" fill="none" stroke="#EE1D52" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </section>
 
       <p id="status" class="status" role="status" aria-live="polite"></p>
     </div>
@@ -176,8 +184,13 @@
     document.getElementById("year").textContent = new Date().getFullYear();
 
     let isSignup = false;
-    function setLoading(v,msg=""){submitBtn.disabled=v;googleBtn.disabled=v;facebookBtn.disabled=v;instagramBtn.disabled=v;tiktokBtn.disabled=v;statusEl.textContent=msg;}
-    function setMode(v){isSignup=v;submitBtn.textContent=v?"Create Account":"Sign In";modeBtn.textContent=v?"Have an account? Sign in":"Create account";statusEl.textContent="";}
+    function setLoading(v,msg=""){
+      submitBtn.disabled=v; googleBtn.disabled=v; facebookBtn.disabled=v; instagramBtn.disabled=v; tiktokBtn.disabled=v;
+      statusEl.textContent=msg;
+    }
+    function setMode(v){
+      isSignup=v; submitBtn.textContent=v?"Create Account":"Sign In"; modeBtn.textContent=v?"Have an account? Sign in":"Create account"; statusEl.textContent="";
+    }
     modeBtn.addEventListener("click",()=>setMode(!isSignup));
     togglePw.addEventListener("click",()=>{pwEl.type=pwEl.type==="password"?"text":"password";togglePw.setAttribute("aria-label",pwEl.type==="password"?"Show password":"Hide password");});
 
@@ -202,7 +215,7 @@
       catch(err){ statusEl.textContent = niceError(err); setLoading(false); }
     });
 
-    // Instagram/TikTok placeholders (UI added; needs backend OAuth)
+    // Instagram/TikTok placeholders (UI small buttons; hook these up later)
     instagramBtn.addEventListener("click", ()=>{
       statusEl.textContent = "Instagram sign-in not configured yet.";
     });
@@ -365,7 +378,8 @@
         drawFighter(rx, 0, -1, pc, kc, this.move, true);
 
         ctx.restore();
-function drawFighter(cx, cy, dir, pc, kc, mv, mirror=false){
+
+        function drawFighter(cx, cy, dir, pc, kc, mv, mirror=false){
           // Head
           ctx.beginPath(); ctx.arc(cx, cy-12, 5, 0, Math.PI*2); ctx.stroke();
           // Torso
@@ -431,7 +445,7 @@ function drawFighter(cx, cy, dir, pc, kc, mv, mirror=false){
 
     // gold explosion exactly at impact + delayed second ring + gold smoke burst
     function goldExplosion(cx, cy){
-      entities.push(new Ring(cx,cy,true,0));    // strong ring at impact
+      entities.push(new Ring(cx,cy,true,0));     // strong ring at impact
       entities.push(new Ring(cx,cy,false,0.08)); // softer second ring
 
       const base = rnd(30,44), life=rnd(1.0,1.6);
@@ -472,4 +486,3 @@ function drawFighter(cx, cy, dir, pc, kc, mv, mirror=false){
   <noscript>Enable JavaScript to use BattleBillions.</noscript>
 </body>
 </html>
-        
