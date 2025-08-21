@@ -238,12 +238,11 @@
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
   (function(){
-    // Motion profile
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const DPR_LIMIT = 1.75;
     const MAX_EXPLOSIONS = reduced ? 6 : 12;
-    const BLAST_INTERVAL = reduced ? 1400 : 900;
+    const BLAST_INTERVAL = reduced ? 1500 : 1000;
     const START_WITH_BLAST = true;
 
     const canvas = document.getElementById('bg3d');
@@ -283,19 +282,6 @@
     const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
     const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
 
-    // ==== CATEGORY SYMBOLS (replace flags) ====
-    const CATEGORY_CACHE = new Map();
-    const CATEGORY_CODES = ['rap','dance','gaming','art','sports','comedy','fashion','tech','sing','poetry'];
-
-    function getCategoryMaterial(code){
-      if(!CATEGORY_CACHE.has(code)){
-        const tex = makeCategoryTexture(code);
-        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent:true, opacity:1, side:THREE.DoubleSide });
-        CATEGORY_CACHE.set(code, mat);
-      }
-      return CATEGORY_CACHE.get(code).clone(); // independent opacity per explosion
-    }
-
     // pool for points
     const pool = [];
     function getPoints(count){
@@ -318,8 +304,61 @@
     }
     function releasePoints(points){ points.visible=false; pool.push(points); }
 
-    // explosions list
-    const explosions = [];
+    // Build a simple stick figure (male or female)
+    function buildStickFigure(isFemale=false){
+      const group = new THREE.Group();
+
+      const lineMat = new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.95 });
+      const headMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.95 });
+
+      // Head (circle outline)
+      const headGeo = new THREE.RingGeometry(2.6, 3.4, 32);
+      const head = new THREE.Mesh(headGeo, headMat);
+      head.position.y = 9;
+      group.add(head);
+
+      // Body line
+      const bodyGeo = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0,7,0), new THREE.Vector3(0,-4,0) ]);
+      const body = new THREE.Line(bodyGeo, lineMat);
+      group.add(body);
+
+      // Arms
+      const armsGeo = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(-6,3,0), new THREE.Vector3(0,7,0), new THREE.Vector3(6,3,0) ]);
+      const arms = new THREE.Line(armsGeo, lineMat);
+      group.add(arms);
+
+      // Legs (default)
+      const legsGeo = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(-5,-4,0), new THREE.Vector3(0,-4,0), new THREE.Vector3(5,-4,0) ]);
+      const legs = new THREE.Line(legsGeo, lineMat);
+      group.add(legs);
+
+      if(isFemale){
+        // simple skirt triangle
+        const skirtMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.95, side:THREE.DoubleSide });
+        const skirtGeo = new THREE.BufferGeometry();
+        const verts = new Float32Array([
+          -4.5, -1.5, 0,
+           4.5, -1.5, 0,
+           0.0, -4.2, 0
+        ]);
+        skirtGeo.setAttribute('position', new THREE.BufferAttribute(verts,3));
+        skirtGeo.setIndex([0,1,2]);
+        skirtGeo.computeVertexNormals?.();
+        const skirt = new THREE.Mesh(skirtGeo, skirtMat);
+        group.add(skirt);
+      }
+
+      // subtle glow ring behind figure on charge
+      const glowMat = new THREE.MeshBasicMaterial({ color:0xffeeaa, transparent:true, opacity:0.0, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+      const glow = new THREE.Mesh(new THREE.RingGeometry(5, 8.5, 48), glowMat);
+      glow.position.z = -0.1;
+      group.add(glow);
+
+      group.userData = { lineMat, headMat, glowMat, glow };
+
+      return group;
+    }
+
     class Explosion {
       constructor(){
         const x = rand(-0.42*width, 0.42*width) / 6;
@@ -327,19 +366,40 @@
         const z = rand(-60, 20);
         this.center = new THREE.Vector3(x,y,z);
 
+        // Phase timing
+        this.chargeTime = reduced ? 0.5 : 0.75;  // stick figure power-up duration
+        this.life = reduced ? 1.4 : 1.8;         // particle life after blast
+        this.t = 0;
+        this.blasted = false;
+
+        // Stick figure
+        const female = Math.random() < 0.5;
+        this.figure = buildStickFigure(female);
+        this.figure.position.copy(this.center);
+        this.figure.scale.set(1,1,1);
+        scene.add(this.figure);
+
+        // Pre-allocate but don't add particle/rings until blast
+        this.points = null;
         this.count = (Math.random()*60 + (reduced? 90 : 140)) | 0;
+        this.vel = null;
+        this.ring1 = null;
+        this.ring2 = null;
+        this.r1 = 6; this.r2 = 6;
+
+        this.shake = 0.7;
+      }
+
+      doBlast(){
+        // Particles
         this.points = getPoints(this.count);
         this.points.position.copy(this.center);
-
         const g = this.points.geometry;
         const pos = g.getAttribute('position').array;
         const col = g.getAttribute('color').array;
         const siz = g.getAttribute('size').array;
 
         this.vel = new Float32Array(this.count*3);
-        this.life = reduced ? 1.4 : 1.8;
-        this.t = 0;
-
         for(let i=0;i<this.count;i++){
           const dirv = new THREE.Vector3().randomDirection();
           const speed = rand(14, 42);
@@ -351,45 +411,63 @@
           pos[i*3+1] = dirv.y*2;
           pos[i*3+2] = dirv.z*2;
 
-          // bright start
           col[i*3+0] = 1.0; col[i*3+1] = 1.0; col[i*3+2] = 1.0;
           siz[i] = rand(10, 18);
         }
         g.getAttribute('position').needsUpdate = true;
         g.getAttribute('color').needsUpdate    = true;
         g.getAttribute('size').needsUpdate     = true;
-
         scene.add(this.points);
 
-        // double shockwave
+        // Shockwaves
         const ringGeo = new THREE.RingGeometry(6, 7.6, 64);
         this.ring1 = new THREE.Mesh(ringGeo, ringMatStrong.clone());
         this.ring2 = new THREE.Mesh(ringGeo, ringMatSoft.clone());
         this.ring1.position.copy(this.center);
         this.ring2.position.copy(this.center);
-        this.r1 = 6; this.r2 = 6;
         scene.add(this.ring1, this.ring2);
 
-        // --- central CATEGORY SYMBOLS (two different categories) ---
-        const [c1, c2] = pickTwoCategories();
-        const mat1 = getCategoryMaterial(c1);
-        const mat2 = getCategoryMaterial(c2);
-        const aspect = 1; // square badge icons
-        const h = 10; const w = h*aspect;
-        const geo = new THREE.PlaneGeometry(w, h);
+        this.blasted = true;
 
-        this.cat1 = new THREE.Mesh(geo, mat1);
-        this.cat2 = new THREE.Mesh(geo, mat2);
-        this.cat1.position.copy(this.center).add(new THREE.Vector3(-w*0.7, 0, 0.1));
-        this.cat2.position.copy(this.center).add(new THREE.Vector3( w*0.7, 0, 0.1));
-        scene.add(this.cat1, this.cat2);
-
-        this.shake = 0.5;
+        // make figure quickly fade after blast
+        const { lineMat, headMat, glowMat } = this.figure.userData;
+        lineMat.opacity = headMat.opacity = 0.75;
+        glowMat.opacity = Math.min(0.6, glowMat.opacity+0.2);
       }
+
       update(dt){
         this.t += dt;
-        const f = this.t/this.life;
 
+        // CHARGE PHASE
+        if(!this.blasted){
+          const f = Math.min(1, this.t / this.chargeTime);
+          // power-up stretch + slight glow
+          const stretch = 1 + f*0.65; // scale Y up to ~1.65
+          const pop = 1 + f*0.1;      // small scale on X/Z
+          this.figure.scale.set(pop, stretch, pop);
+          this.figure.lookAt(camera.position);
+
+          const { lineMat, headMat, glowMat, glow } = this.figure.userData;
+          const glowOpacity = reduced ? (0.15*f) : (0.25 + 0.45*f);
+          glowMat.opacity = Math.min(0.7, glowOpacity);
+          glow.scale.setScalar(1 + f*0.8);
+
+          // shake camera gently while charging
+          const s = this.shake * 0.25 * (1 - Math.cos(f*Math.PI));
+          camera.position.x += (Math.random()-0.5)*s;
+          camera.position.y += (Math.random()-0.5)*s;
+
+          if(this.t >= this.chargeTime){
+            this.doBlast();
+          }
+          return true;
+        }
+
+        // BLAST PHASE
+        const blastT = this.t - this.chargeTime;
+        const f = blastT / this.life;
+
+        // particles
         const g = this.points.geometry;
         const pos = g.getAttribute('position').array;
         const col = g.getAttribute('color').array;
@@ -406,7 +484,7 @@
           this.vel[ix+1] *= drag;
           this.vel[ix+2] *= drag;
 
-          // shift grey/white -> gold
+          // white -> gold
           const toGold = smoothstep(0.25, 0.55, f);
           col[ix+0] = lerp(1.0, 1.00, toGold);
           col[ix+1] = lerp(1.0, 0.72, toGold);
@@ -429,27 +507,30 @@
         this.ring1.lookAt(camera.position);
         this.ring2.lookAt(camera.position);
 
-        // category icons: face camera, glow and fade
-        this.cat1.lookAt(camera.position);
-        this.cat2.lookAt(camera.position);
-        const iconOpacity = Math.max(0, 1.0 - f*1.6); // fade a bit faster
-        this.cat1.material.opacity = iconOpacity;
-        this.cat2.material.opacity = iconOpacity;
+        // fade out figure during blast
+        if(this.figure){
+          const { lineMat, headMat, glowMat } = this.figure.userData;
+          const fade = Math.max(0, 0.95 - f*1.6);
+          lineMat.opacity = headMat.opacity = fade;
+          glowMat.opacity = Math.max(0, glowMat.opacity - dt*0.8);
+          this.figure.lookAt(camera.position);
+        }
 
+        // camera shake decays
         if(this.shake>0){
           const s = this.shake*(1-f);
           camera.position.x += (Math.random()-0.5)*s;
           camera.position.y += (Math.random()-0.5)*s;
         }
-        return this.t < this.life;
+
+        return blastT < this.life;
       }
+
       dispose(){
-        scene.remove(this.points); releasePoints(this.points);
-        scene.remove(this.ring1); scene.remove(this.ring2);
-        scene.remove(this.cat1); scene.remove(this.cat2);
-        this.cat1.geometry.dispose();
-        this.cat2.geometry.dispose();
-        // cached materials/textures kept
+        if(this.points){ scene.remove(this.points); releasePoints(this.points); }
+        if(this.ring1){ scene.remove(this.ring1); }
+        if(this.ring2){ scene.remove(this.ring2); }
+        if(this.figure){ scene.remove(this.figure); }
       }
     }
 
@@ -499,174 +580,6 @@
       return tex;
     }
 
-    // === Procedural Category Icon Textures (square badge with icon) ===
-    function makeCategoryTexture(code){
-      const W = 256, H = 256;
-      const c = document.createElement('canvas'); c.width=W; c.height=H;
-      const g = c.getContext('2d');
-      g.clearRect(0,0,W,H);
-
-      // badge background (glass + gold rim)
-      const bgGrad = g.createRadialGradient(W/2,H/2,0, W/2,H/2,W/1.2);
-      bgGrad.addColorStop(0, 'rgba(255,255,255,0.06)');
-      bgGrad.addColorStop(1, 'rgba(255,255,255,0.00)');
-      g.fillStyle = 'rgba(0,0,0,0.25)';
-      roundRect(g, 20,20, W-40, H-40, 28, true, false);
-      g.fillStyle = bgGrad;
-      roundRect(g, 20,20, W-40, H-40, 28, true, false);
-      g.lineWidth = 4;
-      g.strokeStyle = 'rgba(255,215,0,0.75)'; // soft gold rim
-      roundRect(g, 20,20, W-40, H-40, 28, false, true);
-
-      // icon draw area
-      g.save();
-      g.translate(W/2, H/2);
-      g.strokeStyle = 'rgba(255,255,255,0.95)';
-      g.fillStyle   = 'rgba(255,255,255,0.95)';
-      g.lineCap = 'round'; g.lineJoin='round';
-
-      const S = 70; // base scale
-      switch(code){
-        case 'rap': { // microphone
-          g.lineWidth = 10;
-          // head
-          g.beginPath(); g.arc(0,-S*0.4, S*0.35, 0, Math.PI*2); g.stroke();
-          // body
-          g.beginPath(); g.moveTo(0,-S*0.05); g.lineTo(0, S*0.5); g.stroke();
-          // handle
-          g.beginPath(); g.moveTo(-S*0.25, S*0.2); g.lineTo(S*0.25, S*0.2); g.stroke();
-          // sound lines
-          g.lineWidth = 6;
-          g.beginPath(); g.moveTo(S*0.55,-S*0.45); g.quadraticCurveTo(S*0.8,-S*0.25, S*0.55,0); g.stroke();
-          g.beginPath(); g.moveTo(-S*0.55,-S*0.45); g.quadraticCurveTo(-S*0.8,-S*0.25, -S*0.55,0); g.stroke();
-          break;
-        }
-        case 'dance': { // shoe silhouette
-          g.lineWidth = 10;
-          g.beginPath();
-          g.moveTo(-S*0.9, 0);
-          g.quadraticCurveTo(-S*0.2, -S*0.6, S*0.4, -S*0.2);
-          g.quadraticCurveTo(S*0.6, 0, S*0.9, 0.1);
-          g.quadraticCurveTo(S*0.2, S*0.5, -S*0.6, S*0.35);
-          g.closePath(); g.stroke();
-          break;
-        }
-        case 'gaming': { // game controller
-          g.lineWidth = 10;
-          g.beginPath();
-          g.moveTo(-S, 0); g.quadraticCurveTo(-S*0.7, -S*0.7, 0, -S*0.6);
-          g.quadraticCurveTo(S*0.7, -S*0.7, S, 0);
-          g.quadraticCurveTo(S*0.6, S*0.7, 0, S*0.5);
-          g.quadraticCurveTo(-S*0.6, S*0.7, -S, 0); g.stroke();
-          // D-pad
-          g.beginPath(); g.moveTo(-S*0.25, -S*0.05); g.lineTo(-S*0.25, -S*0.35); g.moveTo(-S*0.4,-S*0.2); g.lineTo(-S*0.1,-S*0.2); g.stroke();
-          // buttons
-          g.beginPath(); g.arc(S*0.35, -S*0.15, 6, 0, Math.PI*2); g.fill();
-          g.beginPath(); g.arc(S*0.48, -S*0.05, 6, 0, Math.PI*2); g.fill();
-          g.beginPath(); g.arc(S*0.32,  S*0.02, 6, 0, Math.PI*2); g.fill();
-          break;
-        }
-        case 'art': { // palette + brush
-          g.lineWidth = 10;
-          // palette
-          g.beginPath();
-          g.arc(-S*0.15, 0, S*0.6, Math.PI*0.2, Math.PI*1.7);
-          g.quadraticCurveTo(S*0.3, S*0.15, S*0.2, -S*0.2);
-          g.stroke();
-          // holes (dots)
-          for(const p of [[-50,-10],[-30,30],[-5,-35],[20,10]]){ g.beginPath(); g.arc(p[0],p[1],6,0,Math.PI*2); g.fill(); }
-          // brush
-          g.beginPath(); g.moveTo(S*0.55,-S*0.55); g.lineTo(0, S*0.4); g.stroke();
-          g.beginPath(); g.moveTo(S*0.6,-S*0.6); g.quadraticCurveTo(S*0.85,-S*0.85, S*0.9,-S*0.55); g.stroke();
-          break;
-        }
-        case 'sports': { // basketball
-          g.lineWidth = 10;
-          g.beginPath(); g.arc(0,0,S*0.55,0,Math.PI*2); g.stroke();
-          g.beginPath(); g.moveTo(-S*0.55,0); g.lineTo(S*0.55,0); g.stroke();
-          g.beginPath(); g.moveTo(0,-S*0.55); g.lineTo(0,S*0.55); g.stroke();
-          g.beginPath(); g.ellipse(0,0,S*0.55,S*0.2,0,0,Math.PI*2); g.stroke();
-          g.beginPath(); g.ellipse(0,0,S*0.2,S*0.55,0,0,Math.PI*2); g.stroke();
-          break;
-        }
-        case 'comedy': { // smile mask
-          g.lineWidth = 10;
-          g.beginPath();
-          g.moveTo(-S*0.7,-S*0.2); g.quadraticCurveTo(0, -S*0.6, S*0.7,-S*0.2);
-          g.quadraticCurveTo(0, S*0.9, -S*0.7,-S*0.2); g.stroke();
-          // eyes
-          g.beginPath(); g.arc(-S*0.25,0,6,0,Math.PI*2); g.fill();
-          g.beginPath(); g.arc(S*0.25,0,6,0,Math.PI*2); g.fill();
-          // smile
-          g.beginPath(); g.moveTo(-S*0.35, S*0.25); g.quadraticCurveTo(0,S*0.45, S*0.35,S*0.25); g.stroke();
-          break;
-        }
-        case 'fashion': { // t-shirt
-          g.lineWidth = 10;
-          g.beginPath();
-          g.moveTo(-S*0.7,-S*0.5); g.lineTo(-S*0.3,-S*0.2); g.lineTo(-S*0.3,S*0.6);
-          g.lineTo(S*0.3,S*0.6); g.lineTo(S*0.3,-S*0.2); g.lineTo(S*0.7,-S*0.5);
-          g.lineTo(S*0.4,-S*0.9); g.lineTo(-S*0.4,-S*0.9); g.closePath(); g.stroke();
-          break;
-        }
-        case 'tech': { // CPU chip
-          g.lineWidth = 10;
-          g.strokeRect(-S*0.5,-S*0.5,S,S);
-          g.lineWidth = 8;
-          for(let i=-3;i<=3;i++){
-            const o = i*14;
-            g.beginPath(); g.moveTo(-S*0.6, o); g.lineTo(-S*0.5, o); g.stroke();
-            g.beginPath(); g.moveTo(S*0.5, o); g.lineTo(S*0.6, o); g.stroke();
-            g.beginPath(); g.moveTo(o, -S*0.6); g.lineTo(o, -S*0.5); g.stroke();
-            g.beginPath(); g.moveTo(o, S*0.5); g.lineTo(o, S*0.6); g.stroke();
-          }
-          break;
-        }
-        case 'sing': { // music note
-          g.lineWidth = 10;
-          g.beginPath(); g.moveTo(-S*0.2,S*0.4); g.arc(-S*0.2,S*0.4,12,0,Math.PI*2); g.fill();
-          g.beginPath(); g.moveTo(S*0.15,S*0.28); g.arc(S*0.15,S*0.28,12,0,Math.PI*2); g.fill();
-          g.beginPath(); g.moveTo(-S*0.2,S*0.35); g.lineTo(-S*0.2,-S*0.5); g.lineTo(S*0.15,-S*0.4); g.lineTo(S*0.15,S*0.23); g.stroke();
-          break;
-        }
-        case 'poetry': default: { // quill & paper
-          g.lineWidth = 10;
-          // paper
-          g.strokeRect(-S*0.5,-S*0.5,S*0.7,S*0.9);
-          // quill
-          g.beginPath();
-          g.moveTo(S*0.15,-S*0.55);
-          g.quadraticCurveTo(S*0.55,-S*0.2, S*0.1, S*0.35);
-          g.quadraticCurveTo(S*0.3,S*0.15, S*0.4,-S*0.1);
-          g.stroke();
-          break;
-        }
-      }
-      g.restore();
-
-      const tex = new THREE.CanvasTexture(c);
-      tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
-      return tex;
-
-      function roundRect(ctx,x,y,w,h,r,fill,stroke){
-        ctx.beginPath();
-        ctx.moveTo(x+r,y);
-        ctx.arcTo(x+w,y, x+w,y+h, r);
-        ctx.arcTo(x+w,y+h, x,y+h, r);
-        ctx.arcTo(x,y+h, x,y, r);
-        ctx.arcTo(x,y, x+w,y, r);
-        if(fill) ctx.fill();
-        if(stroke) ctx.stroke();
-      }
-    }
-
-    function pickTwoCategories(){
-      const a = (Math.random()*CATEGORY_CODES.length)|0;
-      let b = (Math.random()*CATEGORY_CODES.length)|0;
-      if(b===a) b = (b+1) % CATEGORY_CODES.length;
-      return [CATEGORY_CODES[a], CATEGORY_CODES[b]];
-    }
-
     function rand(a,b){ return a + Math.random()*(b-a); }
     function lerp(a,b,t){ return a + (b-a)*t; }
     function smoothstep(a,b,x){
@@ -674,7 +587,6 @@
       return t*t*(3 - 2*t);
     }
 
-    // resize handling (including DPR changes)
     function resize(){
       width = window.innerWidth; height = window.innerHeight;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT));
@@ -685,6 +597,7 @@
     window.addEventListener('resize', resize, { passive:true });
 
     // main loop
+    const explosions = [];
     let prev = performance.now(), lastBlast = prev;
 
     if(START_WITH_BLAST){ explosions.push(new Explosion()); }
@@ -697,7 +610,7 @@
       ambient.position.y = Math.sin(ambient.userData.t)*2;
       ambient.rotation.z += dt*0.02;
 
-      // schedule explosions
+      // schedule new charge-ups -> blasts
       if(now - lastBlast > BLAST_INTERVAL){
         if(explosions.length > MAX_EXPLOSIONS){
           const old = explosions.shift(); old.dispose();
@@ -706,7 +619,7 @@
         lastBlast = now;
       }
 
-      // update explosions
+      // update all
       for(let i=explosions.length-1;i>=0;i--){
         if(!explosions[i].update(dt)){
           explosions[i].dispose();
