@@ -32,19 +32,25 @@
     .video-stream{
       width:100%; height:100%; object-fit:cover;
       filter:brightness(.92) contrast(1.1);
-      background:#000;
-      display:block;
+      background:#000; display:block;
     }
     /* Mirror local cam so user looks natural */
     #localVideo{ transform:scaleX(-1); }
 
-    /* If camera blocked or fails */
+    /* Camera overlays */
     .fallback{
       position:absolute; inset:0; display:none; align-items:center; justify-content:center;
       background:linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.35));
-      font-weight:800; letter-spacing:.3px;
+      font-weight:800; letter-spacing:.3px; text-align:center; padding:18px;
+      gap:10px; flex-direction:column;
     }
     .pane.error .fallback{ display:flex; }
+    .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+    .btn-mini{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; font-weight:800; padding:10px 14px; border-radius:10px; cursor:pointer;
+      box-shadow:0 0 16px rgba(255,215,0,.35); border:none;
+    }
 
     /* HUD */
     .top-bar{
@@ -93,33 +99,36 @@
     .btn{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
       color:#000; font-weight:800; padding:14px 28px; border-radius:12px;
-      box-shadow:0 0 22px rgba(255,215,0,.4); cursor:pointer;
+      box-shadow:0 0 22px rgba(255,215,0,.4); cursor:pointer; border:none;
     }
 
     /* ===== Clean SHAPE Nav (no outline boxes) ===== */
-    /* Left sidebar: Circle (top), Square (under circle) */
+    /* Smaller icons + lowered sidebars */
     .side{
-      position:absolute; top:50%; transform:translateY(-50%);
-      display:flex; flex-direction:column; gap:26px; z-index:14;
+      position:absolute;
+      top:calc(50% + 90px); /* lower than midline */
+      transform:translateY(-50%);
+      display:flex; flex-direction:column; gap:18px; z-index:14;
     }
-    .side.left{ left:28px; }
-    .side.right{ right:28px; }
+    .side.left{ left:22px; }
+    .side.right{ right:22px; }
 
     .shape{
-      width:44px; height:44px; display:grid; place-items:center; cursor:pointer;
+      width:34px; height:34px; display:grid; place-items:center; cursor:pointer;
       transition:transform .2s ease, filter .2s ease;
-      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
+      filter: drop-shadow(0 0 8px rgba(255,255,255,.08));
     }
-    .shape:hover{ transform:scale(1.15); filter:brightness(1.1); }
-    .shape svg{ width:100%; height:100%; stroke:#ccc; fill:none; stroke-width:2.6; }
+    .shape:hover{ transform:scale(1.18); filter:brightness(1.1); }
+    .shape svg{ width:100%; height:100%; stroke:#ccc; fill:none; stroke-width:2.2; }
     .shape.gold svg{ stroke:url(#goldStroke); }
     .shape.logout svg{ stroke:#ff5a5a; }
 
-    /* Bottom-center Triangle (stays where it was) */
+    /* Bottom-center Triangle (stays) — smaller */
     .center-triangle{
-      position:absolute; left:50%; bottom:80px; transform:translateX(-50%);
+      position:absolute; left:50%; bottom:70px; transform:translateX(-50%);
       z-index:14;
     }
+    .center-triangle .shape{ width:38px; height:38px; } /* make the main action a touch bigger */
 
     /* Modal */
     .modal{
@@ -146,7 +155,7 @@
     .fx-shockwave{ display:none; place-items:center; }
     .fx-shockwave.active{ display:grid; }
     .fx-shockwave::before{
-      content:""; width:160px; height:160px; border-radius:50%;
+      content:""; width:140px; height:140px; border-radius:50%;
       background:
         radial-gradient(closest-side, rgba(255,255,255,.85), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
         radial-gradient(closest-side, rgba(255,215,0,.45), rgba(255,215,0,.00) 70%);
@@ -156,8 +165,8 @@
     }
     @keyframes shock{
       0%{ transform:scale(.2); opacity:1 }
-      70%{ transform:scale(6.5); opacity:.8 }
-      100%{ transform:scale(8.5); opacity:0 }
+      70%{ transform:scale(6.0); opacity:.8 }
+      100%{ transform:scale(8.0); opacity:0 }
     }
   </style>
 </head>
@@ -181,7 +190,17 @@
     <!-- LEFT PANE (You) -->
     <div class="pane" id="leftPane">
       <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-      <div class="fallback" id="camFallback">Enable camera & mic to see yourself</div>
+
+      <!-- Camera fallback / controls -->
+      <div class="fallback" id="camFallback">
+        <div>Enable camera & mic to see yourself</div>
+        <div class="cam-actions">
+          <button id="enableCamBtn" class="btn-mini">Enable Camera</button>
+          <button id="retryCamBtn" class="btn-mini">Retry</button>
+          <button id="switchCamBtn" class="btn-mini">Switch Camera</button>
+        </div>
+        <small style="opacity:.8">Tip: use HTTPS and allow permissions.</small>
+      </div>
     </div>
 
     <!-- RIGHT PANE (Opponent) -->
@@ -282,6 +301,10 @@
     const fxSlash = document.getElementById('fxSlash');
     const fxShock = document.getElementById('fxShock');
 
+    const enableCamBtn = document.getElementById('enableCamBtn');
+    const retryCamBtn = document.getElementById('retryCamBtn');
+    const switchCamBtn = document.getElementById('switchCamBtn');
+
     // Nav
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
       btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
@@ -295,20 +318,59 @@
       { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
     ];
 
-    // Camera
-    async function startCamera(){
+    // ===== Camera handling (robust) =====
+    let facing = 'user'; // 'user' | 'environment'
+    let currentStream = null;
+
+    async function stopStream(stream){
+      if(!stream) return;
+      stream.getTracks().forEach(t=>t.stop());
+    }
+
+    async function getCamera(constraints){
+      return navigator.mediaDevices.getUserMedia(constraints);
+    }
+
+    async function startCamera(preferFacing = facing){
       try{
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+        // Stop existing
+        await stopStream(currentStream);
+
+        // Try exact facing first
+        const primary = {
+          video: {
+            facingMode: { ideal: preferFacing },
+            width:{ ideal:1280 }, height:{ ideal:720 }
+          },
           audio: true
-        });
-        localVideo.srcObject = stream;
+        };
+
+        try{
+          currentStream = await getCamera(primary);
+        }catch(_e1){
+          // fallback: generic video
+          currentStream = await getCamera({ video:true, audio:true });
+        }
+
+        localVideo.srcObject = currentStream;
         leftPane.classList.remove('error');
+        camFallback.style.display = 'none';
       }catch(e){
         console.warn('Camera error:', e);
         leftPane.classList.add('error');
+        camFallback.style.display = 'flex';
       }
     }
+
+    // These buttons give user-gesture to unlock permissions on iOS/Safari
+    enableCamBtn.addEventListener('click', ()=> startCamera('user'));
+    retryCamBtn.addEventListener('click', ()=> startCamera(facing));
+    switchCamBtn.addEventListener('click', async ()=>{
+      facing = (facing === 'user') ? 'environment' : 'user';
+      await startCamera(facing);
+      // Flip mirror only for user-facing
+      localVideo.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'none';
+    });
 
     // Modal flow
     confirmInst.onclick = ()=>{
@@ -380,10 +442,17 @@
 
     // Init
     window.onload = ()=>{
-      startCamera();
+      // Show modal and ALSO show camera overlay to encourage permission
       instModal.style.display = 'grid';
+      leftPane.classList.add('error'); // show prompt until user taps enable
+      camFallback.style.display = 'flex';
       battleTrack.preload = 'auto';
     };
+
+    // Safety: page visibility changes — you can stop camera here if desired
+    document.addEventListener('visibilitychange', ()=>{
+      // no-op; keep stream unless you want to pause when hidden
+    });
   </script>
 </body>
-        </html>
+  </html>
