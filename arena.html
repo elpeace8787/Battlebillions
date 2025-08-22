@@ -23,12 +23,11 @@
     html, body{
       height:100%;
       width:100%;
-      overflow:hidden;                /* kill page scrollbars */
+      overflow:hidden;                /* no page scrollbars */
       -webkit-overflow-scrolling:auto;
       overscroll-behavior:none;
       background:#000;
     }
-    /* Hide any platform scrollbars just in case */
     *::-webkit-scrollbar{ display:none; width:0; height:0 }
 
     body{
@@ -38,7 +37,7 @@
       touch-action: manipulation;
     }
 
-    /* Depth hint (very light, no scroll impact) */
+    /* Background ambiance (very light) */
     .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
     .layer-nebula{
       position:absolute; inset:-15%;
@@ -57,12 +56,12 @@
     }
     @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
 
-    /* Even split; lock to small viewport height to avoid iOS chrome shifts */
+    /* Split view */
     .stream-container{
       position:relative; z-index:1; display:flex;
-      height:100svh; width:100svw;      /* <- mobile-stable */
-      overflow:hidden;                   /* <- no inner scroll */
-      contain:layout paint size;         /* perf & containment */
+      height:100svh; width:100svw;
+      overflow:hidden;
+      contain:layout paint size;
     }
     .pane{ flex:1; position:relative; overflow:hidden; min-width:0; }
     video.video-stream{
@@ -73,7 +72,7 @@
     }
     #localVideo{ transform:scaleX(-1); }
 
-    /* Subtle sheen (no outlines/boxes) */
+    /* Sheen (no boxes) */
     .pane::after{
       content:""; position:absolute; inset:0; pointer-events:none;
       background:
@@ -84,7 +83,7 @@
     }
     @keyframes paneSheen{ from{opacity:.32} to{opacity:.6} }
 
-    /* Fallback when camera blocked */
+    /* Camera fallback */
     .fallback{
       position:absolute; inset:0; display:none; align-items:center; justify-content:center;
       flex-direction:column; gap:12px; text-align:center; padding:18px;
@@ -98,10 +97,10 @@
       padding:10px 14px; border-radius:10px; cursor:pointer; border:none; box-shadow:0 0 16px rgba(255,215,0,.35);
     }
 
-    /* HUD */
+    /* HUD (raised a little) */
     .top-bar{
       position:absolute; left:0; right:0;
-      top: calc(var(--top-safe) + 18px);
+      top: calc(var(--top-safe) + 8px); /* raised */
       z-index:10; display:flex; justify-content:space-between; padding:0 clamp(12px, 2vw, 20px);
       font-size:14px; pointer-events:none;
     }
@@ -113,15 +112,29 @@
       box-shadow:0 0 18px rgba(255,215,0,.45); text-shadow:0 1px 0 rgba(255,255,255,.4);
     }
 
-    /* Viewer chip centered in opponent pane */
+    /* Viewer chip centered in opponent pane (raised a bit) */
     .viewer-center{
       position:absolute; left:50%;
-      top: calc(var(--top-safe) + 14px);
+      top: calc(var(--top-safe) + 8px); /* raised */
       transform: translateX(-50%);
       z-index:12;
       padding:8px 16px; border-radius:999px;
       background:rgba(0,0,0,.55); backdrop-filter: blur(8px);
       font-weight:800; white-space:nowrap;
+    }
+
+    /* Opponent display button (pig) under the viewer count */
+    .opponent-btn{
+      position:absolute; left:50%;
+      top: calc(var(--top-safe) + 56px);
+      transform: translateX(-50%);
+      z-index:12; border:none; background:transparent; padding:0; cursor:pointer;
+      width:40px; height:40px; border-radius:50%;
+      box-shadow:0 0 14px rgba(255,215,0,.35);
+    }
+    .opponent-btn img{
+      width:100%; height:100%; border-radius:50%; object-fit:cover;
+      filter: saturate(1.05) contrast(1.05);
     }
 
     /* Timer + CTA */
@@ -144,8 +157,12 @@
       color:#000; font-weight:800; padding:14px 28px; border-radius:12px;
       box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
     }
+    .btn-ghost{
+      background:transparent; color:var(--ink); border:none; cursor:pointer; padding:10px 14px; border-radius:12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
 
-    /* Side shapes (smaller, no boxes) */
+    /* Side shapes (small, no boxes) */
     .side{
       position:absolute;
       bottom: calc(var(--bottom-safe) + 12vh);
@@ -153,7 +170,6 @@
     }
     .side.left{ left: calc(var(--side-safe)); }
     .side.right{ right: calc(var(--side-safe-r)); }
-
     .shape{
       appearance:none; background:transparent; border:none; padding:0;
       width:24px; height:24px; display:grid; place-items:center; cursor:pointer;
@@ -166,55 +182,43 @@
     .side.left .shape:nth-child(2){ animation-delay:1.05s }
     .side.right .shape:nth-child(1){ animation-delay:.55s }
     .side.right .shape:nth-child(2){ animation-delay:1.45s }
-
     .shape:focus-visible{ filter: drop-shadow(0 0 16px rgba(255,215,0,.6)); transform:scale(1.12); }
     .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
     .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
-    .shape svg .strokeline{
-      stroke-dasharray:90; stroke-dashoffset:90;
-      animation: dash1 2.6s ease-out infinite, hue 6s linear infinite;
-    }
+    .shape svg .strokeline{ stroke-dasharray:90; stroke-dashoffset:90; animation: dash1 2.6s ease-out infinite, hue 6s linear infinite; }
     @keyframes dash1{ 0%{stroke-dashoffset:90;opacity:.85} 60%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:0;opacity:.85} }
     @keyframes hue{ to{ filter:hue-rotate(20deg) } }
     .shape.gold svg{ stroke:url(#goldStroke); }
     .shape.logout svg{ stroke:#ff5a5a; }
+    .center-triangle{ position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 54px); transform:translateX(-50%); z-index:14; }
+    .center-triangle .shape{ width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
+      filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5)); }
 
-    .center-triangle{
-      position:absolute; left:50%;
-      bottom: calc(var(--bottom-safe) + 54px);
-      transform:translateX(-50%); z-index:14;
+    /* Next Opponent bar (HORIZONTAL, inside opponent screen) */
+    .opponent-bar{
+      position:absolute;
+      left:50%; transform:translateX(-50%);
+      bottom: calc(var(--bottom-safe) + 18px);
+      z-index:16;
+      display:flex; align-items:center; gap:12px;
+      padding:10px 12px; border-radius:12px;
+      background: rgba(0,0,0,.45); backdrop-filter: blur(10px);
+      box-shadow: 0 10px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.10);
+      width: min(92%, 540px);
     }
-    .center-triangle .shape{
-      width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
-      filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5));
+    .op-avatar{
+      width:56px; height:56px; border-radius:12px; object-fit:cover;
+      box-shadow: 0 0 14px rgba(255,215,0,.35);
+      flex:0 0 auto;
     }
-
-    /* Next Opponent overlay */
-    .opponent-offer{
-      position:absolute; inset:0; display:none; place-items:center; z-index:20;
-      background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
-      padding:20px;
-    }
-    .offer-card{
-      display:grid; grid-template-columns: 100px 1fr; gap:16px; align-items:center;
-      padding:16px 18px; border-radius:16px;
-      background: rgba(0,0,0,.4); backdrop-filter: blur(10px);
-      box-shadow: 0 16px 48px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
-      max-width:min(560px, 92vw);
-    }
-    .offer-avatar{
-      width:100px; height:100px; border-radius:14px; object-fit:cover;
-      box-shadow: 0 0 18px rgba(255,215,0,.35);
-    }
-    .offer-meta{ display:grid; gap:8px; }
-    .offer-title{ font-weight:800; font-size:18px; letter-spacing:.3px }
-    .offer-sub{ color:var(--muted); font-size:13px; display:flex; align-items:center; gap:8px }
-    .offer-sub img{ width:20px; height:14px; object-fit:cover; border-radius:2px; box-shadow:0 0 6px rgba(255,255,255,.15) }
-    .offer-actions{ display:flex; gap:10px; margin-top:8px }
-    .btn-ghost{
-      background:transparent; color:var(--ink); border:none; cursor:pointer; padding:10px 14px; border-radius:12px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
-    }
+    .op-meta{ display:grid; gap:4px; min-width:0 }
+    .op-title{ font-weight:800; font-size:15px; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .op-sub{ color:var(--muted); font-size:12px; display:flex; align-items:center; gap:8px; white-space:nowrap }
+    .op-sub img{ width:18px; height:12px; border-radius:2px; object-fit:cover; box-shadow:0 0 4px rgba(255,255,255,.15) }
+    .op-actions{ margin-left:auto; display:flex; gap:8px; flex:0 0 auto }
+    .btn-xs{ padding:8px 10px; font-size:12px; border-radius:10px; border:none; cursor:pointer; }
+    .btn-accept{ background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800; box-shadow:0 0 16px rgba(255,215,0,.35) }
+    .btn-next{ background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) }
 
     /* Instrumental modal */
     .modal{ position:fixed; inset:0; display:none; place-items:center; z-index:30;
@@ -233,55 +237,25 @@
       font-family:'Orbitron',sans-serif;
     }
 
-    /* One-shot FX (no lingering) */
-    .fx-slash, .fx-shockwave{
-      position:fixed; inset:0; pointer-events:none; display:none; z-index:50; overflow:hidden;
-    }
-    .fx-slash.active, .fx-shockwave.active{ display:block; }
-    .fx-slash::before{
-      content:""; position:absolute; left:-40%; top:-40%; width:180%; height:180%;
-      background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 50%, rgba(255,215,0,.65) 60%, rgba(255,255,255,0) 70%);
-      transform: skewY(-12deg) translateX(-120%); filter: blur(2px);
-      animation: slash 650ms cubic-bezier(.15,.6,.2,1) forwards;
-    }
-    @keyframes slash{ to{ transform: skewY(-12deg) translateX(120%); opacity:0 } }
-
-    .fx-shockwave::before{
-      content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      width:140px; height:140px; border-radius:50%;
-      background:
-        radial-gradient(closest-side, rgba(255,255,255,.9), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
-        radial-gradient(closest-side, rgba(255,215,0,.5), rgba(255,215,0,.00) 70%);
-      box-shadow: 0 0 28px rgba(255,215,0,.45), 0 0 70px rgba(255,215,0,.25);
-      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
-    }
-    @keyframes shock{
-      0%   { transform:translate(-50%,-50%) scale(.6); opacity:1 }
-      70%  { transform:translate(-50%,-50%) scale(1.15); opacity:.95 }
-      100% { transform:translate(-50%,-50%) scale(1.35); opacity:0 }
+    /* One-shot FX Canvas overlay */
+    #fxCanvas{
+      position:fixed; inset:0; z-index:50; display:none; pointer-events:none;
     }
 
     /* Mobile tweaks */
     @media (max-width: 880px){
-      .viewer-center{ top: calc(var(--top-safe) + 12px); }
-      .top-bar{ top: calc(var(--top-safe) + 12px); }
+      .viewer-center{ top: calc(var(--top-safe) + 6px); }
+      .top-bar{ top: calc(var(--top-safe) + 6px); }
       .side{ bottom: calc(var(--bottom-safe) + 10vh); }
       .center-triangle{ bottom: calc(var(--bottom-safe) + 50px); }
       .round-timer{ bottom: calc(var(--bottom-safe) + 86px); font-size:14px; }
       .shape{ width:22px; height:22px; }
       .center-triangle .shape{ width:28px; height:28px; }
-      .offer-card{ grid-template-columns: 86px 1fr; }
-      .offer-avatar{ width:86px; height:86px; }
-    }
-    @media (max-height:700px){
-      .side{ bottom: calc(var(--bottom-safe) + 9vh); }
-      .center-triangle{ bottom: calc(var(--bottom-safe) + 46px); }
-      .round-timer{ bottom: calc(var(--bottom-safe) + 80px); }
     }
   </style>
 </head>
 <body>
-  <!-- Gold stroke gradient -->
+  <!-- Gold stroke gradient for vector shapes -->
   <svg width="0" height="0" style="position:absolute">
     <defs>
       <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -292,15 +266,14 @@
     </defs>
   </svg>
 
-  <!-- Depth layers -->
+  <!-- Ambient layers -->
   <div class="depth-stage" aria-hidden="true">
     <div class="layer-nebula"></div>
     <div class="layer-stars"></div>
   </div>
 
-  <!-- FX layers (one-shot) -->
-  <div id="fxSlash" class="fx-slash" aria-hidden="true"></div>
-  <div id="fxShock" class="fx-shockwave" aria-hidden="true"></div>
+  <!-- Particle FX canvas (one-shot on start) -->
+  <canvas id="fxCanvas"></canvas>
 
   <div class="stream-container" role="application" aria-label="Live Battle Split">
     <!-- LEFT PANE (You) -->
@@ -326,21 +299,24 @@
       <!-- Viewer count centered in opponent screen -->
       <div class="viewer-center" id="viewerChip">👁 1.3k viewers</div>
 
-      <!-- Next Opponent Offer -->
-      <div class="opponent-offer" id="opponentOffer" aria-live="polite">
-        <div class="offer-card">
-          <img id="offerAvatar" class="offer-avatar" src="user3.jpg" alt="Next opponent photo"/>
-          <div class="offer-meta">
-            <div class="offer-title" id="offerName">@NextOpponent</div>
-            <div class="offer-sub">
-              <img id="offerFlag" src="flag_us.png" alt="Country flag"/>
-              <span id="offerCountry">United States</span>
-            </div>
-            <div class="offer-actions">
-              <button id="acceptOpponent" class="btn">Accept</button>
-              <button id="nextOpponent" class="btn-ghost">Next</button>
-            </div>
+      <!-- Opponent display button (pig) under the viewer count -->
+      <button id="opponentBtn" class="opponent-btn" title="Opponent Profile" aria-label="Opponent Profile">
+        <img src="pig.png" alt="Opponent icon"/>
+      </button>
+
+      <!-- HORIZONTAL Next Opponent Bar (inside opponent screen) -->
+      <div class="opponent-bar" id="opponentBar" style="display:none;">
+        <img id="barAvatar" class="op-avatar" src="user3.jpg" alt="Next opponent"/>
+        <div class="op-meta">
+          <div class="op-title" id="barName">@NextOpponent</div>
+          <div class="op-sub">
+            <img id="barFlag" src="flag_us.png" alt="Flag"/>
+            <span id="barCountry">United States</span>
           </div>
+        </div>
+        <div class="op-actions">
+          <button id="barAccept" class="btn-xs btn-accept">Accept</button>
+          <button id="barNext" class="btn-xs btn-next">Next</button>
         </div>
       </div>
     </div>
@@ -425,15 +401,12 @@
     const battleTrack = document.getElementById('battleTrack');
     const endSound = document.getElementById('roundEndSound');
 
-    const fxSlash = document.getElementById('fxSlash');
-    const fxShock = document.getElementById('fxShock');
-
-    const enableCamBtn = document.getElementById('enableCamBtn');
-    const retryCamBtn = document.getElementById('retryCamBtn');
-    const switchCamBtn = document.getElementById('switchCamBtn');
-
     const liveBtn = document.getElementById('liveBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const opponentBtn = document.getElementById('opponentBtn');
+
+    const fxCanvas = document.getElementById('fxCanvas');
+    const ctx = fxCanvas.getContext('2d');
 
     /* Navigation */
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
@@ -441,6 +414,7 @@
     });
     logoutBtn.addEventListener('click', ()=>{ location.href='login.html'; });
     liveBtn.addEventListener('click', ()=>{ location.href='live.html'; });
+    opponentBtn.addEventListener('click', ()=>{ location.href='opponent.html'; });
 
     /* Opponents */
     const opponents = [
@@ -452,14 +426,37 @@
     function pickNext(){ nextIndex = (nextIndex + 1) % opponents.length; return opponents[nextIndex]; }
     function getCurrentNext(){ return opponents[nextIndex]; }
 
+    /* Horizontal Next Opponent Bar refs */
+    const bar = document.getElementById('opponentBar');
+    const barAvatar = document.getElementById('barAvatar');
+    const barName = document.getElementById('barName');
+    const barCountry = document.getElementById('barCountry');
+    const barFlag = document.getElementById('barFlag');
+    const barAccept = document.getElementById('barAccept');
+    const barNext = document.getElementById('barNext');
+
+    function showNextBar(){
+      const cand = pickNext();
+      barAvatar.src = cand.image; barName.textContent = cand.handle;
+      barCountry.textContent = cand.country; barFlag.src = cand.flag;
+      bar.style.display = 'flex';
+      startBtnWrap.style.display = 'none';
+    }
+    barAccept.onclick = ()=>{
+      const cand = getCurrentNext();
+      opponentVideo.src = cand.video;
+      bar.style.display = 'none';
+      state = { round:1, part:0, time:33, tick:null };
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "🔥 Opponent Ready — Press Start 🔥";
+    };
+    barNext.onclick = ()=> showNextBar();
+
     /* Camera */
     let facing = 'user';
-     let currentStream = null;
+    let currentStream = null;
 
-    async function stopStream(stream){
-      if(!stream) return;
-      stream.getTracks().forEach(t=>t.stop());
-    }
+    async function stopStream(stream){ if(!stream) return; stream.getTracks().forEach(t=>t.stop()); }
     async function startCamera(preferFacing = facing){
       try{
         await stopStream(currentStream);
@@ -478,9 +475,9 @@
         camFallback.style.display = 'flex';
       }
     }
-    enableCamBtn?.addEventListener('click', ()=> startCamera('user'));
-    retryCamBtn?.addEventListener('click', ()=> startCamera(facing));
-    switchCamBtn?.addEventListener('click', async ()=>{
+    document.getElementById('enableCamBtn')?.addEventListener('click', ()=> startCamera('user'));
+    document.getElementById('retryCamBtn')?.addEventListener('click', ()=> startCamera(facing));
+    document.getElementById('switchCamBtn')?.addEventListener('click', async ()=>{
       facing = (facing === 'user') ? 'environment' : 'user';
       await startCamera(facing);
     });
@@ -515,78 +512,71 @@
             setTimeout(startRound, 900);
           }else{
             timerEl.textContent = "🔥 Battle Over 🔥";
-            setTimeout(showOpponentOffer, 1200);
+            setTimeout(showNextBar, 1000);
           }
         }
       }, 1000);
     }
 
-    /* Offer Overlay */
-    const offer = document.getElementById('opponentOffer');
-    const offerAvatar = document.getElementById('offerAvatar');
-    const offerName = document.getElementById('offerName');
-    const offerCountry = document.getElementById('offerCountry');
-    const offerFlag = document.getElementById('offerFlag');
-    const acceptOpponent = document.getElementById('acceptOpponent');
-    const nextOpponent = document.getElementById('nextOpponent');
+    /* One-shot polished FX: photonic ring + sparks on canvas (no “cheesy” slash) */
+    function playStartFX(){
+      fxCanvas.width = window.innerWidth;
+      fxCanvas.height = window.innerHeight;
+      fxCanvas.style.display = 'block';
 
-    function showOpponentOffer(){
-      const cand = pickNext();
-      offerAvatar.src = cand.image; offerName.textContent = cand.handle;
-      offerCountry.textContent = cand.country; offerFlag.src = cand.flag;
-      offer.style.display = 'grid';
-      startBtnWrap.style.display = 'none';
+      const cx = fxCanvas.width/2, cy = fxCanvas.height*0.66;
+      const start = performance.now();
+      const duration = 1100; // ms
+      const sparks = Array.from({length: 64}, ()=>({
+        x: cx, y: cy, a: Math.random()*Math.PI*2,
+        v: 2 + Math.random()*6, r: 1 + Math.random()*2, life: 0.8 + Math.random()*0.5
+      }));
+
+      (function loop(now){
+        const t = Math.min(1, (now - start)/duration);
+        ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+
+        // radial ring
+        const R = 40 + t*220;
+        const alpha = 1 - t;
+        const grd = ctx.createRadialGradient(cx,cy, R*0.7, cx,cy, R);
+        grd.addColorStop(0, `rgba(255,255,255,${0.35*alpha})`);
+        grd.addColorStop(0.6, `rgba(255,215,0,${0.25*alpha})`);
+        grd.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+
+        // sparks
+        for(const s of sparks){
+          const lifeT = Math.min(1, ((now - start)/1000) / s.life);
+          s.x += Math.cos(s.a) * s.v;
+          s.y += Math.sin(s.a) * s.v;
+          ctx.globalAlpha = (1 - lifeT) * 0.9;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        if(t < 1){
+          requestAnimationFrame(loop);
+        }else{
+          // gentle fade-out
+          const fadeStart = performance.now();
+          (function fade(now2){
+            const ft = Math.min(1, (now2 - fadeStart)/180);
+            ctx.fillStyle = `rgba(0,0,0,${ft})`;
+            ctx.fillRect(0,0,fxCanvas.width,fxCanvas.height);
+            if(ft < 1) requestAnimationFrame(fade);
+            else {
+              ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+              fxCanvas.style.display = 'none';
+            }
+          })(fadeStart);
+        }
+      })(start);
     }
-    acceptOpponent.onclick = ()=>{
-      const cand = getCurrentNext();
-      opponentVideo.src = cand.video;
-      offer.style.display = 'none';
-      state = { round:1, part:0, time:33, tick:null };
-      startBtnWrap.style.display = 'block';
-      timerEl.textContent = "🔥 Opponent Ready — Press Start 🔥";
-    };
-    nextOpponent.onclick = ()=>{
-      const cand = pickNext();
-      offerAvatar.src = cand.image; offerName.textContent = cand.handle;
-      offerCountry.textContent = cand.country; offerFlag.src = cand.flag;
-    };
 
-    /* One-shot FX helpers (timeout-based so they never “stick”) */
-    function playSlash(){
-      fxSlash.classList.add('active');
-      setTimeout(()=> fxSlash.classList.remove('active'), 700);
-    }
-    function playShock(){
-      fxShock.classList.add('active');
-      setTimeout(()=> fxShock.classList.remove('active'), 950); /* remove even if animationend doesn't fire */
-    }
-
-    /* Start Battle */
-    startBtn.onclick = ()=>{
-      startBtnWrap.style.display='none';
-      battleTrack.play().catch(()=>{});
-      timerEl.classList.add('animate');
-      playSlash();
-      playShock();      /* <- single explosion, fades out, then removed */
-      offer.style.display = 'none';
-      startRound();
-      beginAudioGlow();
-    };
-
-    /* Init */
-    document.addEventListener('DOMContentLoaded', ()=>{
-      // Lock container explicitly (some Android browsers ignore CSS until a layout pass)
-      const sc = document.querySelector('.stream-container');
-      sc.style.height = window.innerHeight + 'px';
-      window.addEventListener('resize', ()=>{
-        sc.style.height = window.innerHeight + 'px';
-      });
-
-      startCamera('user');           // try to start immediately
-      instModal.style.display='grid';// open beat picker on load
-    });
-
-    /* Audio reactive (optional) */
+    /* Audio reactive (subtle) */
     let audioCtx, analyser, dataArr, rafGlow;
     function beginAudioGlow(){
       try{
@@ -612,6 +602,28 @@
         rafGlow = requestAnimationFrame(loop);
       }catch(e){/* ignore if blocked */}
     }
+
+    /* Start Battle */
+    startBtn.onclick = ()=>{
+      startBtnWrap.style.display='none';
+      battleTrack.play().catch(()=>{});
+      timerEl.classList.add('animate');
+      playStartFX();            // refined one-shot explosion
+      bar.style.display = 'none';
+      startRound();
+      beginAudioGlow();
+    };
+
+    /* Init */
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const sc = document.querySelector('.stream-container');
+      sc.style.height = window.innerHeight + 'px';
+      window.addEventListener('resize', ()=>{ sc.style.height = window.innerHeight + 'px'; fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight; });
+
+      startCamera('user');            // try to start cam
+      instModal.style.display='grid'; // beat picker
+    });
   </script>
 </body>
 </html>
+  
