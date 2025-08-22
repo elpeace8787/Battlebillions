@@ -13,8 +13,8 @@
       --gold-1:#ffe88a;
       --gold-2:#ffcc3b;
       --glass: rgba(20,20,24,.45);
-      --glowPx: 0px;   /* audio-driven */
-      --glowSpread: 0px; /* audio-driven */
+      --glowPx: 0px;      /* audio-driven */
+      --glowSpread: 0px;  /* audio-driven */
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -22,7 +22,6 @@
     body{
       color:var(--ink);
       font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      /* Static deep background (no global animation) */
       background:
         radial-gradient(1200px 800px at 30% 20%, #101012 0%, #000 70%),
         linear-gradient(180deg, #050507, #000);
@@ -126,6 +125,14 @@
     }
     .btn:hover{ transform:translateY(-2px); filter:brightness(1.05) }
 
+    /* Audio visualizer (behind dock) */
+    #viz{
+      position:absolute; left:50%; bottom:58px; transform:translateX(-50%);
+      width:min(80vw,680px); height:82px; z-index:25; pointer-events:none;
+      opacity:.9;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.45));
+    }
+
     /* Floating glass dock (icon-only, clear gold/grey) */
     .dock{
       position:absolute; left:50%; bottom:64px; transform:translateX(-50%);
@@ -136,31 +143,35 @@
       box-shadow: 0 12px 36px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
     }
     .dock-btn{
-      width:44px; height:44px; border-radius:12px; display:grid; place-items:center; cursor:pointer;
-      font-size:19px;
-      color:#d6d6d6; /* smoked-glass grey */
+      width:48px; height:48px; border-radius:14px; display:grid; place-items:center; cursor:pointer;
       background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
-      transition: transform .14s ease, background .14s ease, color .14s ease;
+      transition: transform .14s ease, background .14s ease, color .14s ease, filter .14s ease;
     }
     .dock-btn:hover{
       transform:translateY(-2px);
       background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
-      color:#ffffff;
+      filter: brightness(1.05);
     }
     .dock-btn.primary{
-      color:#000;
       background:linear-gradient(180deg, var(--gold-1), var(--gold-2));
       box-shadow:0 10px 28px rgba(255,215,0,.35), inset 0 0 0 1px rgba(255,255,255,.28);
     }
 
-    /* Equalizer behind dock (canvas positioned) */
-    #viz{
-      position:absolute; left:50%; bottom:58px; transform:translateX(-50%);
-      width:min(80vw,680px); height:82px; z-index:25; pointer-events:none;
-      opacity:.9;
-      filter: drop-shadow(0 10px 20px rgba(0,0,0,.45));
+    /* Icon styles (SVG) */
+    .icon{
+      width:24px; height:24px;
+      stroke: #d6d6d6; fill: transparent; stroke-width:2.2;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,.12));
+      transition: stroke .14s ease;
     }
+    .dock-btn.primary .icon{
+      stroke:#000; filter:none;
+    }
+    .dock-btn:hover .icon{ stroke:#ffffff }
+
+    .icon-gold{ stroke:url(#goldStroke) }
+    .icon-ghost{ stroke:#d6d6d6 }
 
     /* Instrumental modal */
     .modal{
@@ -186,7 +197,6 @@
     .sr{ position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
 
     /* ===== Start FX (CSS-only, on top) ===== */
-    /* Gold shockwave ring */
     .fx-shockwave{
       position:fixed; inset:0; display:none; z-index:50; pointer-events:none;
       place-items:center;
@@ -207,7 +217,6 @@
       100%{ transform:scale(8.5); opacity:0 }
     }
 
-    /* Split-screen diagonal flash */
     .fx-slash{
       position:fixed; inset:0; z-index:49; pointer-events:none; display:none;
       overflow:hidden;
@@ -231,6 +240,17 @@
   </style>
 </head>
 <body>
+  <!-- SVG defs for gold stroke gradient (used by icons) -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#fff4b0"/>
+        <stop offset="60%" stop-color="#ffd700"/>
+        <stop offset="100%" stop-color="#ffbf2e"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <!-- CSS FX layers -->
   <div id="fxShock" class="fx-shockwave" aria-hidden="true"></div>
   <div id="fxSlash" class="fx-slash" aria-hidden="true"></div>
@@ -267,11 +287,41 @@
 
     <!-- Floating glass dock -->
     <nav class="dock" aria-label="Primary">
-      <button class="dock-btn" data-link="home.html" title="Home">🏠</button>
-      <button class="dock-btn" data-link="leaderboard.html" title="Leaderboard">🏆</button>
-      <button class="dock-btn primary" data-link="battle.html" title="Battle">🎮</button>
-      <button class="dock-btn" data-link="discover.html" title="Discover">🔍</button>
-      <button class="dock-btn" data-link="profile.html" title="Profile">👤</button>
+      <!-- Home: Circle -->
+      <button class="dock-btn" data-link="home.html" title="Home" aria-label="Home">
+        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7.5" />
+        </svg>
+      </button>
+
+      <!-- Leaderboard: Square -->
+      <button class="dock-btn" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="6.5" y="6.5" width="11" height="11" rx="2"/>
+        </svg>
+      </button>
+
+      <!-- Battle: Triangle (Primary Gold) -->
+      <button class="dock-btn primary" data-link="battle.html" title="Battle" aria-label="Battle">
+        <svg class="icon icon-gold" viewBox="0 0 24 24" aria-hidden="true">
+          <polygon points="12,5.5 18.5,17.5 5.5,17.5"/>
+        </svg>
+      </button>
+
+      <!-- Discover: Diamond -->
+      <button class="dock-btn" data-link="discover.html" title="Discover" aria-label="Discover">
+        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
+          <polygon points="12,4.5 18.5,12 12,19.5 5.5,12"/>
+        </svg>
+      </button>
+
+      <!-- Logout: X -->
+      <button class="dock-btn" id="logoutBtn" title="Logout" aria-label="Logout">
+        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="7" y1="7" x2="17" y2="17"/>
+          <line x1="17" y1="7" x2="7" y2="17"/>
+        </svg>
+      </button>
     </nav>
 
     <!-- Instrumental modal -->
@@ -330,6 +380,8 @@
     const viz          = qs('#viz');
     const vctx         = viz.getContext('2d');
 
+    const logoutBtn    = qs('#logoutBtn');
+
     // -------- Data --------
     const opponents = [
       { video: "user2.mp4", image: "user2.jpg", username: "@OpponentA" },
@@ -352,8 +404,13 @@
     }
 
     // -------- Dock navigation --------
-    qsa('.dock-btn').forEach(btn=>{
+    qsa('.dock-btn[data-link]').forEach(btn=>{
       btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
+    });
+    // Logout -> back to login (or home) page
+    logoutBtn.addEventListener('click', ()=>{
+      // If you have auth, call signOut() here. For now just route:
+      location.href = 'login.html';
     });
 
     // -------- Instrumental modal --------
@@ -448,14 +505,12 @@
       analyser.smoothingTimeConstant = 0.8;
       sourceNode.connect(analyser);
       sourceNode.connect(audioCtx.destination);
-      // Mute the HTML element to avoid double audio (we route via AudioContext)
-      battleTrack.muted = true;
+      battleTrack.muted = true; // route via AudioContext
     }
 
     function startViz(){
       if(!analyser) return;
       const w = viz.clientWidth, h = viz.clientHeight;
-      // Resize canvas to device pixels for crispness
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       viz.width = Math.floor(w*dpr); viz.height = Math.floor(h*dpr);
       vctx.setTransform(dpr,0,0,dpr,0,0);
@@ -464,48 +519,40 @@
 
       const grad = vctx.createLinearGradient(0,0,0,h);
       grad.addColorStop(0,'rgba(255,255,255,0.95)');
-      grad.addColorStop(0.4,'rgba(255,232,138,0.95)');  // gold-1
-      grad.addColorStop(1,'rgba(255,204,59,0.95)');     // gold-2
+      grad.addColorStop(0.4,'rgba(255,232,138,0.95)');
+      grad.addColorStop(1,'rgba(255,204,59,0.95)');
 
       function draw(){
         vizRaf = requestAnimationFrame(draw);
         analyser.getByteFrequencyData(data);
 
-        // Clear
         vctx.clearRect(0,0,w,h);
-
-        // Soft glass background strip
         vctx.fillStyle = 'rgba(255,255,255,0.06)';
         vctx.fillRect(0, 18, w, h-36);
-        // Inner stroke
         vctx.strokeStyle = 'rgba(255,255,255,0.10)';
         vctx.lineWidth = 1;
         vctx.strokeRect(0.5, 18.5, w-1, h-37);
 
-        // Bars
         const gap = 4;
         const barW = (w - (bars-1)*gap) / bars;
         let sum = 0;
         for(let i=0;i<bars;i++){
           const ix = Math.floor(i * data.length / bars);
           const v = data[ix]; sum += v;
-          const norm = v / 255;                // 0..1
-          const bh = 12 + norm * (h-42);       // cap height
+          const norm = v / 255;
+          const bh = 12 + norm * (h-42);
           const x = i*(barW + gap);
           const y = h - bh - 16;
-          // Bar body
           vctx.fillStyle = grad;
           vctx.fillRect(x, y, barW, bh);
-          // Bar highlight
           vctx.fillStyle = 'rgba(255,255,255,0.22)';
           vctx.fillRect(x, y, barW, 6);
         }
 
-        // Audio-reactive glow intensity -> CSS vars
         const avg = sum / bars;
-        const glow = clamp(avg/255, 0, 1);                 // 0..1
-        const px   = Math.round(6 + glow*26);              // 6..32
-        const spr  = Math.round(3 + glow*18);              // 3..21
+        const glow = Math.max(0, Math.min(1, avg/255));
+        const px   = Math.round(6 + glow*26);
+        const spr  = Math.round(3 + glow*18);
         document.documentElement.style.setProperty('--glowPx', px + 'px');
         document.documentElement.style.setProperty('--glowSpread', spr + 'px');
       }
@@ -514,9 +561,8 @@
     function stopViz(){
       if(vizRaf) cancelAnimationFrame(vizRaf);
       vizRaf = 0;
-      // Ease glow back to calm
-      document.documentElement.style.setProperty('--glowPx',px + 'px');
-         // Dim the viz canvas
+      document.documentElement.style.setProperty('--glowPx', '0px');
+      document.documentElement.style.setProperty('--glowSpread', '0px');
       vctx.clearRect(0,0,viz.width,viz.height);
     }
 
@@ -551,11 +597,9 @@
       if(e.key === 'Escape' && instModal.style.display === 'grid'){ showInstModal(false); }
     });
 
-    // Resize handler to keep viz crisp
+    // Resize -> keep viz crisp
     window.addEventListener('resize', ()=>{
-      if(vizRaf){ // if visualizer running, re-fit canvas size
-        stopViz(); startViz();
-      }
+      if(vizRaf){ stopViz(); startViz(); }
     });
   </script>
 </body>
