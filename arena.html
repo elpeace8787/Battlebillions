@@ -13,6 +13,8 @@
       --gold-1:#ffe88a;
       --gold-2:#ffcc3b;
       --glass: rgba(20,20,24,.45);
+      --glowPx: 0px;   /* audio-driven */
+      --glowSpread: 0px; /* audio-driven */
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -20,7 +22,7 @@
     body{
       color:var(--ink);
       font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      /* Static deep background (no animation) */
+      /* Static deep background (no global animation) */
       background:
         radial-gradient(1200px 800px at 30% 20%, #101012 0%, #000 70%),
         linear-gradient(180deg, #050507, #000);
@@ -36,6 +38,7 @@
     .pane{
       position:relative; flex:1; overflow:hidden;
       display:grid; place-items:stretch;
+      isolation:isolate;
     }
     .video-stream{
       width:100%; height:100%; object-fit:cover; background:#000;
@@ -43,17 +46,18 @@
       display:block;
     }
 
-    /* Beat-synced glow frame (applied to .pane when active) */
+    /* Holographic edges + audio-reactive glow (applied only when .glow) */
     .pane.glow::after{
       content:""; position:absolute; inset:0; pointer-events:none;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
-      border-radius:0;
-      animation: glowBeat 1s ease-in-out infinite;
-    }
-    @keyframes glowBeat{
-      0%  { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 0 rgba(255,215,0,.00); }
-      40% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.10), 0 0 24px 8px rgba(255,215,0,.28); }
-      100%{ box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 0 rgba(255,215,0,.00); }
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.08),
+        0 0 var(--glowPx) var(--glowSpread) rgba(255,215,0,.35);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0)),
+        radial-gradient(120% 120% at 0% 0%, rgba(255,215,0,.06), transparent 40%),
+        radial-gradient(120% 120% at 100% 100%, rgba(255,215,0,.04), transparent 40%);
+      mix-blend-mode: screen;
+      transition: box-shadow .12s ease;
     }
 
     /* Top HUD */
@@ -93,12 +97,13 @@
 
     /* Timer / CTA */
     .round-timer{
-      position:absolute; left:50%; bottom:156px; transform:translateX(-50%);
+      position:absolute; left:50%; bottom:170px; transform:translateX(-50%);
       padding:14px 28px; border-radius:999px; font-weight:800; letter-spacing:.3px;
       background:linear-gradient(180deg, rgba(255,215,0,.14), rgba(255,215,0,.06));
       box-shadow:0 0 22px rgba(255,215,0,.25), inset 0 0 0 1px rgba(255,255,255,.08);
       text-shadow:0 0 14px rgba(255,215,0,.18);
       z-index:25; font-family:Orbitron, sans-serif;
+      white-space:nowrap;
     }
     .round-timer.animate{
       animation: pulse 1.8s ease-in-out infinite;
@@ -121,7 +126,7 @@
     }
     .btn:hover{ transform:translateY(-2px); filter:brightness(1.05) }
 
-    /* Floating glass dock (icon-only, clear glass gold/grey) */
+    /* Floating glass dock (icon-only, clear gold/grey) */
     .dock{
       position:absolute; left:50%; bottom:64px; transform:translateX(-50%);
       display:flex; gap:10px; z-index:26; pointer-events:auto;
@@ -147,6 +152,14 @@
       color:#000;
       background:linear-gradient(180deg, var(--gold-1), var(--gold-2));
       box-shadow:0 10px 28px rgba(255,215,0,.35), inset 0 0 0 1px rgba(255,255,255,.28);
+    }
+
+    /* Equalizer behind dock (canvas positioned) */
+    #viz{
+      position:absolute; left:50%; bottom:58px; transform:translateX(-50%);
+      width:min(80vw,680px); height:82px; z-index:25; pointer-events:none;
+      opacity:.9;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.45));
     }
 
     /* Instrumental modal */
@@ -249,6 +262,9 @@
     <div class="round-timer" id="roundTimer">Select your instrumental to begin…</div>
     <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
 
+    <!-- Audio visualizer (behind dock) -->
+    <canvas id="viz" width="680" height="82" aria-hidden="true"></canvas>
+
     <!-- Floating glass dock -->
     <nav class="dock" aria-label="Primary">
       <button class="dock-btn" data-link="home.html" title="Home">🏠</button>
@@ -287,6 +303,7 @@
     // -------- Helpers --------
     const qs = (sel, el=document)=>el.querySelector(sel);
     const qsa = (sel, el=document)=>[...el.querySelectorAll(sel)];
+    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
 
     // -------- Elements --------
     const localVideo   = qs('#localVideo');
@@ -309,6 +326,9 @@
 
     const leftPane     = qs('.pane.left');
     const rightPane    = qs('.pane.right');
+
+    const viz          = qs('#viz');
+    const vctx         = viz.getContext('2d');
 
     // -------- Data --------
     const opponents = [
@@ -356,7 +376,6 @@
     }
     function startTick(){
       stopTick();
-      // enable beat-synced glow on panes
       addGlow(true);
       state.ticking = setInterval(()=>{
         setTimerText();
@@ -375,7 +394,8 @@
             }else{
               timerEl.textContent = '🔥 Battle Over 🔥';
               timerEl.classList.add('animate');
-              addGlow(false); // stop glow after battle
+              addGlow(false);
+              stopViz();
               setTimeout(loadRandomOpponent, 2200);
             }
           }
@@ -388,7 +408,6 @@
       timerEl.classList.add('animate');
       setTimeout(()=>{ timerEl.classList.remove('animate'); startTick(); }, 800);
     }
-
     function addGlow(on){
       leftPane.classList.toggle('glow', on);
       rightPane.classList.toggle('glow', on);
@@ -413,22 +432,111 @@
     }
     function triggerSlash(){
       fxSlash.classList.add('active');
-      // remove after animation completes
       fxSlash.addEventListener('animationend', ()=> fxSlash.classList.remove('active'), { once:true });
-      // Also listen for the pseudo-element animation end using a short timeout as fallback
-      setTimeout(()=>fxSlash.classList.remove('active'), 800);
+      setTimeout(()=>fxSlash.classList.remove('active'), 800); // safety
+    }
+
+    // -------- Audio Visualizer + Audio-Reactive Glow --------
+    let audioCtx=null, analyser=null, sourceNode=null, vizRaf=0;
+
+    function setupAudioGraph(){
+      if(audioCtx) return; // already set
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      sourceNode = audioCtx.createMediaElementSource(battleTrack);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.8;
+      sourceNode.connect(analyser);
+      sourceNode.connect(audioCtx.destination);
+      // Mute the HTML element to avoid double audio (we route via AudioContext)
+      battleTrack.muted = true;
+    }
+
+    function startViz(){
+      if(!analyser) return;
+      const w = viz.clientWidth, h = viz.clientHeight;
+      // Resize canvas to device pixels for crispness
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      viz.width = Math.floor(w*dpr); viz.height = Math.floor(h*dpr);
+      vctx.setTransform(dpr,0,0,dpr,0,0);
+      const bars = 48;
+      const data = new Uint8Array(analyser.frequencyBinCount);
+
+      const grad = vctx.createLinearGradient(0,0,0,h);
+      grad.addColorStop(0,'rgba(255,255,255,0.95)');
+      grad.addColorStop(0.4,'rgba(255,232,138,0.95)');  // gold-1
+      grad.addColorStop(1,'rgba(255,204,59,0.95)');     // gold-2
+
+      function draw(){
+        vizRaf = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(data);
+
+        // Clear
+        vctx.clearRect(0,0,w,h);
+
+        // Soft glass background strip
+        vctx.fillStyle = 'rgba(255,255,255,0.06)';
+        vctx.fillRect(0, 18, w, h-36);
+        // Inner stroke
+        vctx.strokeStyle = 'rgba(255,255,255,0.10)';
+        vctx.lineWidth = 1;
+        vctx.strokeRect(0.5, 18.5, w-1, h-37);
+
+        // Bars
+        const gap = 4;
+        const barW = (w - (bars-1)*gap) / bars;
+        let sum = 0;
+        for(let i=0;i<bars;i++){
+          const ix = Math.floor(i * data.length / bars);
+          const v = data[ix]; sum += v;
+          const norm = v / 255;                // 0..1
+          const bh = 12 + norm * (h-42);       // cap height
+          const x = i*(barW + gap);
+          const y = h - bh - 16;
+          // Bar body
+          vctx.fillStyle = grad;
+          vctx.fillRect(x, y, barW, bh);
+          // Bar highlight
+          vctx.fillStyle = 'rgba(255,255,255,0.22)';
+          vctx.fillRect(x, y, barW, 6);
+        }
+
+        // Audio-reactive glow intensity -> CSS vars
+        const avg = sum / bars;
+        const glow = clamp(avg/255, 0, 1);                 // 0..1
+        const px   = Math.round(6 + glow*26);              // 6..32
+        const spr  = Math.round(3 + glow*18);              // 3..21
+        document.documentElement.style.setProperty('--glowPx', px + 'px');
+        document.documentElement.style.setProperty('--glowSpread', spr + 'px');
+      }
+      draw();
+    }
+    function stopViz(){
+      if(vizRaf) cancelAnimationFrame(vizRaf);
+      vizRaf = 0;
+      // Ease glow back to calm
+      document.documentElement.style.setProperty('--glowPx',px + 'px');
+         // Dim the viz canvas
+      vctx.clearRect(0,0,viz.width,viz.height);
     }
 
     // -------- CTA --------
     startBtn.addEventListener('click', async ()=>{
       startBtnWrap.style.display='none';
-      try{ await battleTrack.play(); }catch(e){}
+      setupAudioGraph();
+      try{
+        await audioCtx.resume();
+        await battleTrack.play();
+      }catch(e){}
       timerEl.classList.add('animate');
-      // Kick off cinematic start FX
+
+      // Cinematic start
       triggerSlash();
       triggerShockwave();
-      // Begin the round timer
+
+      // Begin the round timer + start visualizer
       startTick();
+      startViz();
     });
 
     // -------- Init --------
@@ -442,6 +550,13 @@
     document.addEventListener('keydown', (e)=>{
       if(e.key === 'Escape' && instModal.style.display === 'grid'){ showInstModal(false); }
     });
+
+    // Resize handler to keep viz crisp
+    window.addEventListener('resize', ()=>{
+      if(vizRaf){ // if visualizer running, re-fit canvas size
+        stopViz(); startViz();
+      }
+    });
   </script>
 </body>
-  </html>
+</html>
