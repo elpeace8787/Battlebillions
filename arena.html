@@ -6,144 +6,207 @@
   <title>BattleBillions — Dual Live Battle</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
-    :root {
+    :root{
       --gold:#ffd700;
       --gold-1:#ffe88a;
       --gold-2:#ffcc3b;
-      --muted:#bbb;
+      --ink:#eaeaea;
+      --muted:#b8b8b8;
     }
     *{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%;}
+    html,body{height:100%}
     body{
-      font-family:'Orbitron', sans-serif;
-      background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
-      color:white;
+      font-family:'Orbitron',sans-serif;
+      color:var(--ink);
       overflow:hidden;
+      background: radial-gradient(1200px 800px at 30% 20%, #0a0a0f 0%, #000 70%), #000;
     }
 
-    /* Streams */
+    /* ===== Futuristic stage background (pure CSS, no boxes) ===== */
+    /* Aurora layer */
+    body::before{
+      content:"";
+      position:fixed; inset:-10%;
+      background:
+        conic-gradient(from 0deg at 50% 50%,
+          rgba(255,215,0,0.10),
+          rgba(0,255,255,0.06),
+          rgba(148,0,255,0.08),
+          rgba(255,215,0,0.10));
+      filter: blur(60px) saturate(120%);
+      animation: aurora 28s linear infinite;
+      opacity:.55;
+      pointer-events:none; z-index:0;
+    }
+    @keyframes aurora{
+      0%{ transform:rotate(0deg) scale(1.1) }
+      100%{ transform:rotate(360deg) scale(1.1) }
+    }
+
+    /* Star shimmer grid (very subtle) */
+    body::after{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.08), transparent 60%),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.06), transparent 60%),
+        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.04), transparent 60%);
+      animation: stars 12s ease-in-out infinite alternate;
+      pointer-events:none; z-index:0;
+    }
+    @keyframes stars{
+      from{ filter:brightness(.9) }
+      to{   filter:brightness(1.1) }
+    }
+
+    /* ===== Stage layout ===== */
     .stream-container{
-      display:flex; height:100vh; width:100vw; position:relative;
+      position:relative; z-index:1;
+      display:flex; height:100vh; width:100vw;
     }
     .pane{
-      flex:1; position:relative; overflow:hidden;
-      display:grid; place-items:stretch;
+      flex:1; position:relative; overflow:hidden; display:grid; place-items:stretch;
+      isolation:isolate;
     }
     .video-stream{
-      width:100%; height:100%; object-fit:cover;
-      filter:brightness(.92) contrast(1.1);
-      background:#000; display:block;
+      width:100%; height:100%; object-fit:cover; background:#000;
+      filter: brightness(.94) contrast(1.12) saturate(1.06);
+      display:block;
     }
-    /* Mirror local cam so user looks natural */
+    /* Mirror local camera for natural feel */
     #localVideo{ transform:scaleX(-1); }
 
-    /* Camera overlays */
+    /* Camera fallback / controls (minimal, no boxes outside) */
     .fallback{
       position:absolute; inset:0; display:none; align-items:center; justify-content:center;
-      background:linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.35));
-      font-weight:800; letter-spacing:.3px; text-align:center; padding:18px;
-      gap:10px; flex-direction:column;
+      flex-direction:column; gap:12px; text-align:center; padding:18px;
+      background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
+      font-weight:800; letter-spacing:.3px;
     }
     .pane.error .fallback{ display:flex; }
     .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
     .btn-mini{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000; font-weight:800; padding:10px 14px; border-radius:10px; cursor:pointer;
-      box-shadow:0 0 16px rgba(255,215,0,.35); border:none;
+      color:#000; font-weight:800; padding:10px 14px; border-radius:10px; cursor:pointer; border:none;
+      box-shadow:0 0 16px rgba(255,215,0,.35);
     }
 
-    /* HUD */
+    /* ===== HUD (clean chips, no outlines) ===== */
     .top-bar{
       position:absolute; top:0; left:0; right:0; z-index:10;
-      display:flex; justify-content:space-between; padding:10px 14px; font-size:14px;
+      display:flex; justify-content:space-between; padding:12px 16px; font-size:14px;
       pointer-events:none;
     }
     .hud-live{
+      pointer-events:auto;
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
       color:#000; padding:6px 14px; border-radius:999px; font-weight:800;
-      box-shadow:0 0 16px rgba(255,215,0,.4);
-      pointer-events:auto;
+      box-shadow:0 0 18px rgba(255,215,0,.45);
+      text-shadow:0 1px 0 rgba(255,255,255,.4);
     }
     .hud-chip{
-      padding:6px 14px; border-radius:999px; background:rgba(0,0,0,.4);
       pointer-events:auto;
+      padding:6px 14px; border-radius:999px;
+      background:rgba(0,0,0,.45);
+      backdrop-filter: blur(4px);
     }
 
-    .profile-labels{
-      position:absolute; top:60px; right:20px; z-index:10;
-    }
-    .profile-entry{ display:flex; align-items:center; gap:10px; }
+    .profile-labels{ position:absolute; top:64px; right:20px; z-index:10; }
+    .profile-entry{ display:flex; align-items:center; gap:12px; }
     .profile-entry img{
       width:36px; height:36px; border-radius:50%;
-      box-shadow:0 0 8px rgba(255,215,0,.4);
+      box-shadow:0 0 12px rgba(255,215,0,.35);
     }
-    .profile-entry span{ font-weight:700; }
+    .profile-entry span{ font-weight:800; letter-spacing:.3px }
 
-    /* Timer / CTA */
+    /* ===== Timer + CTA ===== */
     .round-timer{
       position:absolute; left:50%; bottom:160px; transform:translateX(-50%);
       font-weight:800; font-size:18px; padding:12px 24px; border-radius:999px;
-      background:rgba(0,0,0,.5); backdrop-filter:blur(4px);
-      z-index:12; white-space:nowrap;
+      background:rgba(0,0,0,.5); backdrop-filter:blur(6px);
+      z-index:12; white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
     }
     .round-timer.animate{ animation:pulse 1.8s infinite; }
     @keyframes pulse{
       0%,100%{ transform:translateX(-50%) scale(1); }
-      50%{ transform:translateX(-50%) scale(1.08); }
+      50%{ transform:translateX(-50%) scale(1.07); }
     }
 
-    .cta{
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      z-index:12; display:none;
-    }
+    .cta{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:12; display:none; }
     .btn{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
       color:#000; font-weight:800; padding:14px 28px; border-radius:12px;
-      box-shadow:0 0 22px rgba(255,215,0,.4); cursor:pointer; border:none;
+      box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
     }
 
-    /* ===== Clean SHAPE Nav (no outline boxes) ===== */
-    /* Smaller icons + lowered sidebars */
+    /* ===== Icon navigation — shapes only (no background boxes) ===== */
+    /* Smaller icons; sidebars lowered further toward bottom */
     .side{
       position:absolute;
-      top:calc(50% + 90px); /* lower than midline */
+      top:calc(70% + 6vh); /* LOWER than before */
       transform:translateY(-50%);
       display:flex; flex-direction:column; gap:18px; z-index:14;
+      pointer-events:auto;
     }
     .side.left{ left:22px; }
     .side.right{ right:22px; }
 
+    /* Pure icon buttons (transparent, no borders, no boxes) */
     .shape{
-      width:34px; height:34px; display:grid; place-items:center; cursor:pointer;
-      transition:transform .2s ease, filter .2s ease;
-      filter: drop-shadow(0 0 8px rgba(255,255,255,.08));
+      appearance:none; background:transparent; border:none; padding:0;
+      width:32px; height:32px; display:grid; place-items:center; cursor:pointer;
+      transition: transform .18s ease, filter .18s ease;
+      outline:none;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
     }
-    .shape:hover{ transform:scale(1.18); filter:brightness(1.1); }
-    .shape svg{ width:100%; height:100%; stroke:#ccc; fill:none; stroke-width:2.2; }
+    .shape:focus-visible{
+      filter: drop-shadow(0 0 16px rgba(255,215,0,.6));
+      transform:scale(1.14);
+    }
+    .shape:hover{ transform:scale(1.12); filter:brightness(1.08); }
+    .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
+
+    /* Living neon stroke animation on shapes */
+    .shape svg .strokeline{
+      stroke-dasharray: 90;
+      stroke-dashoffset: 90;
+      animation: dash 2.6s ease-out infinite;
+    }
+    @keyframes dash{
+      0%{ stroke-dashoffset: 90; opacity:.85 }
+      60%{ stroke-dashoffset: 0;   opacity:1 }
+      100%{ stroke-dashoffset: 0;  opacity:.85 }
+    }
+
     .shape.gold svg{ stroke:url(#goldStroke); }
     .shape.logout svg{ stroke:#ff5a5a; }
 
-    /* Bottom-center Triangle (stays) — smaller */
+    /* Triangle (primary) stays bottom-center; slightly larger for prominence */
     .center-triangle{
-      position:absolute; left:50%; bottom:70px; transform:translateX(-50%);
-      z-index:14;
+      position:absolute; left:50%; bottom:72px; transform:translateX(-50%);
+      z-index:14; pointer-events:auto;
     }
-    .center-triangle .shape{ width:38px; height:38px; } /* make the main action a touch bigger */
+    .center-triangle .shape{ width:38px; height:38px; }
 
-    /* Modal */
+    /* ===== Modal (instrumental) ===== */
     .modal{
       position:absolute; inset:0; display:none; place-items:center; z-index:30;
       background:rgba(0,0,0,.6);
     }
     .dialog{
-      background:#111; padding:20px; border-radius:12px; display:grid; gap:12px;
-      min-width:260px;
+      background:#0f0f12; padding:20px; border-radius:14px; display:grid; gap:12px; min-width:280px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
     }
-    select{ padding:8px; border-radius:6px; background:#000; color:#fff; border:none; }
+    .dialog h3{ margin:0; font-weight:800; letter-spacing:.4px }
+    select{
+      padding:10px 12px; border-radius:10px; background:#000; color:#fff; border:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+    }
 
-    /* Start FX */
+    /* ===== Start FX (cinematic, no boxes) ===== */
     .fx-slash, .fx-shockwave{ position:fixed; inset:0; pointer-events:none; display:none; z-index:50; }
     .fx-shockwave.active, .fx-slash.active{ display:block; }
+
     .fx-slash::before{
       content:""; position:absolute; left:-40%; top:-40%; width:180%; height:180%;
       background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 50%, rgba(255,215,0,.65) 60%, rgba(255,255,255,0) 70%);
@@ -152,20 +215,21 @@
       animation: slash 650ms cubic-bezier(.15,.6,.2,1) forwards;
     }
     @keyframes slash{ to{ transform: skewY(-12deg) translateX(120%); opacity:0 } }
+
     .fx-shockwave{ display:none; place-items:center; }
     .fx-shockwave.active{ display:grid; }
     .fx-shockwave::before{
       content:""; width:140px; height:140px; border-radius:50%;
       background:
-        radial-gradient(closest-side, rgba(255,255,255,.85), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
-        radial-gradient(closest-side, rgba(255,215,0,.45), rgba(255,215,0,.00) 70%);
-      box-shadow: 0 0 24px rgba(255,215,0,.45), 0 0 60px rgba(255,215,0,.25);
+        radial-gradient(closest-side, rgba(255,255,255,.9), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
+        radial-gradient(closest-side, rgba(255,215,0,.5), rgba(255,215,0,.00) 70%);
+      box-shadow: 0 0 28px rgba(255,215,0,.45), 0 0 70px rgba(255,215,0,.25);
       animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
       filter: blur(.2px);
     }
     @keyframes shock{
       0%{ transform:scale(.2); opacity:1 }
-      70%{ transform:scale(6.0); opacity:.8 }
+      70%{ transform:scale(6.0); opacity:.85 }
       100%{ transform:scale(8.0); opacity:0 }
     }
   </style>
@@ -182,7 +246,7 @@
     </defs>
   </svg>
 
-  <!-- Start FX layers -->
+  <!-- Cinematic FX layers -->
   <div id="fxSlash" class="fx-slash" aria-hidden="true"></div>
   <div id="fxShock" class="fx-shockwave" aria-hidden="true"></div>
 
@@ -199,7 +263,7 @@
           <button id="retryCamBtn" class="btn-mini">Retry</button>
           <button id="switchCamBtn" class="btn-mini">Switch Camera</button>
         </div>
-        <small style="opacity:.8">Tip: use HTTPS and allow permissions.</small>
+        <small style="opacity:.85">Tip: use HTTPS and allow permissions.</small>
       </div>
     </div>
 
@@ -226,26 +290,32 @@
     <div class="round-timer" id="roundTimer">Select your instrumental…</div>
     <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
 
-    <!-- ===== SIDE BARS (shapes only) ===== -->
-    <!-- Left side: circle (home) on top, square (leaderboard) below -->
+    <!-- ===== SIDE ICONS (pure shapes, lowered) ===== -->
+    <!-- Left: Circle (home) above Square (leaderboard) -->
     <nav class="side left" aria-label="Left sidebar">
       <button class="shape" data-link="home.html" title="Home" aria-label="Home">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle class="strokeline" cx="12" cy="12" r="9"/>
+        </svg>
       </button>
       <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/>
+        </svg>
       </button>
     </nav>
 
-    <!-- Right side: diamond (discover) above X (logout) -->
+    <!-- Right: Diamond (discover) above X (logout) -->
     <nav class="side right" aria-label="Right sidebar">
       <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,4 20,12 12,20 4,12"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <polygon class="strokeline" points="12,4 20,12 12,20 4,12"/>
+        </svg>
       </button>
       <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <line x1="6" y1="6" x2="18" y2="18"/>
-          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+          <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
         </svg>
       </button>
     </nav>
@@ -253,7 +323,9 @@
     <!-- Triangle stays bottom-center (primary gold) -->
     <div class="center-triangle">
       <button class="shape gold" data-link="battle.html" title="Battle" aria-label="Battle">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,5 20,19 4,19"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <polygon class="strokeline" points="12,5 20,19 4,19"/>
+        </svg>
       </button>
     </div>
 
@@ -305,7 +377,7 @@
     const retryCamBtn = document.getElementById('retryCamBtn');
     const switchCamBtn = document.getElementById('switchCamBtn');
 
-    // Nav
+    // Shape nav
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
       btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
     });
@@ -318,7 +390,7 @@
       { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
     ];
 
-    // ===== Camera handling (robust) =====
+    /* ===== Camera handling (robust, with fallbacks) ===== */
     let facing = 'user'; // 'user' | 'environment'
     let currentStream = null;
 
@@ -327,16 +399,11 @@
       stream.getTracks().forEach(t=>t.stop());
     }
 
-    async function getCamera(constraints){
-      return navigator.mediaDevices.getUserMedia(constraints);
-    }
-
     async function startCamera(preferFacing = facing){
       try{
-        // Stop existing
         await stopStream(currentStream);
 
-        // Try exact facing first
+        // Try ideal facing first
         const primary = {
           video: {
             facingMode: { ideal: preferFacing },
@@ -346,15 +413,17 @@
         };
 
         try{
-          currentStream = await getCamera(primary);
+          currentStream = await navigator.mediaDevices.getUserMedia(primary);
         }catch(_e1){
-          // fallback: generic video
-          currentStream = await getCamera({ video:true, audio:true });
+          // Fallback to generic constraints if facing not available
+          currentStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
         }
 
         localVideo.srcObject = currentStream;
         leftPane.classList.remove('error');
         camFallback.style.display = 'none';
+        // Mirror only for user-facing
+        localVideo.style.transform = (preferFacing === 'user') ? 'scaleX(-1)' : 'none';
       }catch(e){
         console.warn('Camera error:', e);
         leftPane.classList.add('error');
@@ -362,17 +431,14 @@
       }
     }
 
-    // These buttons give user-gesture to unlock permissions on iOS/Safari
-    enableCamBtn.addEventListener('click', ()=> startCamera('user'));
-    retryCamBtn.addEventListener('click', ()=> startCamera(facing));
-    switchCamBtn.addEventListener('click', async ()=>{
+    enableCamBtn?.addEventListener('click', ()=> startCamera('user'));
+    retryCamBtn?.addEventListener('click', ()=> startCamera(facing));
+    switchCamBtn?.addEventListener('click', async ()=>{
       facing = (facing === 'user') ? 'environment' : 'user';
       await startCamera(facing);
-      // Flip mirror only for user-facing
-      localVideo.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'none';
     });
 
-    // Modal flow
+    /* ===== Modal flow ===== */
     confirmInst.onclick = ()=>{
       const src = selectInst.value;
       if(!src){ alert("Pick a beat."); return; }
@@ -383,7 +449,7 @@
       timerEl.textContent = "Press Start Battle to begin";
     };
 
-    // Battle timer
+    /* ===== Battle timer ===== */
     let state = { round:1, part:0, time:33, tick:null };
 
     function setTimer(){ timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`; }
@@ -419,7 +485,7 @@
       timerEl.textContent = "🔥 New Opponent Ready 🔥";
     }
 
-    // Start FX
+    /* ===== Start FX ===== */
     function triggerSlash(){
       fxSlash.classList.add('active');
       fxSlash.addEventListener('animationend', ()=> fxSlash.classList.remove('active'), { once:true });
@@ -442,17 +508,13 @@
 
     // Init
     window.onload = ()=>{
-      // Show modal and ALSO show camera overlay to encourage permission
-      instModal.style.display = 'grid';
-      leftPane.classList.add('error'); // show prompt until user taps enable
+      instModal.style.display = 'grid';      // open beat picker
+      leftPane.classList.add('error');       // show cam prompt until user taps
       camFallback.style.display = 'flex';
       battleTrack.preload = 'auto';
+      // (Optional) Attempt silent cam init on capable browsers:
+      // startCamera('user');  // uncomment if you want auto prompt
     };
-
-    // Safety: page visibility changes — you can stop camera here if desired
-    document.addEventListener('visibilitychange', ()=>{
-      // no-op; keep stream unless you want to pause when hidden
-    });
   </script>
 </body>
-  </html>
+      </html>
