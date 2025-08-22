@@ -9,9 +9,12 @@
     :root{
       --ink:#f5f5f5;
       --muted:#b7b7b7;
-      --glass: rgba(20,20,24,.45);
       --gold:#ffd700;
-      --gold-soft: rgba(255,215,0,.18);
+      --gold-1:#ffe88a;
+      --gold-2:#ffcc3b;
+      --glass: rgba(20,20,24,.45);
+      --grey-glass: rgba(255,255,255,.08);
+      --grey-glass-strong: rgba(255,255,255,.12);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -19,19 +22,14 @@
     body{
       color:var(--ink);
       font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background:#000; /* 3D canvas sits on top */
+      /* Static deep background (no animation) */
+      background:
+        radial-gradient(1200px 800px at 30% 20%, #101012 0%, #000 70%),
+        linear-gradient(180deg, #050507, #000);
       overflow:hidden;
     }
 
-    /* 3D background canvas */
-    #bg3d{
-      position:fixed; inset:0; width:100%; height:100%; display:block;
-      pointer-events:none;
-      z-index:0;
-      background:radial-gradient(1200px 800px at 30% 20%, #101012 0%, #000 70%);
-    }
-
-    /* Foreground container sits above canvas */
+    /* Foreground container */
     .stream-container{
       position:relative; z-index:1;
       display:flex; height:100vh; width:100vw; gap:0;
@@ -41,7 +39,7 @@
       filter: brightness(.92) contrast(1.12) saturate(1.12);
     }
 
-    /* Top HUD */
+    /* Top HUD (minimal) */
     .top-bar{
       position:absolute; left:0; right:0; top:0; z-index:20; pointer-events:none;
       display:flex; justify-content:space-between; align-items:center; padding:10px 14px;
@@ -56,7 +54,7 @@
       font-size:12px; letter-spacing:.2px;
     }
     .hud-live{
-      color:#000; background:linear-gradient(180deg,#ffe88a,#ffcc3b);
+      color:#000; background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
       box-shadow: 0 10px 28px rgba(255,215,0,.35);
       font-weight:800; font-family:Orbitron, sans-serif;
     }
@@ -72,7 +70,7 @@
     }
     .profile-entry img{
       width:32px; height:32px; border-radius:50%;
-      box-shadow:0 0 10px var(--gold-soft);
+      box-shadow:0 0 10px rgba(255,215,0,.18);
     }
     .profile-entry span{ font-weight:700; letter-spacing:.2px }
 
@@ -99,16 +97,16 @@
     }
     .btn{
       padding:14px 28px; border-radius:14px; cursor:pointer; font-weight:800; letter-spacing:.2px;
-      background:linear-gradient(180deg, #ffe88a, #ffcc3b);
+      background:linear-gradient(180deg, var(--gold-1), var(--gold-2));
       color:#000; box-shadow:0 12px 36px rgba(255,215,0,.35);
       transition:transform .16s ease, filter .16s ease;
       font-family:Orbitron, sans-serif;
     }
     .btn:hover{ transform:translateY(-2px); filter:brightness(1.05) }
 
-    /* Floating glass dock (raised) */
+    /* Floating glass dock (icon-only) – clear glass gold/grey */
     .dock{
-      position:absolute; left:50%; bottom:64px; transform:translateX(-50%); /* raised */
+      position:absolute; left:50%; bottom:64px; transform:translateX(-50%);
       display:flex; gap:10px; z-index:26; pointer-events:auto;
       padding:10px; border-radius:18px;
       background:rgba(255,255,255,.06);
@@ -116,16 +114,26 @@
       box-shadow: 0 12px 36px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
     }
     .dock-btn{
-      width:42px; height:42px; border-radius:12px; display:grid; place-items:center; cursor:pointer;
-      color:#fff; font-size:18px;
-      background:rgba(255,255,255,.08);
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
-      transition: transform .14s ease, background .14s ease;
+      width:44px; height:44px; border-radius:12px; display:grid; place-items:center; cursor:pointer;
+      font-size:19px;
+      /* smoked-glass grey button */
+      color:#d6d6d6;
+      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.06),
+        0 6px 16px rgba(0,0,0,.25);
+      transition: transform .14s ease, background .14s ease, color .14s ease;
     }
-    .dock-btn:hover{ transform:translateY(-2px); background:rgba(255,255,255,.12) }
+    .dock-btn:hover{
+      transform:translateY(-2px);
+      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
+      color:#ffffff;
+    }
     .dock-btn.primary{
-      background:linear-gradient(180deg, #ffe88a, #ffcc3b); color:#000;
-      box-shadow:0 10px 28px rgba(255,215,0,.35);
+      /* clear glass gold button */
+      color:#000;
+      background:linear-gradient(180deg, var(--gold-1), var(--gold-2));
+      box-shadow:0 10px 28px rgba(255,215,0,.35), inset 0 0 0 1px rgba(255,255,255,.28);
     }
 
     /* Instrumental modal */
@@ -151,6 +159,12 @@
 
     .sr{ position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
 
+    /* Single-use FX canvas (hidden by default) */
+    #fxCanvas{
+      position:fixed; inset:0; width:100%; height:100%;
+      display:none; pointer-events:none; z-index:0;
+    }
+
     @media (prefers-reduced-motion: reduce){
       .round-timer.animate{ animation:none }
       .btn:hover, .dock-btn:hover{ transform:none }
@@ -158,8 +172,8 @@
   </style>
 </head>
 <body>
-  <!-- 3D animated background -->
-  <canvas id="bg3d"></canvas>
+  <!-- Single-use explosion canvas (hidden until Start) -->
+  <canvas id="fxCanvas"></canvas>
 
   <div class="stream-container" role="application" aria-label="Live Battle Split">
     <!-- Streams -->
@@ -184,7 +198,7 @@
     <div class="round-timer" id="roundTimer">Select your instrumental to begin…</div>
     <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
 
-    <!-- Floating glass dock (icon-only, raised) -->
+    <!-- Floating glass dock (icon-only, clear gold & grey) -->
     <nav class="dock" aria-label="Primary">
       <button class="dock-btn" data-link="home.html" title="Home">🏠</button>
       <button class="dock-btn" data-link="leaderboard.html" title="Leaderboard">🏆</button>
@@ -218,7 +232,7 @@
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
   <audio id="battleTrack" hidden></audio>
 
-  <!-- Three.js -->
+  <!-- Three.js for one-shot FX -->
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
   <script>
@@ -336,7 +350,7 @@
       try{ await battleTrack.play(); }catch(e){}
       timerEl.classList.add('animate');
       startTick();
-      BG.stop(); // stop explosions when battle starts
+      FX.oneExplosion(); // play a single explosion once battle starts
     });
 
     // -------- Init --------
@@ -344,7 +358,6 @@
       startCamera();
       showInstModal(true);
       battleTrack.preload = 'auto';
-      BG.start(); // kick off background
     });
 
     // ESC to close modal
@@ -352,45 +365,36 @@
       if(e.key === 'Escape' && instModal.style.display === 'grid'){ showInstModal(false); }
     });
 
-    // ========= 3D Explosion Background (gold/ember), stoppable =========
-    const BG = (function(){
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const DPR_LIMIT = 1.75;
-      const MAX_EXPLOSIONS = reduced ? 4 : 9;
-      const BLAST_INTERVAL = reduced ? 1800 : 1300;
-      const START_WITH_BLAST = true;
+    // ========= Single-shot Explosion FX (centered) =========
+    const FX = (function(){
+      let renderer, scene, camera, ambient, particleTex, raf=0, running=false;
+      const canvas = document.getElementById('fxCanvas');
 
-      const canvas = document.getElementById('bg3d');
-      let renderer, scene, camera;
-      let width = window.innerWidth, height = window.innerHeight;
-      let running = false, raf = 0;
-      let explosions = [];
-      let prev = 0, lastBlast = 0;
-
-      // ambient
-      let ambient, particleTex;
-
-      function safeInit(){
+      function init(){
+        if(running) return;
+        // WebGL support check
         try{
           const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
           if(!gl) throw new Error('WebGL not supported');
         }catch(e){
-          console.warn('WebGL unavailable, showing gradient fallback.');
+          console.warn('WebGL unavailable; skipping FX.');
           return false;
         }
-        return true;
-      }
 
-      function init(){
+        // Size & show
+        canvas.style.display = 'block';
+        const DPR_LIMIT=1.75;
+        const w = window.innerWidth, h = window.innerHeight;
+
         renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
         renderer.setClearColor(0x000000, 0);
-        scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, reduced ? 0.0008 : 0.0012);
-
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT));
-        renderer.setSize(width, height, false);
+        renderer.setSize(w, h, false);
 
-        camera = new THREE.PerspectiveCamera(55, width/height, 0.1, 3000);
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.0012);
+
+        camera = new THREE.PerspectiveCamera(55, w/h, 0.1, 3000);
         camera.position.set(0, 0, 140);
 
         const hemi = new THREE.HemisphereLight(0xaaaaaa, 0x0a0a0a, 0.8);
@@ -398,255 +402,123 @@
         dir.position.set(60, 80, 120);
         scene.add(hemi, dir);
 
-        // sprite texture (soft disc)
-        particleTex = (function(){
-          const size = 128;
-          const c = document.createElement('canvas'); c.width=c.height=size;
-          const g = c.getContext('2d');
-          const grad = g.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
-          grad.addColorStop(0,'rgba(255,255,255,0.95)');
-          grad.addColorStop(0.35,'rgba(255,255,255,0.35)');
-          grad.addColorStop(1,'rgba(255,255,255,0.0)');
-          g.fillStyle = grad; g.fillRect(0,0,size,size);
-          const tex = new THREE.CanvasTexture(c);
-          tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
-          return tex;
-        })();
+        // soft disc texture
+        particleTex = (()=>{ const s=128,c=document.createElement('canvas'); c.width=c.height=s;
+          const g=c.getContext('2d'); const grd=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+          grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.35,'rgba(255,255,255,0.35)'); grd.addColorStop(1,'rgba(255,255,255,0)');
+          g.fillStyle=grd; g.fillRect(0,0,s,s);
+          const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; return tex; })();
 
-        // ambient ember field
-        ambient = (function(){
-          const COUNT = reduced ? 300 : 600;
-          const g = new THREE.BufferGeometry();
-          const positions = new Float32Array(COUNT*3);
-          const colors    = new Float32Array(COUNT*3);
-          for(let i=0;i<COUNT;i++){
-            positions[i*3+0] = rand(-220,220);
-            positions[i*3+1] = rand(-140,140);
-            positions[i*3+2] = rand(-180,60);
-            const t = Math.random()*0.5+0.35;
-            colors[i*3+0] = t; colors[i*3+1] = t*0.9; colors[i*3+2] = t*0.85;
-          }
-          g.setAttribute('position', new THREE.BufferAttribute(positions,3));
-          g.setAttribute('color', new THREE.BufferAttribute(colors,3));
-          const m = new THREE.PointsMaterial({
-            size: reduced ? 2.0 : 3.0, map:particleTex, transparent:true, depthWrite:false,
-            vertexColors:true, blending:THREE.AdditiveBlending
-          });
-          const p = new THREE.Points(g,m);
-          p.frustumCulled = false;
-          p.userData = { t:0 };
-          return p;
-        })();
+        // ambient embers (subtle)
+        ambient = (()=>{ const COUNT=500, g=new THREE.BufferGeometry();
+          const positions=new Float32Array(COUNT*3), colors=new Float32Array(COUNT*3);
+          for(let i=0;i<COUNT;i++){ positions[i*3]=rand(-220,220); positions[i*3+1]=rand(-140,140); positions[i*3+2]=rand(-180,60);
+            const t=Math.random()*0.5+0.35; colors[i*3]=t; colors[i*3+1]=t*0.9; colors[i*3+2]=t*0.85; }
+          g.setAttribute('position',new THREE.BufferAttribute(positions,3)); g.setAttribute('color',new THREE.BufferAttribute(colors,3));
+          const m=new THREE.PointsMaterial({ size:3.0, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
+          const p=new THREE.Points(g,m); p.frustumCulled=false; p.userData={t:0}; return p; })();
         scene.add(ambient);
 
-        window.addEventListener('resize', resize, { passive:true });
+        return true;
       }
-
-      const baseMat = ()=> new THREE.PointsMaterial({
-        size: (reduced? 16 : 20),
-        map: particleTex, transparent:true, depthWrite:false,
-        blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
-      });
-      const ringMatStrong = ()=> new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
-      const ringMatSoft   = ()=> new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
-
-      const pool = [];
-      function getPoints(count){
-        for(let i=pool.length-1;i>=0;i--){
-          const p = pool[i];
-          const existing = p.geometry.getAttribute('position').count;
-          if(existing >= count){ pool.splice(i,1); p.visible=true; return p; }
-        }
-        const g = new THREE.BufferGeometry();
-        const positions = new Float32Array(count*3);
-        const colors    = new Float32Array(count*3);
-        const sizes     = new Float32Array(count);
-        g.setAttribute('position', new THREE.BufferAttribute(positions,3));
-        g.setAttribute('color',    new THREE.BufferAttribute(colors,3));
-        g.setAttribute('size',     new THREE.BufferAttribute(sizes,1));
-        const m = baseMat();
-        const points = new THREE.Points(g, m);
-        points.frustumCulled = false;
-        return points;
-      }
-      function releasePoints(points){ points.visible=false; pool.push(points); }
 
       class Explosion {
-        constructor(){
-          const x = rand(-0.42*width, 0.42*width) / 6;
-          const y = rand(-0.45*height, 0.45*height) / 6;
-          const z = rand(-60, 20);
-          this.center = new THREE.Vector3(x,y,z);
-
-          this.life = reduced ? 1.5 : 1.9;
-          this.t = 0;
-
-          this.count = (Math.random()*50 + (reduced? 75 : 120)) | 0;
-          this.points = getPoints(this.count);
-          this.points.position.copy(this.center);
-
-          const g = this.points.geometry;
-          const pos = g.getAttribute('position').array;
-          const col = g.getAttribute('color').array;
-          const siz = g.getAttribute('size').array;
-
-          this.vel = new Float32Array(this.count*3);
+        constructor(center=new THREE.Vector3(0,0,0)){
+          this.center=center.clone(); this.life=1.9; this.t=0;
+          this.count=(Math.random()*60 + 140) | 0;
+          const g=new THREE.BufferGeometry();
+          const positions=new Float32Array(this.count*3);
+          const colors=new Float32Array(this.count*3);
+          const sizes=new Float32Array(this.count);
+          this.vel=new Float32Array(this.count*3);
           for(let i=0;i<this.count;i++){
-            const dirv = new THREE.Vector3().randomDirection();
-            const speed = rand(12, 34);
-            this.vel[i*3+0] = dirv.x*speed;
-            this.vel[i*3+1] = dirv.y*speed;
-            this.vel[i*3+2] = dirv.z*speed;
-
-            pos[i*3+0] = dirv.x*1.6;
-            pos[i*3+1] = dirv.y*1.6;
-            pos[i*3+2] = dirv.z*1.6;
-
-            col[i*3+0] = 1.0; col[i*3+1] = 1.0; col[i*3+2] = 1.0;
-            siz[i] = rand(8, 14);
+            const dirv=new THREE.Vector3().randomDirection(); const speed=rand(14,42);
+            this.vel[i*3]=dirv.x*speed; this.vel[i*3+1]=dirv.y*speed; this.vel[i*3+2]=dirv.z*speed;
+            positions[i*3]=dirv.x*2; positions[i*3+1]=dirv.y*2; positions[i*3+2]=dirv.z*2;
+            colors[i*3]=1.0; colors[i*3+1]=1.0; colors[i*3+2]=1.0; sizes[i]=rand(10,18);
           }
-          g.getAttribute('position').needsUpdate = true;
-          g.getAttribute('color').needsUpdate    = true;
-          g.getAttribute('size').needsUpdate     = true;
+          g.setAttribute('position', new THREE.BufferAttribute(positions,3));
+          g.setAttribute('color',    new THREE.BufferAttribute(colors,3));
+          g.setAttribute('size',     new THREE.BufferAttribute(sizes,1));
+          const mat=new THREE.PointsMaterial({ size:20, map:particleTex, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true });
+          this.points=new THREE.Points(g,mat); this.points.position.copy(this.center); this.points.frustumCulled=false; scene.add(this.points);
 
-          scene.add(this.points);
+          const ringGeo=new THREE.RingGeometry(6,7.6,64);
+          this.ring1=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide }));
+          this.ring2=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide }));
+          this.ring1.position.copy(this.center); this.ring2.position.copy(this.center); this.r1=6; this.r2=6;
+          scene.add(this.ring1,this.ring2);
 
-          const ringGeo = new THREE.RingGeometry(5, 6.6, 64);
-          this.ring1 = new THREE.Mesh(ringGeo, ringMatStrong().clone());
-          this.ring2 = new THREE.Mesh(ringGeo, ringMatSoft().clone());
-          this.ring1.position.copy(this.center);
-          this.ring2.position.copy(this.center);
-          this.r1 = 5; this.r2 = 5;
-          scene.add(this.ring1, this.ring2);
-
-          this.shake = 0.45;
+          this.shake=0.5;
         }
-
         update(dt){
-          this.t += dt;
-          const f = this.t/this.life;
-
-          const g = this.points.geometry;
-          const pos = g.getAttribute('position').array;
-          const col = g.getAttribute('color').array;
-          const siz = g.getAttribute('size').array;
-
-          const drag = 1.0 - Math.min(0.05*dt*60, 0.05);
-
+          this.t+=dt; const f=this.t/this.life; const drag=1.0-Math.min(0.05*dt*60,0.05);
+          const g=this.points.geometry; const pos=g.getAttribute('position').array; const col=g.getAttribute('color').array; const siz=g.getAttribute('size').array;
           for(let i=0;i<this.count;i++){
-            const ix = i*3;
-            pos[ix+0] += this.vel[ix+0]*dt;
-            pos[ix+1] += this.vel[ix+1]*dt;
-            pos[ix+2] += this.vel[ix+2]*dt;
-            this.vel[ix+0] *= drag;
-            this.vel[ix+1] *= drag;
-            this.vel[ix+2] *= drag;
-
-            const toGold = smoothstep(0.25, 0.55, f);
-            col[ix+0] = lerp(1.0, 1.00, toGold);
-            col[ix+1] = lerp(1.0, 0.72, toGold);
-            col[ix+2] = lerp(1.0, 0.28, toGold);
-
-            siz[i] *= (1 - dt*0.1);
-            siz[i] = Math.max(7, siz[i]);
+            const ix=i*3; pos[ix]+=this.vel[ix]*dt; pos[ix+1]+=this.vel[ix+1]*dt; pos[ix+2]+=this.vel[ix+2]*dt;
+            this.vel[ix]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
+            const toGold=smoothstep(0.25,0.55,f); col[ix]=lerp(1.0,1.0,toGold); col[ix+1]=lerp(1.0,0.72,toGold); col[ix+2]=lerp(1.0,0.28,toGold);
+            siz[i]*=(1-dt*0.1); siz[i]=Math.max(8,siz[i]);
           }
-          g.getAttribute('position').needsUpdate = true;
-          g.getAttribute('color').needsUpdate    = true;
-          g.getAttribute('size').needsUpdate     = true;
+          g.getAttribute('position').needsUpdate=true; g.getAttribute('color').needsUpdate=true; g.getAttribute('size').needsUpdate=true;
 
-          this.r1 += 100*dt;
-          this.r2 += 125*dt;
-          this.ring1.scale.setScalar(this.r1/5);
-          this.ring2.scale.setScalar(this.r2/5);
-          this.ring1.material.opacity = Math.max(0, 0.95 - f*1.25);
-          this.ring2.material.opacity = Math.max(0, 0.65 - f*1.3);
-          this.ring1.lookAt(camera.position);
-          this.ring2.lookAt(camera.position);
+          this.r1+=120*dt; this.r2+=150*dt;
+          this.ring1.scale.setScalar(this.r1/6); this.ring2.scale.setScalar(this.r2/6);
+          this.ring1.material.opacity=Math.max(0,0.95 - f*1.3);
+       this.ring2.material.opacity=Math.max(0,0.65 - f*1.4);
+          this.ring1.lookAt(camera.position); this.ring2.lookAt(camera.position);
 
-          if(this.shake>0){
-            const s = this.shake*(1-f);
-            camera.position.x += (Math.random()-0.5)*s;
-            camera.position.y += (Math.random()-0.5)*s;
-          }
-
+          if(this.shake>0){ const s=this.shake*(1-f); camera.position.x+=(Math.random()-0.5)*s; camera.position.y+=(Math.random()-0.5)*s; }
           return this.t < this.life;
         }
-
         dispose(){
-          scene.remove(this.points); releasePoints(this.points);
-          scene.remove(this.ring1); scene.remove(this.ring2);
+          scene.remove(this.points); scene.remove(this.ring1); scene.remove(this.ring2);
+          this.points.geometry.dispose(); this.ring1.geometry.dispose(); this.ring2.geometry.dispose();
         }
       }
 
-      function loop(now){
-        if(!running) return;
-        const dt = Math.min(0.05, (now - prev)/1000); prev = now;
+      function oneExplosion(){
+        if(!init()) return;
+        running=true;
+        const center = new THREE.Vector3(0,0,0);
+        const boom = new Explosion(center);
+        let prev = performance.now();
 
-        // ambient drift
-        if(ambient){
+        function frame(now){
+          if(!running) return;
+          const dt=Math.min(0.05,(now - prev)/1000); prev=now;
+
+          // subtle ambient drift
           ambient.userData.t = (ambient.userData.t || 0) + dt*0.2;
           ambient.position.y = Math.sin(ambient.userData.t)*2;
           ambient.rotation.z += dt*0.02;
-        }
 
-        // schedule explosions
-        if(now - lastBlast > BLAST_INTERVAL){
-          if(explosions.length > MAX_EXPLOSIONS){
-            const old = explosions.shift(); old.dispose();
+          if(!boom.update(dt)){
+            boom.dispose();
+            teardown(); // end effect after single explosion
+            return;
           }
-          explosions.push(new Explosion());
-          lastBlast = now;
+          camera.lookAt(0,0,0);
+          renderer.render(scene,camera);
+          raf=requestAnimationFrame(frame);
         }
-
-        // update explosions
-        for(let i=explosions.length-1;i>=0;i--){
-          if(!explosions[i].update(dt)){
-            explosions[i].dispose();
-            explosions.splice(i,1);
-          }
-        }
-
-        camera.lookAt(0,0,0);
-        renderer.render(scene, camera);
-        raf = requestAnimationFrame(loop);
+        raf=requestAnimationFrame(frame);
       }
 
-      function start(){
-        if(running) return;
-        if(!safeInit()) return;
-        width = window.innerWidth; height = window.innerHeight;
-        init();
-        explosions = [];
-        prev = performance.now(); lastBlast = prev;
-        if(START_WITH_BLAST) explosions.push(new Explosion());
-        running = true;
-        raf = requestAnimationFrame(loop);
-      }
-
-      function stop(){
-        if(!running) return;
-        running = false;
-        cancelAnimationFrame(raf);
-        // Freeze current scene; dispose active animations
-        for(const e of explosions){ e.dispose(); }
-        explosions = [];
-        // leave ambient + last frame rendered; nothing else to do
-      }
-
-      function resize(){
-        width = window.innerWidth; height = window.innerHeight;
-        if(!renderer || !camera) return;
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT));
-        renderer.setSize(width, height, false);
-        camera.aspect = width/height;
-        camera.updateProjectionMatrix();
+      function teardown(){
+        running=false;
+        if(raf) cancelAnimationFrame(raf);
+        // Dispose renderer/scene minimally
+        renderer && renderer.dispose();
+        scene = null; camera = null; renderer = null; ambient = null; particleTex = null;
+        canvas.style.display='none'; // hide canvas after effect
       }
 
       function rand(a,b){ return a + Math.random()*(b-a); }
       function lerp(a,b,t){ return a + (b-a)*t; }
-      function smoothstep(a,b,x){ const t = Math.max(0, Math.min(1, (x-a)/(b-a))); return t*t*(3 - 2*t); }
+      function smoothstep(a,b,x){ const t=Math.max(0,Math.min(1,(x-a)/(b-a))); return t*t*(3-2*t); }
 
-      return { start, stop };
+      return { oneExplosion };
     })();
   </script>
 </body>
