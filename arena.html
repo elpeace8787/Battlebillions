@@ -7,22 +7,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      /* BattleBillions palette */
       --ink:#f5f5f5;
       --muted:#b7b7b7;
-      --bg0:#000000;
-      --bg1:#0c0c10;
       --glass: rgba(20,20,24,.45);
-      --stroke: rgba(255,255,255,.10);
       --gold:#ffd700;
       --gold-soft: rgba(255,215,0,.18);
-      --accent:#ffbe3b;
-      --shadow: 0 10px 40px rgba(0,0,0,.45);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
-    html{background:#000}
     body{
       color:var(--ink);
       font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -32,80 +25,59 @@
       overflow:hidden;
     }
 
-    /* Container */
+    /* Split video stage */
     .stream-container{
-      display:flex; height:100vh; width:100vw; position:relative; gap:1px;
-      background:linear-gradient(180deg, rgba(255,215,0,.08), rgba(255,215,0,0));
+      display:flex; height:100vh; width:100vw; position:relative; gap:0;
     }
-
-    /* Dual videos */
     .video-stream{
       flex:1; width:50%; height:100%; object-fit:cover; background:#000;
-      filter: brightness(.9) contrast(1.15) saturate(1.15);
-      border:1px solid rgba(255,215,0,.16);
-      outline:0;
+      filter: brightness(.92) contrast(1.12) saturate(1.12);
+      /* no borders for clean/advanced look */
     }
 
-    /* HUD bars */
-    .top-bar,.bottom-bar{
-      position:absolute; left:0; right:0; display:flex; justify-content:space-between; align-items:center;
-      padding:8px 14px; z-index:20; pointer-events:auto;
-      background:rgba(255,215,0,.08); backdrop-filter: blur(8px) saturate(120%);
-      border-top:1px solid rgba(255,215,0,.14); border-bottom:1px solid rgba(255,215,0,.14);
+    /* Top HUD (minimal, no borders) */
+    .top-bar{
+      position:absolute; left:0; right:0; top:0; z-index:20; pointer-events:none;
+      display:flex; justify-content:space-between; align-items:center; padding:10px 14px;
+      background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
+      backdrop-filter: blur(8px) saturate(120%);
     }
-    .top-bar{ top:0; border-bottom-color: rgba(255,215,0,.22)}
-    .bottom-bar{ bottom:0; border-top-color: rgba(255,215,0,.22)}
-
-    .hud-item{
-      font-size:12px; color:var(--ink);
-      display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px; border-radius:999px;
+    .hud-chip{
+      pointer-events:auto;
+      display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px;
       background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.25);
+      font-size:12px; letter-spacing:.2px;
     }
-    .hud-live{ color:#000; background:var(--gold); border-color:transparent; font-weight:800; font-family:Orbitron, sans-serif; }
-
-    /* Side controls */
-    .side-controls{ position:absolute; bottom:120px; display:flex; flex-direction:column; gap:12px; z-index:30; pointer-events:auto; }
-    .side-controls.left{ left:14px }
-    .side-controls.right{ right:14px }
-
-    .side-button{
-      width:38px; height:38px; border-radius:50%; display:grid; place-items:center; cursor:pointer;
-      color:#000; font-size:18px; font-weight:800;
-      background:linear-gradient(180deg, #ffe88a, #ffcc3b);
-      border:1px solid rgba(0,0,0,.35);
-      box-shadow:0 6px 16px rgba(255,215,0,.25), inset 0 0 0 1px rgba(255,255,255,.25);
-      transition:transform .16s ease, filter .16s ease;
+    .hud-live{
+      color:#000; background:linear-gradient(180deg,#ffe88a,#ffcc3b);
+      box-shadow: 0 10px 28px rgba(255,215,0,.35);
+      font-weight:800; font-family:Orbitron, sans-serif;
     }
-    .side-button:hover{ transform:translateY(-2px); filter:brightness(1.05) }
 
-    /* Profile chip */
+    /* Profile chip (kept, outline removed) */
     .profile-labels{
-      position:absolute; top:48px; right:20px; display:flex; gap:10px; z-index:40;
+      position:absolute; top:58px; right:20px; display:flex; gap:10px; z-index:22;
     }
     .profile-entry{
       display:flex; align-items:center; gap:10px; padding:6px 12px; border-radius:999px;
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
-      box-shadow:0 8px 24px rgba(0,0,0,.25);
+      background:rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.25);
     }
     .profile-entry img{
-      width:32px; height:32px; border-radius:50%; border:1px solid rgba(255,255,255,.18);
+      width:32px; height:32px; border-radius:50%;
       box-shadow:0 0 10px var(--gold-soft);
     }
     .profile-entry span{ font-weight:700; letter-spacing:.2px }
 
-    /* Timer / CTA */
+    /* Timer / CTA (no borders) */
     .round-timer{
-      position:absolute; left:50%; bottom:118px; transform:translateX(-50%);
+      position:absolute; left:50%; bottom:132px; transform:translateX(-50%);
       padding:14px 28px; border-radius:999px; font-weight:800; letter-spacing:.3px;
-      border:1px solid rgba(255,215,0,.35);
       background:linear-gradient(180deg, rgba(255,215,0,.14), rgba(255,215,0,.06));
       box-shadow:0 0 22px rgba(255,215,0,.25), inset 0 0 0 1px rgba(255,255,255,.08);
       text-shadow:0 0 14px rgba(255,215,0,.18);
-      z-index:50;
-      font-family:Orbitron, sans-serif;
+      z-index:25; font-family:Orbitron, sans-serif;
     }
     .round-timer.animate{
       animation: pulse 1.8s ease-in-out infinite;
@@ -117,43 +89,69 @@
 
     .cta{
       position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      display:none; z-index:60; pointer-events:auto;
+      display:none; z-index:26; pointer-events:auto;
     }
     .btn{
       padding:14px 28px; border-radius:14px; cursor:pointer; font-weight:800; letter-spacing:.2px;
-      border:1px solid rgba(255,215,0,.45);
       background:linear-gradient(180deg, #ffe88a, #ffcc3b);
       color:#000; box-shadow:0 12px 36px rgba(255,215,0,.35);
       transition:transform .16s ease, filter .16s ease;
       font-family:Orbitron, sans-serif;
+      /* no border */
     }
     .btn:hover{ transform:translateY(-2px); filter:brightness(1.05) }
 
-    /* Modal: Instrumental picker */
+    /* Floating see-through bottom dock (icon-only) */
+    .dock{
+      position:absolute; left:50%; bottom:22px; transform:translateX(-50%);
+      display:flex; gap:10px; z-index:26; pointer-events:auto;
+      padding:10px; border-radius:18px;
+      background:rgba(255,255,255,.06);
+      backdrop-filter: blur(10px) saturate(140%);
+      box-shadow: 0 12px 36px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .dock-btn{
+      width:42px; height:42px; border-radius:12px; display:grid; place-items:center; cursor:pointer;
+      color:#fff; font-size:18px;
+      background:rgba(255,255,255,.08);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
+      transition: transform .14s ease, background .14s ease;
+      /* no border */
+    }
+    .dock-btn:hover{ transform:translateY(-2px); background:rgba(255,255,255,.12) }
+    .dock-btn.primary{
+      background:linear-gradient(180deg, #ffe88a, #ffcc3b); color:#000;
+      box-shadow:0 10px 28px rgba(255,215,0,.35);
+    }
+
+    /* Instrumental modal (glass, no hard outlines) */
     .modal{
-      position:absolute; inset:0; display:none; place-items:center; z-index:70; pointer-events:auto;
+      position:absolute; inset:0; display:none; place-items:center; z-index:30; pointer-events:auto;
       background: radial-gradient(1000px 700px at 50% 40%, rgba(255,215,0,.12), rgba(0,0,0,.92));
       backdrop-filter: blur(4px);
     }
     .dialog{
       width:min(92vw,520px); padding:16px; border-radius:16px;
-      background:var(--glass); border:1px solid var(--stroke); box-shadow: var(--shadow);
+      background:var(--glass);
+      box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
       display:grid; gap:12px;
     }
     .dialog h3{ margin:0; font-size:16px; font-weight:800 }
-    .field{
-      display:grid; gap:8px;
-    }
+    .field{ display:grid; gap:8px }
     select{
-      width:100%; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.14);
-      background:#0a0a0a; color:var(--ink); outline:0;
+      width:100%; padding:10px 12px; border-radius:12px; outline:0;
+      border:none; /* remove outline look */
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+      background:#0a0a0a; color:var(--ink);
     }
     .dialog-actions{ display:flex; justify-content:flex-end; gap:10px }
 
-    /* Reduced motion */
+    /* Accessibility helper (visually hidden) */
+    .sr{ position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
+
     @media (prefers-reduced-motion: reduce){
       .round-timer.animate{ animation:none }
-      .side-button:hover{ transform:none }
+      .btn:hover, .dock-btn:hover{ transform:none }
     }
   </style>
 </head>
@@ -162,6 +160,33 @@
     <!-- Streams -->
     <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
     <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4" playsinline></video>
+
+    <!-- Top HUD -->
+    <div class="top-bar">
+      <span class="hud-chip hud-live">LIVE</span>
+      <span class="hud-chip">👁‍🗨 1.3k</span>
+    </div>
+
+    <!-- Opponent chip -->
+    <div class="profile-labels" id="profileLabels">
+      <div class="profile-entry">
+        <img src="user2.jpg" id="opponentImage" alt="Opponent avatar" />
+        <span id="opponentUsername">@Opponent</span>
+      </div>
+    </div>
+
+    <!-- Timer + CTA -->
+    <div class="round-timer" id="roundTimer">Select your instrumental to begin…</div>
+    <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
+
+    <!-- Floating glass dock (icon-only) -->
+    <nav class="dock" aria-label="Primary">
+      <button class="dock-btn" data-link="home.html" title="Home">🏠</button>
+      <button class="dock-btn" data-link="leaderboard.html" title="Leaderboard">🏆</button>
+      <button class="dock-btn primary" data-link="battle.html" title="Battle">🎮</button>
+      <button class="dock-btn" data-link="discover.html" title="Discover">🔍</button>
+      <button class="dock-btn" data-link="profile.html" title="Profile">👤</button>
+    </nav>
 
     <!-- Instrumental modal -->
     <div class="modal" id="instModal" aria-modal="true" role="dialog" aria-labelledby="instTitle">
@@ -182,44 +207,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Start CTA -->
-    <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
-
-    <!-- HUD -->
-    <div class="top-bar">
-      <span class="hud-item hud-live">LIVE</span>
-      <span class="hud-item">👁‍🗨 1.3k</span>
-    </div>
-
-    <div class="profile-labels" id="profileLabels">
-      <div class="profile-entry">
-        <img src="user2.jpg" id="opponentImage" alt="Opponent avatar" />
-        <span id="opponentUsername">@Opponent</span>
-      </div>
-    </div>
-
-    <div class="side-controls left">
-      <button class="side-button" data-link="profile.html">👤</button>
-      <button class="side-button" data-link="dashboard.html">🔍</button>
-      <button class="side-button" data-link="login.html">🚪</button>
-    </div>
-
-    <div class="side-controls right">
-      <button class="side-button" data-link="home.html">🏠</button>
-      <button class="side-button" data-link="leaderboard.html">🏆</button>
-      <button class="side-button" data-link="battle.html">🎮</button>
-    </div>
-
-    <div class="bottom-bar">
-      <span class="hud-item">👤 Profile</span>
-      <span class="hud-item">🔍 Discover</span>
-      <span class="hud-item">🏆 Leaderboard</span>
-      <span class="hud-item">🏠 Home</span>
-      <span class="hud-item">🎮 Battle</span>
-    </div>
-
-    <div class="round-timer" id="roundTimer">Select your instrumental to begin…</div>
   </div>
 
   <!-- Audio -->
@@ -227,11 +214,11 @@
   <audio id="battleTrack" hidden></audio>
 
   <script>
-    // ---------- Helpers ----------
+    // -------- Helpers --------
     const qs = (sel, el=document)=>el.querySelector(sel);
     const qsa = (sel, el=document)=>[...el.querySelectorAll(sel)];
 
-    // ---------- Elements ----------
+    // -------- Elements --------
     const localVideo   = qs('#localVideo');
     const opponentVideo= qs('#opponentVideo');
     const opponentImage= qs('#opponentImage');
@@ -247,14 +234,14 @@
     const endSound     = qs('#roundEndSound');
     const battleTrack  = qs('#battleTrack');
 
-    // ---------- Data ----------
+    // -------- Data --------
     const opponents = [
       { video: "user2.mp4", image: "user2.jpg", username: "@OpponentA" },
       { video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" },
       { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
     ];
 
-    // ---------- Camera ----------
+    // -------- Camera --------
     async function startCamera(){
       try{
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -268,20 +255,16 @@
       }
     }
 
-    // ---------- Navigation buttons ----------
-    qsa('.side-button').forEach(btn=>{
+    // -------- Dock navigation --------
+    qsa('.dock-btn').forEach(btn=>{
       btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
     });
 
-    // ---------- Instrumental modal ----------
-    function showInstModal(v=true){
-      instModal.style.display = v ? 'grid' : 'none';
-    }
+    // -------- Instrumental modal --------
+    function showInstModal(v=true){ instModal.style.display = v ? 'grid' : 'none'; }
     confirmInst.addEventListener('click', ()=>{
       const src = selectInst.value;
-      if(!src){
-        alert('Pick a beat first.'); return;
-      }
+      if(!src){ alert('Pick a beat first.'); return; }
       battleTrack.src = src;
       battleTrack.load();
       showInstModal(false);
@@ -289,19 +272,12 @@
       timerEl.textContent = 'Press Start Battle to begin';
     });
 
-    // ---------- Battle loop (single interval) ----------
-    let state = {
-      round: 1,
-      part: 0,    // 0 = you, 1 = opponent
-      time: 33,
-      ticking: null,
-      switching: false
-    };
+    // -------- Battle loop (single interval) --------
+    let state = { round:1, part:0, time:33, ticking:null };
 
     function setTimerText(){
       timerEl.textContent = `Round ${state.round} of 3 | ${state.part===0 ? '@You' : '@Opponent'} | ${state.time}s`;
     }
-
     function startTick(){
       stopTick();
       state.ticking = setInterval(()=>{
@@ -312,15 +288,13 @@
           stopTick();
 
           if(state.part === 0){
-            // switch to opponent
             state.part = 1; state.time = 33;
-            switchPhase('Switching to Opponent...');
+            transition('Switching to Opponent...');
           }else{
             if(state.round < 3){
               state.round++; state.part = 0; state.time = 33;
-              switchPhase('Switching to Next Round...');
+              transition('Switching to Next Round...');
             }else{
-              // Battle over
               timerEl.textContent = '🔥 Battle Over 🔥';
               timerEl.classList.add('animate');
               setTimeout(loadRandomOpponent, 2200);
@@ -329,50 +303,44 @@
         }
       }, 1000);
     }
-    function stopTick(){
-      if(state.ticking){ clearInterval(state.ticking); state.ticking = null; }
-    }
-    function switchPhase(msg){
+    function stopTick(){ if(state.ticking){ clearInterval(state.ticking); state.ticking = null; } }
+    function transition(msg){
       timerEl.textContent = msg;
-      setTimeout(()=>{
-        timerEl.classList.add('animate');
-        setTimeout(()=>{ timerEl.classList.remove('animate'); startTick(); }, 600);
-      }, 250);
+      timerEl.classList.add('animate');
+      setTimeout(()=>{ timerEl.classList.remove('animate'); startTick(); }, 800);
     }
 
-    // ---------- Opponents ----------
+    // -------- Opponents --------
     function loadRandomOpponent(){
       const next = opponents[Math.floor(Math.random()*opponents.length)];
       opponentVideo.src = next.video;
       opponentImage.src = next.image;
       opponentUser.textContent = next.username;
 
-      // reset state
       state.round = 1; state.part = 0; state.time = 33;
       startBtnWrap.style.display='block';
       timerEl.textContent = '🔥 New Opponent Ready — Press Start 🔥';
     }
 
-    // ---------- CTA actions ----------
+    // -------- CTA --------
     startBtn.addEventListener('click', async ()=>{
       startBtnWrap.style.display='none';
-      try{ await battleTrack.play(); }catch(e){ /* ignore autoplay fail; user just tapped */ }
+      try{ await battleTrack.play(); }catch(e){}
       timerEl.classList.add('animate');
       startTick();
     });
 
-    // ---------- Page init ----------
+    // -------- Init --------
     window.addEventListener('load', ()=>{
       startCamera();
       showInstModal(true);
-      // preload simple audio to lessen delay later
       battleTrack.preload = 'auto';
     });
 
-    // Accessibility niceties
+    // ESC to close modal
     document.addEventListener('keydown', (e)=>{
       if(e.key === 'Escape' && instModal.style.display === 'grid'){ showInstModal(false); }
     });
   </script>
 </body>
-                                                                  </html>
+</html>
