@@ -4,243 +4,85 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BattleBillions — Dual Live Battle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --ink:#f5f5f5;
-      --muted:#b7b7b7;
+    :root {
       --gold:#ffd700;
       --gold-1:#ffe88a;
       --gold-2:#ffcc3b;
-      --glass: rgba(20,20,24,.45);
-      --glowPx: 0px;      /* audio-driven */
-      --glowSpread: 0px;  /* audio-driven */
+      --muted:#bbb;
     }
-
     *{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%;}
     body{
-      color:var(--ink);
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background:
-        radial-gradient(1200px 800px at 30% 20%, #101012 0%, #000 70%),
-        linear-gradient(180deg, #050507, #000);
+      font-family:'Orbitron', sans-serif;
+      background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+      color:white;
       overflow:hidden;
     }
 
-    /* Layout */
-    .stream-container{
-      position:relative; z-index:1;
-      display:flex; height:100vh; width:100vw; gap:0;
-    }
+    /* Streams */
+    .stream-container{display:flex;height:100vh;width:100vw;position:relative;}
+    .pane{flex:1;position:relative;}
+    .video-stream{width:100%;height:100%;object-fit:cover;filter:brightness(.9) contrast(1.1);}
 
-    .pane{
-      position:relative; flex:1; overflow:hidden;
-      display:grid; place-items:stretch;
-      isolation:isolate;
-    }
-    .video-stream{
-      width:100%; height:100%; object-fit:cover; background:#000;
-      filter: brightness(.92) contrast(1.12) saturate(1.12);
-      display:block;
-    }
-
-    /* Holographic edges + audio-reactive glow (applied only when .glow) */
-    .pane.glow::after{
-      content:""; position:absolute; inset:0; pointer-events:none;
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.08),
-        0 0 var(--glowPx) var(--glowSpread) rgba(255,215,0,.35);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0)),
-        radial-gradient(120% 120% at 0% 0%, rgba(255,215,0,.06), transparent 40%),
-        radial-gradient(120% 120% at 100% 100%, rgba(255,215,0,.04), transparent 40%);
-      mix-blend-mode: screen;
-      transition: box-shadow .12s ease;
-    }
-
-    /* Top HUD */
+    /* HUD */
     .top-bar{
-      position:absolute; left:0; right:0; top:0; z-index:20; pointer-events:none;
-      display:flex; justify-content:space-between; align-items:center; padding:10px 14px;
-      background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
-      backdrop-filter: blur(8px) saturate(120%);
-    }
-    .hud-chip{
-      pointer-events:auto;
-      display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px;
-      background:rgba(255,255,255,.06);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.25);
-      font-size:12px; letter-spacing:.2px;
+      position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;
+      padding:10px 14px;z-index:10;font-size:14px;
     }
     .hud-live{
-      color:#000; background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      box-shadow: 0 10px 28px rgba(255,215,0,.35);
-      font-weight:800; font-family:Orbitron, sans-serif;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000;padding:6px 14px;border-radius:999px;font-weight:800;
+      box-shadow:0 0 16px rgba(255,215,0,.4);
     }
+    .hud-chip{padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.4);}
 
-    /* Opponent chip */
     .profile-labels{
-      position:absolute; top:58px; right:20px; display:flex; gap:10px; z-index:22;
+      position:absolute;top:60px;right:20px;z-index:10;
     }
-    .profile-entry{
-      display:flex; align-items:center; gap:10px; padding:6px 12px; border-radius:999px;
-      background:rgba(255,255,255,.06);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.25);
-    }
-    .profile-entry img{
-      width:32px; height:32px; border-radius:50%;
-      box-shadow:0 0 10px rgba(255,215,0,.18);
-    }
-    .profile-entry span{ font-weight:700; letter-spacing:.2px }
+    .profile-entry{display:flex;align-items:center;gap:10px;}
+    .profile-entry img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 8px rgba(255,215,0,.4);}
+    .profile-entry span{font-weight:700;}
 
     /* Timer / CTA */
     .round-timer{
-      position:absolute; left:50%; bottom:170px; transform:translateX(-50%);
-      padding:14px 28px; border-radius:999px; font-weight:800; letter-spacing:.3px;
-      background:linear-gradient(180deg, rgba(255,215,0,.14), rgba(255,215,0,.06));
-      box-shadow:0 0 22px rgba(255,215,0,.25), inset 0 0 0 1px rgba(255,255,255,.08);
-      text-shadow:0 0 14px rgba(255,215,0,.18);
-      z-index:25; font-family:Orbitron, sans-serif;
-      white-space:nowrap;
+      position:absolute;left:50%;bottom:160px;transform:translateX(-50%);
+      font-weight:800;font-size:18px;padding:12px 24px;border-radius:999px;
+      background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
     }
-    .round-timer.animate{
-      animation: pulse 1.8s ease-in-out infinite;
-    }
-    @keyframes pulse{
-      0%,100%{ transform:translateX(-50%) scale(1); box-shadow:0 0 22px rgba(255,215,0,.25) }
-      50%{ transform:translateX(-50%) scale(1.05); box-shadow:0 0 30px rgba(255,215,0,.45) }
-    }
+    .round-timer.animate{animation:pulse 1.8s infinite;}
+    @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.08);}}
 
-    .cta{
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      display:none; z-index:26; pointer-events:auto;
-    }
+    .cta{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;display:none;}
     .btn{
-      padding:14px 28px; border-radius:14px; cursor:pointer; font-weight:800; letter-spacing:.2px;
-      background:linear-gradient(180deg, var(--gold-1), var(--gold-2));
-      color:#000; box-shadow:0 12px 36px rgba(255,215,0,.35);
-      transition:transform .16s ease, filter .16s ease;
-      font-family:Orbitron, sans-serif;
-    }
-    .btn:hover{ transform:translateY(-2px); filter:brightness(1.05) }
-
-    /* Audio visualizer (behind dock) */
-    #viz{
-      position:absolute; left:50%; bottom:58px; transform:translateX(-50%);
-      width:min(80vw,680px); height:82px; z-index:25; pointer-events:none;
-      opacity:.9;
-      filter: drop-shadow(0 10px 20px rgba(0,0,0,.45));
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000;font-weight:800;padding:14px 28px;border-radius:12px;
+      box-shadow:0 0 22px rgba(255,215,0,.4);cursor:pointer;
     }
 
-    /* Floating glass dock (icon-only, clear gold/grey) */
+    /* Dock (no outline box, just floating shapes) */
     .dock{
-      position:absolute; left:50%; bottom:64px; transform:translateX(-50%);
-      display:flex; gap:10px; z-index:26; pointer-events:auto;
-      padding:10px; border-radius:18px;
-      background:rgba(255,255,255,.06);
-      backdrop-filter: blur(10px) saturate(140%);
-      box-shadow: 0 12px 36px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
+      position:absolute;left:50%;bottom:80px;transform:translateX(-50%);
+      display:flex;gap:36px;z-index:20;
     }
-    .dock-btn{
-      width:48px; height:48px; border-radius:14px; display:grid; place-items:center; cursor:pointer;
-      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
-      transition: transform .14s ease, background .14s ease, color .14s ease, filter .14s ease;
+    .shape{
+      width:44px;height:44px;display:grid;place-items:center;
+      cursor:pointer;transition:transform .2s ease;
     }
-    .dock-btn:hover{
-      transform:translateY(-2px);
-      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
-      filter: brightness(1.05);
-    }
-    .dock-btn.primary{
-      background:linear-gradient(180deg, var(--gold-1), var(--gold-2));
-      box-shadow:0 10px 28px rgba(255,215,0,.35), inset 0 0 0 1px rgba(255,255,255,.28);
-    }
+    .shape:hover{transform:scale(1.15);}
+    .shape svg{width:100%;height:100%;stroke:#ccc;fill:none;stroke-width:2.5;}
+    .primary svg{stroke:url(#goldStroke);}
+    .logout svg{stroke:#ff5555;}
 
-    /* Icon styles (SVG) */
-    .icon{
-      width:24px; height:24px;
-      stroke: #d6d6d6; fill: transparent; stroke-width:2.2;
-      filter: drop-shadow(0 0 4px rgba(255,255,255,.12));
-      transition: stroke .14s ease;
-    }
-    .dock-btn.primary .icon{
-      stroke:#000; filter:none;
-    }
-    .dock-btn:hover .icon{ stroke:#ffffff }
-
-    .icon-gold{ stroke:url(#goldStroke) }
-    .icon-ghost{ stroke:#d6d6d6 }
-
-    /* Instrumental modal */
-    .modal{
-      position:absolute; inset:0; display:none; place-items:center; z-index:30; pointer-events:auto;
-      background: radial-gradient(1000px 700px at 50% 40%, rgba(255,215,0,.12), rgba(0,0,0,.92));
-      backdrop-filter: blur(4px);
-    }
-    .dialog{
-      width:min(92vw,520px); padding:16px; border-radius:16px;
-      background:var(--glass);
-      box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
-      display:grid; gap:12px;
-    }
-    .dialog h3{ margin:0; font-size:16px; font-weight:800 }
-    .field{ display:grid; gap:8px }
-    select{
-      width:100%; padding:10px 12px; border-radius:12px; outline:0; border:none;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
-      background:#0a0a0a; color:var(--ink);
-    }
-    .dialog-actions{ display:flex; justify-content:flex-end; gap:10px }
-
-    .sr{ position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
-
-    /* ===== Start FX (CSS-only, on top) ===== */
-    .fx-shockwave{
-      position:fixed; inset:0; display:none; z-index:50; pointer-events:none;
-      place-items:center;
-    }
-    .fx-shockwave.active{ display:grid; }
-    .fx-shockwave::before{
-      content:""; width:160px; height:160px; border-radius:50%;
-      background:
-        radial-gradient(closest-side, rgba(255,255,255,.85), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
-        radial-gradient(closest-side, rgba(255,215,0,.45), rgba(255,215,0,.00) 70%);
-      box-shadow: 0 0 24px rgba(255,215,0,.45), 0 0 60px rgba(255,215,0,.25);
-      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
-      filter: blur(.2px);
-    }
-    @keyframes shock{
-      0%{ transform:scale(.2); opacity:1 }
-      70%{ transform:scale(6.5); opacity:.8 }
-      100%{ transform:scale(8.5); opacity:0 }
-    }
-
-    .fx-slash{
-      position:fixed; inset:0; z-index:49; pointer-events:none; display:none;
-      overflow:hidden;
-    }
-    .fx-slash.active{ display:block; }
-    .fx-slash::before{
-      content:""; position:absolute; left:-40%; top:-40%; width:180%; height:180%;
-      background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 50%, rgba(255,215,0,.65) 60%, rgba(255,255,255,0) 70%);
-      transform: skewY(-12deg) translateX(-120%);
-      filter: blur(2px);
-      animation: slash 650ms cubic-bezier(.15,.6,.2,1) forwards;
-    }
-    @keyframes slash{
-      to{ transform: skewY(-12deg) translateX(120%); opacity:0; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .round-timer.animate{ animation:none }
-      .pane.glow::after{ animation:none }
-    }
+    /* Modal */
+    .modal{position:absolute;inset:0;display:none;place-items:center;z-index:30;background:rgba(0,0,0,.6);}
+    .dialog{background:#111;padding:20px;border-radius:12px;display:grid;gap:12px;}
+    select{padding:8px;border-radius:6px;background:#000;color:#fff;}
   </style>
 </head>
 <body>
-  <!-- SVG defs for gold stroke gradient (used by icons) -->
+  <!-- Gradient stroke for gold -->
   <svg width="0" height="0" style="position:absolute">
     <defs>
       <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -251,356 +93,110 @@
     </defs>
   </svg>
 
-  <!-- CSS FX layers -->
-  <div id="fxShock" class="fx-shockwave" aria-hidden="true"></div>
-  <div id="fxSlash" class="fx-slash" aria-hidden="true"></div>
+  <div class="stream-container">
+    <div class="pane"><video class="video-stream" id="localVideo" autoplay muted playsinline></video></div>
+    <div class="pane"><video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video></div>
 
-  <div class="stream-container" role="application" aria-label="Live Battle Split">
-    <!-- Streams (wrapped for glow control) -->
-    <div class="pane left">
-      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-    </div>
-    <div class="pane right">
-      <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4" playsinline></video>
-    </div>
-
-    <!-- Top HUD -->
+    <!-- HUD -->
     <div class="top-bar">
-      <span class="hud-chip hud-live">LIVE</span>
-      <span class="hud-chip">👁‍🗨 1.3k</span>
+      <span class="hud-live">LIVE</span>
+      <span class="hud-chip">👁 1.3k</span>
     </div>
-
-    <!-- Opponent chip -->
-    <div class="profile-labels" id="profileLabels">
-      <div class="profile-entry">
-        <img src="user2.jpg" id="opponentImage" alt="Opponent avatar" />
-        <span id="opponentUsername">@Opponent</span>
-      </div>
-    </div>
+    <div class="profile-labels"><div class="profile-entry"><img id="opponentImage" src="user2.jpg"><span id="opponentUsername">@Opponent</span></div></div>
 
     <!-- Timer + CTA -->
-    <div class="round-timer" id="roundTimer">Select your instrumental to begin…</div>
+    <div class="round-timer" id="roundTimer">Select your instrumental…</div>
     <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
 
-    <!-- Audio visualizer (behind dock) -->
-    <canvas id="viz" width="680" height="82" aria-hidden="true"></canvas>
-
-    <!-- Floating glass dock -->
-    <nav class="dock" aria-label="Primary">
-      <!-- Home: Circle -->
-      <button class="dock-btn" data-link="home.html" title="Home" aria-label="Home">
-        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="7.5" />
-        </svg>
-      </button>
-
-      <!-- Leaderboard: Square -->
-      <button class="dock-btn" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
-        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="6.5" y="6.5" width="11" height="11" rx="2"/>
-        </svg>
-      </button>
-
-      <!-- Battle: Triangle (Primary Gold) -->
-      <button class="dock-btn primary" data-link="battle.html" title="Battle" aria-label="Battle">
-        <svg class="icon icon-gold" viewBox="0 0 24 24" aria-hidden="true">
-          <polygon points="12,5.5 18.5,17.5 5.5,17.5"/>
-        </svg>
-      </button>
-
-      <!-- Discover: Diamond -->
-      <button class="dock-btn" data-link="discover.html" title="Discover" aria-label="Discover">
-        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
-          <polygon points="12,4.5 18.5,12 12,19.5 5.5,12"/>
-        </svg>
-      </button>
-
-      <!-- Logout: X -->
-      <button class="dock-btn" id="logoutBtn" title="Logout" aria-label="Logout">
-        <svg class="icon icon-ghost" viewBox="0 0 24 24" aria-hidden="true">
-          <line x1="7" y1="7" x2="17" y2="17"/>
-          <line x1="17" y1="7" x2="7" y2="17"/>
-        </svg>
-      </button>
+    <!-- Dock: only shapes -->
+    <nav class="dock">
+      <div class="shape"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
+      <div class="shape"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg></div>
+      <div class="shape primary"><svg viewBox="0 0 24 24"><polygon points="12,5 20,19 4,19"/></svg></div>
+      <div class="shape"><svg viewBox="0 0 24 24"><polygon points="12,4 20,12 12,20 4,12"/></svg></div>
+      <div class="shape logout"><svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div>
     </nav>
 
-    <!-- Instrumental modal -->
-    <div class="modal" id="instModal" aria-modal="true" role="dialog" aria-labelledby="instTitle">
+    <!-- Modal -->
+    <div class="modal" id="instModal">
       <div class="dialog">
-        <h3 id="instTitle">Select Instrumental</h3>
-        <div class="field">
-          <label for="instrumentalSelect" class="sr">Instrumental</label>
-          <select id="instrumentalSelect">
-            <option disabled selected value="">Choose a beat</option>
-            <option value="beat1.mp3">🔥 Classic Trap</option>
-            <option value="beat2.mp3">💥 Boom Bap</option>
-            <option value="beat3.mp3">🌊 Chill Vibes</option>
-            <option value="beat4.mp3">⚡ Fast Flow</option>
-          </select>
-        </div>
-        <div class="dialog-actions">
-          <button class="btn" id="confirmInst">Confirm</button>
-        </div>
+        <h3>Select Instrumental</h3>
+        <select id="instrumentalSelect">
+          <option disabled selected value="">Choose a beat</option>
+          <option value="beat1.mp3">🔥 Classic Trap</option>
+          <option value="beat2.mp3">💥 Boom Bap</option>
+          <option value="beat3.mp3">🌊 Chill Vibes</option>
+        </select>
+        <button class="btn" id="confirmInst">Confirm</button>
       </div>
     </div>
   </div>
 
-  <!-- Audio -->
-  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
   <audio id="battleTrack" hidden></audio>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
 
   <script>
-    // -------- Helpers --------
-    const qs = (sel, el=document)=>el.querySelector(sel);
-    const qsa = (sel, el=document)=>[...el.querySelectorAll(sel)];
-    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+    const localVideo=document.getElementById('localVideo');
+    const opponentVideo=document.getElementById('opponentVideo');
+    const opponentImage=document.getElementById('opponentImage');
+    const opponentUsername=document.getElementById('opponentUsername');
+    const instModal=document.getElementById('instModal');
+    const selectInst=document.getElementById('instrumentalSelect');
+    const confirmInst=document.getElementById('confirmInst');
+    const startBtn=document.getElementById('startBattleBtn');
+    const startBtnWrap=document.querySelector('.cta');
+    const timerEl=document.getElementById('roundTimer');
+    const battleTrack=document.getElementById('battleTrack');
+    const endSound=document.getElementById('roundEndSound');
 
-    // -------- Elements --------
-    const localVideo   = qs('#localVideo');
-    const opponentVideo= qs('#opponentVideo');
-    const opponentImage= qs('#opponentImage');
-    const opponentUser = qs('#opponentUsername');
+    const opponents=[{video:"user2.mp4",image:"user2.jpg",username:"@OpponentA"},
+                     {video:"user3.mp4",image:"user3.jpg",username:"@ChallengerX"},
+                     {video:"user4.mp4",image:"user4.jpg",username:"@MCNeo"}];
 
-    const instModal    = qs('#instModal');
-    const selectInst   = qs('#instrumentalSelect');
-    const confirmInst  = qs('#confirmInst');
-    const startBtnWrap = qs('.cta');
-    const startBtn     = qs('#startBattleBtn');
-    const timerEl      = qs('#roundTimer');
-
-    const endSound     = qs('#roundEndSound');
-    const battleTrack  = qs('#battleTrack');
-
-    const fxShock      = qs('#fxShock');
-    const fxSlash      = qs('#fxSlash');
-
-    const leftPane     = qs('.pane.left');
-    const rightPane    = qs('.pane.right');
-
-    const viz          = qs('#viz');
-    const vctx         = viz.getContext('2d');
-
-    const logoutBtn    = qs('#logoutBtn');
-
-    // -------- Data --------
-    const opponents = [
-      { video: "user2.mp4", image: "user2.jpg", username: "@OpponentA" },
-      { video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" },
-      { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
-    ];
-
-    // -------- Camera --------
     async function startCamera(){
       try{
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: true
-        });
-        localVideo.srcObject = stream;
-      }catch(err){
-        console.warn('Camera error:', err);
-        alert('Please allow camera & mic access.');
-      }
+        const stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+        localVideo.srcObject=stream;
+      }catch(e){console.warn(e);}
     }
 
-    // -------- Dock navigation --------
-    qsa('.dock-btn[data-link]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
-    });
-    // Logout -> back to login (or home) page
-    logoutBtn.addEventListener('click', ()=>{
-      // If you have auth, call signOut() here. For now just route:
-      location.href = 'login.html';
-    });
-
-    // -------- Instrumental modal --------
-    function showInstModal(v=true){ instModal.style.display = v ? 'grid' : 'none'; }
-    confirmInst.addEventListener('click', ()=>{
-      const src = selectInst.value;
-      if(!src){ alert('Pick a beat first.'); return; }
-      battleTrack.src = src;
-      battleTrack.load();
-      showInstModal(false);
+    confirmInst.onclick=()=>{
+      const src=selectInst.value;
+      if(!src){alert("Pick a beat.");return;}
+      battleTrack.src=src;battleTrack.load();
+      instModal.style.display='none';
       startBtnWrap.style.display='block';
-      timerEl.textContent = 'Press Start Battle to begin';
-    });
+      timerEl.textContent="Press Start Battle to begin";
+    };
 
-    // -------- Battle loop (single interval) --------
-    let state = { round:1, part:0, time:33, ticking:null };
-
-    function setTimerText(){
-      timerEl.textContent = `Round ${state.round} of 3 | ${state.part===0 ? '@You' : '@Opponent'} | ${state.time}s`;
-    }
-    function startTick(){
-      stopTick();
-      addGlow(true);
-      state.ticking = setInterval(()=>{
-        setTimerText();
-        state.time--;
-        if(state.time < 0){
-          endSound.play().catch(()=>{});
-          stopTick();
-
-          if(state.part === 0){
-            state.part = 1; state.time = 33;
-            transition('Switching to Opponent...');
-          }else{
-            if(state.round < 3){
-              state.round++; state.part = 0; state.time = 33;
-              transition('Switching to Next Round...');
-            }else{
-              timerEl.textContent = '🔥 Battle Over 🔥';
-              timerEl.classList.add('animate');
-              addGlow(false);
-              stopViz();
-              setTimeout(loadRandomOpponent, 2200);
-            }
-          }
+    let state={round:1,part:0,time:33,tick:null};
+    function setTimer(){timerEl.textContent=`Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`;}
+    function tick(){
+      state.tick=setInterval(()=>{
+        setTimer();state.time--;
+        if(state.time<0){
+          clearInterval(state.tick);endSound.play();
+          if(state.part===0){state.part=1;state.time=33;timerEl.textContent="Switching...";setTimeout(startRound,1000);}
+          else if(state.round<3){state.round++;state.part=0;state.time=33;timerEl.textContent="Next Round...";setTimeout(startRound,1000);}
+          else{timerEl.textContent="🔥 Battle Over 🔥";setTimeout(newOpponent,2000);}
         }
-      }, 1000);
+      },1000);
     }
-    function stopTick(){ if(state.ticking){ clearInterval(state.ticking); state.ticking = null; } }
-    function transition(msg){
-      timerEl.textContent = msg;
-      timerEl.classList.add('animate');
-      setTimeout(()=>{ timerEl.classList.remove('animate'); startTick(); }, 800);
-    }
-    function addGlow(on){
-      leftPane.classList.toggle('glow', on);
-      rightPane.classList.toggle('glow', on);
+    function startRound(){tick();}
+    function newOpponent(){
+      const next=opponents[Math.floor(Math.random()*opponents.length)];
+      opponentVideo.src=next.video;opponentImage.src=next.image;opponentUsername.textContent=next.username;
+      state={round:1,part:0,time:33,tick:null};startBtnWrap.style.display='block';timerEl.textContent="🔥 New Opponent Ready 🔥";
     }
 
-    // -------- Opponents --------
-    function loadRandomOpponent(){
-      const next = opponents[Math.floor(Math.random()*opponents.length)];
-      opponentVideo.src = next.video;
-      opponentImage.src = next.image;
-      opponentUser.textContent = next.username;
-
-      state.round = 1; state.part = 0; state.time = 33;
-      startBtnWrap.style.display='block';
-      timerEl.textContent = '🔥 New Opponent Ready — Press Start 🔥';
-    }
-
-    // -------- Start FX (CSS triggers) --------
-    function triggerShockwave(){
-      fxShock.classList.add('active');
-      fxShock.addEventListener('animationend', ()=> fxShock.classList.remove('active'), { once:true });
-    }
-    function triggerSlash(){
-      fxSlash.classList.add('active');
-      fxSlash.addEventListener('animationend', ()=> fxSlash.classList.remove('active'), { once:true });
-      setTimeout(()=>fxSlash.classList.remove('active'), 800); // safety
-    }
-
-    // -------- Audio Visualizer + Audio-Reactive Glow --------
-    let audioCtx=null, analyser=null, sourceNode=null, vizRaf=0;
-
-    function setupAudioGraph(){
-      if(audioCtx) return; // already set
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      sourceNode = audioCtx.createMediaElementSource(battleTrack);
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 1024;
-      analyser.smoothingTimeConstant = 0.8;
-      sourceNode.connect(analyser);
-      sourceNode.connect(audioCtx.destination);
-      battleTrack.muted = true; // route via AudioContext
-    }
-
-    function startViz(){
-      if(!analyser) return;
-      const w = viz.clientWidth, h = viz.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      viz.width = Math.floor(w*dpr); viz.height = Math.floor(h*dpr);
-      vctx.setTransform(dpr,0,0,dpr,0,0);
-      const bars = 48;
-      const data = new Uint8Array(analyser.frequencyBinCount);
-
-      const grad = vctx.createLinearGradient(0,0,0,h);
-      grad.addColorStop(0,'rgba(255,255,255,0.95)');
-      grad.addColorStop(0.4,'rgba(255,232,138,0.95)');
-      grad.addColorStop(1,'rgba(255,204,59,0.95)');
-
-      function draw(){
-        vizRaf = requestAnimationFrame(draw);
-        analyser.getByteFrequencyData(data);
-
-        vctx.clearRect(0,0,w,h);
-        vctx.fillStyle = 'rgba(255,255,255,0.06)';
-        vctx.fillRect(0, 18, w, h-36);
-        vctx.strokeStyle = 'rgba(255,255,255,0.10)';
-        vctx.lineWidth = 1;
-        vctx.strokeRect(0.5, 18.5, w-1, h-37);
-
-        const gap = 4;
-        const barW = (w - (bars-1)*gap) / bars;
-        let sum = 0;
-        for(let i=0;i<bars;i++){
-          const ix = Math.floor(i * data.length / bars);
-          const v = data[ix]; sum += v;
-          const norm = v / 255;
-          const bh = 12 + norm * (h-42);
-          const x = i*(barW + gap);
-          const y = h - bh - 16;
-          vctx.fillStyle = grad;
-          vctx.fillRect(x, y, barW, bh);
-          vctx.fillStyle = 'rgba(255,255,255,0.22)';
-          vctx.fillRect(x, y, barW, 6);
-        }
-
-        const avg = sum / bars;
-        const glow = Math.max(0, Math.min(1, avg/255));
-        const px   = Math.round(6 + glow*26);
-        const spr  = Math.round(3 + glow*18);
-        document.documentElement.style.setProperty('--glowPx', px + 'px');
-        document.documentElement.style.setProperty('--glowSpread', spr + 'px');
-      }
-      draw();
-    }
-    function stopViz(){
-      if(vizRaf) cancelAnimationFrame(vizRaf);
-      vizRaf = 0;
-      document.documentElement.style.setProperty('--glowPx', '0px');
-      document.documentElement.style.setProperty('--glowSpread', '0px');
-      vctx.clearRect(0,0,viz.width,viz.height);
-    }
-
-    // -------- CTA --------
-    startBtn.addEventListener('click', async ()=>{
+    startBtn.onclick=()=>{
       startBtnWrap.style.display='none';
-      setupAudioGraph();
-      try{
-        await audioCtx.resume();
-        await battleTrack.play();
-      }catch(e){}
+      battleTrack.play();
       timerEl.classList.add('animate');
+      startRound();
+    };
 
-      // Cinematic start
-      triggerSlash();
-      triggerShockwave();
-
-      // Begin the round timer + start visualizer
-      startTick();
-      startViz();
-    });
-
-    // -------- Init --------
-    window.addEventListener('load', ()=>{
-      startCamera();
-      showInstModal(true);
-      battleTrack.preload = 'auto';
-    });
-
-    // ESC to close modal
-    document.addEventListener('keydown', (e)=>{
-      if(e.key === 'Escape' && instModal.style.display === 'grid'){ showInstModal(false); }
-    });
-
-    // Resize -> keep viz crisp
-    window.addEventListener('resize', ()=>{
-      if(vizRaf){ stopViz(); startViz(); }
-    });
+    window.onload=()=>{startCamera();instModal.style.display='grid';};
   </script>
 </body>
 </html>
