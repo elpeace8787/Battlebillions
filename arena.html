@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions — Dual Live Battle (Mobile-Stable 5D)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Dual Live Battle (Mobile-Stable)</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -12,11 +12,7 @@
       --gold-2:#ffcc3b;
       --ink:#eaeaea;
       --muted:#b8b8b8;
-
-      --mx: 0;  --my: 0;  --gyroX: 0;  --gyroY: 0;  --beatGlow: 0;
-      --persp: 1200px;
-
-      /* Safe-area anchors (keeps HUD on-screen on mobile) */
+      --beatGlow: 0;
       --top-safe: max(16px, env(safe-area-inset-top));
       --side-safe: max(16px, env(safe-area-inset-left));
       --side-safe-r: max(16px, env(safe-area-inset-right));
@@ -24,28 +20,33 @@
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%}
+    html, body{
+      height:100%;
+      width:100%;
+      overflow:hidden;                /* kill page scrollbars */
+      -webkit-overflow-scrolling:auto;
+      overscroll-behavior:none;
+      background:#000;
+    }
+    /* Hide any platform scrollbars just in case */
+    *::-webkit-scrollbar{ display:none; width:0; height:0 }
+
     body{
       font-family:'Orbitron',sans-serif;
       color:var(--ink);
-      overflow:hidden;
-      background:#000;
-      perspective:var(--persp);
-      transform-style:preserve-3d;
       -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation; /* prevents weird panning on mobile */
+      touch-action: manipulation;
     }
 
-    /* ===== Subtle depth layers (lightweight, non-parallax on mobile) ===== */
-    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; transform-style:preserve-3d; }
+    /* Depth hint (very light, no scroll impact) */
+    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
     .layer-nebula{
       position:absolute; inset:-15%;
       background: conic-gradient(from 0deg at 50% 50%,
         rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
       filter: blur(90px) saturate(130%); opacity:.42; animation: nebula 40s linear infinite;
-      transform: translateZ(-800px);
     }
-    @keyframes nebula{ to{ transform:translateZ(-800px) rotate(360deg) } }
+    @keyframes nebula{ to{ transform: rotate(360deg) } }
     .layer-stars{
       position:absolute; inset:0;
       background:
@@ -53,37 +54,42 @@
         radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.07), transparent 60%),
         radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.06), transparent 60%);
       animation: stars 14s ease-in-out infinite alternate;
-      transform: translateZ(-600px);
     }
     @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
 
-    /* ===== Main Stage (perfect 1:1 split) ===== */
-    .stream-container{ position:relative; z-index:1; display:flex; height:100vh; width:100vw; transform-style:preserve-3d; }
-    .pane{ flex:1; position:relative; overflow:hidden; display:grid; place-items:stretch; isolation:isolate; transform-style:preserve-3d; min-width:0; }
-    .video-stream{
-      width:100%; height:100%; object-fit:cover; background:#000;
+    /* Even split; lock to small viewport height to avoid iOS chrome shifts */
+    .stream-container{
+      position:relative; z-index:1; display:flex;
+      height:100svh; width:100svw;      /* <- mobile-stable */
+      overflow:hidden;                   /* <- no inner scroll */
+      contain:layout paint size;         /* perf & containment */
+    }
+    .pane{ flex:1; position:relative; overflow:hidden; min-width:0; }
+    video.video-stream{
+      display:block;
+      width:100%; height:100%;
+      object-fit:cover; background:#000;
       filter: brightness(.94) contrast(1.12) saturate(1.06);
-      transform: translateZ(0);
     }
     #localVideo{ transform:scaleX(-1); }
 
-    /* Holo sheen (no boxes/outlines) */
+    /* Subtle sheen (no outlines/boxes) */
     .pane::after{
-      content:""; position:absolute; inset:0;
+      content:""; position:absolute; inset:0; pointer-events:none;
       background:
         linear-gradient(to right, rgba(255,255,255,.05), transparent 20% 80%, rgba(255,255,255,.05)),
         radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
         radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
-      mix-blend-mode:screen; pointer-events:none; animation: paneSheen 6s ease-in-out infinite alternate;
+      mix-blend-mode:screen; animation: paneSheen 6s ease-in-out infinite alternate;
     }
     @keyframes paneSheen{ from{opacity:.32} to{opacity:.6} }
 
-    /* Camera fallback */
+    /* Fallback when camera blocked */
     .fallback{
       position:absolute; inset:0; display:none; align-items:center; justify-content:center;
       flex-direction:column; gap:12px; text-align:center; padding:18px;
       background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
-      font-weight:800; letter-spacing:.3px; transform: translateZ(40px);
+      font-weight:800; letter-spacing:.3px;
     }
     .pane.error .fallback{ display:flex; }
     .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
@@ -92,10 +98,10 @@
       padding:10px 14px; border-radius:10px; cursor:pointer; border:none; box-shadow:0 0 16px rgba(255,215,0,.35);
     }
 
-    /* ===== Global HUD (lowered safely) ===== */
+    /* HUD */
     .top-bar{
       position:absolute; left:0; right:0;
-      top: calc(var(--top-safe) + 24px);
+      top: calc(var(--top-safe) + 18px);
       z-index:10; display:flex; justify-content:space-between; padding:0 clamp(12px, 2vw, 20px);
       font-size:14px; pointer-events:none;
     }
@@ -107,23 +113,23 @@
       box-shadow:0 0 18px rgba(255,215,0,.45); text-shadow:0 1px 0 rgba(255,255,255,.4);
     }
 
-    /* Viewer Count centered INSIDE opponent screen */
+    /* Viewer chip centered in opponent pane */
     .viewer-center{
       position:absolute; left:50%;
-      top: calc(var(--top-safe) + 20px);
+      top: calc(var(--top-safe) + 14px);
       transform: translateX(-50%);
       z-index:12;
       padding:8px 16px; border-radius:999px;
       background:rgba(0,0,0,.55); backdrop-filter: blur(8px);
-      font-weight:800;
+      font-weight:800; white-space:nowrap;
     }
 
     /* Timer + CTA */
     .round-timer{
       position:absolute; left:50%;
-      bottom: calc(var(--bottom-safe) + 110px);
+      bottom: calc(var(--bottom-safe) + 90px);
       transform:translateX(-50%); z-index:12;
-      font-weight:800; font-size:16px; padding:10px 20px; border-radius:999px;
+      font-weight:800; font-size:15px; padding:10px 18px; border-radius:999px;
       background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
       white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
     }
@@ -139,7 +145,7 @@
       box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
     }
 
-    /* ===== Side Icons (shapes only; smaller; mobile-safe) ===== */
+    /* Side shapes (smaller, no boxes) */
     .side{
       position:absolute;
       bottom: calc(var(--bottom-safe) + 12vh);
@@ -173,10 +179,9 @@
     .shape.gold svg{ stroke:url(#goldStroke); }
     .shape.logout svg{ stroke:#ff5a5a; }
 
-    /* Triangle (primary) */
     .center-triangle{
       position:absolute; left:50%;
-      bottom: calc(var(--bottom-safe) + 58px);
+      bottom: calc(var(--bottom-safe) + 54px);
       transform:translateX(-50%); z-index:14;
     }
     .center-triangle .shape{
@@ -184,7 +189,7 @@
       filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5));
     }
 
-    /* ===== Next Opponent Overlay (centered in right pane) ===== */
+    /* Next Opponent overlay */
     .opponent-offer{
       position:absolute; inset:0; display:none; place-items:center; z-index:20;
       background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
@@ -211,7 +216,7 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
     }
 
-    /* Instrumental Modal (MISSING BEFORE — added) */
+    /* Instrumental modal */
     .modal{ position:fixed; inset:0; display:none; place-items:center; z-index:30;
       background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
     .dialog{
@@ -228,9 +233,11 @@
       font-family:'Orbitron',sans-serif;
     }
 
-    /* FX */
-    .fx-slash, .fx-shockwave{ position:fixed; inset:0; pointer-events:none; display:none; z-index:50; }
-    .fx-shockwave.active, .fx-slash.active{ display:block; }
+    /* One-shot FX (no lingering) */
+    .fx-slash, .fx-shockwave{
+      position:fixed; inset:0; pointer-events:none; display:none; z-index:50; overflow:hidden;
+    }
+    .fx-slash.active, .fx-shockwave.active{ display:block; }
     .fx-slash::before{
       content:""; position:absolute; left:-40%; top:-40%; width:180%; height:180%;
       background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 50%, rgba(255,215,0,.65) 60%, rgba(255,255,255,0) 70%);
@@ -238,24 +245,29 @@
       animation: slash 650ms cubic-bezier(.15,.6,.2,1) forwards;
     }
     @keyframes slash{ to{ transform: skewY(-12deg) translateX(120%); opacity:0 } }
-    .fx-shockwave{ display:none; place-items:center; }
-    .fx-shockwave.active{ display:grid; }
+
     .fx-shockwave::before{
-      content:""; width:140px; height:140px; border-radius:50%;
+      content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      width:140px; height:140px; border-radius:50%;
       background:
         radial-gradient(closest-side, rgba(255,255,255,.9), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
         radial-gradient(closest-side, rgba(255,215,0,.5), rgba(255,215,0,.00) 70%);
       box-shadow: 0 0 28px rgba(255,215,0,.45), 0 0 70px rgba(255,215,0,.25);
-      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards; filter: blur(.2px);
+      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
+    }
+    @keyframes shock{
+      0%   { transform:translate(-50%,-50%) scale(.6); opacity:1 }
+      70%  { transform:translate(-50%,-50%) scale(1.15); opacity:.95 }
+      100% { transform:translate(-50%,-50%) scale(1.35); opacity:0 }
     }
 
-    /* Mobile-first adjustments */
+    /* Mobile tweaks */
     @media (max-width: 880px){
-      .viewer-center{ top: calc(var(--top-safe) + 14px); }
-      .top-bar{ top: calc(var(--top-safe) + 16px); }
+      .viewer-center{ top: calc(var(--top-safe) + 12px); }
+      .top-bar{ top: calc(var(--top-safe) + 12px); }
       .side{ bottom: calc(var(--bottom-safe) + 10vh); }
-      .center-triangle{ bottom: calc(var(--bottom-safe) + 52px); }
-      .round-timer{ bottom: calc(var(--bottom-safe) + 96px); font-size:14px; }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 50px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 86px); font-size:14px; }
       .shape{ width:22px; height:22px; }
       .center-triangle .shape{ width:28px; height:28px; }
       .offer-card{ grid-template-columns: 86px 1fr; }
@@ -263,18 +275,13 @@
     }
     @media (max-height:700px){
       .side{ bottom: calc(var(--bottom-safe) + 9vh); }
-      .center-triangle{ bottom: calc(var(--bottom-safe) + 48px); }
-      .round-timer{ bottom: calc(var(--bottom-safe) + 90px); }
-    }
-    @media (max-height:560px){
-      .side{ bottom: calc(var(--bottom-safe) + 8vh); }
-      .center-triangle{ bottom: calc(var(--bottom-safe) + 44px); }
-      .round-timer{ bottom: calc(var(--bottom-safe) + 84px); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 46px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 80px); }
     }
   </style>
 </head>
 <body>
-  <!-- Gold gradient for strokes -->
+  <!-- Gold stroke gradient -->
   <svg width="0" height="0" style="position:absolute">
     <defs>
       <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -291,7 +298,7 @@
     <div class="layer-stars"></div>
   </div>
 
-  <!-- FX layers -->
+  <!-- FX layers (one-shot) -->
   <div id="fxSlash" class="fx-slash" aria-hidden="true"></div>
   <div id="fxShock" class="fx-shockwave" aria-hidden="true"></div>
 
@@ -300,7 +307,7 @@
     <div class="pane" id="leftPane">
       <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
 
-      <!-- Camera fallback / controls -->
+      <!-- Camera fallback -->
       <div class="fallback" id="camFallback">
         <div>Enable camera & mic to see yourself</div>
         <div class="cam-actions">
@@ -319,7 +326,7 @@
       <!-- Viewer count centered in opponent screen -->
       <div class="viewer-center" id="viewerChip">👁 1.3k viewers</div>
 
-      <!-- Next Opponent Offer Overlay -->
+      <!-- Next Opponent Offer -->
       <div class="opponent-offer" id="opponentOffer" aria-live="polite">
         <div class="offer-card">
           <img id="offerAvatar" class="offer-avatar" src="user3.jpg" alt="Next opponent photo"/>
@@ -338,7 +345,7 @@
       </div>
     </div>
 
-    <!-- Global HUD (lowered) -->
+    <!-- HUD -->
     <div class="top-bar">
       <div class="hud-left">
         <button class="hud-live" id="liveBtn" title="Live">LIVE</button>
@@ -350,7 +357,7 @@
     <div class="round-timer" id="roundTimer">Select your instrumental…</div>
     <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
 
-    <!-- LEFT SIDE: circle (home) over square (leaderboard) -->
+    <!-- LEFT side (circle over square) -->
     <nav class="side left" aria-label="Left sidebar">
       <button class="shape" data-link="home.html" title="Home" aria-label="Home">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
@@ -360,7 +367,7 @@
       </button>
     </nav>
 
-    <!-- RIGHT SIDE: diamond (discover) over X (logout) -->
+    <!-- RIGHT side (diamond over X) -->
     <nav class="side right" aria-label="Right sidebar">
       <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
         <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
@@ -373,14 +380,14 @@
       </button>
     </nav>
 
-    <!-- Triangle bottom-center (primary) -->
+    <!-- Bottom-center triangle -->
     <div class="center-triangle">
       <button class="shape gold" data-link="battle.html" title="Battle" aria-label="Battle">
         <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
       </button>
     </div>
 
-    <!-- Instrumental modal -->
+    <!-- Instrumental modal (opens on load) -->
     <div class="modal" id="instModal" aria-modal="true" role="dialog" aria-labelledby="instTitle" style="display:grid;">
       <div class="dialog">
         <h3 id="instTitle">Select Instrumental</h3>
@@ -401,7 +408,7 @@
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
 
   <script>
-    /* ---------- Elements ---------- */
+    /* Elements */
     const localVideo = document.getElementById('localVideo');
     const camFallback = document.getElementById('camFallback');
     const leftPane = document.getElementById('leftPane');
@@ -428,30 +435,26 @@
     const liveBtn = document.getElementById('liveBtn');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    /* ---------- Navigation ---------- */
+    /* Navigation */
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
       btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
     });
     logoutBtn.addEventListener('click', ()=>{ location.href='login.html'; });
     liveBtn.addEventListener('click', ()=>{ location.href='live.html'; });
 
-    /* ---------- Opponents Pool ---------- */
+    /* Opponents */
     const opponents = [
       { video: "user2.mp4", image: "user2.jpg", handle: "@OpponentA", country: "United States", flag: "flag_us.png" },
       { video: "user3.mp4", image: "user3.jpg", handle: "@ChallengerX", country: "Japan", flag: "flag_jp.png" },
       { video: "user4.mp4", image: "user4.jpg", handle: "@MCNeo", country: "Brazil", flag: "flag_br.png" }
     ];
     let nextIndex = 0;
-
-    function pickNext(){
-      nextIndex = (nextIndex + 1) % opponents.length;
-      return opponents[nextIndex];
-    }
+    function pickNext(){ nextIndex = (nextIndex + 1) % opponents.length; return opponents[nextIndex]; }
     function getCurrentNext(){ return opponents[nextIndex]; }
 
-    /* ---------- Camera Handling (auto on load, mobile-safe) ---------- */
+    /* Camera */
     let facing = 'user';
-    let currentStream = null;
+     let currentStream = null;
 
     async function stopStream(stream){
       if(!stream) return;
@@ -460,29 +463,21 @@
     async function startCamera(preferFacing = facing){
       try{
         await stopStream(currentStream);
-
-        const primary = {
-          video: { facingMode:{ ideal: preferFacing }, width:{ ideal:1280 }, height:{ ideal:720 } },
-          audio: true
-        };
-
+        const primary = { video: { facingMode:{ ideal: preferFacing }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:true };
         try{
           currentStream = await navigator.mediaDevices.getUserMedia(primary);
-        }catch(_e1){
+        }catch(_){
           currentStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
         }
-
         localVideo.srcObject = currentStream;
         leftPane.classList.remove('error');
         camFallback.style.display = 'none';
         localVideo.style.transform = (preferFacing === 'user') ? 'scaleX(-1)' : 'none';
       }catch(e){
-        console.warn('Camera error:', e);
         leftPane.classList.add('error');
         camFallback.style.display = 'flex';
       }
     }
-
     enableCamBtn?.addEventListener('click', ()=> startCamera('user'));
     retryCamBtn?.addEventListener('click', ()=> startCamera(facing));
     switchCamBtn?.addEventListener('click', async ()=>{
@@ -490,7 +485,7 @@
       await startCamera(facing);
     });
 
-    /* ---------- Modal flow ---------- */
+    /* Modal flow */
     confirmInst.onclick = ()=>{
       const src = selectInst.value;
       if(!src){ alert("Pick a beat."); return; }
@@ -501,9 +496,8 @@
       timerEl.textContent = "Press Start Battle to begin";
     };
 
-    /* ---------- Battle Timer ---------- */
+    /* Battle Timer */
     let state = { round:1, part:0, time:33, tick:null };
-
     function setTimer(){ timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`; }
     function startRound(){
       clearInterval(state.tick);
@@ -527,7 +521,7 @@
       }, 1000);
     }
 
-    /* ---------- Next Opponent Offer Flow (centered) ---------- */
+    /* Offer Overlay */
     const offer = document.getElementById('opponentOffer');
     const offerAvatar = document.getElementById('offerAvatar');
     const offerName = document.getElementById('offerName');
@@ -538,14 +532,11 @@
 
     function showOpponentOffer(){
       const cand = pickNext();
-      offerAvatar.src = cand.image;
-      offerName.textContent = cand.handle;
-      offerCountry.textContent = cand.country;
-      offerFlag.src = cand.flag;
+      offerAvatar.src = cand.image; offerName.textContent = cand.handle;
+      offerCountry.textContent = cand.country; offerFlag.src = cand.flag;
       offer.style.display = 'grid';
       startBtnWrap.style.display = 'none';
     }
-
     acceptOpponent.onclick = ()=>{
       const cand = getCurrentNext();
       opponentVideo.src = cand.video;
@@ -554,73 +545,48 @@
       startBtnWrap.style.display = 'block';
       timerEl.textContent = "🔥 Opponent Ready — Press Start 🔥";
     };
-
     nextOpponent.onclick = ()=>{
       const cand = pickNext();
-      offerAvatar.src = cand.image;
-      offerName.textContent = cand.handle;
-      offerCountry.textContent = cand.country;
-      offerFlag.src = cand.flag;
+      offerAvatar.src = cand.image; offerName.textContent = cand.handle;
+      offerCountry.textContent = cand.country; offerFlag.src = cand.flag;
     };
 
-    /* ---------- Start FX ---------- */
-    function triggerSlash(){
+    /* One-shot FX helpers (timeout-based so they never “stick”) */
+    function playSlash(){
       fxSlash.classList.add('active');
-      fxSlash.addEventListener('animationend', ()=> fxSlash.classList.remove('active'), { once:true });
-      setTimeout(()=>fxSlash.classList.remove('active'), 800);
+      setTimeout(()=> fxSlash.classList.remove('active'), 700);
     }
-    function triggerShock(){
+    function playShock(){
       fxShock.classList.add('active');
-      fxShock.addEventListener('animationend', ()=> fxShock.classList.remove('active'), { once:true });
+      setTimeout(()=> fxShock.classList.remove('active'), 950); /* remove even if animationend doesn't fire */
     }
 
-    // CTA
+    /* Start Battle */
     startBtn.onclick = ()=>{
       startBtnWrap.style.display='none';
       battleTrack.play().catch(()=>{});
       timerEl.classList.add('animate');
-      triggerSlash();
-      triggerShock();
+      playSlash();
+      playShock();      /* <- single explosion, fades out, then removed */
       offer.style.display = 'none';
       startRound();
       beginAudioGlow();
     };
 
-    /* ---------- Init: mobile-stable (no parallax on touch) ---------- */
+    /* Init */
     document.addEventListener('DOMContentLoaded', ()=>{
-      const isTouch = window.matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
-      // Start camera immediately; show modal to pick instrumental
-      startCamera('user');
-      instModal.style.display = 'grid';
+      // Lock container explicitly (some Android browsers ignore CSS until a layout pass)
+      const sc = document.querySelector('.stream-container');
+      sc.style.height = window.innerHeight + 'px';
+      window.addEventListener('resize', ()=>{
+        sc.style.height = window.innerHeight + 'px';
+      });
 
-      if(!isTouch){
-        // Desktop-only subtle cursor glow (disabled on mobile to avoid "movable" feel)
-        window.addEventListener('mousemove', setParallax, { passive:true });
-        if(window.DeviceOrientationEvent){
-          window.addEventListener('deviceorientation', (ev)=>{
-            const gx = (ev.beta || 0) / 45;
-            const gy = (ev.gamma || 0) / 45;
-            document.documentElement.style.setProperty('--gyroX', Math.max(-1, Math.min(1, gx)).toFixed(3));
-            document.documentElement.style.setProperty('--gyroY', Math.max(-1, Math.min(1, gy)).toFixed(3));
-          }, { passive:true });
-        }
-      } else {
-        // Ensure no drift on mobile
-        document.documentElement.style.setProperty('--mx', '0');
-        document.documentElement.style.setProperty('--my', '0');
-        document.documentElement.style.setProperty('--gyroX', '0');
-        document.documentElement.style.setProperty('--gyroY', '0');
-      }
+      startCamera('user');           // try to start immediately
+      instModal.style.display='grid';// open beat picker on load
     });
 
-    function setParallax(e){
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = (e.clientY / window.innerHeight) * 2 - 1;
-      document.documentElement.style.setProperty('--mx', x.toFixed(3));
-      document.documentElement.style.setProperty('--my', y.toFixed(3));
-    }
-
-    /* ---------- Subtle audio-reactive aura ---------- */
+    /* Audio reactive (optional) */
     let audioCtx, analyser, dataArr, rafGlow;
     function beginAudioGlow(){
       try{
