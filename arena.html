@@ -13,8 +13,6 @@
       --gold-1:#ffe88a;
       --gold-2:#ffcc3b;
       --glass: rgba(20,20,24,.45);
-      --grey-glass: rgba(255,255,255,.08);
-      --grey-glass-strong: rgba(255,255,255,.12);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -29,17 +27,36 @@
       overflow:hidden;
     }
 
-    /* Foreground container */
+    /* Layout */
     .stream-container{
       position:relative; z-index:1;
       display:flex; height:100vh; width:100vw; gap:0;
     }
+
+    .pane{
+      position:relative; flex:1; overflow:hidden;
+      display:grid; place-items:stretch;
+    }
     .video-stream{
-      flex:1; width:50%; height:100%; object-fit:cover; background:#000;
+      width:100%; height:100%; object-fit:cover; background:#000;
       filter: brightness(.92) contrast(1.12) saturate(1.12);
+      display:block;
     }
 
-    /* Top HUD (minimal) */
+    /* Beat-synced glow frame (applied to .pane when active) */
+    .pane.glow::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      border-radius:0;
+      animation: glowBeat 1s ease-in-out infinite;
+    }
+    @keyframes glowBeat{
+      0%  { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 0 rgba(255,215,0,.00); }
+      40% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.10), 0 0 24px 8px rgba(255,215,0,.28); }
+      100%{ box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 0 rgba(255,215,0,.00); }
+    }
+
+    /* Top HUD */
     .top-bar{
       position:absolute; left:0; right:0; top:0; z-index:20; pointer-events:none;
       display:flex; justify-content:space-between; align-items:center; padding:10px 14px;
@@ -104,7 +121,7 @@
     }
     .btn:hover{ transform:translateY(-2px); filter:brightness(1.05) }
 
-    /* Floating glass dock (icon-only) – clear glass gold/grey */
+    /* Floating glass dock (icon-only, clear glass gold/grey) */
     .dock{
       position:absolute; left:50%; bottom:64px; transform:translateX(-50%);
       display:flex; gap:10px; z-index:26; pointer-events:auto;
@@ -116,12 +133,9 @@
     .dock-btn{
       width:44px; height:44px; border-radius:12px; display:grid; place-items:center; cursor:pointer;
       font-size:19px;
-      /* smoked-glass grey button */
-      color:#d6d6d6;
+      color:#d6d6d6; /* smoked-glass grey */
       background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,.06),
-        0 6px 16px rgba(0,0,0,.25);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
       transition: transform .14s ease, background .14s ease, color .14s ease;
     }
     .dock-btn:hover{
@@ -130,7 +144,6 @@
       color:#ffffff;
     }
     .dock-btn.primary{
-      /* clear glass gold button */
       color:#000;
       background:linear-gradient(180deg, var(--gold-1), var(--gold-2));
       box-shadow:0 10px 28px rgba(255,215,0,.35), inset 0 0 0 1px rgba(255,255,255,.28);
@@ -159,26 +172,64 @@
 
     .sr{ position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
 
-    /* Single-use FX canvas (hidden by default) */
-    #fxCanvas{
-      position:fixed; inset:0; width:100%; height:100%;
-      display:none; pointer-events:none; z-index:0;
+    /* ===== Start FX (CSS-only, on top) ===== */
+    /* Gold shockwave ring */
+    .fx-shockwave{
+      position:fixed; inset:0; display:none; z-index:50; pointer-events:none;
+      place-items:center;
+    }
+    .fx-shockwave.active{ display:grid; }
+    .fx-shockwave::before{
+      content:""; width:160px; height:160px; border-radius:50%;
+      background:
+        radial-gradient(closest-side, rgba(255,255,255,.85), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
+        radial-gradient(closest-side, rgba(255,215,0,.45), rgba(255,215,0,.00) 70%);
+      box-shadow: 0 0 24px rgba(255,215,0,.45), 0 0 60px rgba(255,215,0,.25);
+      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
+      filter: blur(.2px);
+    }
+    @keyframes shock{
+      0%{ transform:scale(.2); opacity:1 }
+      70%{ transform:scale(6.5); opacity:.8 }
+      100%{ transform:scale(8.5); opacity:0 }
+    }
+
+    /* Split-screen diagonal flash */
+    .fx-slash{
+      position:fixed; inset:0; z-index:49; pointer-events:none; display:none;
+      overflow:hidden;
+    }
+    .fx-slash.active{ display:block; }
+    .fx-slash::before{
+      content:""; position:absolute; left:-40%; top:-40%; width:180%; height:180%;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 50%, rgba(255,215,0,.65) 60%, rgba(255,255,255,0) 70%);
+      transform: skewY(-12deg) translateX(-120%);
+      filter: blur(2px);
+      animation: slash 650ms cubic-bezier(.15,.6,.2,1) forwards;
+    }
+    @keyframes slash{
+      to{ transform: skewY(-12deg) translateX(120%); opacity:0; }
     }
 
     @media (prefers-reduced-motion: reduce){
       .round-timer.animate{ animation:none }
-      .btn:hover, .dock-btn:hover{ transform:none }
+      .pane.glow::after{ animation:none }
     }
   </style>
 </head>
 <body>
-  <!-- Single-use explosion canvas (hidden until Start) -->
-  <canvas id="fxCanvas"></canvas>
+  <!-- CSS FX layers -->
+  <div id="fxShock" class="fx-shockwave" aria-hidden="true"></div>
+  <div id="fxSlash" class="fx-slash" aria-hidden="true"></div>
 
   <div class="stream-container" role="application" aria-label="Live Battle Split">
-    <!-- Streams -->
-    <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
-    <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4" playsinline></video>
+    <!-- Streams (wrapped for glow control) -->
+    <div class="pane left">
+      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+    </div>
+    <div class="pane right">
+      <video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4" playsinline></video>
+    </div>
 
     <!-- Top HUD -->
     <div class="top-bar">
@@ -198,7 +249,7 @@
     <div class="round-timer" id="roundTimer">Select your instrumental to begin…</div>
     <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
 
-    <!-- Floating glass dock (icon-only, clear gold & grey) -->
+    <!-- Floating glass dock -->
     <nav class="dock" aria-label="Primary">
       <button class="dock-btn" data-link="home.html" title="Home">🏠</button>
       <button class="dock-btn" data-link="leaderboard.html" title="Leaderboard">🏆</button>
@@ -232,9 +283,6 @@
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
   <audio id="battleTrack" hidden></audio>
 
-  <!-- Three.js for one-shot FX -->
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-
   <script>
     // -------- Helpers --------
     const qs = (sel, el=document)=>el.querySelector(sel);
@@ -255,6 +303,12 @@
 
     const endSound     = qs('#roundEndSound');
     const battleTrack  = qs('#battleTrack');
+
+    const fxShock      = qs('#fxShock');
+    const fxSlash      = qs('#fxSlash');
+
+    const leftPane     = qs('.pane.left');
+    const rightPane    = qs('.pane.right');
 
     // -------- Data --------
     const opponents = [
@@ -302,6 +356,8 @@
     }
     function startTick(){
       stopTick();
+      // enable beat-synced glow on panes
+      addGlow(true);
       state.ticking = setInterval(()=>{
         setTimerText();
         state.time--;
@@ -319,6 +375,7 @@
             }else{
               timerEl.textContent = '🔥 Battle Over 🔥';
               timerEl.classList.add('animate');
+              addGlow(false); // stop glow after battle
               setTimeout(loadRandomOpponent, 2200);
             }
           }
@@ -330,6 +387,11 @@
       timerEl.textContent = msg;
       timerEl.classList.add('animate');
       setTimeout(()=>{ timerEl.classList.remove('animate'); startTick(); }, 800);
+    }
+
+    function addGlow(on){
+      leftPane.classList.toggle('glow', on);
+      rightPane.classList.toggle('glow', on);
     }
 
     // -------- Opponents --------
@@ -344,13 +406,29 @@
       timerEl.textContent = '🔥 New Opponent Ready — Press Start 🔥';
     }
 
+    // -------- Start FX (CSS triggers) --------
+    function triggerShockwave(){
+      fxShock.classList.add('active');
+      fxShock.addEventListener('animationend', ()=> fxShock.classList.remove('active'), { once:true });
+    }
+    function triggerSlash(){
+      fxSlash.classList.add('active');
+      // remove after animation completes
+      fxSlash.addEventListener('animationend', ()=> fxSlash.classList.remove('active'), { once:true });
+      // Also listen for the pseudo-element animation end using a short timeout as fallback
+      setTimeout(()=>fxSlash.classList.remove('active'), 800);
+    }
+
     // -------- CTA --------
     startBtn.addEventListener('click', async ()=>{
       startBtnWrap.style.display='none';
       try{ await battleTrack.play(); }catch(e){}
       timerEl.classList.add('animate');
+      // Kick off cinematic start FX
+      triggerSlash();
+      triggerShockwave();
+      // Begin the round timer
       startTick();
-      FX.oneExplosion(); // play a single explosion once battle starts
     });
 
     // -------- Init --------
@@ -364,162 +442,6 @@
     document.addEventListener('keydown', (e)=>{
       if(e.key === 'Escape' && instModal.style.display === 'grid'){ showInstModal(false); }
     });
-
-    // ========= Single-shot Explosion FX (centered) =========
-    const FX = (function(){
-      let renderer, scene, camera, ambient, particleTex, raf=0, running=false;
-      const canvas = document.getElementById('fxCanvas');
-
-      function init(){
-        if(running) return;
-        // WebGL support check
-        try{
-          const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-          if(!gl) throw new Error('WebGL not supported');
-        }catch(e){
-          console.warn('WebGL unavailable; skipping FX.');
-          return false;
-        }
-
-        // Size & show
-        canvas.style.display = 'block';
-        const DPR_LIMIT=1.75;
-        const w = window.innerWidth, h = window.innerHeight;
-
-        renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
-        renderer.setClearColor(0x000000, 0);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT));
-        renderer.setSize(w, h, false);
-
-        scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, 0.0012);
-
-        camera = new THREE.PerspectiveCamera(55, w/h, 0.1, 3000);
-        camera.position.set(0, 0, 140);
-
-        const hemi = new THREE.HemisphereLight(0xaaaaaa, 0x0a0a0a, 0.8);
-        const dir  = new THREE.DirectionalLight(0xffe7a4, 0.7);
-        dir.position.set(60, 80, 120);
-        scene.add(hemi, dir);
-
-        // soft disc texture
-        particleTex = (()=>{ const s=128,c=document.createElement('canvas'); c.width=c.height=s;
-          const g=c.getContext('2d'); const grd=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
-          grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.35,'rgba(255,255,255,0.35)'); grd.addColorStop(1,'rgba(255,255,255,0)');
-          g.fillStyle=grd; g.fillRect(0,0,s,s);
-          const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; return tex; })();
-
-        // ambient embers (subtle)
-        ambient = (()=>{ const COUNT=500, g=new THREE.BufferGeometry();
-          const positions=new Float32Array(COUNT*3), colors=new Float32Array(COUNT*3);
-          for(let i=0;i<COUNT;i++){ positions[i*3]=rand(-220,220); positions[i*3+1]=rand(-140,140); positions[i*3+2]=rand(-180,60);
-            const t=Math.random()*0.5+0.35; colors[i*3]=t; colors[i*3+1]=t*0.9; colors[i*3+2]=t*0.85; }
-          g.setAttribute('position',new THREE.BufferAttribute(positions,3)); g.setAttribute('color',new THREE.BufferAttribute(colors,3));
-          const m=new THREE.PointsMaterial({ size:3.0, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
-          const p=new THREE.Points(g,m); p.frustumCulled=false; p.userData={t:0}; return p; })();
-        scene.add(ambient);
-
-        return true;
-      }
-
-      class Explosion {
-        constructor(center=new THREE.Vector3(0,0,0)){
-          this.center=center.clone(); this.life=1.9; this.t=0;
-          this.count=(Math.random()*60 + 140) | 0;
-          const g=new THREE.BufferGeometry();
-          const positions=new Float32Array(this.count*3);
-          const colors=new Float32Array(this.count*3);
-          const sizes=new Float32Array(this.count);
-          this.vel=new Float32Array(this.count*3);
-          for(let i=0;i<this.count;i++){
-            const dirv=new THREE.Vector3().randomDirection(); const speed=rand(14,42);
-            this.vel[i*3]=dirv.x*speed; this.vel[i*3+1]=dirv.y*speed; this.vel[i*3+2]=dirv.z*speed;
-            positions[i*3]=dirv.x*2; positions[i*3+1]=dirv.y*2; positions[i*3+2]=dirv.z*2;
-            colors[i*3]=1.0; colors[i*3+1]=1.0; colors[i*3+2]=1.0; sizes[i]=rand(10,18);
-          }
-          g.setAttribute('position', new THREE.BufferAttribute(positions,3));
-          g.setAttribute('color',    new THREE.BufferAttribute(colors,3));
-          g.setAttribute('size',     new THREE.BufferAttribute(sizes,1));
-          const mat=new THREE.PointsMaterial({ size:20, map:particleTex, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true });
-          this.points=new THREE.Points(g,mat); this.points.position.copy(this.center); this.points.frustumCulled=false; scene.add(this.points);
-
-          const ringGeo=new THREE.RingGeometry(6,7.6,64);
-          this.ring1=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide }));
-          this.ring2=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide }));
-          this.ring1.position.copy(this.center); this.ring2.position.copy(this.center); this.r1=6; this.r2=6;
-          scene.add(this.ring1,this.ring2);
-
-          this.shake=0.5;
-        }
-        update(dt){
-          this.t+=dt; const f=this.t/this.life; const drag=1.0-Math.min(0.05*dt*60,0.05);
-          const g=this.points.geometry; const pos=g.getAttribute('position').array; const col=g.getAttribute('color').array; const siz=g.getAttribute('size').array;
-          for(let i=0;i<this.count;i++){
-            const ix=i*3; pos[ix]+=this.vel[ix]*dt; pos[ix+1]+=this.vel[ix+1]*dt; pos[ix+2]+=this.vel[ix+2]*dt;
-            this.vel[ix]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
-            const toGold=smoothstep(0.25,0.55,f); col[ix]=lerp(1.0,1.0,toGold); col[ix+1]=lerp(1.0,0.72,toGold); col[ix+2]=lerp(1.0,0.28,toGold);
-            siz[i]*=(1-dt*0.1); siz[i]=Math.max(8,siz[i]);
-          }
-          g.getAttribute('position').needsUpdate=true; g.getAttribute('color').needsUpdate=true; g.getAttribute('size').needsUpdate=true;
-
-          this.r1+=120*dt; this.r2+=150*dt;
-          this.ring1.scale.setScalar(this.r1/6); this.ring2.scale.setScalar(this.r2/6);
-          this.ring1.material.opacity=Math.max(0,0.95 - f*1.3);
-       this.ring2.material.opacity=Math.max(0,0.65 - f*1.4);
-          this.ring1.lookAt(camera.position); this.ring2.lookAt(camera.position);
-
-          if(this.shake>0){ const s=this.shake*(1-f); camera.position.x+=(Math.random()-0.5)*s; camera.position.y+=(Math.random()-0.5)*s; }
-          return this.t < this.life;
-        }
-        dispose(){
-          scene.remove(this.points); scene.remove(this.ring1); scene.remove(this.ring2);
-          this.points.geometry.dispose(); this.ring1.geometry.dispose(); this.ring2.geometry.dispose();
-        }
-      }
-
-      function oneExplosion(){
-        if(!init()) return;
-        running=true;
-        const center = new THREE.Vector3(0,0,0);
-        const boom = new Explosion(center);
-        let prev = performance.now();
-
-        function frame(now){
-          if(!running) return;
-          const dt=Math.min(0.05,(now - prev)/1000); prev=now;
-
-          // subtle ambient drift
-          ambient.userData.t = (ambient.userData.t || 0) + dt*0.2;
-          ambient.position.y = Math.sin(ambient.userData.t)*2;
-          ambient.rotation.z += dt*0.02;
-
-          if(!boom.update(dt)){
-            boom.dispose();
-            teardown(); // end effect after single explosion
-            return;
-          }
-          camera.lookAt(0,0,0);
-          renderer.render(scene,camera);
-          raf=requestAnimationFrame(frame);
-        }
-        raf=requestAnimationFrame(frame);
-      }
-
-      function teardown(){
-        running=false;
-        if(raf) cancelAnimationFrame(raf);
-        // Dispose renderer/scene minimally
-        renderer && renderer.dispose();
-        scene = null; camera = null; renderer = null; ambient = null; particleTex = null;
-        canvas.style.display='none'; // hide canvas after effect
-      }
-
-      function rand(a,b){ return a + Math.random()*(b-a); }
-      function lerp(a,b,t){ return a + (b-a)*t; }
-      function smoothstep(a,b,x){ const t=Math.max(0,Math.min(1,(x-a)/(b-a))); return t*t*(3-2*t); }
-
-      return { oneExplosion };
-    })();
   </script>
 </body>
-</html>
+  </html>
