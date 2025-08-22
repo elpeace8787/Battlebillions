@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions — Dual Live Battle (5D refined)</title>
+  <title>BattleBillions — Dual Live Battle (Mobile-Stable 5D)</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -16,7 +16,7 @@
       --mx: 0;  --my: 0;  --gyroX: 0;  --gyroY: 0;  --beatGlow: 0;
       --persp: 1200px;
 
-      /* Keep HUD on-screen across devices */
+      /* Safe-area anchors (keeps HUD on-screen on mobile) */
       --top-safe: max(16px, env(safe-area-inset-top));
       --side-safe: max(16px, env(safe-area-inset-left));
       --side-safe-r: max(16px, env(safe-area-inset-right));
@@ -32,9 +32,11 @@
       background:#000;
       perspective:var(--persp);
       transform-style:preserve-3d;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation; /* prevents weird panning on mobile */
     }
 
-    /* ===== Subtle depth layers (lightweight) ===== */
+    /* ===== Subtle depth layers (lightweight, non-parallax on mobile) ===== */
     .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; transform-style:preserve-3d; }
     .layer-nebula{
       position:absolute; inset:-15%;
@@ -55,7 +57,7 @@
     }
     @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
 
-    /* ===== Main Stage (even split) ===== */
+    /* ===== Main Stage (perfect 1:1 split) ===== */
     .stream-container{ position:relative; z-index:1; display:flex; height:100vh; width:100vw; transform-style:preserve-3d; }
     .pane{ flex:1; position:relative; overflow:hidden; display:grid; place-items:stretch; isolation:isolate; transform-style:preserve-3d; min-width:0; }
     .video-stream{
@@ -65,7 +67,7 @@
     }
     #localVideo{ transform:scaleX(-1); }
 
-    /* Holo edge (no boxes) */
+    /* Holo sheen (no boxes/outlines) */
     .pane::after{
       content:""; position:absolute; inset:0;
       background:
@@ -93,7 +95,7 @@
     /* ===== Global HUD (lowered safely) ===== */
     .top-bar{
       position:absolute; left:0; right:0;
-      top: calc(var(--top-safe) + 28px);
+      top: calc(var(--top-safe) + 24px);
       z-index:10; display:flex; justify-content:space-between; padding:0 clamp(12px, 2vw, 20px);
       font-size:14px; pointer-events:none;
     }
@@ -105,10 +107,10 @@
       box-shadow:0 0 18px rgba(255,215,0,.45); text-shadow:0 1px 0 rgba(255,255,255,.4);
     }
 
-    /* ===== Viewer Count centered IN the opponent screen ===== */
+    /* Viewer Count centered INSIDE opponent screen */
     .viewer-center{
       position:absolute; left:50%;
-      top: calc(var(--top-safe) + 24px);
+      top: calc(var(--top-safe) + 20px);
       transform: translateX(-50%);
       z-index:12;
       padding:8px 16px; border-radius:999px;
@@ -116,12 +118,10 @@
       font-weight:800;
     }
 
-    /* Opponent mini button removed from the global top-right to avoid crowding */
-
     /* Timer + CTA */
     .round-timer{
       position:absolute; left:50%;
-      bottom: calc(var(--bottom-safe) + 120px);
+      bottom: calc(var(--bottom-safe) + 110px);
       transform:translateX(-50%); z-index:12;
       font-weight:800; font-size:16px; padding:10px 20px; border-radius:999px;
       background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
@@ -139,18 +139,18 @@
       box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
     }
 
-    /* ===== Side Icons ===== */
+    /* ===== Side Icons (shapes only; smaller; mobile-safe) ===== */
     .side{
       position:absolute;
-      bottom: calc(var(--bottom-safe) + 10vh);
-      display:flex; flex-direction:column; gap:14px; z-index:14; pointer-events:auto;
+      bottom: calc(var(--bottom-safe) + 12vh);
+      display:flex; flex-direction:column; gap:12px; z-index:14; pointer-events:auto;
     }
     .side.left{ left: calc(var(--side-safe)); }
     .side.right{ right: calc(var(--side-safe-r)); }
 
     .shape{
       appearance:none; background:transparent; border:none; padding:0;
-      width:28px; height:28px; display:grid; place-items:center; cursor:pointer;
+      width:24px; height:24px; display:grid; place-items:center; cursor:pointer;
       transition: transform .18s ease, filter .18s ease;
       filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
       animation: floatY 3.6s ease-in-out infinite;
@@ -176,11 +176,11 @@
     /* Triangle (primary) */
     .center-triangle{
       position:absolute; left:50%;
-      bottom: calc(var(--bottom-safe) + 64px);
+      bottom: calc(var(--bottom-safe) + 58px);
       transform:translateX(-50%); z-index:14;
     }
     .center-triangle .shape{
-      width:34px; height:34px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
+      width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
       filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5));
     }
 
@@ -191,24 +191,41 @@
       padding:20px;
     }
     .offer-card{
-      display:grid; grid-template-columns: 110px 1fr; gap:18px; align-items:center;
-      padding:18px 20px; border-radius:16px;
+      display:grid; grid-template-columns: 100px 1fr; gap:16px; align-items:center;
+      padding:16px 18px; border-radius:16px;
       background: rgba(0,0,0,.4); backdrop-filter: blur(10px);
       box-shadow: 0 16px 48px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
       max-width:min(560px, 92vw);
     }
     .offer-avatar{
-      width:110px; height:110px; border-radius:14px; object-fit:cover;
+      width:100px; height:100px; border-radius:14px; object-fit:cover;
       box-shadow: 0 0 18px rgba(255,215,0,.35);
     }
     .offer-meta{ display:grid; gap:8px; }
-    .offer-title{ font-weight:800; font-size:20px; letter-spacing:.3px }
+    .offer-title{ font-weight:800; font-size:18px; letter-spacing:.3px }
     .offer-sub{ color:var(--muted); font-size:13px; display:flex; align-items:center; gap:8px }
     .offer-sub img{ width:20px; height:14px; object-fit:cover; border-radius:2px; box-shadow:0 0 6px rgba(255,255,255,.15) }
     .offer-actions{ display:flex; gap:10px; margin-top:8px }
     .btn-ghost{
       background:transparent; color:var(--ink); border:none; cursor:pointer; padding:10px 14px; border-radius:12px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    /* Instrumental Modal (MISSING BEFORE — added) */
+    .modal{ position:fixed; inset:0; display:none; place-items:center; z-index:30;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
+    .dialog{
+      width:min(92vw, 420px);
+      background: rgba(10,10,14,.86);
+      border-radius:16px; padding:18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .dialog h3{ margin:0 0 10px 0; font-size:18px; letter-spacing:.3px }
+    #instrumentalSelect{
+      width:100%; padding:10px 12px; border-radius:12px; border:none; outline: none;
+      background:#0a0a0e; color:#eaeaea; margin:8px 0 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+      font-family:'Orbitron',sans-serif;
     }
 
     /* FX */
@@ -232,16 +249,27 @@
       animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards; filter: blur(.2px);
     }
 
-    /* Smaller screens */
+    /* Mobile-first adjustments */
+    @media (max-width: 880px){
+      .viewer-center{ top: calc(var(--top-safe) + 14px); }
+      .top-bar{ top: calc(var(--top-safe) + 16px); }
+      .side{ bottom: calc(var(--bottom-safe) + 10vh); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 52px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 96px); font-size:14px; }
+      .shape{ width:22px; height:22px; }
+      .center-triangle .shape{ width:28px; height:28px; }
+      .offer-card{ grid-template-columns: 86px 1fr; }
+      .offer-avatar{ width:86px; height:86px; }
+    }
     @media (max-height:700px){
       .side{ bottom: calc(var(--bottom-safe) + 9vh); }
-      .center-triangle{ bottom: calc(var(--bottom-safe) + 56px); }
-      .round-timer{ bottom: calc(var(--bottom-safe) + 100px); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 48px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 90px); }
     }
     @media (max-height:560px){
       .side{ bottom: calc(var(--bottom-safe) + 8vh); }
-      .center-triangle{ bottom: calc(var(--bottom-safe) + 48px); }
-      .round-timer{ bottom: calc(var(--bottom-safe) + 92px); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 44px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 84px); }
     }
   </style>
 </head>
@@ -291,7 +319,7 @@
       <!-- Viewer count centered in opponent screen -->
       <div class="viewer-center" id="viewerChip">👁 1.3k viewers</div>
 
-      <!-- Next Opponent Offer Overlay (centered) -->
+      <!-- Next Opponent Offer Overlay -->
       <div class="opponent-offer" id="opponentOffer" aria-live="polite">
         <div class="offer-card">
           <img id="offerAvatar" class="offer-avatar" src="user3.jpg" alt="Next opponent photo"/>
@@ -352,8 +380,8 @@
       </button>
     </div>
 
-    <!-- Instrumental modal (kept, not under opponent UI) -->
-    <div class="modal" id="instModal" aria-modal="true" role="dialog" aria-labelledby="instTitle" style="display:none;">
+    <!-- Instrumental modal -->
+    <div class="modal" id="instModal" aria-modal="true" role="dialog" aria-labelledby="instTitle" style="display:grid;">
       <div class="dialog">
         <h3 id="instTitle">Select Instrumental</h3>
         <select id="instrumentalSelect">
@@ -400,15 +428,6 @@
     const liveBtn = document.getElementById('liveBtn');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Offer overlay
-    const offer = document.getElementById('opponentOffer');
-    const offerAvatar = document.getElementById('offerAvatar');
-    const offerName = document.getElementById('offerName');
-    const offerCountry = document.getElementById('offerCountry');
-    const offerFlag = document.getElementById('offerFlag');
-    const acceptOpponent = document.getElementById('acceptOpponent');
-    const nextOpponent = document.getElementById('nextOpponent');
-
     /* ---------- Navigation ---------- */
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
       btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
@@ -430,7 +449,7 @@
     }
     function getCurrentNext(){ return opponents[nextIndex]; }
 
-    /* ---------- Camera Handling ---------- */
+    /* ---------- Camera Handling (auto on load, mobile-safe) ---------- */
     let facing = 'user';
     let currentStream = null;
 
@@ -471,11 +490,7 @@
       await startCamera(facing);
     });
 
-    /* ---------- Modal flow (not under opponent UI) ---------- */
-    // If you want the picker at load, set instModal.style.display = 'grid';
-    // Keeping it hidden until you call it:
-    // instModal.style.display = 'grid';
-
+    /* ---------- Modal flow ---------- */
     confirmInst.onclick = ()=>{
       const src = selectInst.value;
       if(!src){ alert("Pick a beat."); return; }
@@ -513,6 +528,14 @@
     }
 
     /* ---------- Next Opponent Offer Flow (centered) ---------- */
+    const offer = document.getElementById('opponentOffer');
+    const offerAvatar = document.getElementById('offerAvatar');
+    const offerName = document.getElementById('offerName');
+    const offerCountry = document.getElementById('offerCountry');
+    const offerFlag = document.getElementById('offerFlag');
+    const acceptOpponent = document.getElementById('acceptOpponent');
+    const nextOpponent = document.getElementById('nextOpponent');
+
     function showOpponentOffer(){
       const cand = pickNext();
       offerAvatar.src = cand.image;
@@ -563,8 +586,39 @@
       beginAudioGlow();
     };
 
-    // Optional: open picker on load; comment in if desired
-    // window.onload = ()=>{ instModal.style.display = 'grid'; };
+    /* ---------- Init: mobile-stable (no parallax on touch) ---------- */
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const isTouch = window.matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
+      // Start camera immediately; show modal to pick instrumental
+      startCamera('user');
+      instModal.style.display = 'grid';
+
+      if(!isTouch){
+        // Desktop-only subtle cursor glow (disabled on mobile to avoid "movable" feel)
+        window.addEventListener('mousemove', setParallax, { passive:true });
+        if(window.DeviceOrientationEvent){
+          window.addEventListener('deviceorientation', (ev)=>{
+            const gx = (ev.beta || 0) / 45;
+            const gy = (ev.gamma || 0) / 45;
+            document.documentElement.style.setProperty('--gyroX', Math.max(-1, Math.min(1, gx)).toFixed(3));
+            document.documentElement.style.setProperty('--gyroY', Math.max(-1, Math.min(1, gy)).toFixed(3));
+          }, { passive:true });
+        }
+      } else {
+        // Ensure no drift on mobile
+        document.documentElement.style.setProperty('--mx', '0');
+        document.documentElement.style.setProperty('--my', '0');
+        document.documentElement.style.setProperty('--gyroX', '0');
+        document.documentElement.style.setProperty('--gyroY', '0');
+      }
+    });
+
+    function setParallax(e){
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      document.documentElement.style.setProperty('--mx', x.toFixed(3));
+      document.documentElement.style.setProperty('--my', y.toFixed(3));
+    }
 
     /* ---------- Subtle audio-reactive aura ---------- */
     let audioCtx, analyser, dataArr, rafGlow;
