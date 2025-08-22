@@ -22,67 +22,147 @@
     }
 
     /* Streams */
-    .stream-container{display:flex;height:100vh;width:100vw;position:relative;}
-    .pane{flex:1;position:relative;}
-    .video-stream{width:100%;height:100%;object-fit:cover;filter:brightness(.9) contrast(1.1);}
+    .stream-container{
+      display:flex; height:100vh; width:100vw; position:relative;
+    }
+    .pane{
+      flex:1; position:relative; overflow:hidden;
+      display:grid; place-items:stretch;
+    }
+    .video-stream{
+      width:100%; height:100%; object-fit:cover;
+      filter:brightness(.92) contrast(1.1);
+      background:#000;
+      display:block;
+    }
+    /* Mirror local cam so user looks natural */
+    #localVideo{ transform:scaleX(-1); }
+
+    /* If camera blocked or fails */
+    .fallback{
+      position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+      background:linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.35));
+      font-weight:800; letter-spacing:.3px;
+    }
+    .pane.error .fallback{ display:flex; }
 
     /* HUD */
     .top-bar{
-      position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;
-      padding:10px 14px;z-index:10;font-size:14px;
+      position:absolute; top:0; left:0; right:0; z-index:10;
+      display:flex; justify-content:space-between; padding:10px 14px; font-size:14px;
+      pointer-events:none;
     }
     .hud-live{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000;padding:6px 14px;border-radius:999px;font-weight:800;
+      color:#000; padding:6px 14px; border-radius:999px; font-weight:800;
       box-shadow:0 0 16px rgba(255,215,0,.4);
+      pointer-events:auto;
     }
-    .hud-chip{padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.4);}
+    .hud-chip{
+      padding:6px 14px; border-radius:999px; background:rgba(0,0,0,.4);
+      pointer-events:auto;
+    }
 
     .profile-labels{
-      position:absolute;top:60px;right:20px;z-index:10;
+      position:absolute; top:60px; right:20px; z-index:10;
     }
-    .profile-entry{display:flex;align-items:center;gap:10px;}
-    .profile-entry img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 8px rgba(255,215,0,.4);}
-    .profile-entry span{font-weight:700;}
+    .profile-entry{ display:flex; align-items:center; gap:10px; }
+    .profile-entry img{
+      width:36px; height:36px; border-radius:50%;
+      box-shadow:0 0 8px rgba(255,215,0,.4);
+    }
+    .profile-entry span{ font-weight:700; }
 
     /* Timer / CTA */
     .round-timer{
-      position:absolute;left:50%;bottom:160px;transform:translateX(-50%);
-      font-weight:800;font-size:18px;padding:12px 24px;border-radius:999px;
-      background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+      position:absolute; left:50%; bottom:160px; transform:translateX(-50%);
+      font-weight:800; font-size:18px; padding:12px 24px; border-radius:999px;
+      background:rgba(0,0,0,.5); backdrop-filter:blur(4px);
+      z-index:12; white-space:nowrap;
     }
-    .round-timer.animate{animation:pulse 1.8s infinite;}
-    @keyframes pulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.08);}}
+    .round-timer.animate{ animation:pulse 1.8s infinite; }
+    @keyframes pulse{
+      0%,100%{ transform:translateX(-50%) scale(1); }
+      50%{ transform:translateX(-50%) scale(1.08); }
+    }
 
-    .cta{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;display:none;}
+    .cta{
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      z-index:12; display:none;
+    }
     .btn{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000;font-weight:800;padding:14px 28px;border-radius:12px;
-      box-shadow:0 0 22px rgba(255,215,0,.4);cursor:pointer;
+      color:#000; font-weight:800; padding:14px 28px; border-radius:12px;
+      box-shadow:0 0 22px rgba(255,215,0,.4); cursor:pointer;
     }
 
-    /* Dock (no outline box, just floating shapes) */
-    .dock{
-      position:absolute;left:50%;bottom:80px;transform:translateX(-50%);
-      display:flex;gap:36px;z-index:20;
+    /* ===== Clean SHAPE Nav (no outline boxes) ===== */
+    /* Left sidebar: Circle (top), Square (under circle) */
+    .side{
+      position:absolute; top:50%; transform:translateY(-50%);
+      display:flex; flex-direction:column; gap:26px; z-index:14;
     }
+    .side.left{ left:28px; }
+    .side.right{ right:28px; }
+
     .shape{
-      width:44px;height:44px;display:grid;place-items:center;
-      cursor:pointer;transition:transform .2s ease;
+      width:44px; height:44px; display:grid; place-items:center; cursor:pointer;
+      transition:transform .2s ease, filter .2s ease;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
     }
-    .shape:hover{transform:scale(1.15);}
-    .shape svg{width:100%;height:100%;stroke:#ccc;fill:none;stroke-width:2.5;}
-    .primary svg{stroke:url(#goldStroke);}
-    .logout svg{stroke:#ff5555;}
+    .shape:hover{ transform:scale(1.15); filter:brightness(1.1); }
+    .shape svg{ width:100%; height:100%; stroke:#ccc; fill:none; stroke-width:2.6; }
+    .shape.gold svg{ stroke:url(#goldStroke); }
+    .shape.logout svg{ stroke:#ff5a5a; }
+
+    /* Bottom-center Triangle (stays where it was) */
+    .center-triangle{
+      position:absolute; left:50%; bottom:80px; transform:translateX(-50%);
+      z-index:14;
+    }
 
     /* Modal */
-    .modal{position:absolute;inset:0;display:none;place-items:center;z-index:30;background:rgba(0,0,0,.6);}
-    .dialog{background:#111;padding:20px;border-radius:12px;display:grid;gap:12px;}
-    select{padding:8px;border-radius:6px;background:#000;color:#fff;}
+    .modal{
+      position:absolute; inset:0; display:none; place-items:center; z-index:30;
+      background:rgba(0,0,0,.6);
+    }
+    .dialog{
+      background:#111; padding:20px; border-radius:12px; display:grid; gap:12px;
+      min-width:260px;
+    }
+    select{ padding:8px; border-radius:6px; background:#000; color:#fff; border:none; }
+
+    /* Start FX */
+    .fx-slash, .fx-shockwave{ position:fixed; inset:0; pointer-events:none; display:none; z-index:50; }
+    .fx-shockwave.active, .fx-slash.active{ display:block; }
+    .fx-slash::before{
+      content:""; position:absolute; left:-40%; top:-40%; width:180%; height:180%;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 50%, rgba(255,215,0,.65) 60%, rgba(255,255,255,0) 70%);
+      transform: skewY(-12deg) translateX(-120%);
+      filter: blur(2px);
+      animation: slash 650ms cubic-bezier(.15,.6,.2,1) forwards;
+    }
+    @keyframes slash{ to{ transform: skewY(-12deg) translateX(120%); opacity:0 } }
+    .fx-shockwave{ display:none; place-items:center; }
+    .fx-shockwave.active{ display:grid; }
+    .fx-shockwave::before{
+      content:""; width:160px; height:160px; border-radius:50%;
+      background:
+        radial-gradient(closest-side, rgba(255,255,255,.85), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
+        radial-gradient(closest-side, rgba(255,215,0,.45), rgba(255,215,0,.00) 70%);
+      box-shadow: 0 0 24px rgba(255,215,0,.45), 0 0 60px rgba(255,215,0,.25);
+      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
+      filter: blur(.2px);
+    }
+    @keyframes shock{
+      0%{ transform:scale(.2); opacity:1 }
+      70%{ transform:scale(6.5); opacity:.8 }
+      100%{ transform:scale(8.5); opacity:0 }
+    }
   </style>
 </head>
 <body>
-  <!-- Gradient stroke for gold -->
+  <!-- Gold stroke gradient for icons -->
   <svg width="0" height="0" style="position:absolute">
     <defs>
       <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -93,110 +173,217 @@
     </defs>
   </svg>
 
-  <div class="stream-container">
-    <div class="pane"><video class="video-stream" id="localVideo" autoplay muted playsinline></video></div>
-    <div class="pane"><video class="video-stream" id="opponentVideo" autoplay muted loop src="user2.mp4"></video></div>
+  <!-- Start FX layers -->
+  <div id="fxSlash" class="fx-slash" aria-hidden="true"></div>
+  <div id="fxShock" class="fx-shockwave" aria-hidden="true"></div>
+
+  <div class="stream-container" role="application" aria-label="Live Battle Split">
+    <!-- LEFT PANE (You) -->
+    <div class="pane" id="leftPane">
+      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+      <div class="fallback" id="camFallback">Enable camera & mic to see yourself</div>
+    </div>
+
+    <!-- RIGHT PANE (Opponent) -->
+    <div class="pane">
+      <video class="video-stream" id="opponentVideo" autoplay muted loop playsinline src="user2.mp4"></video>
+    </div>
 
     <!-- HUD -->
     <div class="top-bar">
       <span class="hud-live">LIVE</span>
       <span class="hud-chip">👁 1.3k</span>
     </div>
-    <div class="profile-labels"><div class="profile-entry"><img id="opponentImage" src="user2.jpg"><span id="opponentUsername">@Opponent</span></div></div>
+
+    <!-- Opponent chip -->
+    <div class="profile-labels">
+      <div class="profile-entry">
+        <img id="opponentImage" src="user2.jpg" alt="Opponent"/>
+        <span id="opponentUsername">@Opponent</span>
+      </div>
+    </div>
 
     <!-- Timer + CTA -->
     <div class="round-timer" id="roundTimer">Select your instrumental…</div>
     <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
 
-    <!-- Dock: only shapes -->
-    <nav class="dock">
-      <div class="shape"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></div>
-      <div class="shape"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg></div>
-      <div class="shape primary"><svg viewBox="0 0 24 24"><polygon points="12,5 20,19 4,19"/></svg></div>
-      <div class="shape"><svg viewBox="0 0 24 24"><polygon points="12,4 20,12 12,20 4,12"/></svg></div>
-      <div class="shape logout"><svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></div>
+    <!-- ===== SIDE BARS (shapes only) ===== -->
+    <!-- Left side: circle (home) on top, square (leaderboard) below -->
+    <nav class="side left" aria-label="Left sidebar">
+      <button class="shape" data-link="home.html" title="Home" aria-label="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12"/></svg>
+      </button>
     </nav>
 
-    <!-- Modal -->
-    <div class="modal" id="instModal">
+    <!-- Right side: diamond (discover) above X (logout) -->
+    <nav class="side right" aria-label="Right sidebar">
+      <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,4 20,12 12,20 4,12"/></svg>
+      </button>
+      <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="6" y1="6" x2="18" y2="18"/>
+          <line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+    </nav>
+
+    <!-- Triangle stays bottom-center (primary gold) -->
+    <div class="center-triangle">
+      <button class="shape gold" data-link="battle.html" title="Battle" aria-label="Battle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,5 20,19 4,19"/></svg>
+      </button>
+    </div>
+
+    <!-- Instrumental modal -->
+    <div class="modal" id="instModal" aria-modal="true" role="dialog" aria-labelledby="instTitle">
       <div class="dialog">
-        <h3>Select Instrumental</h3>
+        <h3 id="instTitle">Select Instrumental</h3>
         <select id="instrumentalSelect">
           <option disabled selected value="">Choose a beat</option>
           <option value="beat1.mp3">🔥 Classic Trap</option>
           <option value="beat2.mp3">💥 Boom Bap</option>
           <option value="beat3.mp3">🌊 Chill Vibes</option>
+          <option value="beat4.mp3">⚡ Fast Flow</option>
         </select>
         <button class="btn" id="confirmInst">Confirm</button>
       </div>
     </div>
   </div>
 
+  <!-- Audio -->
   <audio id="battleTrack" hidden></audio>
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
 
   <script>
-    const localVideo=document.getElementById('localVideo');
-    const opponentVideo=document.getElementById('opponentVideo');
-    const opponentImage=document.getElementById('opponentImage');
-    const opponentUsername=document.getElementById('opponentUsername');
-    const instModal=document.getElementById('instModal');
-    const selectInst=document.getElementById('instrumentalSelect');
-    const confirmInst=document.getElementById('confirmInst');
-    const startBtn=document.getElementById('startBattleBtn');
-    const startBtnWrap=document.querySelector('.cta');
-    const timerEl=document.getElementById('roundTimer');
-    const battleTrack=document.getElementById('battleTrack');
-    const endSound=document.getElementById('roundEndSound');
+    // Elements
+    const localVideo = document.getElementById('localVideo');
+    const camFallback = document.getElementById('camFallback');
+    const leftPane = document.getElementById('leftPane');
 
-    const opponents=[{video:"user2.mp4",image:"user2.jpg",username:"@OpponentA"},
-                     {video:"user3.mp4",image:"user3.jpg",username:"@ChallengerX"},
-                     {video:"user4.mp4",image:"user4.jpg",username:"@MCNeo"}];
+    const opponentVideo = document.getElementById('opponentVideo');
+    const opponentImage = document.getElementById('opponentImage');
+    const opponentUsername = document.getElementById('opponentUsername');
 
+    const instModal = document.getElementById('instModal');
+    const selectInst = document.getElementById('instrumentalSelect');
+    const confirmInst = document.getElementById('confirmInst');
+
+    const startBtn = document.getElementById('startBattleBtn');
+    const startBtnWrap = document.querySelector('.cta');
+    const timerEl = document.getElementById('roundTimer');
+
+    const battleTrack = document.getElementById('battleTrack');
+    const endSound = document.getElementById('roundEndSound');
+
+    const fxSlash = document.getElementById('fxSlash');
+    const fxShock = document.getElementById('fxShock');
+
+    // Nav
+    document.querySelectorAll('.shape[data-link]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
+    });
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{ location.href='login.html'; });
+
+    // Opponents
+    const opponents = [
+      { video: "user2.mp4", image: "user2.jpg", username: "@OpponentA" },
+      { video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" },
+      { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
+    ];
+
+    // Camera
     async function startCamera(){
       try{
-        const stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-        localVideo.srcObject=stream;
-      }catch(e){console.warn(e);}
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: true
+        });
+        localVideo.srcObject = stream;
+        leftPane.classList.remove('error');
+      }catch(e){
+        console.warn('Camera error:', e);
+        leftPane.classList.add('error');
+      }
     }
 
-    confirmInst.onclick=()=>{
-      const src=selectInst.value;
-      if(!src){alert("Pick a beat.");return;}
-      battleTrack.src=src;battleTrack.load();
-      instModal.style.display='none';
-      startBtnWrap.style.display='block';
-      timerEl.textContent="Press Start Battle to begin";
+    // Modal flow
+    confirmInst.onclick = ()=>{
+      const src = selectInst.value;
+      if(!src){ alert("Pick a beat."); return; }
+      battleTrack.src = src;
+      battleTrack.load();
+      instModal.style.display = 'none';
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "Press Start Battle to begin";
     };
 
-    let state={round:1,part:0,time:33,tick:null};
-    function setTimer(){timerEl.textContent=`Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`;}
-    function tick(){
-      state.tick=setInterval(()=>{
-        setTimer();state.time--;
-        if(state.time<0){
-          clearInterval(state.tick);endSound.play();
-          if(state.part===0){state.part=1;state.time=33;timerEl.textContent="Switching...";setTimeout(startRound,1000);}
-          else if(state.round<3){state.round++;state.part=0;state.time=33;timerEl.textContent="Next Round...";setTimeout(startRound,1000);}
-          else{timerEl.textContent="🔥 Battle Over 🔥";setTimeout(newOpponent,2000);}
+    // Battle timer
+    let state = { round:1, part:0, time:33, tick:null };
+
+    function setTimer(){ timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`; }
+    function startRound(){
+      clearInterval(state.tick);
+      state.tick = setInterval(()=>{
+        setTimer(); state.time--;
+        if(state.time < 0){
+          clearInterval(state.tick); endSound.play();
+          if(state.part === 0){
+            state.part = 1; state.time = 33;
+            timerEl.textContent = "Switching…";
+            setTimeout(startRound, 900);
+          }else if(state.round < 3){
+            state.round++; state.part = 0; state.time = 33;
+            timerEl.textContent = "Next Round…";
+            setTimeout(startRound, 900);
+          }else{
+            timerEl.textContent = "🔥 Battle Over 🔥";
+            setTimeout(newOpponent, 1800);
+          }
         }
-      },1000);
-    }
-    function startRound(){tick();}
-    function newOpponent(){
-      const next=opponents[Math.floor(Math.random()*opponents.length)];
-      opponentVideo.src=next.video;opponentImage.src=next.image;opponentUsername.textContent=next.username;
-      state={round:1,part:0,time:33,tick:null};startBtnWrap.style.display='block';timerEl.textContent="🔥 New Opponent Ready 🔥";
+      }, 1000);
     }
 
-    startBtn.onclick=()=>{
+    function newOpponent(){
+      const next = opponents[Math.floor(Math.random()*opponents.length)];
+      opponentVideo.src = next.video;
+      opponentImage.src = next.image;
+      opponentUsername.textContent = next.username;
+      state = { round:1, part:0, time:33, tick:null };
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "🔥 New Opponent Ready 🔥";
+    }
+
+    // Start FX
+    function triggerSlash(){
+      fxSlash.classList.add('active');
+      fxSlash.addEventListener('animationend', ()=> fxSlash.classList.remove('active'), { once:true });
+      setTimeout(()=>fxSlash.classList.remove('active'), 800);
+    }
+    function triggerShock(){
+      fxShock.classList.add('active');
+      fxShock.addEventListener('animationend', ()=> fxShock.classList.remove('active'), { once:true });
+    }
+
+    // CTA
+    startBtn.onclick = ()=>{
       startBtnWrap.style.display='none';
-      battleTrack.play();
+      battleTrack.play().catch(()=>{});
       timerEl.classList.add('animate');
+      triggerSlash();
+      triggerShock();
       startRound();
     };
 
-    window.onload=()=>{startCamera();instModal.style.display='grid';};
+    // Init
+    window.onload = ()=>{
+      startCamera();
+      instModal.style.display = 'grid';
+      battleTrack.preload = 'auto';
+    };
   </script>
 </body>
-</html>
+        </html>
