@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Arena — 3ATTLE33ILLIONS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
   <style>
     :root{
       --ink:#f5f5f5; --ink-2:#cecece; --muted:#a1a1a1;
       --glass: rgba(20,20,24,.45);
       --stroke: rgba(255,255,255,.10);
-      --accent: #ffd700;
+      --accent:#ffd700;
+      --good:#3ecf8e; --warn:#f6c34a;
+      --danger:#ff6b6b;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:transparent;color:var(--ink)}
@@ -24,78 +26,118 @@
       box-shadow:0 8px 32px rgba(0,0,0,.3);
     }
     .brand{
-      display:flex; align-items:baseline; gap:10px;
+      display:flex; align-items:center; gap:10px;
     }
     .brand h1{
-      margin:0; font-size:18px; letter-spacing:.4px;
-      background:linear-gradient(180deg,#fff 0%, #cfcfcf 35%, #9f9f9f 55%, #f2f2f2 80%);
+      margin:0; font-size:18px; letter-spacing:.4px; text-transform:uppercase;
+      background:linear-gradient(180deg,#fff 0%, #cfcfcf 32%, #9f9f9f 58%, #f2f2f2 85%);
       -webkit-background-clip:text; background-clip:text; color:transparent;
-      text-shadow:0 1px 0 #cfcfcf, 0 0 12px rgba(255,215,0,.18);
+      text-shadow:0 1px 0 #cfcfcf, 0 0 14px rgba(255,215,0,.18);
     }
-    .tabs{
-      display:flex; gap:8px; flex-wrap:wrap;
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--stroke);
-      padding:6px; border-radius:999px;
+    .pill{ padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); font-size:12px; color:var(--ink-2) }
+
+    /* Split layout */
+    .split{
+      display:grid; grid-template-columns: 1.05fr .95fr; gap:16px;
     }
-    .tab{
-      padding:8px 12px; border-radius:999px; font-size:12px; color:var(--ink-2);
-      background:transparent; border:1px solid transparent; cursor:pointer;
+    @media (max-width: 900px){
+      .split{ grid-template-columns: 1fr; }
     }
-    .tab.active{
-      color:#000; background:#fff; border-color:transparent; font-weight:700;
-      box-shadow:0 6px 20px rgba(255,255,255,.08);
+
+    /* Panels */
+    .panel{
+      border:1px solid var(--stroke); border-radius:16px; background:var(--glass);
+      backdrop-filter: blur(8px) saturate(120%); box-shadow:0 8px 28px rgba(0,0,0,.25);
+      display:grid; gap:12px; padding:14px;
     }
-    .actions{display:flex; gap:8px}
+    .panel h2{ margin:0; font-size:16px; display:flex; align-items:center; gap:8px }
+    .panel .hint{ font-size:12px; color:var(--muted) }
+
+    /* Category grid */
+    .grid{
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:12px;
+    }
+    .cat{
+      position:relative; overflow:hidden;
+      border:1px solid rgba(255,255,255,.12); border-radius:14px;
+      padding:14px; min-height:110px; display:grid; gap:8px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      cursor:pointer; transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .cat:hover{ transform:translateY(-2px); border-color:rgba(255,255,255,.28); box-shadow:0 8px 24px rgba(0,0,0,.28) }
+    .cat.active{ outline:2px solid var(--accent); box-shadow:0 0 0 4px rgba(255,215,0,.15) inset }
+    .cat .icon{
+      width:40px; height:40px; border-radius:12px;
+      display:grid; place-items:center; font-size:20px; user-select:none;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    }
+    .cat .title{ font-weight:700; }
+    .cat .sub{ font-size:12px; color:var(--muted) }
+    .cat .corner{
+      position:absolute; right:-18px; bottom:-18px; width:90px; height:90px; border-radius:50%;
+      background: radial-gradient(closest-side, rgba(255,215,0,.18), rgba(255,215,0,0));
+      pointer-events:none;
+    }
+
+    /* Lobby right */
+    .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap }
+    .status{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted) }
+    .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px rgba(255,215,0,.65) }
     .btn{
       padding:10px 14px; border-radius:12px; border:1px solid var(--stroke);
-      background:rgba(255,255,255,.06); color:var(--ink); cursor:pointer;
+      background:rgba(255,255,255,.08); color:var(--ink); cursor:pointer;
       transition:transform .16s ease, border-color .16s ease, background .16s ease;
     }
     .btn:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,.25) }
-    .btn.primary{ background:#fff; color:#000; border-color:transparent }
+    .btn.primary{ background:#fff; color:#000; border-color:transparent; font-weight:700 }
     .btn.ghost{ background:transparent }
+    .btn[disabled]{ opacity:.6; cursor:not-allowed }
 
-    /* Composer */
-    .composer{
-      padding:12px; border-radius:16px; border:1px solid var(--stroke); background:var(--glass);
-      display:grid; gap:10px; box-shadow:0 8px 28px rgba(0,0,0,.25);
+    .queue{
+      border:1px dashed rgba(255,255,255,.14); border-radius:14px; padding:12px; display:grid; gap:10px;
     }
-    .composer textarea{
-      width:100%; min-height:70px; resize:vertical;
-      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12);
-      border-radius:12px; padding:12px; color:var(--ink);
-      outline:none; transition:border-color .16s ease, box-shadow .16s ease;
-    }
-    .composer textarea:focus{ border-color:#fff; box-shadow:0 0 6px rgba(255,255,255,.25) }
-    .composer .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .hint{ font-size:12px; color:var(--muted) }
-
-    /* Feed grid */
-    .feed{
-      display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap:14px;
-    }
+    .queue .line{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-2) }
+    .mini{ font-size:12px; color:var(--muted) }
+    .cards{ display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:10px }
     .card{
-      background:var(--glass); border:1px solid var(--stroke);
-      border-radius:16px; padding:14px; box-shadow:0 6px 26px rgba(0,0,0,.25);
-      display:grid; gap:8px;
+      border:1px solid var(--stroke); border-radius:14px; background:rgba(255,255,255,.05);
+      padding:12px; display:grid; gap:6px;
     }
-    .card h3{ margin:0; font-size:16px }
-    .meta{ font-size:12px; color:var(--muted) }
-    .pill{ padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.04); font-size:12px; }
-    .reacts{ display:flex; gap:8px }
-    .react{ padding:6px 10px; border:1px solid rgba(255,255,255,.12); border-radius:999px; background:rgba(255,255,255,.04); font-size:12px; cursor:pointer }
-    .react:hover{ border-color:rgba(255,255,255,.25) }
-
-    /* Section titles */
-    .section-title{ display:flex; align-items:center; gap:10px; margin:2px 2px 0 2px; }
-    .section-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px rgba(255,215,0,.65) }
-
-    /* Empty states */
-    .empty{
-      padding:20px; border:1px dashed rgba(255,255,255,.14); border-radius:12px; text-align:center; color:var(--muted);
+    .vs{
+      display:flex; align-items:center; justify-content:center; gap:10px; font-weight:700;
     }
+    .tag{ padding:4px 8px; border-radius:999px; font-size:11px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12) }
+
+    /* VS overlay */
+    .overlay{
+      position:fixed; inset:0; display:none; place-items:center; z-index:50;
+      background: radial-gradient(1000px 700px at 50% 40%, rgba(255,215,0,.08), rgba(0,0,0,.92));
+      backdrop-filter: blur(4px);
+    }
+    .overlay.show{ display:grid; }
+    .modal{
+      width:min(92vw,680px); border-radius:18px; border:1px solid var(--stroke); padding:18px;
+      background:var(--glass); box-shadow:0 20px 60px rgba(0,0,0,.45); display:grid; gap:12px;
+    }
+    .modal h3{ margin:0; }
+    .faces{
+      display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center;
+    }
+    .face{
+      border:1px solid var(--stroke); border-radius:14px; padding:12px; display:grid; gap:6px; text-align:center;
+      background:rgba(255,255,255,.05);
+    }
+    .avatar{
+      width:60px; height:60px; border-radius:50%; border:1px solid rgba(255,255,255,.15);
+      background:linear-gradient(180deg, #2a2a2f, #1a1a1d);
+      display:grid; place-items:center; font-weight:700;
+      margin:0 auto;
+    }
+    .count{ font-size:36px; text-align:center; font-weight:700 }
+    .flex-end{ display:flex; justify-content:flex-end; gap:8px }
+
+    /* Tiny ticker */
+    .ticker{ font-size:12px; color:var(--muted) }
   </style>
 </head>
 <body>
@@ -104,164 +146,247 @@
     <div class="topbar">
       <div class="brand">
         <h1>ARENA</h1>
-        <span class="pill" title="Live">● Live</span>
+        <span class="pill">● Live</span>
       </div>
-      <div class="tabs" role="tablist" aria-label="Arena Views">
-        <button class="tab active" data-tab="feed" role="tab" aria-selected="true">Feed</button>
-        <button class="tab" data-tab="trending" role="tab" aria-selected="false">Trending</button>
-        <button class="tab" data-tab="following" role="tab" aria-selected="false">Following</button>
-      </div>
-      <div class="actions">
-        <button id="newPostBtn" class="btn">New Post</button>
-        <button id="refreshBtn" class="btn ghost">Refresh</button>
+      <div class="ticker" id="ticker">Loading live…</div>
+      <div>
+        <a href="./index.html" class="btn ghost" style="text-decoration:none;">← Back</a>
       </div>
     </div>
 
-    <!-- Composer -->
-    <section class="composer" aria-label="Compose">
-      <div class="row">
-        <strong>What’s happening in your Arena?</strong>
-        <span class="hint" id="ticker">—</span>
-      </div>
-      <textarea id="composerInput" placeholder="Share a clutch play, big win, or squad update…"></textarea>
-      <div class="row">
-        <div style="display:flex; gap:8px;">
-          <span class="pill">#Highlights</span>
-          <span class="pill">#Squad</span>
-          <span class="pill">#Wins</span>
-        </div>
-        <button id="postBtn" class="btn primary">Post</button>
-      </div>
-    </section>
-
-    <!-- Sections -->
-    <div class="section-title"><span class="dot"></span><strong>Global Feed</strong></div>
-    <section id="pane-feed" class="feed" role="region" aria-live="polite">
-      <!-- cards injected by JS -->
-    </section>
-
-    <div class="section-title"><span class="dot"></span><strong>Trending</strong></div>
-    <section id="pane-trending" class="feed" style="display:none">
-      <div class="card">
-        <h3>Top Clip: Gilded Ember Finish</h3>
-        <p class="meta">32k views · 1h ago · #Highlights</p>
-        <div class="reacts">
-          <button class="react">👍 1.2k</button>
-          <button class="react">💬 182</button>
-          <button class="react">↗ Share</button>
+    <!-- Split screen -->
+    <section class="split" aria-label="Arena Split">
+      <!-- LEFT: Category Select -->
+      <div class="panel" aria-labelledby="cats-title">
+        <h2 id="cats-title">Choose a Category <span class="hint">Pick your arena to battle live</span></h2>
+        <div class="grid" id="catGrid">
+          <!-- categories inserted by JS -->
         </div>
       </div>
-      <div class="card">
-        <h3>Meta Watch: Shockwave builds</h3>
-        <p class="meta">Balance notes & counter-picks · 2h ago</p>
-      </div>
-    </section>
 
-    <div class="section-title"><span class="dot"></span><strong>Following</strong></div>
-    <section id="pane-following" class="feed" style="display:none">
-      <div class="empty">Follow players and clans to see their posts here.</div>
+      <!-- RIGHT: Live Lobby -->
+      <div class="panel" aria-labelledby="lobby-title">
+        <h2 id="lobby-title">Live Lobby <span class="hint" id="lobbyHint">Select a category to arm the queue</span></h2>
+        <div class="row">
+          <div class="status"><span class="dot"></span> <span id="statusTxt">Idle</span></div>
+          <div class="row">
+            <button id="findBtn" class="btn primary" disabled>Find Opponent</button>
+            <button id="customBtn" class="btn">Invite Friend</button>
+          </div>
+        </div>
+
+        <div class="queue">
+          <div class="line"><strong>Queue:</strong> <span id="queueCat" class="tag">—</span> <span class="mini" id="queueEta">ETA —</span></div>
+          <div class="cards" id="cards">
+            <div class="card">
+              <div class="mini">Recent Match</div>
+              <div class="vs">Kiro ✦ <span class="tag">Reflex</span> ✦ Vale</div>
+              <div class="mini">Winner: Vale · 2m ago</div>
+            </div>
+            <div class="card">
+              <div class="mini">Recent Match</div>
+              <div class="vs">Nova ✦ <span class="tag">Strategy</span> ✦ Ari</div>
+              <div class="mini">Winner: Nova · 6m ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="hint">Tip: Custom matches let you set a wager and private code.</span>
+          <div class="row">
+            <button id="watchBtn" class="btn ghost">Spectate</button>
+            <button id="rulesBtn" class="btn ghost">Rules</button>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 
-  <script>
-    // ===== Mock Data & Utilities =====
-    const feedEl   = document.getElementById('pane-feed');
-    const trendEl  = document.getElementById('pane-trending');
-    const followEl = document.getElementById('pane-following');
-    const tabs     = document.querySelectorAll('.tab');
-    const ticker   = document.getElementById('ticker');
+  <!-- VS Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h3 id="matchTitle">Match Found</h3>
+      <div class="faces">
+        <div class="face">
+          <div class="avatar">YOU</div>
+          <div id="youTag" class="tag">—</div>
+        </div>
+        <div class="count" id="count">3</div>
+        <div class="face">
+          <div class="avatar">OPP</div>
+          <div id="oppTag" class="tag">—</div>
+        </div>
+      </div>
+      <div class="flex-end">
+        <button id="cancelMatch" class="btn">Cancel</button>
+        <button id="startBtn" class="btn primary">Start Battle</button>
+      </div>
+    </div>
+  </div>
 
-    const seed = [
-      {u:'@Nova',    t:'12x streak — Combo crusher unlocked.', meta:'4m ago · Platinum II', tags:['#Wins']},
-      {u:'@Kiro',    t:'Vault unlocked: “Gilded Ember”.', meta:'12m ago · Drop Rate 1.8%', tags:['#Drop']},
-      {u:'@Ari',     t:'Ranked queue popped — who’s in?', meta:'19m ago · Squad: 3/5', tags:['#Squad']},
-      {u:'NightRunners', t:'Weekly challenge cleared. +2,500 pts', meta:'25m ago · Clan', tags:['#Clan']},
-      {u:'@Vale',    t:'Perfect retake on Ember Pit 🔥', meta:'36m ago · VOD 48s', tags:['#Highlights']},
+  <script>
+    // ===== Mock categories (tune labels as needed) =====
+    const categories = [
+      {key:"strategy",  icon:"♟",  title:"Strategy",  sub:"Outthink and outmaneuver"},
+      {key:"reflex",    icon:"⚡",  title:"Reflex",    sub:"Speed & reaction tests"},
+      {key:"trivia",    icon:"❓",  title:"Trivia",    sub:"General knowledge sprint"},
+      {key:"memory",    icon:"🧠",  title:"Memory",    sub:"Recall under pressure"},
+      {key:"wordplay",  icon:"🔤",  title:"Wordplay",  sub:"Letters & logic"},
+      {key:"puzzles",   icon:"🧩",  title:"Puzzles",   sub:"Solve the impossible"},
+      {key:"math",      icon:"➗",  title:"Speed Math", sub:"Rapid-fire arithmetic"},
+      {key:"wildcard",  icon:"🎲",  title:"Wildcard",  sub:"Mixed modes & twists"}
     ];
 
-    function cardHTML(item){
-      const tags = (item.tags||[]).map(t=>`<span class="pill">${t}</span>`).join(' ');
-      return `
-        <article class="card">
-          <h3>${escapeHTML(item.u)} — ${escapeHTML(item.t)}</h3>
-          <p class="meta">${escapeHTML(item.meta)}</p>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">${tags}</div>
-          <div class="reacts">
-            <button class="react">👍 ${Math.floor(Math.random()*200)+12}</button>
-            <button class="react">💬 ${Math.floor(Math.random()*80)+1}</button>
-            <button class="react">↗ Share</button>
-          </div>
-        </article>`;
-    }
+    const catGrid = document.getElementById('catGrid');
+    const statusTxt = document.getElementById('statusTxt');
+    const findBtn = document.getElementById('findBtn');
+    const customBtn = document.getElementById('customBtn');
+    const queueCat = document.getElementById('queueCat');
+    const queueEta = document.getElementById('queueEta');
+    const cards = document.getElementById('cards');
+    const lobbyHint = document.getElementById('lobbyHint');
 
-    function renderFeed(list){
-      feedEl.innerHTML = list.map(cardHTML).join('');
-    }
+    const overlay = document.getElementById('overlay');
+    const matchTitle = document.getElementById('matchTitle');
+    const youTag = document.getElementById('youTag');
+    const oppTag = document.getElementById('oppTag');
+    const countEl = document.getElementById('count');
+    const cancelMatch = document.getElementById('cancelMatch');
+    const startBtn = document.getElementById('startBtn');
 
-    function escapeHTML(s){
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
+    let chosen = null;
+    let queueTimer = null;
+    let countdownTimer = null;
 
-    // ===== Initial Render =====
-    renderFeed(seed);
+    // Render categories
+    catGrid.innerHTML = categories.map(c => `
+      <button class="cat" data-key="${c.key}" aria-pressed="false">
+        <div class="icon" aria-hidden="true">${c.icon}</div>
+        <div class="title">${c.title}</div>
+        <div class="sub">${c.sub}</div>
+        <span class="corner"></span>
+      </button>
+    `).join('');
 
-    // ===== Tabs =====
-    tabs.forEach(tab=>{
-      tab.addEventListener('click', ()=>{
-        tabs.forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
-        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
-        const which = tab.dataset.tab;
-        feedEl.style.display     = which==='feed'      ? '' : 'none';
-        trendEl.style.display    = which==='trending'  ? '' : 'none';
-        followEl.style.display   = which==='following' ? '' : 'none';
+    // Category selection behavior
+    catGrid.querySelectorAll('.cat').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        catGrid.querySelectorAll('.cat').forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+        btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
+        const key = btn.dataset.key;
+        chosen = categories.find(c => c.key === key);
+        armLobby(chosen);
       });
     });
 
-    // ===== Composer =====
-    const input = document.getElementById('composerInput');
-    document.getElementById('newPostBtn').addEventListener('click', ()=>{
-      input.focus();
-      input.value = '';
-      input.placeholder = "Drop your freshest highlight…";
-    });
-    document.getElementById('refreshBtn').addEventListener('click', ()=>{
-      // Simple shuffle to simulate refresh
-      const shuffled = [...seed].sort(()=>Math.random()-.5);
-      renderFeed(shuffled);
-    });
-    document.getElementById('postBtn').addEventListener('click', ()=>{
-      const text = input.value.trim();
-      if(!text){ input.focus(); return; }
-      const post = {u:'@You', t:text, meta:'Just now', tags:['#Player']};
-      feedEl.insertAdjacentHTML('afterbegin', cardHTML(post));
-      input.value='';
+    function armLobby(cat){
+      statusTxt.textContent = `Armed — ${cat.title}`;
+      lobbyHint.textContent = `Ready to queue for ${cat.title}`;
+      queueCat.textContent = cat.title;
+      queueEta.textContent = "ETA ~10–25s (peak)";
+      findBtn.disabled = false;
+      youTag.textContent = cat.title;
+      oppTag.textContent = cat.title;
+    }
+
+    // Simulated matchmaking
+    findBtn.addEventListener('click', ()=>{
+      if(!chosen) return;
+      findBtn.disabled = true;
+      statusTxt.textContent = `Searching for ${chosen.title} opponent…`;
+      queueEta.textContent = "Searching…";
+
+      // Add a live “queued” card
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="mini">Queue</div>
+        <div class="vs">@You ✦ <span class="tag">${chosen.title}</span> ✦ …</div>
+        <div class="mini">Finding the best match</div>
+      `;
+      cards.prepend(card);
+
+      // Randomized matchmaking delay
+      const delay = 1500 + Math.random()*3000;
+      queueTimer = setTimeout(()=>{
+        statusTxt.textContent = `Opponent found in ${Math.round(delay/100)/10}s`;
+        showVS();
+      }, delay);
     });
 
-    // ===== Live ticker (mock) =====
-    const headlines = [
-      'Patch 1.3.7 deployed — shockwave rings scale slower.',
-      'Tournament signups open — 64-team bracket.',
-      'Creator spotlight: @Ryn — Ember Pit lineups.',
-      'Clan Wars week — bonus XP online.',
+    function showVS(){
+      overlay.classList.add('show');
+      matchTitle.textContent = `Match Found — ${chosen.title}`;
+      let n = 3;
+      countEl.textContent = n;
+      clearInterval(countdownTimer);
+      countdownTimer = setInterval(()=>{
+        n -= 1;
+        countEl.textContent = n;
+        if(n<=0){
+          clearInterval(countdownTimer);
+          startBtn.removeAttribute('disabled');
+          countEl.textContent = "GO";
+        }
+      }, 900);
+      startBtn.setAttribute('disabled','');
+    }
+
+    cancelMatch.addEventListener('click', ()=>{
+      overlay.classList.remove('show');
+      statusTxt.textContent = 'Cancelled';
+      findBtn.disabled = false;
+      clearTimeout(queueTimer);
+      clearInterval(countdownTimer);
+    });
+
+    // Replace with your real game route when ready:
+    startBtn.addEventListener('click', ()=>{
+      // Example: window.location.href = `./play.html?mode=${encodeURIComponent(chosen.key)}`;
+      overlay.classList.remove('show');
+      statusTxt.textContent = 'Battle launched';
+      // For now, just append a result card after a short mock "match"
+      mockMatchResult();
+      findBtn.disabled = false;
+    });
+
+    function mockMatchResult(){
+      setTimeout(()=>{
+        const winner = Math.random()>.5 ? '@You' : '@Opponent';
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="mini">Match Complete</div>
+          <div class="vs">@You ✦ <span class="tag">${chosen.title}</span> ✦ @Opponent</div>
+          <div class="mini">Winner: ${winner} · just now</div>
+        `;
+        cards.prepend(card);
+      }, 1200);
+    }
+
+    customBtn.addEventListener('click', ()=>{
+      alert('Invite link copied (mock). Share with your friend to start a private match!');
+    });
+
+    document.getElementById('watchBtn').addEventListener('click', ()=>{
+      alert('Spectator queue coming soon (mock).');
+    });
+
+    document.getElementById('rulesBtn').addEventListener('click', ()=>{
+      alert('Rules vary by category. First to target score wins. No cheating. Have fun!');
+    });
+
+    // Tiny headline ticker
+    const heads = [
+      'Clan Wars live — +XP in Reflex & Strategy.',
+      'Creator Spotlight: @Ryn with Ember lineups.',
+      'Patch 1.3.7 — shockwaves scale slower.',
+      'Weekend Cup: 64 teams — registration open.',
       'New drop: Obsidian Trail effect.'
     ];
-    let hi = 0;
-    function cycleTicker(){
-      ticker.textContent = headlines[hi % headlines.length];
-      hi++;
-    }
-    cycleTicker();
-    setInterval(cycleTicker, 5000);
-
-    // ===== Optional: tell parent our scrollHeight (same-origin friendly alternative to your parent’s auto-resize) =====
-    function postHeight(){
-      try{
-        const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-        parent.postMessage({arenaHeight: h}, '*'); // parent may ignore if not listening
-      }catch(_){}
-    }
-    postHeight();
-    new ResizeObserver(postHeight).observe(document.body);
+    let hi=0;
+    function cycle(){ document.getElementById('ticker').textContent = heads[hi%heads.length]; hi++; }
+    cycle(); setInterval(cycle, 4500);
   </script>
 </body>
-  </html>
+</html>                                                                                    </html>
