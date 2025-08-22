@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BattleBillions — Dual Live Battle (5D)</title>
+  <title>BattleBillions — Dual Live Battle (5D fixed)</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -13,14 +13,14 @@
       --ink:#eaeaea;
       --muted:#b8b8b8;
 
-      /* dynamic vars driven by JS (parallax + audio glow) */
-      --mx: 0;  /* -1..1 */
-      --my: 0;  /* -1..1 */
-      --gyroX: 0;
-      --gyroY: 0;
-      --beatGlow: 0; /* 0..1 */
-
+      --mx: 0;  --my: 0;  --gyroX: 0;  --gyroY: 0;  --beatGlow: 0;
       --persp: 1200px;
+
+      /* Safe anchors to keep HUD & controls on-screen across devices */
+      --top-safe: max(10px, env(safe-area-inset-top));
+      --side-safe: max(16px, env(safe-area-inset-left));
+      --side-safe-r: max(16px, env(safe-area-inset-right));
+      --bottom-safe: max(18px, env(safe-area-inset-bottom));
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -34,28 +34,16 @@
       transform-style:preserve-3d;
     }
 
-    /* ===== 5D MULTI-LAYER BACKDROP (no boxes) ===== */
-    .depth-stage{
-      position:fixed; inset:0; z-index:0; pointer-events:none;
-      transform-style:preserve-3d;
-    }
-
-    /* Layer 1: deep nebula */
+    /* ===== 5D Layers (kept subtle) ===== */
+    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; transform-style:preserve-3d; }
     .layer-nebula{
       position:absolute; inset:-15%;
       background: conic-gradient(from 0deg at 50% 50%,
-        rgba(255,215,0,.10),
-        rgba(0,255,255,.08),
-        rgba(148,0,255,.12),
-        rgba(255,215,0,.10));
-      filter: blur(90px) saturate(130%);
-      animation: nebula 40s linear infinite;
-      transform: translateZ(-800px) rotateY(calc(var(--mx)*3deg)) rotateX(calc(var(--my)*-2.5deg));
-      opacity:.55;
+        rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
+      filter: blur(90px) saturate(130%); opacity:.45; animation: nebula 40s linear infinite;
+      transform: translateZ(-800px);
     }
     @keyframes nebula{ to{ transform:translateZ(-800px) rotate(360deg) } }
-
-    /* Layer 2: starfield twinkle */
     .layer-stars{
       position:absolute; inset:0;
       background:
@@ -65,97 +53,69 @@
         radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,.08), transparent 60%),
         radial-gradient(1px 1px at 10% 75%, rgba(255,255,255,.05), transparent 60%);
       animation: stars 14s ease-in-out infinite alternate;
-      transform: translateZ(-600px) rotateY(calc(var(--mx)*4deg)) rotateX(calc(var(--my)*-3deg));
+      transform: translateZ(-600px);
     }
     @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
-
-    /* Layer 3: prism shards */
     .layer-prisms{
       position:absolute; inset:-10%;
-      background:
-        repeating-conic-gradient(from 0deg at 50% 50%,
-          rgba(255,255,255,.06) 0 12deg,
-          rgba(255,255,255,0) 12deg 24deg);
-      mix-blend-mode:overlay;
-      filter: blur(8px);
-      opacity:.25;
-      animation: prisms 22s linear infinite;
-      transform: translateZ(-400px) rotateY(calc(var(--mx)*6deg)) rotateX(calc(var(--my)*-4deg));
+      background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.06) 0 12deg, rgba(255,255,255,0) 12deg 24deg);
+      mix-blend-mode:overlay; filter: blur(8px); opacity:.22; animation: prisms 22s linear infinite;
+      transform: translateZ(-400px);
     }
     @keyframes prisms{ to{ transform: translateZ(-400px) rotate(360deg) } }
 
-    /* ===== MAIN STAGE ===== */
-    .stream-container{
-      position:relative; z-index:1; display:flex; height:100vh; width:100vw;
-      transform-style:preserve-3d;
-    }
-
-    .pane{
-      flex:1; position:relative; overflow:hidden; display:grid; place-items:stretch;
-      isolation:isolate; transform-style:preserve-3d;
-    }
+    /* ===== Stage ===== */
+    .stream-container{ position:relative; z-index:1; display:flex; height:100vh; width:100vw; transform-style:preserve-3d; }
+    .pane{ flex:1; position:relative; overflow:hidden; display:grid; place-items:stretch; isolation:isolate; transform-style:preserve-3d; }
     .video-stream{
       width:100%; height:100%; object-fit:cover; background:#000;
       filter: brightness(.94) contrast(1.12) saturate(1.06);
-      transform:
-        translateZ(0)
-        rotateY(calc(var(--mx)*2deg + var(--gyroY)*.8deg))
-        rotateX(calc(var(--my)*-1.4deg + var(--gyroX)*.8deg));
+      transform: translateZ(0);
       transition: transform .08s linear;
     }
-    #localVideo{ transform:scaleX(-1) rotateY(calc(var(--mx)*2deg + var(--gyroY)*.8deg)) rotateX(calc(var(--my)*-1.4deg + var(--gyroX)*.8deg)); }
-
-    /* Holographic edge sheen on panes (no boxes) */
+    #localVideo{ transform:scaleX(-1); }
     .pane::after{
       content:""; position:absolute; inset:0;
       background:
-        linear-gradient( to right, rgba(255,255,255,.06), transparent 20% 80%, rgba(255,255,255,.06) ),
-        radial-gradient(1200px 400px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
-        radial-gradient(1200px 400px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
-      mix-blend-mode:screen; pointer-events:none;
-      animation: paneSheen 6s ease-in-out infinite alternate;
+        linear-gradient(to right, rgba(255,255,255,.05), transparent 20% 80%, rgba(255,255,255,.05)),
+        radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
+        radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
+      mix-blend-mode:screen; pointer-events:none; animation: paneSheen 6s ease-in-out infinite alternate;
     }
-    @keyframes paneSheen{ from{opacity:.45} to{opacity:.75} }
+    @keyframes paneSheen{ from{opacity:.35} to{opacity:.65} }
 
-    /* Camera fallback / controls */
+    /* Camera fallback */
     .fallback{
       position:absolute; inset:0; display:none; align-items:center; justify-content:center;
       flex-direction:column; gap:12px; text-align:center; padding:18px;
       background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
-      font-weight:800; letter-spacing:.3px;
-      transform: translateZ(40px);
+      font-weight:800; letter-spacing:.3px; transform: translateZ(40px);
     }
     .pane.error .fallback{ display:flex; }
     .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
     .btn-mini{
-      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000; font-weight:800; padding:10px 14px; border-radius:10px; cursor:pointer; border:none;
-      box-shadow:0 0 16px rgba(255,215,0,.35);
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800;
+      padding:10px 14px; border-radius:10px; cursor:pointer; border:none; box-shadow:0 0 16px rgba(255,215,0,.35);
     }
 
-    /* ===== HUD ===== */
+    /* ===== HUD (kept in-screen) ===== */
     .top-bar{
-      position:absolute; top:0; left:0; right:0; z-index:10;
-      display:flex; justify-content:space-between; padding:12px 16px; font-size:14px;
-      pointer-events:none; transform: translateZ(80px);
+      position:absolute; left:0; right:0;
+      top: calc(var(--top-safe) + 4px);
+      z-index:10; display:flex; justify-content:space-between; padding:0 clamp(12px, 2vw, 20px);
+      font-size:14px; pointer-events:none; transform: translateZ(80px);
     }
     .hud-left{ pointer-events:auto; }
-    .hud-right{ position:relative; pointer-events:auto; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+    .hud-right{ pointer-events:auto; display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
 
     .hud-live{
       appearance:none; border:none; cursor:pointer;
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
       color:#000; padding:6px 14px; border-radius:999px; font-weight:800;
-      box-shadow:0 0 18px rgba(255,215,0,.45);
-      text-shadow:0 1px 0 rgba(255,255,255,.4);
-      transform:
-        rotateY(calc(var(--mx)*1deg)) rotateX(calc(var(--my)*-1deg));
-      transition: transform .08s linear;
+      box-shadow:0 0 18px rgba(255,215,0,.45); text-shadow:0 1px 0 rgba(255,255,255,.4);
     }
     .hud-chip{
-      padding:6px 14px; border-radius:999px; background:rgba(0,0,0,.45); backdrop-filter: blur(4px);
-      transform: rotateY(calc(var(--mx)*1deg)) rotateX(calc(var(--my)*-1deg));
-      transition: transform .08s linear;
+      padding:6px 14px; border-radius:999px; background:rgba(0,0,0,.5); backdrop-filter: blur(6px);
     }
 
     /* Opponent mini under viewers (pig) */
@@ -163,28 +123,25 @@
       appearance:none; background:transparent; border:none; cursor:pointer;
       display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:12px;
       transform-origin:right center; transition:transform .18s ease, filter .18s ease;
-      transform: rotateY(calc(var(--mx)*1deg)) rotateX(calc(var(--my)*-1deg));
     }
-    .opponent-mini:hover{ transform:translateY(-2px) rotateY(calc(var(--mx)*1deg)) rotateX(calc(var(--my)*-1deg)); filter:brightness(1.07); }
-    .opponent-mini img{
-      width:32px; height:32px; border-radius:50%;
-      box-shadow:0 0 10px rgba(255,215,0,.35);
-    }
+    .opponent-mini:hover{ transform:translateY(-2px); filter:brightness(1.07); }
+    .opponent-mini img{ width:32px; height:32px; border-radius:50%; box-shadow:0 0 10px rgba(255,215,0,.35); }
     .opponent-mini span{ font-weight:800; letter-spacing:.3px }
 
-    /* Timer + CTA */
+    /* Timer + CTA (kept above bottom safe area) */
     .round-timer{
-      position:absolute; left:50%; bottom:160px; transform:translateX(-50%) translateZ(100px);
-      font-weight:800; font-size:18px; padding:12px 24px; border-radius:999px;
-      background:rgba(0,0,0,.5); backdrop-filter:blur(6px);
-      z-index:12; white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
+      position:absolute; left:50%;
+      bottom: calc(var(--bottom-safe) + 120px);
+      transform:translateX(-50%); z-index:12;
+      font-weight:800; font-size:16px; padding:10px 20px; border-radius:999px;
+      background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
+      white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
     }
     .round-timer.animate{ animation:pulse 1.8s infinite; }
-    @keyframes pulse{ 0%,100%{transform:translateX(-50%) translateZ(100px) scale(1)} 50%{transform:translateX(-50%) translateZ(100px) scale(1.07)} }
+    @keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.06)} }
 
     .cta{
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) translateZ(120px);
-      z-index:12; display:none;
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:12; display:none;
     }
     .btn{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
@@ -192,78 +149,85 @@
       box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
     }
 
-    /* ===== SIDE ICONS: pure shapes, raised & staggered, 5D glint ===== */
+    /* ===== Side Icons (raised & fully in view) ===== */
     .side{
-      position:absolute; bottom:12vh; display:flex; flex-direction:column; gap:16px; z-index:14;
-      pointer-events:auto; transform: translateZ(80px);
+      position:absolute;
+      bottom: calc(var(--bottom-safe) + 10vh);
+      display:flex; flex-direction:column; gap:14px; z-index:14; pointer-events:auto;
     }
-    .side.left{ left:20px; }
-    .side.right{ right:20px; }
+    .side.left{ left: calc(var(--side-safe)); }
+    .side.right{ right: calc(var(--side-safe-r)); }
 
     .shape{
       appearance:none; background:transparent; border:none; padding:0;
-      width:30px; height:30px; display:grid; place-items:center; cursor:pointer;
+      width:28px; height:28px; display:grid; place-items:center; cursor:pointer;
       transition: transform .18s ease, filter .18s ease;
-      outline:none;
       filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
       animation: floatY 3.6s ease-in-out infinite;
-      transform:
-        translateZ(0)
-        rotateY(calc(var(--mx)*.8deg)) rotateX(calc(var(--my)*-.8deg));
     }
+    @keyframes floatY{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
     .side.left .shape:nth-child(1){ animation-delay:.15s }
     .side.left .shape:nth-child(2){ animation-delay:1.05s }
     .side.right .shape:nth-child(1){ animation-delay:.55s }
     .side.right .shape:nth-child(2){ animation-delay:1.45s }
 
-    @keyframes floatY{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-
-    .shape:focus-visible{
-      filter: drop-shadow(0 0 16px rgba(255,215,0,.6)); transform:scale(1.12);
-    }
+    .shape:focus-visible{ filter: drop-shadow(0 0 16px rgba(255,215,0,.6)); transform:scale(1.12); }
     .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
     .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
-
-    /* Multi-frequency neon shimmer + slight chromatic aberration lines */
     .shape svg .strokeline{
-      stroke-dasharray: 90; stroke-dashoffset: 90;
-      animation:
-        dash1 2.6s ease-out infinite,
-        hue 6s linear infinite;
+      stroke-dasharray:90; stroke-dashoffset:90;
+      animation: dash1 2.6s ease-out infinite, hue 6s linear infinite;
     }
     @keyframes dash1{ 0%{stroke-dashoffset:90;opacity:.85} 60%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:0;opacity:.85} }
     @keyframes hue{ to{ filter:hue-rotate(20deg) } }
-
     .shape.gold svg{ stroke:url(#goldStroke); }
     .shape.logout svg{ stroke:#ff5a5a; }
 
-    /* Triangle primary + audio-reactive aura (no equalizer bars) */
-    .center-triangle{ position:absolute; left:50%; bottom:72px; transform:translateX(-50%) translateZ(90px); z-index:14; }
+    /* Triangle primary (kept above bottom edge) */
+    .center-triangle{
+      position:absolute; left:50%;
+      bottom: calc(var(--bottom-safe) + 64px);
+      transform:translateX(-50%); z-index:14;
+    }
     .center-triangle .shape{
-      width:36px; height:36px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
+      width:34px; height:34px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
       filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5));
     }
 
-    /* Modal */
-    .modal{ position:absolute; inset:0; display:none; place-items:center; z-index:30; background:rgba(0,0,0,.6); }
-    .dialog{
-      background:#0f0f12; padding:20px; border-radius:14px; display:grid; gap:12px; min-width:280px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.45); transform: translateZ(140px);
+    /* ===== Next Opponent Overlay (RIGHT PANE) ===== */
+    .opponent-offer{
+      position:absolute; inset:0; display:none; place-items:center; z-index:20;
+      background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65));
+      padding:20px;
     }
-    .dialog h3{ margin:0; font-weight:800; letter-spacing:.4px }
-    select{
-      padding:10px 12px; border-radius:10px; background:#000; color:#fff; border:none;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+    .offer-card{
+      display:grid; grid-template-columns: 96px 1fr; gap:16px; align-items:center;
+      padding:16px 18px; border-radius:16px;
+      background: rgba(0,0,0,.35); backdrop-filter: blur(8px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.08);
+      max-width:min(480px, 92vw);
+    }
+    .offer-avatar{
+      width:96px; height:96px; border-radius:14px; object-fit:cover;
+      box-shadow: 0 0 18px rgba(255,215,0,.35);
+    }
+    .offer-meta{ display:grid; gap:6px; }
+    .offer-title{ font-weight:800; font-size:18px; letter-spacing:.3px }
+    .offer-sub{ color:var(--muted); font-size:13px; display:flex; align-items:center; gap:8px }
+    .offer-sub img{ width:18px; height:12px; object-fit:cover; border-radius:2px; box-shadow:0 0 6px rgba(255,255,255,.15) }
+    .offer-actions{ display:flex; gap:10px; margin-top:8px }
+    .btn-ghost{
+      background:transparent; color:var(--ink); border:none; cursor:pointer; padding:10px 14px; border-radius:12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
     }
 
-    /* Cinematic Start FX (refined) */
+    /* FX */
     .fx-slash, .fx-shockwave{ position:fixed; inset:0; pointer-events:none; display:none; z-index:50; }
     .fx-shockwave.active, .fx-slash.active{ display:block; }
     .fx-slash::before{
       content:""; position:absolute; left:-40%; top:-40%; width:180%; height:180%;
       background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 50%, rgba(255,215,0,.65) 60%, rgba(255,255,255,0) 70%);
-      transform: skewY(-12deg) translateX(-120%);
-      filter: blur(2px);
+      transform: skewY(-12deg) translateX(-120%); filter: blur(2px);
       animation: slash 650ms cubic-bezier(.15,.6,.2,1) forwards;
     }
     @keyframes slash{ to{ transform: skewY(-12deg) translateX(120%); opacity:0 } }
@@ -275,19 +239,20 @@
         radial-gradient(closest-side, rgba(255,255,255,.9), rgba(255,255,255,.35) 55%, rgba(255,255,255,0) 60%),
         radial-gradient(closest-side, rgba(255,215,0,.5), rgba(255,215,0,.00) 70%);
       box-shadow: 0 0 28px rgba(255,215,0,.45), 0 0 70px rgba(255,215,0,.25);
-      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
-      filter: blur(.2px);
+      animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards; filter: blur(.2px);
     }
     @keyframes shock{ 0%{transform:scale(.2);opacity:1} 70%{transform:scale(6.0);opacity:.85} 100%{transform:scale(8.0);opacity:0} }
 
-    /* Small screens safety */
+    /* Small screens tuning */
     @media (max-height:700px){
-      .side{ bottom: 9vh; }
-      .center-triangle{ bottom: 64px; }
+      .side{ bottom: calc(var(--bottom-safe) + 9vh); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 56px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 100px); }
     }
     @media (max-height:560px){
-      .side{ bottom: 8vh; }
-      .center-triangle{ bottom: 56px; }
+      .side{ bottom: calc(var(--bottom-safe) + 8vh); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 48px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 92px); }
     }
   </style>
 </head>
@@ -332,8 +297,26 @@
     </div>
 
     <!-- RIGHT PANE (Opponent) -->
-    <div class="pane">
+    <div class="pane" id="rightPane">
       <video class="video-stream" id="opponentVideo" autoplay muted loop playsinline src="user2.mp4"></video>
+
+      <!-- Next Opponent Offer Overlay -->
+      <div class="opponent-offer" id="opponentOffer" aria-live="polite">
+        <div class="offer-card">
+          <img id="offerAvatar" class="offer-avatar" src="user3.jpg" alt="Next opponent photo"/>
+          <div class="offer-meta">
+            <div class="offer-title" id="offerName">@NextOpponent</div>
+            <div class="offer-sub">
+              <img id="offerFlag" src="flag_us.png" alt="Country flag"/>
+              <span id="offerCountry">United States</span>
+            </div>
+            <div class="offer-actions">
+              <button id="acceptOpponent" class="btn">Accept</button>
+              <button id="nextOpponent" class="btn-ghost">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- HUD -->
@@ -342,12 +325,12 @@
         <button class="hud-live" id="liveBtn" title="Live">LIVE</button>
       </div>
 
-      <!-- Right column: viewer chip + opponent mini (pig) -->
+      <!-- Right column: viewer chip + opponent mini (pig under it) -->
       <div class="hud-right">
-        <span class="hud-chip">👁 1.3k</span>
+        <span class="hud-chip" id="viewerChip">👁 1.3k</span>
         <button class="opponent-mini" id="opponentMiniBtn" title="Opponent profile" aria-label="Open opponent profile">
           <img src="pig.png" alt="Opponent (pig avatar)"/>
-          <span>@Opponent</span>
+          <span id="miniHandle">@Opponent</span>
         </button>
       </div>
     </div>
@@ -407,13 +390,11 @@
   <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
 
   <script>
-    // Elements
+    /* ---------- Elements ---------- */
     const localVideo = document.getElementById('localVideo');
     const camFallback = document.getElementById('camFallback');
     const leftPane = document.getElementById('leftPane');
-
     const opponentVideo = document.getElementById('opponentVideo');
-    const opponentMiniBtn = document.getElementById('opponentMiniBtn');
 
     const instModal = document.getElementById('instModal');
     const selectInst = document.getElementById('instrumentalSelect');
@@ -435,8 +416,18 @@
 
     const liveBtn = document.getElementById('liveBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const opponentMiniBtn = document.getElementById('opponentMiniBtn');
 
-    // Navigation bindings
+    // Offer overlay
+    const offer = document.getElementById('opponentOffer');
+    const offerAvatar = document.getElementById('offerAvatar');
+    const offerName = document.getElementById('offerName');
+    const offerCountry = document.getElementById('offerCountry');
+    const offerFlag = document.getElementById('offerFlag');
+    const acceptOpponent = document.getElementById('acceptOpponent');
+    const nextOpponent = document.getElementById('nextOpponent');
+
+    /* ---------- Navigation ---------- */
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
       btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
     });
@@ -444,14 +435,21 @@
     liveBtn.addEventListener('click', ()=>{ location.href='live.html'; });
     opponentMiniBtn.addEventListener('click', ()=>{ location.href='opponent-profile.html'; });
 
-    // Opponents rotation (if you want to switch later)
+    /* ---------- Opponents Pool ---------- */
     const opponents = [
-      { video: "user2.mp4", image: "user2.jpg", username: "@OpponentA" },
-      { video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" },
-      { video: "user4.mp4", image: "user4.jpg", username: "@MCNeo" }
+      { video: "user2.mp4", image: "user2.jpg", handle: "@OpponentA", country: "United States", flag: "flag_us.png" },
+      { video: "user3.mp4", image: "user3.jpg", handle: "@ChallengerX", country: "Japan", flag: "flag_jp.png" },
+      { video: "user4.mp4", image: "user4.jpg", handle: "@MCNeo", country: "Brazil", flag: "flag_br.png" }
     ];
+    let nextIndex = 0;
 
-    /* ===== CAMERA handling with fallbacks ===== */
+    function pickNext(){
+      nextIndex = (nextIndex + 1) % opponents.length;
+      return opponents[nextIndex];
+    }
+    function getCurrentNext(){ return opponents[nextIndex]; }
+
+    /* ---------- Camera Handling ---------- */
     let facing = 'user';
     let currentStream = null;
 
@@ -492,7 +490,7 @@
       await startCamera(facing);
     });
 
-    /* ===== Modal flow ===== */
+    /* ---------- Modal flow ---------- */
     confirmInst.onclick = ()=>{
       const src = selectInst.value;
       if(!src){ alert("Pick a beat."); return; }
@@ -503,7 +501,7 @@
       timerEl.textContent = "Press Start Battle to begin";
     };
 
-    /* ===== Battle timer ===== */
+    /* ---------- Battle Timer ---------- */
     let state = { round:1, part:0, time:33, tick:null };
 
     function setTimer(){ timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`; }
@@ -523,22 +521,44 @@
             setTimeout(startRound, 900);
           }else{
             timerEl.textContent = "🔥 Battle Over 🔥";
-            setTimeout(newOpponent, 1800);
+            // Show next opponent offer on RIGHT pane
+            setTimeout(showOpponentOffer, 1200);
           }
         }
       }, 1000);
     }
 
-    function newOpponent(){
-      const next = opponents[Math.floor(Math.random()*opponents.length)];
-      opponentVideo.src = next.video;
-      // (Optionally update pig & handle here)
-      state = { round:1, part:0, time:33, tick:null };
-      startBtnWrap.style.display = 'block';
-      timerEl.textContent = "🔥 New Opponent Ready 🔥";
+    /* ---------- Next Opponent Offer Flow ---------- */
+    function showOpponentOffer(){
+      const cand = pickNext();
+      offerAvatar.src = cand.image;
+      offerName.textContent = cand.handle;
+      offerCountry.textContent = cand.country;
+      offerFlag.src = cand.flag;
+      offer.style.display = 'grid';
+      startBtnWrap.style.display = 'none';
     }
 
-    /* ===== Start FX ===== */
+    acceptOpponent.onclick = ()=>{
+      const cand = getCurrentNext();
+      opponentVideo.src = cand.video;
+      document.getElementById('miniHandle').textContent = cand.handle; // reflect in mini button if desired
+      offer.style.display = 'none';
+      // Reset battle state for the accepted opponent
+      state = { round:1, part:0, time:33, tick:null };
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "🔥 Opponent Ready — Press Start 🔥";
+    };
+
+    nextOpponent.onclick = ()=>{
+      const cand = pickNext(); // step again
+      offerAvatar.src = cand.image;
+      offerName.textContent = cand.handle;
+      offerCountry.textContent = cand.country;
+      offerFlag.src = cand.flag;
+    };
+
+    /* ---------- Start FX ---------- */
     function triggerSlash(){
       fxSlash.classList.add('active');
       fxSlash.addEventListener('animationend', ()=> fxSlash.classList.remove('active'), { once:true });
@@ -556,8 +576,9 @@
       timerEl.classList.add('animate');
       triggerSlash();
       triggerShock();
+      offer.style.display = 'none'; // ensure hidden if visible
       startRound();
-      beginAudioGlow(); // kick off audio-reactive aura
+      beginAudioGlow();
     };
 
     // Init
@@ -567,9 +588,9 @@
       battleTrack.preload = 'auto';
     };
 
-    /* ===== 5D: Parallax from mouse + device orientation ===== */
+    /* ---------- Parallax (soft) ---------- */
     function setParallax(e){
-      const x = (e.clientX / window.innerWidth) * 2 - 1; // -1..1
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
       const y = (e.clientY / window.innerHeight) * 2 - 1;
       document.documentElement.style.setProperty('--mx', x.toFixed(3));
       document.documentElement.style.setProperty('--my', y.toFixed(3));
@@ -578,14 +599,14 @@
 
     if(window.DeviceOrientationEvent){
       window.addEventListener('deviceorientation', (ev)=>{
-        const gx = (ev.beta || 0) / 45;   // tilt front/back
-        const gy = (ev.gamma || 0) / 45;  // tilt left/right
+        const gx = (ev.beta || 0) / 45;   // front/back
+        const gy = (ev.gamma || 0) / 45;  // left/right
         document.documentElement.style.setProperty('--gyroX', Math.max(-1, Math.min(1, gx)).toFixed(3));
         document.documentElement.style.setProperty('--gyroY', Math.max(-1, Math.min(1, gy)).toFixed(3));
       }, { passive:true });
     }
 
-    /* ===== Subtle audio-reactive glow (no equalizer UI) ===== */
+    /* ---------- Subtle audio-reactive aura ---------- */
     let audioCtx, analyser, dataArr, rafGlow;
     function beginAudioGlow(){
       try{
@@ -600,20 +621,18 @@
         }
         const loop = ()=>{
           analyser.getByteFrequencyData(dataArr);
-          // focus on low-mid energy (bins 2..18)
-          let sum = 0, count = 0;
-          for(let i=2;i<18 && i<dataArr.length;i++){ sum += dataArr[i]; count++; }
-          const avg = count? sum / (count*255) : 0;
-          const eased = Math.min(1, avg*2.2); // normalize
+          let sum=0, count=0;
+          for(let i=2;i<18 && i<dataArr.length;i++){ sum+=dataArr[i]; count++; }
+          const avg = count? sum/(count*255) : 0;
+          const eased = Math.min(1, avg*2.2);
           document.documentElement.style.setProperty('--beatGlow', eased.toFixed(3));
           rafGlow = requestAnimationFrame(loop);
         };
         cancelAnimationFrame(rafGlow);
         rafGlow = requestAnimationFrame(loop);
-      }catch(e){
-        // no-op if AudioContext blocked
-      }
+      }catch(e){/* ignore if blocked */}
     }
   </script>
 </body>
 </html>
+  
