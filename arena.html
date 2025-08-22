@@ -22,7 +22,7 @@
       background: radial-gradient(1200px 800px at 30% 20%, #0a0a0f 0%, #000 70%), #000;
     }
 
-    /* Futuristic background glow layers */
+    /* Futuristic ambient layers */
     body::before{
       content:"";
       position:fixed; inset:-10%;
@@ -37,10 +37,7 @@
       opacity:.55;
       pointer-events:none; z-index:0;
     }
-    @keyframes aurora{
-      0%{ transform:rotate(0deg) scale(1.1) }
-      100%{ transform:rotate(360deg) scale(1.1) }
-    }
+    @keyframes aurora{ 0%{transform:rotate(0) scale(1.1)} 100%{transform:rotate(360deg) scale(1.1)} }
     body::after{
       content:"";
       position:fixed; inset:0;
@@ -51,10 +48,7 @@
       animation: stars 12s ease-in-out infinite alternate;
       pointer-events:none; z-index:0;
     }
-    @keyframes stars{
-      from{ filter:brightness(.9) }
-      to{   filter:brightness(1.1) }
-    }
+    @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
 
     /* Stage */
     .stream-container{ position:relative; z-index:1; display:flex; height:100vh; width:100vw; }
@@ -83,32 +77,33 @@
       display:flex; justify-content:space-between; padding:12px 16px; font-size:14px;
       pointer-events:none;
     }
-    /* LIVE is now a button (navigates to live page) */
+    .hud-left{ pointer-events:auto; }
+    .hud-right{ position:relative; pointer-events:auto; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+
+    /* LIVE is a button */
     .hud-live{
-      pointer-events:auto; appearance:none; border:none; cursor:pointer;
+      appearance:none; border:none; cursor:pointer;
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
       color:#000; padding:6px 14px; border-radius:999px; font-weight:800;
       box-shadow:0 0 18px rgba(255,215,0,.45);
       text-shadow:0 1px 0 rgba(255,255,255,.4);
     }
     .hud-chip{
-      pointer-events:auto; padding:6px 14px; border-radius:999px;
-      background:rgba(0,0,0,.45); backdrop-filter: blur(4px);
+      padding:6px 14px; border-radius:999px; background:rgba(0,0,0,.45); backdrop-filter: blur(4px);
     }
 
-    /* Opponent display is a button now (to profile page) */
-    .profile-labels{ position:absolute; top:64px; right:20px; z-index:10; }
-    .profile-entry{
+    /* Opponent mini button (pig) below viewer count */
+    .opponent-mini{
       appearance:none; background:transparent; border:none; cursor:pointer;
-      display:flex; align-items:center; gap:12px; padding:4px 6px; border-radius:12px;
-      transition: transform .18s ease, filter .18s ease;
+      display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:12px;
+      transform-origin:right center; transition:transform .18s ease, filter .18s ease;
     }
-    .profile-entry:hover{ transform:translateY(-1px); filter:brightness(1.05); }
-    .profile-entry img{
-      width:36px; height:36px; border-radius:50%;
-      box-shadow:0 0 12px rgba(255,215,0,.35);
+    .opponent-mini:hover{ transform:translateY(-2px); filter:brightness(1.07); }
+    .opponent-mini img{
+      width:32px; height:32px; border-radius:50%;
+      box-shadow:0 0 10px rgba(255,215,0,.35);
     }
-    .profile-entry span{ font-weight:800; letter-spacing:.3px }
+    .opponent-mini span{ font-weight:800; letter-spacing:.3px }
 
     /* Timer + CTA */
     .round-timer{
@@ -118,10 +113,8 @@
       z-index:12; white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
     }
     .round-timer.animate{ animation:pulse 1.8s infinite; }
-    @keyframes pulse{
-      0%,100%{ transform:translateX(-50%) scale(1); }
-      50%{ transform:translateX(-50%) scale(1.07); }
-    }
+    @keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.07)} }
+
     .cta{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:12; display:none; }
     .btn{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
@@ -129,11 +122,10 @@
       box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
     }
 
-    /* Side icons — pure shapes, lowered further + staggered motion */
+    /* Side icons — pure shapes, raised into view and stagger-animated */
     .side{
       position:absolute;
-      top:calc(86% + 4vh); /* LOWER than before as requested */
-      transform:translateY(-50%);
+      bottom:12vh;            /* << raised so nothing hangs off-screen */
       display:flex; flex-direction:column; gap:16px; z-index:14;
       pointer-events:auto;
     }
@@ -146,19 +138,15 @@
       transition: transform .18s ease, filter .18s ease;
       outline:none;
       filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
-      /* floating animation */
       animation: floatY 3.6s ease-in-out infinite;
     }
-    /* staggered delays so each moves at different times */
-    .side.left .shape:nth-child(1){ animation-delay: .2s }
-    .side.left .shape:nth-child(2){ animation-delay: 1.1s }
-    .side.right .shape:nth-child(1){ animation-delay: .6s }
-    .side.right .shape:nth-child(2){ animation-delay: 1.5s }
+    /* staggered delays per button for independent motion */
+    .side.left .shape:nth-child(1){ animation-delay:.15s }
+    .side.left .shape:nth-child(2){ animation-delay:1.05s }
+    .side.right .shape:nth-child(1){ animation-delay:.55s }
+    .side.right .shape:nth-child(2){ animation-delay:1.45s }
 
-    @keyframes floatY{
-      0%,100%{ transform:translateY(0) }
-      50%{ transform:translateY(-6px) }
-    }
+    @keyframes floatY{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
     .shape:focus-visible{
       filter: drop-shadow(0 0 16px rgba(255,215,0,.6));
@@ -167,19 +155,16 @@
     .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
     .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
     .shape svg .strokeline{
-      stroke-dasharray: 90; stroke-dashoffset: 90; animation: dash 2.6s ease-out infinite;
+      stroke-dasharray:90; stroke-dashoffset:90; animation: dash 2.6s ease-out infinite;
     }
-    @keyframes dash{
-      0%{ stroke-dashoffset: 90; opacity:.85 }
-      60%{ stroke-dashoffset: 0;   opacity:1 }
-      100%{ stroke-dashoffset: 0;  opacity:.85 }
-    }
+    @keyframes dash{ 0%{stroke-dashoffset:90;opacity:.85} 60%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:0;opacity:.85} }
+
     .shape.gold svg{ stroke:url(#goldStroke); }
     .shape.logout svg{ stroke:#ff5a5a; }
 
-    /* Triangle (primary) bottom-center */
+    /* Triangle bottom-center */
     .center-triangle{ position:absolute; left:50%; bottom:72px; transform:translateX(-50%); z-index:14; }
-    .center-triangle .shape{ width:36px; height:36px; animation:floatY 3.8s ease-in-out infinite; animation-delay: .9s }
+    .center-triangle .shape{ width:36px; height:36px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s }
 
     /* Modal */
     .modal{ position:absolute; inset:0; display:none; place-items:center; z-index:30; background:rgba(0,0,0,.6); }
@@ -215,15 +200,21 @@
       animation: shock 900ms cubic-bezier(.2,.6,.1,1) forwards;
       filter: blur(.2px);
     }
-    @keyframes shock{
-      0%{ transform:scale(.2); opacity:1 }
-      70%{ transform:scale(6.0); opacity:.85 }
-      100%{ transform:scale(8.0); opacity:0 }
+    @keyframes shock{ 0%{transform:scale(.2);opacity:1} 70%{transform:scale(6.0);opacity:.85} 100%{transform:scale(8.0);opacity:0} }
+
+    /* Small screens safety: keep side icons visible */
+    @media (max-height:700px){
+      .side{ bottom: 9vh; }
+      .center-triangle{ bottom: 64px; }
+    }
+    @media (max-height:560px){
+      .side{ bottom: 8vh; }
+      .center-triangle{ bottom: 56px; }
     }
   </style>
 </head>
 <body>
-  <!-- Gold stroke gradient for icons -->
+  <!-- Gold gradient for strokes -->
   <svg width="0" height="0" style="position:absolute">
     <defs>
       <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -262,16 +253,18 @@
 
     <!-- HUD -->
     <div class="top-bar">
-      <button class="hud-live" id="liveBtn" title="Live">LIVE</button>
-      <span class="hud-chip">👁 1.3k</span>
-    </div>
+      <div class="hud-left">
+        <button class="hud-live" id="liveBtn" title="Live">LIVE</button>
+      </div>
 
-    <!-- Opponent chip (now a button) -->
-    <div class="profile-labels">
-      <button class="profile-entry" id="opponentBtn" title="Open opponent profile" aria-label="Open opponent profile">
-        <img id="opponentImage" src="user2.jpg" alt="Opponent"/>
-        <span id="opponentUsername">@Opponent</span>
-      </button>
+      <!-- Right column: viewer chip + opponent mini button (pig) -->
+      <div class="hud-right">
+        <span class="hud-chip">👁 1.3k</span>
+        <button class="opponent-mini" id="opponentMiniBtn" title="Opponent profile" aria-label="Open opponent profile">
+          <img src="pig.png" alt="Opponent (pig avatar)"/>
+          <span>@Opponent</span>
+        </button>
+      </div>
     </div>
 
     <!-- Timer + CTA -->
@@ -335,8 +328,7 @@
     const leftPane = document.getElementById('leftPane');
 
     const opponentVideo = document.getElementById('opponentVideo');
-    const opponentImage = document.getElementById('opponentImage');
-    const opponentUsername = document.getElementById('opponentUsername');
+    const opponentMiniBtn = document.getElementById('opponentMiniBtn');
 
     const instModal = document.getElementById('instModal');
     const selectInst = document.getElementById('instrumentalSelect');
@@ -356,9 +348,7 @@
     const retryCamBtn = document.getElementById('retryCamBtn');
     const switchCamBtn = document.getElementById('switchCamBtn');
 
-    // New buttons
     const liveBtn = document.getElementById('liveBtn');
-    const opponentBtn = document.getElementById('opponentBtn');
 
     // Nav bindings
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
@@ -366,9 +356,9 @@
     });
     document.getElementById('logoutBtn').addEventListener('click', ()=>{ location.href='login.html'; });
     liveBtn.addEventListener('click', ()=>{ location.href='live.html'; });
-    opponentBtn.addEventListener('click', ()=>{ location.href='opponent-profile.html'; });
+    opponentMiniBtn.addEventListener('click', ()=>{ location.href='opponent-profile.html'; });
 
-    // Opponents pool
+    // Opponents pool (for rotation)
     const opponents = [
       { video: "user2.mp4", image: "user2.jpg", username: "@OpponentA" },
       { video: "user3.mp4", image: "user3.jpg", username: "@ChallengerX" },
@@ -383,7 +373,6 @@
       if(!stream) return;
       stream.getTracks().forEach(t=>t.stop());
     }
-
     async function startCamera(preferFacing = facing){
       try{
         await stopStream(currentStream);
@@ -457,8 +446,7 @@
     function newOpponent(){
       const next = opponents[Math.floor(Math.random()*opponents.length)];
       opponentVideo.src = next.video;
-      opponentImage.src = next.image;
-      opponentUsername.textContent = next.username;
+      // You can also update the pig mini button to reflect a new avatar if desired.
       state = { round:1, part:0, time:33, tick:null };
       startBtnWrap.style.display = 'block';
       timerEl.textContent = "🔥 New Opponent Ready 🔥";
