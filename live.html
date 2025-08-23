@@ -18,7 +18,7 @@
       --grey:#c7c7c7;         /* mute accent */
       --safe-top: max(10px, env(safe-area-inset-top));
       --safe-bottom: max(14px, env(safe-area-inset-bottom));
-      --side-pad: 56px;       /* room for side navs */
+      --side-pad: 44px;       /* narrower padding => wider panels */
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -83,16 +83,16 @@
     .auto-item:hover{ background:rgba(255,255,255,.06); }
 
     /* FEED (no containers; just battles) */
-    .feed{ display:grid; gap:28px; margin-top:12px; }
+    .feed{ display:grid; gap:24px; margin-top:12px; }
 
     /* BATTLE: full-width split */
     .battle{
-      display:grid; gap:10px;
+      display:grid; gap:8px;
     }
     .split{
       display:grid;
       grid-template-columns: minmax(0,1fr) minmax(0,1fr); /* always side-by-side */
-      gap:10px;
+      gap:8px; /* tighter gap => wider panels */
       align-items:stretch;
     }
     /* Wider panels & cinematic height */
@@ -108,7 +108,6 @@
     @media (max-width:900px){
       .pane{ height: 56dvh }
     }
-    /* NOTE: removed the mobile single-column rule so panes stay side-by-side */
     .pane video{
       width:100%; height:100%; object-fit:cover; display:block; background:#000;
       transform: translateZ(0);
@@ -145,10 +144,11 @@
     .rank-badge.silver{ background:linear-gradient(180deg,#fafafa,#cfcfcf) }
     .rank-badge.bronze{ background:linear-gradient(180deg,#ffd7b0,#c8903c) }
 
-    /* VOTE under each panel */
-    .panel-actions{
-      margin-top:10px; display:flex; justify-content:center;
+    /* VOTE under each panel + middle timer column */
+    .under-row{
+      display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:10px; margin-top:10px;
     }
+    .panel-actions{ display:flex; justify-content:center; }
     .vote{
       appearance:none; border:none; cursor:pointer;
       border-radius:999px; padding:12px 18px; font-weight:800; font-size:13px; color:#111;
@@ -158,6 +158,20 @@
     }
     .vote:active{ transform: scale(.98) }
     .vote[disabled]{ opacity:.65; cursor:default; filter:grayscale(.15) }
+
+    /* Middle rounds+timer pill */
+    .mid-status{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      background:rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.35);
+      font-size:12px; font-weight:800; color:#fff;
+      min-width:110px;
+    }
+    .mid-status .dot{
+      width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 12px rgba(255,215,0,.55);
+    }
+    .mid-status .t{ color:#ffd700 }
 
     /* Gold pulse on vote */
     @keyframes pulseGold {
@@ -213,7 +227,7 @@
     .center-triangle{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6 }
 
     @media (max-width: 600px){
-      .live-container{ padding-left:50px; padding-right:50px }
+      .live-container{ padding-left:46px; padding-right:46px }
       .shape{ width:30px; height:30px }
       .gicon{ --sz: 42px }
     }
@@ -335,6 +349,20 @@
       return `<div class="rank-badge ${cls}">${rank}</div>`;
     }
 
+    // WeakMap to track per-battle timer intervals for cleanup if needed
+    const battleTimers = new WeakMap();
+
+    function makeMidStatus(){
+      return `
+        <div class="mid-status" data-role="status">
+          <span class="dot"></span>
+          <span class="r" data-role="round">R1</span>
+          <span class="sep">|</span>
+          <span class="t" data-role="time">0:33</span>
+        </div>
+      `;
+    }
+
     function makeBattle(b){
       const regionA = COUNTRY_REGION[b.a.country] || 'NA';
       const regionB = COUNTRY_REGION[b.b.country] || regionA;
@@ -376,9 +404,10 @@
           </div>
         </div>
 
-        <!-- Vote under each panel -->
-        <div class="split" style="grid-template-columns:1fr 1fr; gap:10px;">
+        <!-- Vote left / mid timer / vote right -->
+        <div class="under-row">
           <div class="panel-actions"><button class="vote" data-act="voteA">Vote</button></div>
+          ${makeMidStatus()}
           <div class="panel-actions"><button class="vote" data-act="voteB">Vote</button></div>
         </div>
 
@@ -398,10 +427,17 @@
         </div>
       `;
 
+      // Start per-battle timer
+      startBattleTimer(wrap);
+
+      // Video preview play/pause on visibility
       observeVideo(wrap.querySelectorAll('video'));
+
+      // Hook actions
       wrap.querySelectorAll('[data-act]').forEach(btn=>{
         btn.addEventListener('click', ()=> onBattleAction(btn, wrap));
       });
+
       return wrap;
     }
 
@@ -412,8 +448,42 @@
     }
 
     /***********************
+     * PER-BATTLE ROUND+TIMER
+     ***********************/
+    function startBattleTimer(battleEl){
+      // default loop: 3 rounds, 33s each
+      let round = 1, seconds = 33;
+
+      const rEl = battleEl.querySelector('[data-role="round"]');
+      const tEl = battleEl.querySelector('[data-role="time"]');
+
+      function fmt(s){ return s<10 ? `0:0${s}` : `0:${s}`; }
+
+      function tick(){
+        if (!battleEl.isConnected) return; // safety
+        tEl.textContent = fmt(seconds);
+        rEl.textContent = `R${round}`;
+        seconds--;
+        if(seconds < 0){
+          if(round < 3){
+            round++;
+            seconds = 33;
+          }else{
+            // loop back for the feed experience
+            round = 1;
+            seconds = 33;
+          }
+        }
+      }
+      tick(); // initialize immediately
+      const id = setInterval(tick, 1000);
+      battleTimers.set(battleEl, id);
+    }
+
+    /***********************
      * SEARCH + AUTOCOMPLETE
      ***********************/
+    const feedElRef = document.getElementById('feed'); // reuse
     const searchInput = document.getElementById('searchInput');
     const clearBtn = document.getElementById('clearBtn');
     const autoList = document.getElementById('autoList');
@@ -428,7 +498,7 @@
 
     function applyFilter(term){
       const t = (term||'').toLowerCase().trim();
-      const nodes = Array.from(feedEl.children);
+      const nodes = Array.from(feedElRef.children);
       let shown=0;
       if(!t){
         nodes.forEach(n=> n.style.display='');
@@ -781,3 +851,4 @@
   </script>
 </body>
 </html>
+  
