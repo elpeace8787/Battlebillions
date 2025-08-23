@@ -96,13 +96,12 @@
     }
     @keyframes paneSheen{ from{opacity:.3} to{opacity:.58} }
 
-    /* Camera fallback + enable gate (require user tap for iOS autoplay policies) */
+    /* Camera fallback + enable gate */
     .fallback{
       position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
       flex-direction:column; gap:12px; text-align:center; padding:18px;
       background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
-      font-weight:800; letter-spacing:.3px;
-      z-index:3;
+      font-weight:800; letter-spacing:.3px; z-index:3;
     }
     .fallback.hidden{ display:none; }
     .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
@@ -137,7 +136,7 @@
       font-weight:800; white-space:nowrap;
     }
 
-    /* Opponent display button (pig) under the viewer count */
+    /* Opponent display button under viewer count */
     .opponent-btn{
       position:absolute; left:50%;
       top: calc(var(--top-safe) + 56px);
@@ -154,7 +153,7 @@
     /* Timer + CTA */
     .round-timer{
       position:absolute; left:50%;
-      bottom: calc(var(--bottom-safe) + 90px);
+      bottom: calc(var(--bottom-safe) + 120px);
       transform:translateX(-50%); z-index:12;
       font-weight:800; font-size:15px; padding:10px 18px; border-radius:999px;
       background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
@@ -204,11 +203,11 @@
     @keyframes hue{ to{ filter:hue-rotate(20deg) } }
     .shape.gold svg{ stroke:url(#goldStroke); }
     .shape.logout svg{ stroke:#ff5a5a; }
-    .center-triangle{ position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 52px); transform:translateX(-50%); z-index:14; }
+    .center-triangle{ position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 80px); transform:translateX(-50%); z-index:14; }
     .center-triangle .shape{ width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
       filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5)); }
 
-    /* Next Opponent PAD (CENTERED in opponent panel, buttons UNDERNEATH) */
+    /* Next Opponent PAD (CENTERED, buttons under) */
     .opponent-pad{
       position:absolute;
       left:50%; top:50%; transform:translate(-50%,-50%);
@@ -219,9 +218,7 @@
       box-shadow: 0 10px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.10);
       width: min(92%, 420px);
     }
-    .pad-top{
-      display:flex; align-items:center; gap:12px; width:100%;
-    }
+    .pad-top{ display:flex; align-items:center; gap:12px; width:100%; }
     .pad-avatar{
       width:72px; height:72px; border-radius:12px; object-fit:cover;
       box-shadow: 0 0 14px rgba(255,215,0,.35); flex:0 0 auto;
@@ -235,7 +232,7 @@
     .btn-accept{ background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800; box-shadow:0 0 16px rgba(255,215,0,.35) }
     .btn-next{ background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) }
 
-    /* Upload Beat Modal (replaces category list) */
+    /* Upload Beat Modal */
     .modal{ position:fixed; inset:0; display:none; place-items:center; z-index:30;
       background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
     .dialog{
@@ -254,7 +251,59 @@
     }
     .dialog small{ color:var(--muted) }
 
-    /* Share CTA (appears on your side after battle) */
+    /* Beat window chooser + 33s progress */
+    .beatbar{
+      position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 20px);
+      transform: translateX(-50%);
+      z-index:18;
+      display:none; /* shown after upload */
+      width:min(92vw, 560px);
+      background: rgba(0,0,0,.5);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 36px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
+    }
+    .beatbar-row{ display:grid; align-items:center; gap:10px; grid-template-columns: 1fr auto; }
+    .range-wrap{ position:relative; height:22px; display:flex; align-items:center; }
+    .range-track{
+      position:absolute; left:0; right:0; height:6px; border-radius:999px; background:rgba(255,255,255,.12);
+    }
+    .range-window{
+      position:absolute; height:100%; top:0; border-radius:999px;
+      background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+      box-shadow:0 0 18px rgba(255,215,0,.35);
+      pointer-events:none;
+    }
+    input[type="range"].beat-start{
+      -webkit-appearance:none; appearance:none;
+      width:100%; background:transparent; height:22px;
+    }
+    input[type="range"].beat-start::-webkit-slider-thumb{
+      -webkit-appearance:none; appearance:none;
+      width:18px; height:18px; border-radius:50%;
+      background: #fff; border:2px solid #000; box-shadow:0 0 10px rgba(255,255,255,.6);
+      cursor:pointer; margin-top:-6px;
+    }
+    input[type="range"].beat-start::-moz-range-thumb{
+      width:18px; height:18px; border-radius:50%;
+      background:#fff; border:2px solid #000; box-shadow:0 0 10px rgba(255,255,255,.6);
+      cursor:pointer;
+    }
+    .beatbar-meta{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:8px;
+      font-size:12px; color:var(--muted);
+    }
+    .seg-progress{
+      position:relative; width:100%; height:6px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden;
+    }
+    .seg-progress > span{
+      position:absolute; left:0; top:0; bottom:0; width:0%;
+      background:linear-gradient(90deg, #fff, var(--gold));
+      box-shadow:0 0 12px rgba(255,255,255,.5) inset;
+    }
+
+    /* Share CTA (appears after battle) */
     .share-cta{
       position:absolute; inset:auto 0 calc(var(--bottom-safe) + 24px) 0; margin:auto;
       display:none; z-index:20; text-align:center;
@@ -269,8 +318,8 @@
       .viewer-center{ top: calc(var(--top-safe) + 6px); }
       .top-bar{ top: calc(var(--top-safe) + 6px); }
       .side{ bottom: calc(var(--bottom-safe) + 10vh); }
-      .center-triangle{ bottom: calc(var(--bottom-safe) + 48px); }
-      .round-timer{ bottom: calc(var(--bottom-safe) + 82px); font-size:14px; }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 68px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 108px); font-size:14px; }
       .shape{ width:22px; height:22px; }
       .center-triangle .shape{ width:28px; height:28px; }
       .pad-avatar{ width:64px; height:64px; }
@@ -303,7 +352,7 @@
     <div class="pane" id="leftPane">
       <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
 
-      <!-- Enable camera gate (tap required for iOS) -->
+      <!-- Enable camera gate -->
       <div class="fallback" id="camGate">
         <div style="font-size:15px">Tap to enable Camera & Mic</div>
         <div class="cam-actions">
@@ -397,12 +446,11 @@
     <!-- Bottom-center triangle -->
     <div class="center-triangle">
       <button class="shape gold" id="uploadBeatOpen" title="Upload Beat" aria-label="Upload Beat">
-        <!-- triangle icon -->
         <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
       </button>
     </div>
 
-    <!-- Upload Beat modal (REPLACES category list) -->
+    <!-- Upload Beat modal -->
     <div class="modal" id="uploadModal" aria-modal="true" role="dialog" aria-labelledby="uploadTitle" style="display:grid;">
       <div class="dialog">
         <h3 id="uploadTitle">Upload Beat</h3>
@@ -414,6 +462,22 @@
           <button class="btn" id="useBeatBtn">Use this Beat</button>
           <button class="btn-ghost" id="useSampleBtn" title="Use sample beat">Use Sample</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Beat window chooser (33s measurer) -->
+    <div class="beatbar" id="beatBar" aria-label="Beat window chooser">
+      <div class="beatbar-row">
+        <div class="range-wrap">
+          <div class="range-track"></div>
+          <div class="range-window" id="rangeWindow"></div>
+          <input id="beatStartRange" class="beat-start" type="range" min="0" max="0" step="0.1" value="0" aria-label="Beat start position (seconds)"/>
+        </div>
+        <div id="beatStartLabel" style="font-size:12px; color:#fff; min-width:86px; text-align:right">00:00 → 00:33</div>
+      </div>
+      <div class="beatbar-meta">
+        <div class="seg-progress"><span id="segProgressInner"></span></div>
+        <div id="beatMeta" style="min-width:110px; text-align:right">Length: --:--</div>
       </div>
     </div>
   </div>
@@ -457,6 +521,14 @@
 
     const fxCanvas = document.getElementById('fxCanvas');
     const ctx = fxCanvas.getContext('2d');
+
+    // Beat bar controls
+    const beatBar = document.getElementById('beatBar');
+    const beatStartRange = document.getElementById('beatStartRange');
+    const beatStartLabel = document.getElementById('beatStartLabel');
+    const beatMeta = document.getElementById('beatMeta');
+    const rangeWindow = document.getElementById('rangeWindow');
+    const segProgressInner = document.getElementById('segProgressInner');
 
     /* Navigation */
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
@@ -503,7 +575,7 @@
     };
     padNext.onclick = ()=> showNextPad();
 
-    /* Camera — stronger, gesture-gated for iOS/Android */
+    /* Camera — gesture-gated (mobile-friendly) */
     let facing = 'user';
     let currentStream = null;
 
@@ -513,7 +585,6 @@
       try{
         await stopStream(currentStream);
 
-        // robust constraints (some devices ignore ideal; we try again without it if fails)
         const constraintsPrimary = {
           audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true },
           video: {
@@ -527,7 +598,6 @@
         try{
           stream = await navigator.mediaDevices.getUserMedia(constraintsPrimary);
         }catch(primaryErr){
-          // try fallback with simpler constraints
           const constraintsFallback = {
             audio: true,
             video: { facingMode: preferFacing === 'user' ? 'user' : { exact:'environment' } }
@@ -535,15 +605,14 @@
           try{
             stream = await navigator.mediaDevices.getUserMedia(constraintsFallback);
           }catch(secondErr){
-            // ultimate fallback
             stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
           }
         }
 
         currentStream = stream;
         localVideo.srcObject = stream;
-        localVideo.muted = true;                     // for autoplay policies
-        localVideo.setAttribute('playsinline','');   // iOS inline
+        localVideo.muted = true;
+        localVideo.setAttribute('playsinline','');
         await localVideo.play().catch(()=>{});
 
         camGate.classList.add('hidden');
@@ -551,7 +620,6 @@
         leftPane.classList.remove('error');
         localVideo.style.transform = (preferFacing === 'user') ? 'scaleX(-1)' : 'none';
       }catch(e){
-        // show retry overlay
         leftPane.classList.add('error');
         camFallback.classList.remove('hidden');
       }
@@ -564,7 +632,6 @@
       await startCamera(facing);
     });
 
-    // recover from tab pause on mobile
     document.addEventListener('visibilitychange', ()=>{
       if(document.visibilityState === 'visible'){
         if(localVideo.srcObject && localVideo.paused) localVideo.play().catch(()=>{});
@@ -572,39 +639,75 @@
       }
     });
 
-    /* Upload Beat Flow (replaces category list) */
+    /* Upload Beat Flow */
     function openUpload(){ uploadModal.style.display = 'grid'; }
     function closeUpload(){ uploadModal.style.display = 'none'; }
     uploadBeatOpen.addEventListener('click', openUpload);
 
     let uploadedBeatUrl = null;
+    let selectedStart = 0;
+    const SEG_LEN = 33;
+
+    function formatTime(s){
+      s = Math.max(0, s|0);
+      const m = (s/60)|0, r = s%60;
+      return `${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`;
+    }
+
+    function updateBeatWindowUI(){
+      const dur = battleTrack.duration || 0;
+      const maxStart = Math.max(0, dur - SEG_LEN);
+      beatStartRange.max = String(maxStart.toFixed(1));
+      selectedStart = Math.min(selectedStart, maxStart);
+      beatStartRange.value = String(selectedStart.toFixed(1));
+
+      // window overlay position
+      const pctStart = (dur>0) ? (selectedStart / dur) : 0;
+      const pctWidth = (dur>0) ? (SEG_LEN / dur) : 0;
+      const trackWidth = beatStartRange.clientWidth || 1;
+      rangeWindow.style.left = `${pctStart * trackWidth}px`;
+      rangeWindow.style.width = `${Math.min(1, pctWidth) * trackWidth}px`;
+
+      beatStartLabel.textContent = `${formatTime(selectedStart)} → ${formatTime(selectedStart + SEG_LEN)}`;
+      beatMeta.textContent = `Length: ${isFinite(dur)?formatTime(dur):'--:--'}`;
+      beatBar.style.display = 'block';
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "Press Start Battle to begin";
+    }
+
+    beatStartRange.addEventListener('input', ()=>{
+      selectedStart = parseFloat(beatStartRange.value)||0;
+      updateBeatWindowUI();
+    });
 
     useBeatBtn.addEventListener('click', ()=>{
       const f = beatFile.files?.[0];
-      if(!f){
-        alert('Please choose an audio file.');
-        return;
-      }
+      if(!f){ alert('Please choose an audio file.'); return; }
       if(uploadedBeatUrl) URL.revokeObjectURL(uploadedBeatUrl);
       uploadedBeatUrl = URL.createObjectURL(f);
       battleTrack.src = uploadedBeatUrl;
       battleTrack.load();
       closeUpload();
-      startBtnWrap.style.display = 'block';
-      timerEl.textContent = "Press Start Battle to begin";
     });
 
-    // Optional sample beat (kept minimal, not a list)
     useSampleBtn.addEventListener('click', ()=>{
       battleTrack.src = 'beat1.mp3';
       battleTrack.load();
       closeUpload();
-      startBtnWrap.style.display = 'block';
-      timerEl.textContent = "Press Start Battle to begin";
+    });
+
+    battleTrack.addEventListener('loadedmetadata', ()=>{
+      selectedStart = 0;
+      updateBeatWindowUI();
+    });
+
+    window.addEventListener('resize', ()=>{
+      // Keep window overlay aligned on resize/rotation
+      updateBeatWindowUI();
     });
 
     /* Battle Timer + Turn UI (dim/mute) */
-    let state = { round:1, part:0, time:33, tick:null };
+    let state = { round:1, part:0, time:SEG_LEN, tick:null };
 
     function setMicEnabled(on){
       try{
@@ -614,13 +717,11 @@
     }
     function updateTurnUI(){
       if(state.part === 0){
-        // Your turn
         leftPane.classList.remove('inactive');
         rightPane.classList.add('inactive');
         setMicEnabled(true);
         opponentVideo.muted = true;
       }else{
-        // Opponent's turn (dim your pane, unmute opponent)
         leftPane.classList.add('inactive');
         rightPane.classList.remove('inactive');
         setMicEnabled(false);
@@ -630,6 +731,8 @@
     }
     function setTimer(){
       timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`;
+      const pct = Math.max(0, Math.min(1, (SEG_LEN - state.time) / SEG_LEN));
+      segProgressInner.style.width = `${pct*100}%`;
     }
 
     // 5-second buffer before opponent starts
@@ -642,9 +745,12 @@
           timerEl.textContent = `Opponent turn in ${t}s…`;
         }else{
           clearInterval(b);
+          // Reset beat for opponent
+          battleTrack.currentTime = selectedStart;
+          battleTrack.play().catch(()=>{});
           // Switch to opponent AFTER buffer
           state.part = 1;
-          state.time = 33;
+          state.time = SEG_LEN;
           updateTurnUI();
           startRound(); // start their timer
         }
@@ -653,17 +759,25 @@
 
     function startRound(){
       clearInterval(state.tick);
+      // Always reset beat to chosen window at the start of each turn
+      try{
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }catch(e){}
       updateTurnUI();
+      setTimer();
       state.tick = setInterval(()=>{
         setTimer(); state.time--;
-        if(state.time < 0){
+        // Stop the beat exactly when a 33s segment is done
+        if(state.time <= 0){
+          battleTrack.pause();
           clearInterval(state.tick); endSound.play();
           if(state.part === 0){
-            // Your turn ended → wait 5 seconds before opponent starts
+            // Your turn ended → wait 5 seconds before opponent starts (then reset & play)
             timerEl.textContent = "Switching…";
             bufferBeforeOpponentStart(5);
           }else if(state.round < 3){
-            state.round++; state.part = 0; state.time = 33;
+            state.round++; state.part = 0; state.time = SEG_LEN;
             timerEl.textContent = "Next Round…";
             setTimeout(()=>{ updateTurnUI(); startRound(); }, 900);
           }else{
@@ -674,10 +788,10 @@
             setMicEnabled(true);
             opponentVideo.muted = true;
 
-            // Show share button on your side
+            // show share
             shareCta.style.display = 'block';
 
-            // Queue next opponent card
+            // queue next opponent
             setTimeout(showNextPad, 1000);
           }
         }
@@ -700,27 +814,28 @@
 
       (function loop(now){
         const t = Math.min(1, (now - start)/duration);
-        ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+        const ctx2 = ctx;
+        ctx2.clearRect(0,0,fxCanvas.width,fxCanvas.height);
 
         // radial ring
         const R = 40 + t*240;
         const alpha = 1 - t;
-        const grd = ctx.createRadialGradient(cx,cy, R*0.65, cx,cy, R);
+        const grd = ctx2.createRadialGradient(cx,cy, R*0.65, cx,cy, R);
         grd.addColorStop(0, `rgba(255,255,255,${0.35*alpha})`);
         grd.addColorStop(0.55, `rgba(255,215,0,${0.25*alpha})`);
         grd.addColorStop(1, `rgba(255,255,255,0)`);
-        ctx.fillStyle = grd;
-        ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+        ctx2.fillStyle = grd;
+        ctx2.beginPath(); ctx2.arc(cx,cy,R,0,Math.PI*2); ctx2.fill();
 
         // sparks
         for(const s of sparks){
           const lifeT = Math.min(1, ((now - start)/1000) / s.life);
           s.x += Math.cos(s.a) * s.v;
           s.y += Math.sin(s.a) * s.v;
-          ctx.globalAlpha = (1 - lifeT) * 0.9;
-          ctx.fillStyle = '#ffd700';
-          ctx.beginPath(); ctx.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx.fill();
-          ctx.globalAlpha = 1;
+          ctx2.globalAlpha = (1 - lifeT) * 0.9;
+          ctx2.fillStyle = '#ffd700';
+          ctx2.beginPath(); ctx2.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx2.fill();
+          ctx2.globalAlpha = 1;
         }
 
         if(t < 1){
@@ -730,11 +845,11 @@
           const fadeStart = performance.now();
           (function fade(now2){
             const ft = Math.min(1, (now2 - fadeStart)/180);
-            ctx.fillStyle = `rgba(0,0,0,${ft})`;
-            ctx.fillRect(0,0,fxCanvas.width,fxCanvas.height);
+            ctx2.fillStyle = `rgba(0,0,0,${ft})`;
+            ctx2.fillRect(0,0,fxCanvas.width,fxCanvas.height);
             if(ft < 1) requestAnimationFrame(fade);
             else {
-              ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+              ctx2.clearRect(0,0,fxCanvas.width,fxCanvas.height);
               fxCanvas.style.display = 'none';
             }
           })(fadeStart);
@@ -777,12 +892,17 @@
       }
       startBtnWrap.style.display='none';
       shareCta.style.display = 'none';
-      battleTrack.play().catch(()=>{});
       timerEl.classList.add('animate');
-      playStartFX();            // refined one-shot explosion
+      playStartFX();
+
+      // Ensure currentTime set to chosen window before starting
+      try{
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }catch(e){}
+
       pad.style.display = 'none';
-      // start with your turn (dim/mute opponent)
-      state = { round:1, part:0, time:33, tick:null };
+      state = { round:1, part:0, time:SEG_LEN, tick:null };
       updateTurnUI();
       startRound();
       beginAudioGlow();
@@ -817,14 +937,15 @@
         fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight;
       });
 
-      // Start with upload modal open (no categories; upload beat)
+      // Start with upload modal open
       uploadModal.style.display='grid';
       // Opponent video muted until it's their turn
       opponentVideo.muted = true;
 
-      // Camera waits for user gesture (improves success on iOS/Android)
+      // Camera waits for user gesture
       camGate.classList.remove('hidden');
     });
   </script>
 </body>
-</html>
+  </html>
+    
