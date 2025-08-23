@@ -207,7 +207,7 @@
     .center-triangle .shape{ width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
       filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5)); }
 
-    /* Next Opponent PAD (CENTERED, buttons under) */
+    /* Next Opponent PAD */
     .opponent-pad{
       position:absolute;
       left:50%; top:50%; transform:translate(-50%,-50%);
@@ -251,45 +251,56 @@
     }
     .dialog small{ color:var(--muted) }
 
-    /* Beat window chooser + 33s progress */
+    /* Beat window chooser + 33s measurer (Instagram-style) */
     .beatbar{
       position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 20px);
       transform: translateX(-50%);
       z-index:18;
       display:none; /* shown after upload */
-      width:min(92vw, 560px);
+      width:min(92vw, 620px);
       background: rgba(0,0,0,.5);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 10px 12px;
       box-shadow: 0 10px 36px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
     }
     .beatbar-row{ display:grid; align-items:center; gap:10px; grid-template-columns: 1fr auto; }
-    .range-wrap{ position:relative; height:22px; display:flex; align-items:center; }
+    .range-wrap{ position:relative; height:48px; display:flex; flex-direction:column; justify-content:center; }
+    #waveCanvas{ width:100%; height:32px; display:block; }
     .range-track{
       position:absolute; left:0; right:0; height:6px; border-radius:999px; background:rgba(255,255,255,.12);
+      top:50%; transform: translateY(-50%);
     }
     .range-window{
-      position:absolute; height:100%; top:0; border-radius:999px;
-      background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
-      box-shadow:0 0 18px rgba(255,215,0,.35);
-      pointer-events:none;
+      position:absolute; height:34px; top:7px; border-radius:12px;
+      background: linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.28));
+      box-shadow:0 0 18px rgba(255,215,0,.25), inset 0 0 0 2px rgba(255,215,0,.65);
+      cursor:grab; touch-action:none;
     }
+    .range-window:active{ cursor:grabbing }
     input[type="range"].beat-start{
       -webkit-appearance:none; appearance:none;
-      width:100%; background:transparent; height:22px;
+      position:absolute; left:0; right:0; top:0; bottom:0;
+      width:100%; background:transparent; height:48px;
     }
     input[type="range"].beat-start::-webkit-slider-thumb{
       -webkit-appearance:none; appearance:none;
-      width:18px; height:18px; border-radius:50%;
-      background: #fff; border:2px solid #000; box-shadow:0 0 10px rgba(255,255,255,.6);
-      cursor:pointer; margin-top:-6px;
+      width:0; height:0; /* hidden thumb; drag the window instead */
     }
     input[type="range"].beat-start::-moz-range-thumb{
-      width:18px; height:18px; border-radius:50%;
-      background:#fff; border:2px solid #000; box-shadow:0 0 10px rgba(255,255,255,.6);
-      cursor:pointer;
+      width:0; height:0;
     }
+    .bar-actions{
+      display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-top:8px;
+    }
+    .btn-pill{
+      appearance:none; border:none; border-radius:999px; padding:8px 14px; font-weight:800; cursor:pointer;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; box-shadow:0 0 16px rgba(255,215,0,.35);
+    }
+    .btn-pill.ghost{
+      background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
     .beatbar-meta{
       display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:8px;
       font-size:12px; color:var(--muted);
@@ -303,7 +314,7 @@
       box-shadow:0 0 12px rgba(255,255,255,.5) inset;
     }
 
-    /* Share CTA (appears after battle) */
+    /* Share CTA */
     .share-cta{
       position:absolute; inset:auto 0 calc(var(--bottom-safe) + 24px) 0; margin:auto;
       display:none; z-index:20; text-align:center;
@@ -465,19 +476,27 @@
       </div>
     </div>
 
-    <!-- Beat window chooser (33s measurer) -->
+    <!-- Beat window chooser (Instagram-like 33s trimmer) -->
     <div class="beatbar" id="beatBar" aria-label="Beat window chooser">
       <div class="beatbar-row">
-        <div class="range-wrap">
+        <div class="range-wrap" id="rangeWrap">
+          <canvas id="waveCanvas"></canvas>
           <div class="range-track"></div>
-          <div class="range-window" id="rangeWindow"></div>
+          <div class="range-window" id="rangeWindow" title="Drag to choose 33s"></div>
           <input id="beatStartRange" class="beat-start" type="range" min="0" max="0" step="0.1" value="0" aria-label="Beat start position (seconds)"/>
         </div>
-        <div id="beatStartLabel" style="font-size:12px; color:#fff; min-width:86px; text-align:right">00:00 → 00:33</div>
+        <div id="beatStartLabel" style="font-size:12px; color:#fff; min-width:100px; text-align:right">00:00 → 00:33</div>
       </div>
+
+      <div class="bar-actions">
+        <button id="previewToggle" class="btn-pill">▶ Preview</button>
+        <button id="rewindBtn" class="btn-pill ghost">↺ Reset</button>
+        <button id="doneTrim" class="btn-pill">Done</button>
+      </div>
+
       <div class="beatbar-meta">
         <div class="seg-progress"><span id="segProgressInner"></span></div>
-        <div id="beatMeta" style="min-width:110px; text-align:right">Length: --:--</div>
+        <div id="beatMeta" style="min-width:140px; text-align:right">Length: --:--</div>
       </div>
     </div>
   </div>
@@ -529,6 +548,11 @@
     const beatMeta = document.getElementById('beatMeta');
     const rangeWindow = document.getElementById('rangeWindow');
     const segProgressInner = document.getElementById('segProgressInner');
+    const rangeWrap = document.getElementById('rangeWrap');
+    const waveCanvas = document.getElementById('waveCanvas');
+    const previewToggle = document.getElementById('previewToggle');
+    const rewindBtn = document.getElementById('rewindBtn');
+    const doneTrim = document.getElementById('doneTrim');
 
     /* Navigation */
     document.querySelectorAll('.shape[data-link]').forEach(btn=>{
@@ -654,6 +678,55 @@
       return `${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`;
     }
 
+    /* Waveform rendering (best effort; falls back silently if CORS) */
+    let audioCtx, analyser, dataArr, rafGlow;
+    const waveCtx = waveCanvas.getContext('2d');
+    async function drawWaveformFromUrl(url){
+      try{
+        if(!window.AudioContext && !window.webkitAudioContext) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ctx = audioCtx || new AC();
+        audioCtx = ctx;
+        const res = await fetch(url, {mode:'cors'});
+        const buf = await res.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(buf);
+        renderWave(audioBuf);
+      }catch(e){
+        // ignore; leave gradient bg
+        renderWave(null);
+      }
+    }
+    function renderWave(audioBuf){
+      const w = waveCanvas.clientWidth, h = waveCanvas.clientHeight;
+      waveCanvas.width = w * devicePixelRatio; waveCanvas.height = h * devicePixelRatio;
+      waveCtx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      // background
+      const g = waveCtx.createLinearGradient(0,0,w,0);
+      g.addColorStop(0,'rgba(255,255,255,.08)');
+      g.addColorStop(1,'rgba(255,255,255,.18)');
+      waveCtx.fillStyle = g;
+      waveCtx.fillRect(0,0,w,h);
+      if(!audioBuf){ return; }
+      const ch = audioBuf.getChannelData(0);
+      const step = Math.ceil(ch.length / w);
+      const amp = h/2;
+      waveCtx.strokeStyle = '#ffd700';
+      waveCtx.lineWidth = 1.2;
+      waveCtx.beginPath();
+      for(let i=0;i<w;i++){
+        let min=1, max=-1;
+        const start = i*step;
+        for(let j=0;j<step && start+j < ch.length;j++){
+          const v = ch[start+j];
+          if(v<min) min=v;
+          if(v>max) max=v;
+        }
+        waveCtx.moveTo(i, (1+min)*amp);
+        waveCtx.lineTo(i, (1+max)*amp);
+      }
+      waveCtx.stroke();
+    }
+
     function updateBeatWindowUI(){
       const dur = battleTrack.duration || 0;
       const maxStart = Math.max(0, dur - SEG_LEN);
@@ -661,23 +734,123 @@
       selectedStart = Math.min(selectedStart, maxStart);
       beatStartRange.value = String(selectedStart.toFixed(1));
 
-      // window overlay position
+      // window overlay position/size
       const pctStart = (dur>0) ? (selectedStart / dur) : 0;
-      const pctWidth = (dur>0) ? (SEG_LEN / dur) : 0;
-      const trackWidth = beatStartRange.clientWidth || 1;
-      rangeWindow.style.left = `${pctStart * trackWidth}px`;
-      rangeWindow.style.width = `${Math.min(1, pctWidth) * trackWidth}px`;
+      const pctWidth = (dur>0) ? Math.min(1, SEG_LEN / dur) : 0;
+      const trackRect = rangeWrap.getBoundingClientRect();
+      const trackW = trackRect.width;
+      const leftPx = pctStart * trackW;
+      const widthPx = pctWidth * trackW;
+      rangeWindow.style.left = `${leftPx}px`;
+      rangeWindow.style.width = `${widthPx}px`;
 
       beatStartLabel.textContent = `${formatTime(selectedStart)} → ${formatTime(selectedStart + SEG_LEN)}`;
       beatMeta.textContent = `Length: ${isFinite(dur)?formatTime(dur):'--:--'}`;
       beatBar.style.display = 'block';
-      startBtnWrap.style.display = 'block';
-      timerEl.textContent = "Press Start Battle to begin";
+      startBtnWrap.style.display = 'none'; // force set-up before start
+      timerEl.textContent = "Trim your 33s segment, then tap Done";
     }
 
+    function setStartByPixel(clientX){
+      const dur = battleTrack.duration || 0; if(dur<=0) return;
+      const maxStart = Math.max(0, dur - SEG_LEN);
+      const rect = rangeWrap.getBoundingClientRect();
+      const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
+      const pct = Math.min(1, Math.max(0, x / rect.width));
+      selectedStart = Math.min(maxStart, pct * dur);
+      updateBeatWindowUI();
+    }
+
+    // Drag the selection window (touch/mouse)
+    (function enableWindowDrag(){
+      let dragging = false;
+      function onDown(e){
+        dragging = true;
+        if(e.type==='mousedown') e.preventDefault();
+        const cx = (e.touches? e.touches[0].clientX : e.clientX);
+        setStartByPixel(cx);
+        window.addEventListener('mousemove', onMove, {passive:false});
+        window.addEventListener('touchmove', onMove, {passive:false});
+        window.addEventListener('mouseup', onUp, {passive:true});
+        window.addEventListener('touchend', onUp, {passive:true});
+      }
+      function onMove(e){
+        if(!dragging) return;
+        const cx = (e.touches? e.touches[0].clientX : e.clientX);
+        setStartByPixel(cx);
+      }
+      function onUp(){
+        dragging = false;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        window.removeEventListener('touchend', onUp);
+      }
+      rangeWindow.addEventListener('mousedown', onDown);
+      rangeWindow.addEventListener('touchstart', onDown, {passive:false});
+
+      // Click on waveform/track to jump
+      rangeWrap.addEventListener('mousedown', (e)=>{ setStartByPixel(e.clientX); });
+      rangeWrap.addEventListener('touchstart', (e)=>{ setStartByPixel(e.touches[0].clientX); }, {passive:true});
+    })();
+
+    // Hidden input (kept for accessibility; updates also shift window)
     beatStartRange.addEventListener('input', ()=>{
       selectedStart = parseFloat(beatStartRange.value)||0;
       updateBeatWindowUI();
+    });
+
+    // Preview controls (loop 33s, Instagram-style)
+    let previewing = false;
+    let previewRAF = 0;
+    function loopPreviewTick(){
+      if(!previewing) return;
+      const t = battleTrack.currentTime;
+      const end = selectedStart + SEG_LEN;
+      if(t < selectedStart || t > end){
+        battleTrack.currentTime = selectedStart;
+      }
+      if(t >= end){
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }
+      previewRAF = requestAnimationFrame(loopPreviewTick);
+    }
+    previewToggle.addEventListener('click', ()=>{
+      if(!battleTrack.src) return;
+      previewing = !previewing;
+      if(previewing){
+        previewToggle.textContent = '⏸ Preview';
+        try{
+          battleTrack.currentTime = selectedStart;
+          battleTrack.play().catch(()=>{});
+        }catch(e){}
+        cancelAnimationFrame(previewRAF);
+        previewRAF = requestAnimationFrame(loopPreviewTick);
+      }else{
+        previewToggle.textContent = '▶ Preview';
+        cancelAnimationFrame(previewRAF);
+        battleTrack.pause();
+      }
+    });
+    rewindBtn.addEventListener('click', ()=>{
+      selectedStart = 0;
+      updateBeatWindowUI();
+      if(previewing){
+        try{ battleTrack.currentTime = selectedStart; battleTrack.play().catch(()=>{}); }catch(e){}
+      }
+    });
+    doneTrim.addEventListener('click', ()=>{
+      // Finalize trimming choices; show Start button
+      beatBar.style.display = 'none';
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "Press Start Battle to begin";
+      if(previewing){
+        previewing = false;
+        previewToggle.textContent = '▶ Preview';
+        cancelAnimationFrame(previewRAF);
+        battleTrack.pause();
+      }
     });
 
     useBeatBtn.addEventListener('click', ()=>{
@@ -688,12 +861,26 @@
       battleTrack.src = uploadedBeatUrl;
       battleTrack.load();
       closeUpload();
+      // Draw waveform from file (decode via FileReader -> arrayBuffer)
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try{
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if(!AC) return renderWave(null);
+          audioCtx = audioCtx || new AC();
+          const audioBuf = await audioCtx.decodeAudioData(reader.result);
+          renderWave(audioBuf);
+        }catch{ renderWave(null); }
+      };
+      reader.readAsArrayBuffer(f);
     });
 
     useSampleBtn.addEventListener('click', ()=>{
       battleTrack.src = 'beat1.mp3';
       battleTrack.load();
       closeUpload();
+      // Attempt waveform (may be blocked by CORS depending on hosting)
+      drawWaveformFromUrl('beat1.mp3');
     });
 
     battleTrack.addEventListener('loadedmetadata', ()=>{
@@ -702,7 +889,8 @@
     });
 
     window.addEventListener('resize', ()=>{
-      // Keep window overlay aligned on resize/rotation
+      // Keep window overlay & waveform aligned on resize/rotation
+      renderWave(null); // clear bg gradient
       updateBeatWindowUI();
     });
 
@@ -768,12 +956,10 @@
       setTimer();
       state.tick = setInterval(()=>{
         setTimer(); state.time--;
-        // Stop the beat exactly when a 33s segment is done
         if(state.time <= 0){
           battleTrack.pause();
           clearInterval(state.tick); endSound.play();
           if(state.part === 0){
-            // Your turn ended → wait 5 seconds before opponent starts (then reset & play)
             timerEl.textContent = "Switching…";
             bufferBeforeOpponentStart(5);
           }else if(state.round < 3){
@@ -782,16 +968,11 @@
             setTimeout(()=>{ updateTurnUI(); startRound(); }, 900);
           }else{
             timerEl.textContent = "🔥 Battle Over — GG 🔥";
-            // restore neutral state
             leftPane.classList.remove('inactive');
             rightPane.classList.remove('inactive');
             setMicEnabled(true);
             opponentVideo.muted = true;
-
-            // show share
             shareCta.style.display = 'block';
-
-            // queue next opponent
             setTimeout(showNextPad, 1000);
           }
         }
@@ -814,28 +995,27 @@
 
       (function loop(now){
         const t = Math.min(1, (now - start)/duration);
-        const ctx2 = ctx;
-        ctx2.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+        ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
 
         // radial ring
         const R = 40 + t*240;
         const alpha = 1 - t;
-        const grd = ctx2.createRadialGradient(cx,cy, R*0.65, cx,cy, R);
+        const grd = ctx.createRadialGradient(cx,cy, R*0.65, cx,cy, R);
         grd.addColorStop(0, `rgba(255,255,255,${0.35*alpha})`);
         grd.addColorStop(0.55, `rgba(255,215,0,${0.25*alpha})`);
         grd.addColorStop(1, `rgba(255,255,255,0)`);
-        ctx2.fillStyle = grd;
-        ctx2.beginPath(); ctx2.arc(cx,cy,R,0,Math.PI*2); ctx2.fill();
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
 
         // sparks
         for(const s of sparks){
           const lifeT = Math.min(1, ((now - start)/1000) / s.life);
           s.x += Math.cos(s.a) * s.v;
           s.y += Math.sin(s.a) * s.v;
-          ctx2.globalAlpha = (1 - lifeT) * 0.9;
-          ctx2.fillStyle = '#ffd700';
-          ctx2.beginPath(); ctx2.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx2.fill();
-          ctx2.globalAlpha = 1;
+          ctx.globalAlpha = (1 - lifeT) * 0.9;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = 1;
         }
 
         if(t < 1){
@@ -845,11 +1025,11 @@
           const fadeStart = performance.now();
           (function fade(now2){
             const ft = Math.min(1, (now2 - fadeStart)/180);
-            ctx2.fillStyle = `rgba(0,0,0,${ft})`;
-            ctx2.fillRect(0,0,fxCanvas.width,fxCanvas.height);
+            ctx.fillStyle = `rgba(0,0,0,${ft})`;
+            ctx.fillRect(0,0,fxCanvas.width,fxCanvas.height);
             if(ft < 1) requestAnimationFrame(fade);
             else {
-              ctx2.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+              ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
               fxCanvas.style.display = 'none';
             }
           })(fadeStart);
@@ -857,12 +1037,13 @@
       })(start);
     }
 
-    /* Audio reactive (subtle) */
-    let audioCtx, analyser, dataArr, rafGlow;
+    /* Audio reactive glow (subtle) */
     function beginAudioGlow(){
       try{
         if(!audioCtx){
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if(!AC) return;
+          audioCtx = new AC();
           const src = audioCtx.createMediaElementSource(battleTrack);
           analyser = audioCtx.createAnalyser();
           analyser.fftSize = 256;
@@ -881,7 +1062,7 @@
         };
         cancelAnimationFrame(rafGlow);
         rafGlow = requestAnimationFrame(loop);
-      }catch(e){/* ignore if blocked */}
+      }catch(e){}
     }
 
     /* Start Battle */
@@ -890,19 +1071,19 @@
         openUpload();
         return;
       }
+      // ensure trimming is finalized
+      beatBar.style.display = 'none';
       startBtnWrap.style.display='none';
       shareCta.style.display = 'none';
       timerEl.classList.add('animate');
       playStartFX();
 
-      // Ensure currentTime set to chosen window before starting
       try{
         battleTrack.currentTime = selectedStart;
         battleTrack.play().catch(()=>{});
       }catch(e){}
-
       pad.style.display = 'none';
-      state = { round:1, part:0, time:SEG_LEN, tick:null };
+      state = { round:1, part:0, time:33, tick:null };
       updateTurnUI();
       startRound();
       beginAudioGlow();
@@ -944,8 +1125,11 @@
 
       // Camera waits for user gesture
       camGate.classList.remove('hidden');
+
+      // Prime empty waveform bg
+      renderWave(null);
     });
   </script>
 </body>
-  </html>
-    
+</html>
+
