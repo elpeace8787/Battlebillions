@@ -91,26 +91,24 @@
     }
     .split{
       display:grid;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr); /* always side-by-side */
       gap:10px;
+      align-items:stretch;
     }
     /* Wider panels & cinematic height */
     .pane{
       position:relative;
-      height: 62dvh;         /* bigger battle screens */
-      min-height: 360px;
+      height: 62dvh;         /* big screens */
+      min-height: 320px;
       background:#000;
       border-radius:16px;
       overflow:hidden;
       box-shadow: 0 10px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.05);
     }
     @media (max-width:900px){
-      .pane{ height: 58dvh }
+      .pane{ height: 56dvh }
     }
-    @media (max-width:700px){
-      .split{ grid-template-columns: 1fr; }
-      .pane{ height: 48dvh }
-    }
+    /* NOTE: removed the mobile single-column rule so panes stay side-by-side */
     .pane video{
       width:100%; height:100%; object-fit:cover; display:block; background:#000;
       transform: translateZ(0);
@@ -517,9 +515,8 @@
           return;
         }
         votedBattles.add(bid);
-        // disable both vote buttons
         battleEl.querySelectorAll('.vote').forEach(v=>{
-          v.classList.add('pulsing'); // play pulse on both for feedback
+          v.classList.add('pulsing');
           v.setAttribute('disabled','true');
           setTimeout(()=> v.classList.remove('pulsing'), 650);
         });
