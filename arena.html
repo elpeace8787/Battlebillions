@@ -1,354 +1,680 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
-  <title>BattleBillions — Live Battle</title>
+  <title>BattleBillions — Dual Live Battle (Mobile-Stable)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#000;
-      --ink:#f4f6f8;
-      --ink-d:#c7cbd1;
-      --accent:#fff;           /* neutral; your system can skin later */
-      --outline:rgba(255,255,255,.12);
-      --glass:rgba(15,15,20,.55);
-      --glass-2:rgba(15,15,20,.75);
-      --good:#18cf6a;
-      --bad:#ef3b3b;
-      --btn:rgba(255,255,255,.08);
-      --btn-h:rgba(255,255,255,.16);
-      --pad:#0c0c12;
+      --gold:#ffd700;
+      --gold-1:#ffe88a;
+      --gold-2:#ffcc3b;
+      --ink:#eaeaea;
+      --muted:#b8b8b8;
+      --beatGlow: 0;
+      --top-safe: max(16px, env(safe-area-inset-top));
+      --side-safe: max(16px, env(safe-area-inset-left));
+      --side-safe-r: max(16px, env(safe-area-inset-right));
+      --bottom-safe: max(18px, env(safe-area-inset-bottom));
     }
 
-    * { box-sizing: border-box; }
-    html,body { height:100%; margin:0; background:var(--bg); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
-    body { overflow:hidden; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html, body{
+      height:100%;
+      width:100%;
+      overflow:hidden;
+      -webkit-overflow-scrolling:auto;
+      overscroll-behavior:none;
+      background:#000;
+    }
+    *::-webkit-scrollbar{ display:none; width:0; height:0 }
 
-    /* ====== LAYOUT ====== */
-    .wrap {
-      position: fixed; inset:0; display:grid; gap:8px;
-      grid-template-columns: 1fr 1fr;
-      padding: 8px;
+    body{
+      font-family:'Orbitron',sans-serif;
+      color:var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* Ambient depth */
+    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+    .layer-nebula{
+      position:absolute; inset:-15%;
+      background: conic-gradient(from 0deg at 50% 50%,
+        rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
+      filter: blur(90px) saturate(130%); opacity:.42; animation: nebula 40s linear infinite;
+    }
+    @keyframes nebula{ to{ transform: rotate(360deg) } }
+    .layer-stars{
+      position:absolute; inset:0;
       background:
-        radial-gradient(1200px 1200px at 10% -20%, rgba(80,80,120,.12), transparent 60%),
-        radial-gradient(1200px 1200px at 110% 120%, rgba(80,120,120,.10), transparent 60%);
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.09), transparent 60%),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.07), transparent 60%),
+        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.06), transparent 60%);
+      animation: stars 14s ease-in-out infinite alternate;
+    }
+    @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
+
+    /* Split view */
+    .stream-container{
+      position:relative; z-index:1; display:flex;
+      height:100svh; width:100svw;
+      overflow:hidden;
+      contain:layout paint size;
+    }
+    .pane{ flex:1; position:relative; overflow:hidden; min-width:0; }
+    video.video-stream{
+      display:block;
+      width:100%; height:100%;
+      object-fit:cover; background:#000;
+      filter: brightness(.94) contrast(1.12) saturate(1.06);
+      transition: filter .25s ease;
+    }
+    #localVideo{ transform:scaleX(-1); }
+
+    /* Dim/mute visuals for inactive pane */
+    .pane.inactive::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(2px);
+    }
+    .pane.inactive video{ filter: brightness(.68) contrast(1.0) saturate(.85) }
+
+    /* Sheen */
+    .pane::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.05), transparent 20% 80%, rgba(255,255,255,.05)),
+        radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
+        radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
+      mix-blend-mode:screen; animation: paneSheen 6s ease-in-out infinite alternate;
+    }
+    @keyframes paneSheen{ from{opacity:.32} to{opacity:.6} }
+
+    /* Camera fallback */
+    .fallback{
+      position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+      flex-direction:column; gap:12px; text-align:center; padding:18px;
+      background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
+      font-weight:800; letter-spacing:.3px;
+    }
+    .pane.error .fallback{ display:flex; }
+    .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+    .btn-mini{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800;
+      padding:10px 14px; border-radius:10px; cursor:pointer; border:none; box-shadow:0 0 16px rgba(255,215,0,.35);
     }
 
-    .panel{
-      position: relative;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #000;
-      outline: 1px solid var(--outline);
-      isolation:isolate;
+    /* HUD (raised a little) */
+    .top-bar{
+      position:absolute; left:0; right:0;
+      top: calc(var(--top-safe) + 8px);
+      z-index:10; display:flex; justify-content:space-between; padding:0 clamp(12px, 2vw, 20px);
+      font-size:14px; pointer-events:none;
+    }
+    .hud-left{ pointer-events:auto; }
+    .hud-live{
+      appearance:none; border:none; cursor:pointer;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; padding:6px 14px; border-radius:999px; font-weight:800;
+      box-shadow:0 0 18px rgba(255,215,0,.45); text-shadow:0 1px 0 rgba(255,255,255,.4);
     }
 
-    video{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit: cover; background:#000;
-      z-index:0;
+    /* Viewer chip centered in opponent screen (raised a bit) */
+    .viewer-center{
+      position:absolute; left:50%;
+      top: calc(var(--top-safe) + 8px);
+      transform: translateX(-50%);
+      z-index:12;
+      padding:8px 16px; border-radius:999px;
+      background:rgba(0,0,0,.55); backdrop-filter: blur(8px);
+      font-weight:800; white-space:nowrap;
     }
 
-    /* ====== OVERLAYS ====== */
-    .hud{
-      position:absolute; inset:0; z-index:2; pointer-events:none;
-      display:flex; flex-direction:column; justify-content:space-between;
-      padding: 12px;
+    /* Opponent display button (pig) under the viewer count */
+    .opponent-btn{
+      position:absolute; left:50%;
+      top: calc(var(--top-safe) + 56px);
+      transform: translateX(-50%);
+      z-index:12; border:none; background:transparent; padding:0; cursor:pointer;
+      width:40px; height:40px; border-radius:50%;
+      box-shadow:0 0 14px rgba(255,215,0,.35);
+    }
+    .opponent-btn img{
+      width:100%; height:100%; border-radius:50%; object-fit:cover;
+      filter: saturate(1.05) contrast(1.05);
     }
 
-    .top-row{
-      display:flex; align-items:center; gap:10px;
+    /* Timer + CTA */
+    .round-timer{
+      position:absolute; left:50%;
+      bottom: calc(var(--bottom-safe) + 90px);
+      transform:translateX(-50%); z-index:12;
+      font-weight:800; font-size:15px; padding:10px 18px; border-radius:999px;
+      background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
+      white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
     }
-    .badge{
-      pointer-events:auto;
-      backdrop-filter: blur(8px);
-      background: var(--glass);
-      border: 1px solid var(--outline);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px; color: var(--ink);
-      display:flex; align-items:center; gap:8px;
-    }
+    .round-timer.animate{ animation:pulse 1.8s infinite; }
+    @keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.06)} }
 
-    .nameplate{
-      margin-left:auto;
-      pointer-events:auto;
-      padding:8px 12px; border-radius:10px;
-      background: var(--glass);
-      border:1px solid var(--outline);
-      font-size:13px; color:var(--ink);
-    }
-
-    /* ====== NEXT OPPONENT PAD (CENTERED IN OPPONENT SCREEN) ====== */
-    .opponent-center{
-      position:absolute; inset:0; z-index:3;
-      display:grid; place-items:center; pointer-events:none;
-      padding: 12px;
-    }
-
-    .next-card{
-      width:min(82%, 520px);
-      pointer-events:auto;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.32));
-      border:1px solid var(--outline);
-      border-radius:16px;
-      box-shadow: 0 8px 40px rgba(0,0,0,.6);
-      display:flex; flex-direction:column; align-items:center; gap:14px;
-      padding:18px 16px;
-      transform: translateZ(0);
-    }
-
-    .avatar{
-      width:96px; height:96px; border-radius:18px; overflow:hidden; outline:1px solid var(--outline);
-      box-shadow: 0 6px 30px rgba(0,0,0,.45);
-    }
-    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-    .handle{ font-weight:700; font-size:18px; letter-spacing:.2px; }
-    .meta{ font-size:12px; color:var(--ink-d); }
-
-    .actions{
-      width:100%; display:flex; gap:10px; justify-content:center; margin-top:2px;
+    .cta{
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:12; display:none;
     }
     .btn{
-      flex:1 1 0;
-      appearance:none; border:1px solid var(--outline); background:var(--btn);
-      color:var(--ink); padding:12px 14px; border-radius:12px; font-weight:700; font-size:14px;
-      letter-spacing:.3px; cursor:pointer; transition:.2s transform ease, .2s background ease, .2s border-color ease;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; font-weight:800; padding:14px 28px; border-radius:12px;
+      box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
     }
-    .btn:hover{ background:var(--btn-h); transform: translateY(-1px); }
-    .btn:active{ transform: translateY(0); }
-    .btn.good{ border-color: rgba(24,207,106,.4); box-shadow: inset 0 0 0 1px rgba(24,207,106,.25); }
-    .btn.bad{ border-color: rgba(239,59,59,.4); box-shadow: inset 0 0 0 1px rgba(239,59,59,.25); }
-
-    /* ====== TURN STATES: DIM & MUTE FEEDBACK ====== */
-    .dimmed::after{
-      content:"";
-      position:absolute; inset:0; z-index:1;
-      background: linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.48));
-      backdrop-filter: blur(0.5px);
-      pointer-events:none;
-    }
-    .turn-chip{
-      position:absolute; right:12px; bottom:12px; z-index:3;
-      padding:8px 10px; font-size:12px; border-radius:10px;
-      background:var(--glass-2); border:1px solid var(--outline);
-      display:flex; align-items:center; gap:8px;
-      pointer-events:none; /* informational */
+    .btn-ghost{
+      background:transparent; color:var(--ink); border:none; cursor:pointer; padding:10px 14px; border-radius:12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
     }
 
-    /* ====== FOOTER CONTROL (DEV/TEST) ====== */
-    .footer-controls{
-      position:fixed; left:50%; bottom:10px; transform:translateX(-50%);
-      z-index:40; display:flex; gap:10px;
-      background: var(--glass-2); border:1px solid var(--outline);
-      padding:8px; border-radius:12px;
-      backdrop-filter: blur(8px);
+    /* Side shapes (small, no boxes) */
+    .side{
+      position:absolute;
+      bottom: calc(var(--bottom-safe) + 12vh);
+      display:flex; flex-direction:column; gap:12px; z-index:14; pointer-events:auto;
     }
-    .footer-controls button{
-      pointer-events:auto;
-      padding:8px 10px; border-radius:10px; background:var(--btn); color:var(--ink);
-      border:1px solid var(--outline); font-weight:600; letter-spacing:.2px; cursor:pointer;
+    .side.left{ left: calc(var(--side-safe)); }
+    .side.right{ right: calc(var(--side-safe-r)); }
+    .shape{
+      appearance:none; background:transparent; border:none; padding:0;
+      width:24px; height:24px; display:grid; place-items:center; cursor:pointer;
+      transition: transform .18s ease, filter .18s ease;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
+      animation: floatY 3.6s ease-in-out infinite;
     }
-    .footer-controls button:hover{ background:var(--btn-h); }
+    @keyframes floatY{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .side.left .shape:nth-child(1){ animation-delay:.15s }
+    .side.left .shape:nth-child(2){ animation-delay:1.05s }
+    .side.right .shape:nth-child(1){ animation-delay:.55s }
+    .side.right .shape:nth-child(2){ animation-delay:1.45s }
+    .shape:focus-visible{ filter: drop-shadow(0 0 16px rgba(255,215,0,.6)); transform:scale(1.12); }
+    .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
+    .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
+    .shape svg .strokeline{ stroke-dasharray:90; stroke-dashoffset:90; animation: dash1 2.6s ease-out infinite, hue 6s linear infinite; }
+    @keyframes dash1{ 0%{stroke-dashoffset:90;opacity:.85} 60%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:0;opacity:.85} }
+    @keyframes hue{ to{ filter:hue-rotate(20deg) } }
+    .shape.gold svg{ stroke:url(#goldStroke); }
+    .shape.logout svg{ stroke:#ff5a5a; }
+    .center-triangle{ position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 54px); transform:translateX(-50%); z-index:14; }
+    .center-triangle .shape{ width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
+      filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5)); }
 
-    /* ====== RESPONSIVE ====== */
-    @media (max-width: 980px){
-      .wrap{ grid-template-columns: 1fr; height:100dvh; overflow:hidden; }
-      .panel{ height: 50dvh; }
-      .footer-controls{ bottom:8px; }
+    /* Next Opponent PAD (CENTERED in opponent panel, buttons UNDERNEATH) */
+    .opponent-pad{
+      position:absolute;
+      left:50%; top:50%; transform:translate(-50%,-50%);
+      z-index:16;
+      display:flex; flex-direction:column; align-items:center; gap:14px;
+      padding:14px 16px; border-radius:16px;
+      background: rgba(0,0,0,.45); backdrop-filter: blur(10px);
+      box-shadow: 0 10px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.10);
+      width: min(92%, 420px);
     }
-    @media (min-width: 981px){
-      .panel{ height: calc(100dvh - 16px); }
+    .pad-top{
+      display:flex; align-items:center; gap:12px; width:100%;
+    }
+    .pad-avatar{
+      width:72px; height:72px; border-radius:12px; object-fit:cover;
+      box-shadow: 0 0 14px rgba(255,215,0,.35); flex:0 0 auto;
+    }
+    .pad-meta{ display:grid; gap:6px; min-width:0 }
+    .pad-title{ font-weight:800; font-size:16px; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .pad-sub{ color:var(--muted); font-size:12px; display:flex; align-items:center; gap:8px; white-space:nowrap }
+    .pad-sub img{ width:18px; height:12px; border-radius:2px; object-fit:cover; box-shadow:0 0 4px rgba(255,255,255,.15) }
+    .pad-actions{ display:flex; gap:10px; width:100%; justify-content:center; }
+    .btn-xs{ padding:10px 14px; font-size:13px; border-radius:12px; border:none; cursor:pointer; }
+    .btn-accept{ background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800; box-shadow:0 0 16px rgba(255,215,0,.35) }
+    .btn-next{ background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) }
+
+    /* Instrumental modal */
+    .modal{ position:fixed; inset:0; display:none; place-items:center; z-index:30;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
+    .dialog{
+      width:min(92vw, 420px);
+      background: rgba(10,10,14,.86);
+      border-radius:16px; padding:18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .dialog h3{ margin:0 0 10px 0; font-size:18px; letter-spacing:.3px }
+    #instrumentalSelect{
+      width:100%; padding:10px 12px; border-radius:12px; border:none; outline: none;
+      background:#0a0a0e; color:#eaeaea; margin:8px 0 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+      font-family:'Orbitron',sans-serif;
+    }
+
+    /* One-shot FX Canvas overlay */
+    #fxCanvas{
+      position:fixed; inset:0; z-index:50; display:none; pointer-events:none;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 880px){
+      .viewer-center{ top: calc(var(--top-safe) + 6px); }
+      .top-bar{ top: calc(var(--top-safe) + 6px); }
+      .side{ bottom: calc(var(--bottom-safe) + 10vh); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 50px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 86px); font-size:14px; }
+      .shape{ width:22px; height:22px; }
+      .center-triangle .shape{ width:28px; height:28px; }
+      .pad-avatar{ width:64px; height:64px; }
     }
   </style>
 </head>
 <body>
+  <!-- Gold stroke gradient for vector shapes -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#fff4b0"/>
+        <stop offset="60%" stop-color="#ffd700"/>
+        <stop offset="100%" stop-color="#ffbf2e"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
-  <main class="wrap">
-    <!-- YOUR SCREEN (LEFT) -->
-    <section class="panel" id="panel-you">
-      <video id="video-you" autoplay muted playsinline></video>
-
-      <div class="hud">
-        <div class="top-row">
-          <div class="badge" id="you-audio-badge">🎤 Your Mic</div>
-          <div class="badge">⏱️ 01:23</div>
-          <div class="nameplate">You • @YourHandle</div>
-        </div>
-        <div></div>
-      </div>
-
-      <div class="turn-chip" id="you-turn-chip">Your turn</div>
-    </section>
-
-    <!-- OPPONENT SCREEN (RIGHT) -->
-    <section class="panel" id="panel-opponent">
-      <video id="video-opponent" autoplay playsinline></video>
-
-      <!-- Centered Next Opponent Pad + Buttons Underneath -->
-      <div class="opponent-center">
-        <div class="next-card" id="next-card">
-          <div class="avatar">
-            <img id="next-avatar" alt="Next opponent" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=600&auto=format&fit=crop"/>
-          </div>
-          <div class="handle" id="next-handle">@NextOpponent</div>
-          <div class="meta" id="next-meta">Rank #27 • Atlanta, GA • 18.2k followers</div>
-
-          <!-- Buttons live UNDER the display (not on top) -->
-          <div class="actions">
-            <button class="btn bad" id="btn-next">NEXT</button>
-            <button class="btn good" id="btn-accept">ACCEPT</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="hud">
-        <div class="top-row">
-          <div class="badge">👁️ 12,403</div>
-          <div class="badge">LIVE</div>
-          <div class="nameplate">@Opponent • Nation: JP</div>
-        </div>
-        <div></div>
-      </div>
-
-      <div class="turn-chip" id="opp-turn-chip">Opponent’s turn</div>
-    </section>
-  </main>
-
-  <!-- Dev/Test Controls (remove in prod) -->
-  <div class="footer-controls" aria-hidden="true">
-    <button id="toggle-turn">Toggle Turn</button>
-    <button id="shuffle-next">Shuffle Next Opponent</button>
+  <!-- Ambient layers -->
+  <div class="depth-stage" aria-hidden="true">
+    <div class="layer-nebula"></div>
+    <div class="layer-stars"></div>
   </div>
 
+  <!-- Particle FX canvas (one-shot on start) -->
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="stream-container" role="application" aria-label="Live Battle Split">
+    <!-- LEFT PANE (You) -->
+    <div class="pane" id="leftPane">
+      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+
+      <!-- Camera fallback -->
+      <div class="fallback" id="camFallback">
+        <div>Enable camera & mic to see yourself</div>
+        <div class="cam-actions">
+          <button id="enableCamBtn" class="btn-mini">Enable Camera</button>
+          <button id="retryCamBtn" class="btn-mini">Retry</button>
+          <button id="switchCamBtn" class="btn-mini">Switch Camera</button>
+        </div>
+        <small style="opacity:.85">Tip: use HTTPS and allow permissions.</small>
+      </div>
+    </div>
+
+    <!-- RIGHT PANE (Opponent) -->
+    <div class="pane" id="rightPane">
+      <video class="video-stream" id="opponentVideo" autoplay muted loop playsinline src="user2.mp4"></video>
+
+      <!-- Viewer count centered in opponent screen -->
+      <div class="viewer-center" id="viewerChip">👁 1.3k viewers</div>
+
+      <!-- Opponent display button (pig) under the viewer count -->
+      <button id="opponentBtn" class="opponent-btn" title="Opponent Profile" aria-label="Opponent Profile">
+        <img src="pig.png" alt="Opponent icon"/>
+      </button>
+
+      <!-- CENTERED Next Opponent PAD -->
+      <div class="opponent-pad" id="opponentPad" style="display:none;">
+        <div class="pad-top">
+          <img id="padAvatar" class="pad-avatar" src="user3.jpg" alt="Next opponent"/>
+          <div class="pad-meta">
+            <div class="pad-title" id="padName">@NextOpponent</div>
+            <div class="pad-sub">
+              <img id="padFlag" src="flag_us.png" alt="Flag"/>
+              <span id="padCountry">United States</span>
+            </div>
+          </div>
+        </div>
+        <div class="pad-actions">
+          <button id="padAccept" class="btn-xs btn-accept">Accept</button>
+          <button id="padNext" class="btn-xs btn-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="top-bar">
+      <div class="hud-left">
+        <button class="hud-live" id="liveBtn" title="Live">LIVE</button>
+      </div>
+      <div style="pointer-events:none;"></div>
+    </div>
+
+    <!-- Timer + CTA -->
+    <div class="round-timer" id="roundTimer">Select your instrumental…</div>
+    <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
+
+    <!-- LEFT side (circle over square) -->
+    <nav class="side left" aria-label="Left sidebar">
+      <button class="shape" data-link="home.html" title="Home" aria-label="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
+      </button>
+    </nav>
+
+    <!-- RIGHT side (diamond over X) -->
+    <nav class="side right" aria-label="Right sidebar">
+      <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
+      </button>
+      <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+          <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+    </nav>
+
+    <!-- Bottom-center triangle -->
+    <div class="center-triangle">
+      <button class="shape gold" data-link="battle.html" title="Battle" aria-label="Battle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
+      </button>
+    </div>
+
+    <!-- Instrumental modal (opens on load) -->
+    <div class="modal" id="instModal" aria-modal="true" role="dialog" aria-labelledby="instTitle" style="display:grid;">
+      <div class="dialog">
+        <h3 id="instTitle">Select Instrumental</h3>
+        <select id="instrumentalSelect">
+          <option disabled selected value="">Choose a beat</option>
+          <option value="beat1.mp3">🔥 Classic Trap</option>
+          <option value="beat2.mp3">💥 Boom Bap</option>
+          <option value="beat3.mp3">🌊 Chill Vibes</option>
+          <option value="beat4.mp3">⚡ Fast Flow</option>
+        </select>
+        <button class="btn" id="confirmInst">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="battleTrack" hidden></audio>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
+
   <script>
-    // ====== MEDIA BOOTSTRAP (placeholder streams) ======
-    // For demo: use a muted looped video or generated stream. Replace with real streams in app.
-    // Here we create a quiet MediaStream so the <video> elements stay "playing".
-    async function createSilentStream() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator(); // inaudible when gain is 0
-        const gain = ctx.createGain(); gain.gain.value = 0;
-        osc.connect(gain).connect(ctx.destination); osc.start();
-        const dest = ctx.createMediaStreamDestination();
-        gain.disconnect();
-        osc.connect(dest);
-        // Create an empty canvas for "video"
-        const canvas = document.createElement('canvas'); canvas.width = 16; canvas.height = 9;
-        const stream = canvas.captureStream(15);
-        // Merge audio (silent) and canvas video
-        dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
-        return stream;
-      } catch (e) {
-        return new MediaStream(); // fallback
-      }
-    }
+    /* Elements */
+    const localVideo = document.getElementById('localVideo');
+    const camFallback = document.getElementById('camFallback');
+    const leftPane = document.getElementById('leftPane');
+    const opponentVideo = document.getElementById('opponentVideo');
+    const rightPane = document.getElementById('rightPane');
 
-    const youVideo = document.getElementById('video-you');
-    const oppVideo = document.getElementById('video-opponent');
+    const instModal = document.getElementById('instModal');
+    const selectInst = document.getElementById('instrumentalSelect');
+    const confirmInst = document.getElementById('confirmInst');
 
-    (async () => {
-      const s1 = await createSilentStream();
-      const s2 = await createSilentStream();
-      youVideo.srcObject = s1;
-      oppVideo.srcObject = s2;
-      youVideo.play().catch(()=>{});
-      oppVideo.play().catch(()=>{});
-    })();
+    const startBtn = document.getElementById('startBattleBtn');
+    const startBtnWrap = document.querySelector('.cta');
+    const timerEl = document.getElementById('roundTimer');
 
-    // ====== TURN STATE (dims + mutes your panel when it's opponent's turn) ======
-    const youPanel = document.getElementById('panel-you');
-    const oppPanel = document.getElementById('panel-opponent');
-    const youTurnChip = document.getElementById('you-turn-chip');
-    const oppTurnChip = document.getElementById('opp-turn-chip');
-    const youAudioBadge = document.getElementById('you-audio-badge');
+    const battleTrack = document.getElementById('battleTrack');
+    const endSound = document.getElementById('roundEndSound');
 
-    let opponentTurn = false; // false = your turn; true = their turn
+    const liveBtn = document.getElementById('liveBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const opponentBtn = document.getElementById('opponentBtn');
 
-    function applyTurnState() {
-      if (opponentTurn) {
-        // Their turn: your side dims & mutes, opponent side is normal
-        youPanel.classList.add('dimmed');
-        oppPanel.classList.remove('dimmed');
+    const fxCanvas = document.getElementById('fxCanvas');
+    const ctx = fxCanvas.getContext('2d');
 
-        youVideo.muted = true;          // your screen's audio muted
-        oppVideo.muted = false;         // you can hear opponent
-
-        youTurnChip.textContent = "Waiting • Opponent’s turn";
-        oppTurnChip.textContent = "Opponent’s turn";
-        youAudioBadge.textContent = "🔇 Your Mic (muted)";
-      } else {
-        // Your turn: restore you, dim/mute opponent
-        youPanel.classList.remove('dimmed');
-        oppPanel.classList.add('dimmed');
-
-        youVideo.muted = false;         // your side active (if you attach real mic)
-        oppVideo.muted = true;          // opponent muted during your turn (optional)
-
-        youTurnChip.textContent = "Your turn";
-        oppTurnChip.textContent = "Waiting • Your turn";
-        youAudioBadge.textContent = "🎤 Your Mic";
-      }
-    }
-    applyTurnState();
-
-    document.getElementById('toggle-turn').addEventListener('click', () => {
-      opponentTurn = !opponentTurn;
-      applyTurnState();
+    /* Navigation */
+    document.querySelectorAll('.shape[data-link]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
     });
+    logoutBtn.addEventListener('click', ()=>{ location.href='login.html'; });
+    liveBtn.addEventListener('click', ()=>{ location.href='live.html'; });
+    opponentBtn.addEventListener('click', ()=>{ location.href='opponent.html'; });
 
-    // ====== NEXT OPPONENT PAD LOGIC ======
-    const nextCard = document.getElementById('next-card');
-    const btnNext = document.getElementById('btn-next');
-    const btnAccept = document.getElementById('btn-accept');
-    const nextAvatar = document.getElementById('next-avatar');
-    const nextHandle = document.getElementById('next-handle');
-    const nextMeta = document.getElementById('next-meta');
-
-    const sampleOpponents = [
-      { handle:'@LunaFire', meta:'Rank #12 • Tokyo, JP • 44.1k followers', img:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop' },
-      { handle:'@KingZulu', meta:'Rank #3 • Lagos, NG • 201k followers', img:'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?q=80&w=600&auto=format&fit=crop' },
-      { handle:'@NordicWave', meta:'Rank #19 • Oslo, NO • 28.4k followers', img:'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=600&auto=format&fit=crop' },
-      { handle:'@RioNova', meta:'Rank #7 • Rio, BR • 132k followers', img:'https://images.unsplash.com/photo-1547106634-56dcd53ae883?q=80&w=600&auto=format&fit=crop' }
+    /* Opponents */
+    const opponents = [
+      { video: "user2.mp4", image: "user2.jpg", handle: "@OpponentA", country: "United States", flag: "flag_us.png" },
+      { video: "user3.mp4", image: "user3.jpg", handle: "@ChallengerX", country: "Japan", flag: "flag_jp.png" },
+      { video: "user4.mp4", image: "user4.jpg", handle: "@MCNeo", country: "Brazil", flag: "flag_br.png" }
     ];
-    function shuffleNext(){
-      const pick = sampleOpponents[Math.floor(Math.random()*sampleOpponents.length)];
-      nextAvatar.src = pick.img;
-      nextHandle.textContent = pick.handle;
-      nextMeta.textContent = pick.meta;
+    let nextIndex = 0;
+    function pickNext(){ nextIndex = (nextIndex + 1) % opponents.length; return opponents[nextIndex]; }
+    function getCurrentNext(){ return opponents[nextIndex]; }
+
+    /* CENTERED Next Opponent PAD refs */
+    const pad = document.getElementById('opponentPad');
+    const padAvatar = document.getElementById('padAvatar');
+    const padName = document.getElementById('padName');
+    const padCountry = document.getElementById('padCountry');
+    const padFlag = document.getElementById('padFlag');
+    const padAccept = document.getElementById('padAccept');
+    const padNext = document.getElementById('padNext');
+
+    function showNextPad(){
+      const cand = pickNext();
+           padAvatar.src = cand.image; padName.textContent = cand.handle;
+      padCountry.textContent = cand.country; padFlag.src = cand.flag;
+      pad.style.display = 'flex';
+      startBtnWrap.style.display = 'none';
     }
-    shuffleNext();
-    document.getElementById('shuffle-next').addEventListener('click', shuffleNext);
-
-    // NEXT: reject and fetch another
-    btnNext.addEventListener('click', () => {
-      // subtle feedback
-      nextCard.animate([{transform:'scale(1)'},{transform:'scale(.98)'},{transform:'scale(1)'}], {duration:160, easing:'ease'});
-      shuffleNext();
-    });
-
-    // ACCEPT: lock & hide pad
-    btnAccept.addEventListener('click', () => {
-      nextCard.animate([{opacity:1, transform:'translateY(0)'},{opacity:0, transform:'translateY(12px)'}], {duration:220, easing:'ease-out'});
-      setTimeout(()=>{ nextCard.style.display='none'; }, 220);
-      // When accepted, force opponent turn first (optional – adjust to your rules)
-      opponentTurn = true;
-      applyTurnState();
-    });
-
-    // Expose small API hooks you can call from your app:
-    window.BattleUI = {
-      setOpponentTurn(isOppTurn){ opponentTurn = !!isOppTurn; applyTurnState(); },
-      showNextPad(){ nextCard.style.display='flex'; nextCard.style.opacity='1'; },
-      hideNextPad(){ nextCard.style.display='none'; },
-      setNextOpponent({handle, meta, img}) {
-        if(handle) nextHandle.textContent = handle;
-        if(meta) nextMeta.textContent = meta;
-        if(img) nextAvatar.src = img;
-      }
+    padAccept.onclick = ()=>{
+      const cand = getCurrentNext();
+      opponentVideo.src = cand.video;
+      pad.style.display = 'none';
+      state = { round:1, part:0, time:33, tick:null };
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "🔥 Opponent Ready — Press Start 🔥";
+      updateTurnUI(); // ensure correct dim/mute state
     };
+    padNext.onclick = ()=> showNextPad();
+
+    /* Camera */
+    let facing = 'user';
+    let currentStream = null;
+
+    async function stopStream(stream){ if(!stream) return; stream.getTracks().forEach(t=>t.stop()); }
+    async function startCamera(preferFacing = facing){
+      try{
+        await stopStream(currentStream);
+        const primary = { video: { facingMode:{ ideal: preferFacing }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:true };
+        try{
+          currentStream = await navigator.mediaDevices.getUserMedia(primary);
+        }catch(_){
+          currentStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+        }
+        localVideo.srcObject = currentStream;
+        leftPane.classList.remove('error');
+        camFallback.style.display = 'none';
+        localVideo.style.transform = (preferFacing === 'user') ? 'scaleX(-1)' : 'none';
+      }catch(e){
+        leftPane.classList.add('error');
+        camFallback.style.display = 'flex';
+      }
+    }
+    document.getElementById('enableCamBtn')?.addEventListener('click', ()=> startCamera('user'));
+    document.getElementById('retryCamBtn')?.addEventListener('click', ()=> startCamera(facing));
+    document.getElementById('switchCamBtn')?.addEventListener('click', async ()=>{
+      facing = (facing === 'user') ? 'environment' : 'user';
+      await startCamera(facing);
+    });
+
+    /* Modal flow */
+    confirmInst.onclick = ()=>{
+      const src = selectInst.value;
+      if(!src){ alert("Pick a beat."); return; }
+      battleTrack.src = src;
+      battleTrack.load();
+      instModal.style.display = 'none';
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "Press Start Battle to begin";
+    };
+
+    /* Battle Timer + Turn UI (dim/mute) */
+    let state = { round:1, part:0, time:33, tick:null };
+
+    function setMicEnabled(on){
+      try{
+        if(!currentStream) return;
+        currentStream.getAudioTracks().forEach(tr=> tr.enabled = !!on);
+      }catch(e){}
+    }
+    function updateTurnUI(){
+      if(state.part === 0){
+        // Your turn
+        leftPane.classList.remove('inactive');
+        rightPane.classList.add('inactive');
+        setMicEnabled(true);
+        opponentVideo.muted = true;
+      }else{
+        // Opponent's turn
+        leftPane.classList.add('inactive');
+        rightPane.classList.remove('inactive');
+        setMicEnabled(false);
+        opponentVideo.muted = false; // let their audio be heard (if present)
+      }
+    }
+    function setTimer(){ timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`; }
+
+    function startRound(){
+      clearInterval(state.tick);
+      updateTurnUI();
+      state.tick = setInterval(()=>{
+        setTimer(); state.time--;
+        if(state.time < 0){
+          clearInterval(state.tick); endSound.play();
+          if(state.part === 0){
+            state.part = 1; state.time = 33;
+            timerEl.textContent = "Switching…";
+            setTimeout(()=>{ updateTurnUI(); startRound(); }, 900);
+          }else if(state.round < 3){
+            state.round++; state.part = 0; state.time = 33;
+            timerEl.textContent = "Next Round…";
+            setTimeout(()=>{ updateTurnUI(); startRound(); }, 900);
+          }else{
+            timerEl.textContent = "🔥 Battle Over 🔥";
+            // restore neutral state
+            leftPane.classList.remove('inactive');
+            rightPane.classList.remove('inactive');
+            setMicEnabled(true);
+            opponentVideo.muted = true;
+            setTimeout(showNextPad, 1000);
+          }
+        }
+      }, 1000);
+    }
+
+    /* One-shot polished FX: photonic ring + sparks on canvas (refined) */
+    function playStartFX(){
+      fxCanvas.width = window.innerWidth;
+      fxCanvas.height = window.innerHeight;
+      fxCanvas.style.display = 'block';
+
+      const cx = fxCanvas.width/2, cy = fxCanvas.height*0.66;
+      const start = performance.now();
+      const duration = 1100; // ms
+      const sparks = Array.from({length: 80}, ()=>({
+        x: cx, y: cy, a: Math.random()*Math.PI*2,
+        v: 2 + Math.random()*6, r: 1 + Math.random()*2, life: 0.8 + Math.random()*0.5
+      }));
+
+      (function loop(now){
+        const t = Math.min(1, (now - start)/duration);
+        ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+
+        // radial ring
+        const R = 40 + t*240;
+        const alpha = 1 - t;
+        const grd = ctx.createRadialGradient(cx,cy, R*0.65, cx,cy, R);
+        grd.addColorStop(0, `rgba(255,255,255,${0.35*alpha})`);
+        grd.addColorStop(0.55, `rgba(255,215,0,${0.25*alpha})`);
+        grd.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+
+        // sparks
+        for(const s of sparks){
+          const lifeT = Math.min(1, ((now - start)/1000) / s.life);
+          s.x += Math.cos(s.a) * s.v;
+          s.y += Math.sin(s.a) * s.v;
+          ctx.globalAlpha = (1 - lifeT) * 0.9;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        if(t < 1){
+          requestAnimationFrame(loop);
+        }else{
+          // gentle fade-out
+          const fadeStart = performance.now();
+          (function fade(now2){
+            const ft = Math.min(1, (now2 - fadeStart)/180);
+            ctx.fillStyle = `rgba(0,0,0,${ft})`;
+            ctx.fillRect(0,0,fxCanvas.width,fxCanvas.height);
+            if(ft < 1) requestAnimationFrame(fade);
+            else {
+              ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+              fxCanvas.style.display = 'none';
+            }
+          })(fadeStart);
+        }
+      })(start);
+    }
+
+    /* Audio reactive (subtle) */
+    let audioCtx, analyser, dataArr, rafGlow;
+    function beginAudioGlow(){
+      try{
+        if(!audioCtx){
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const src = audioCtx.createMediaElementSource(battleTrack);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          src.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          dataArr = new Uint8Array(analyser.frequencyBinCount);
+        }
+        const loop = ()=>{
+          analyser.getByteFrequencyData(dataArr);
+          let sum=0, count=0;
+          for(let i=2;i<18 && i<dataArr.length;i++){ sum+=dataArr[i]; count++; }
+          const avg = count? sum/(count*255) : 0;
+          const eased = Math.min(1, avg*2.2);
+          document.documentElement.style.setProperty('--beatGlow', eased.toFixed(3));
+          rafGlow = requestAnimationFrame(loop);
+        };
+        cancelAnimationFrame(rafGlow);
+        rafGlow = requestAnimationFrame(loop);
+      }catch(e){/* ignore if blocked */}
+    }
+
+    /* Start Battle */
+    startBtn.onclick = ()=>{
+      startBtnWrap.style.display='none';
+      battleTrack.play().catch(()=>{});
+      timerEl.classList.add('animate');
+      playStartFX();            // refined one-shot explosion
+      pad.style.display = 'none';
+      // start with your turn (dim/mute opponent)
+      state = { round:1, part:0, time:33, tick:null };
+      updateTurnUI();
+      startRound();
+      beginAudioGlow();
+    };
+
+    /* Init */
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const sc = document.querySelector('.stream-container');
+      sc.style.height = window.innerHeight + 'px';
+      window.addEventListener('resize', ()=>{
+        sc.style.height = window.innerHeight + 'px';
+        fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight;
+      });
+
+      startCamera('user');
+      instModal.style.display='grid';
+      // ensure opponent video starts muted until it's their turn
+      opponentVideo.muted = true;
+    });
   </script>
 </body>
-            </html>
+</html>
