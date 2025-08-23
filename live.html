@@ -4,9 +4,10 @@
   <meta charset="UTF-8"/>
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
-  <title>BattleBillions — Unified App</title>
+    content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Unified App (Mobile-First)</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --gold:#ffd700;
@@ -22,15 +23,22 @@
       --glass-2: rgba(20,20,26,.6);
     }
 
+    /* RESET */
     *{margin:0;padding:0;box-sizing:border-box}
     html, body{
-      height:100%; width:100%;
-      background:#000; color:var(--ink);
+      height:100%;
+      width:100%;
+      background:#000;
+      color:var(--ink);
       font-family:'Orbitron',sans-serif;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
+      overscroll-behavior: none;
     }
-    *::-webkit-scrollbar{ width:0; height:0 }
+
+    /* HIDE SCROLLBARS GLOBALLY (feed still scrolls, but bars are hidden) */
+    *::-webkit-scrollbar{ width:0; height:0; display:none }
+    *{ scrollbar-width: none }
 
     /* Ambient */
     .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
@@ -38,7 +46,7 @@
       position:absolute; inset:-15%;
       background: conic-gradient(from 0deg at 50% 50%,
         rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
-      filter: blur(90px) saturate(130%); opacity:.28; animation: nebula 40s linear infinite;
+      filter: blur(90px) saturate(130%); opacity:.24; animation: nebula 40s linear infinite;
     }
     @keyframes nebula{ to{ transform: rotate(360deg) } }
     .layer-stars{
@@ -54,14 +62,17 @@
     /* Root App Grid */
     .app{
       position:relative; z-index:1;
-      height:100svh; width:100svw;
+      height:100dvh; /* modern viewport: prevents iOS toolbars shift */
+      width:100vw;
       display:grid; grid-template-rows: auto 1fr auto;
+      padding-left: var(--side-safe);
+      padding-right: var(--side-safe-r);
     }
 
     /* Top HUD */
     .top{
       display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:10px;
-      padding: calc(var(--top-safe)) clamp(12px,3vw,22px) 10px;
+      padding: calc(var(--top-safe)) clamp(12px,3vw,22px) 8px;
     }
     .hud-left, .hud-right{ display:flex; gap:10px; align-items:center; }
     .pill{
@@ -77,19 +88,21 @@
     .btn-ghost{
       background:transparent; color:#fff; border:none; cursor:pointer; font-weight:800;
       text-shadow:0 1px 0 rgba(255,255,255,.2);
+      padding:6px 8px;
     }
 
     /* Search (center top) */
     .search{
       pointer-events:auto; display:flex; align-items:center; gap:8px; justify-content:center;
       background: rgba(255,255,255,.08);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       padding:8px 10px; border-radius:14px; box-shadow:0 0 20px rgba(255,215,0,.15);
       transition: transform .18s ease, box-shadow .18s ease;
     }
     .search:focus-within{ transform:translateY(-1px); box-shadow:0 0 28px rgba(255,215,0,.28) }
     .search input{
-      width:min(56vw, 520px);
+      width:min(64vw, 520px);
       border:none; outline:none; background:transparent; color:#fff;
       font-family:inherit; font-size:14px;
     }
@@ -100,10 +113,10 @@
 
     /* Results drawer */
     .results{
-      position:absolute; left:50%; top: calc(var(--top-safe) + 62px);
+      position:fixed; left:50%; top: calc(var(--top-safe) + 60px);
       transform: translateX(-50%);
-      width:min(92vw, 760px); max-height: 50svh; overflow:auto;
-      background: rgba(10,10,14,.86);
+      width:min(92vw, 760px); max-height: 52dvh; overflow:auto;
+      background: rgba(10,10,14,.9);
       border-radius:14px; padding:8px; display:none; z-index:6;
       box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
     }
@@ -130,17 +143,21 @@
 
     /* FEED (scrollable list of live battles) */
     .feed{
-      height:100%; overflow-y:auto; padding: 8px clamp(12px,3vw,22px);
-      display:grid; gap:14px;
+      height:100%;
+      overflow-y:auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 6px clamp(12px,3vw,22px);
+      display:grid; gap:12px;
     }
     .card{
       background: var(--glass-2);
-      border-radius:16px; padding:12px;
+      border-radius:16px; padding:10px;
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
       box-shadow: 0 14px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
     }
     .card-head{
-      display:flex; align-items:center; gap:10px; margin-bottom:10px;
+      display:flex; align-items:center; gap:10px; margin-bottom:8px;
     }
     .flag{ width:20px; height:14px; border-radius:3px; object-fit:cover }
     .title{ font-weight:800; font-size:14px }
@@ -150,7 +167,7 @@
       position:relative; display:grid; grid-template-columns:1fr 1fr; gap:6px; min-height:0;
       border-radius:12px; overflow:hidden;
     }
-    .pane{ position:relative; overflow:hidden; min-height: 32svh; }
+    .pane{ position:relative; overflow:hidden; min-height: 30dvh; }
     .pane video{
       width:100%; height:100%; object-fit:cover; display:block; background:#000;
       filter: brightness(.96) contrast(1.08) saturate(1.06);
@@ -165,7 +182,7 @@
     }
 
     .underbar{
-      margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
     }
     .btn{
       background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
@@ -174,54 +191,57 @@
     }
     .ghost{
       background:transparent; color:#fff; border:none; font-weight:800; cursor:pointer;
+      padding:8px 10px;
     }
     .timer-chip{
       background:rgba(0,0,0,.5); padding:8px 12px; border-radius:999px; font-weight:800; font-size:12px;
     }
 
-    /* LIVE VIEW (full screen, still inside SPA) */
+    /* LIVE VIEW (SPA full view) */
     .live-wrap{
-      position:relative; display:grid; grid-template-rows: 1fr auto; gap:10px;
-      padding: 8px clamp(12px,3vw,22px);
+      position:relative; display:grid; grid-template-rows: 1fr auto; gap:8px;
+      padding: 6px clamp(12px,3vw,22px);
     }
     .live-split{
-      position:relative; display:grid; grid-template-columns:1fr 1fr; gap:8px; min-height:0;
+      position:relative; display:grid; grid-template-columns:1fr 1fr; gap:6px; min-height:0;
       border-radius:14px; overflow:hidden;
     }
-    .live-pane{ position:relative; overflow:hidden; min-height: 45svh; }
+    .live-pane{ position:relative; overflow:hidden; min-height: 44dvh; }
     .live-pane video{ width:100%; height:100%; object-fit:cover; background:#000; }
     .live-pane.inactive::before{
       content:""; position:absolute; inset:0; background:rgba(0,0,0,.32); z-index:2; backdrop-filter: blur(1.5px);
     }
     .mid-timer{
-      position:absolute; left:50%; top:12px; transform:translateX(-50%);
-      background:var(--glass); backdrop-filter:blur(8px);
+      position:absolute; left:50%; top:10px; transform:translateX(-50%);
+      background:var(--glass); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
       padding:8px 14px; border-radius:999px; font-weight:800; font-size:13px; z-index:5;
     }
     .vote-bar{
-      display:flex; justify-content:center; gap:12px; padding:8px 0 2px;
+      display:flex; justify-content:center; gap:10px; padding:4px 0 2px;
     }
 
-    /* Bottom shapes */
+    /* Bottom shapes (match Arena) */
     .bottom{
-      display:flex; align-items:center; justify-content:center; gap:24px;
-      padding: 8px clamp(12px,3vw,22px) calc(var(--bottom-safe) + 10px);
+      display:flex; align-items:center; justify-content:center; gap:22px;
+      padding: 8px clamp(12px,3vw,22px) calc(var(--bottom-safe) + 8px);
     }
     .shape{
       appearance:none; background:transparent; border:none; padding:0;
       width:28px; height:28px; display:grid; place-items:center; cursor:pointer;
       filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
       transition: transform .18s ease, filter .18s ease;
+      touch-action: manipulation;
     }
-    .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
+    .shape:active{ transform: scale(.96) }
+    .shape:hover{ transform:translateY(-2px) scale(1.06); filter:brightness(1.08); }
     .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
     .shape.gold svg{ stroke:url(#goldStroke); }
 
     /* Mobile tweaks */
     @media (max-width: 900px){
-      .search input{ width:min(70vw,520px) }
-      .pane{ min-height: 34svh }
-      .live-pane{ min-height: 46svh }
+      .search input{ width:min(72vw,520px) }
+      .pane{ min-height: 32dvh }
+      .live-pane{ min-height: 46dvh }
       .shape{ width:26px; height:26px }
     }
   </style>
@@ -253,7 +273,7 @@
       </div>
 
       <div class="search" id="searchBox" role="search">
-        <input id="searchInput" type="text" placeholder="Search battles by country, city, or region… (e.g., Japan, Paris, West Coast)"/>
+        <input id="searchInput" type="text" inputmode="search" placeholder="Search battles by country, city, or region… (e.g., Japan, Paris, West Coast)" autocomplete="off"/>
         <button id="searchBtn">Search</button>
       </div>
 
@@ -268,13 +288,13 @@
 
     <!-- VIEWS -->
     <main class="views">
-      <!-- FEED VIEW (default) -->
-      <section id="view-feed" class="view active">
-        <div id="feed" class="feed"><!-- cards injected by JS --></div>
+      <!-- FEED VIEW (default, scrollable without visible bars) -->
+      <section id="view-feed" class="view active" aria-label="Live Battles Feed">
+        <div id="feed" class="feed" tabindex="0"><!-- cards injected by JS --></div>
       </section>
 
       <!-- LIVE VIEW (single battle, still SPA) -->
-      <section id="view-live" class="view">
+      <section id="view-live" class="view" aria-label="Live Battle">
         <div class="live-wrap">
           <div class="mid-timer" id="liveTimer">Loading…</div>
           <div class="live-split">
@@ -294,9 +314,8 @@
       </section>
 
       <!-- LEADERBOARD -->
-      <section id="view-board" class="view">
+      <section id="view-board" class="view" aria-label="Leaderboard">
         <div class="feed" id="boardList">
-          <!-- Example rows -->
           <div class="card"><div class="title">🏆 Leaderboard</div><div class="sub">Live ranks update in real-time</div></div>
           <div class="card"><div class="title">1) @Nova — 12,430 pts</div><div class="sub">United States</div></div>
           <div class="card"><div class="title">2) @Kiro — 12,420 pts</div><div class="sub">Japan</div></div>
@@ -305,7 +324,7 @@
       </section>
 
       <!-- DISCOVER -->
-      <section id="view-discover" class="view">
+      <section id="view-discover" class="view" aria-label="Discover">
         <div class="feed" id="discoverList">
           <div class="card"><div class="title">🔎 Discover</div><div class="sub">New regions, trending tags, fresh matchups</div></div>
           <div class="card"><div class="title">Trending · Southeast Asia</div><div class="sub">#DoubleTime · #Freestyle</div></div>
@@ -314,7 +333,7 @@
       </section>
 
       <!-- PROFILE -->
-      <section id="view-profile" class="view">
+      <section id="view-profile" class="view" aria-label="Profile">
         <div class="feed" id="profileView">
           <div class="card"><div class="title">👤 Your Profile</div><div class="sub">Battles you’ve watched will appear here soon.</div></div>
         </div>
@@ -324,23 +343,23 @@
     <!-- BOTTOM NAV (shapes, same everywhere like Arena) -->
     <footer class="bottom" aria-label="Navigation">
       <!-- Circle = Home/Feed -->
-      <button class="shape gold" data-nav="feed" title="Home">
+      <button class="shape gold" data-nav="feed" title="Home" aria-label="Home">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
       </button>
       <!-- Square = Leaderboard -->
-      <button class="shape" data-nav="board" title="Leaderboard">
+      <button class="shape" data-nav="board" title="Leaderboard" aria-label="Leaderboard">
         <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
       </button>
       <!-- Diamond = Discover -->
-      <button class="shape gold" data-nav="discover" title="Discover">
+      <button class="shape gold" data-nav="discover" title="Discover" aria-label="Discover">
         <svg viewBox="0 0 24 24"><polygon points="12,4 20,12 12,20 4,12"/></svg>
       </button>
       <!-- Triangle = Live -->
-      <button class="shape" data-nav="live" title="Live">
+      <button class="shape" data-nav="live" title="Live" aria-label="Live">
         <svg viewBox="0 0 24 24"><polygon points="12,5 20,19 4,19"/></svg>
       </button>
       <!-- Profile glyph -->
-      <button class="shape" data-nav="profile" title="Profile">
+      <button class="shape" data-nav="profile" title="Profile" aria-label="Profile">
         <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4 0-8 2-8 5 0 1 0 1 0 1h16s0 0 0-1c0-3-4-5-8-5Z"/></svg>
       </button>
     </footer>
@@ -348,44 +367,63 @@
 
   <script type="module">
     /**
-     * Single-Page App (SPA) that unifies:
-     *  - Scrollable LIVE FEED of battles (cards with split preview + vote buttons without counts)
-     *  - Full LIVE view (still inside SPA)
-     *  - Leaderboard, Discover, Profile
-     *  - Global search for live battles by region
-     * Bottom shape icons switch SPA views — same setup as Arena.
+     * MOBILE-FIRST SPA
+     *  - No visible scrollbars (feed still scrolls smoothly with momentum)
+     *  - Uses 100dvh + safe-area paddings to avoid iOS browser chrome jumps
+     *  - IntersectionObserver pauses offscreen feed videos (battery-friendly)
+     *  - Autoplay policy safe: all videos start muted; "Mute" toggles globally
+     *  - Ready for real backend:
+     *      • Replace demoBattles + populateFeed() with Firestore live query.
+     *      • Wire SFU (LiveKit/Agora/etc.) into openLive()/joinRoom().
+     *      • Wire votes via Callable Cloud Functions.
      */
 
-    // ===== Demo data (replace with Firestore wiring) =====
+    /* =========================
+       Demo data (replace later)
+       ========================= */
     const demoBattles = [
       {
         id:'b1', liveRoomId:'', createdAt:Date.now()-1000*60*3,
         a:{handle:'@Nova', country:'United States', flagUrl:'flag_us.png', video:'user2.mp4'},
         b:{handle:'@Kiro', country:'Japan', flagUrl:'flag_jp.png', video:'user3.mp4'},
-        region:'North America', area:'West Coast', status:'live', round:1, part:0, endsIn:30
+        region:'North America', area:'West Coast', status:'live', round:1, part:0, endsIn:33
       },
       {
         id:'b2', liveRoomId:'', createdAt:Date.now()-1000*60*6,
         a:{handle:'@Ari', country:'France', flagUrl:'flag_fr.png', video:'user4.mp4'},
         b:{handle:'@Zed', country:'Brazil', flagUrl:'flag_br.png', video:'user3.mp4'},
-        region:'Europe', area:'Paris', status:'live', round:2, part:1, endsIn:18
+        region:'Europe', area:'Paris', status:'live', round:2, part:1, endsIn:28
       },
       {
         id:'b3', liveRoomId:'', createdAt:Date.now()-1000*60*9,
         a:{handle:'@Sol', country:'Japan', flagUrl:'flag_jp.png', video:'user2.mp4'},
         b:{handle:'@Vento', country:'Italy', flagUrl:'flag_it.png', video:'user4.mp4'},
-        region:'Asia', area:'Tokyo', status:'live', round:3, part:0, endsIn:9
+        region:'Asia', area:'Tokyo', status:'live', round:3, part:0, endsIn:19
       }
     ];
 
-    // ===== Helpers =====
-    const $ = (q)=>document.querySelector(q);
+    /* ========== Helpers ========== */
+    const $  = (q)=>document.querySelector(q);
+    const $$ = (q)=>document.querySelectorAll(q);
     const byId = (id)=>document.getElementById(id);
 
-    const resultsDrawer = byId('resultsDrawer');
-    const searchInput = byId('searchInput');
-    const viewerChip = byId('viewerChip');
+    // iOS viewport safety: recalc 100dvh-like height when toolbars change
+    const appRoot = $('.app');
+    function lockViewportHeight(){
+      appRoot.style.height = window.innerHeight + 'px';
+    }
+    window.addEventListener('resize', lockViewportHeight, {passive:true});
+    window.addEventListener('orientationchange', ()=> setTimeout(lockViewportHeight, 250), {passive:true});
+    lockViewportHeight();
 
+    // prevent iOS rubber-band bounce
+    document.addEventListener('touchmove', (e)=>{
+      // allow only if target is inside a scrollable container (.feed)
+      const scroller = e.target.closest('.feed');
+      if(!scroller) e.preventDefault();
+    }, {passive:false});
+
+    /* ========== Views & Nav ========== */
     const views = {
       feed: byId('view-feed'),
       live: byId('view-live'),
@@ -396,15 +434,32 @@
     function showView(name){
       Object.values(views).forEach(v=>v.classList.remove('active'));
       views[name].classList.add('active');
-      // Stop all playing videos when switching away from feed/live to save power
-      if(name!=='feed'){ stopAllFeedVideos(); }
-      if(name!=='live'){ stopLiveVideos(); }
+
+      // Pause media appropriately
+      if(name!=='feed'){ pauseFeedMedia(); }
+      if(name!=='live'){ stopLiveMedia(); }
     }
 
-    // ===== FEED population =====
+    // Bottom nav
+    $$('footer .shape').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const dest = btn.dataset.nav;
+        if(dest==='live'){
+          if(!currentLive){ openLive(demoBattles[0].id); } else { showView('live'); }
+        }else{
+          showView(dest);
+        }
+      });
+    });
+    byId('backToFeed').addEventListener('click', ()=>{
+      bumpViewers(-1);
+      showView('feed');
+    });
+
+    /* ========== FEED population ========== */
     const feedEl = byId('feed');
+
     function makeCard(b){
-      const id = `card-${b.id}`;
       const aId = `va-${b.id}`;
       const bId = `vb-${b.id}`;
       const timerId = `tm-${b.id}`;
@@ -420,8 +475,8 @@
           </div>
         </div>
         <div class="split">
-          <div class="pane"><video id="${aId}" playsinline muted loop></video></div>
-          <div class="pane"><video id="${bId}" playsinline muted loop></video></div>
+          <div class="pane"><video id="${aId}" playsinline muted loop preload="metadata"></video></div>
+          <div class="pane"><video id="${bId}" playsinline muted loop preload="metadata"></video></div>
         </div>
         <div class="underbar">
           <span class="timer-chip" id="${timerId}">Round ${b.round}/3 · ${b.part===0?'A':'B'} · ${b.endsIn}s</span>
@@ -431,13 +486,20 @@
           <button class="ghost" data-action="share" data-battle="${b.id}">Share</button>
         </div>
       `;
-      // attach media
-      const vA = el.querySelector('#'+aId);
+
+      // attach preview media (deferred actual play: IntersectionObserver)
+          const vA = el.querySelector('#'+aId);
       const vB = el.querySelector('#'+bId);
       vA.src = b.a.video; vB.src = b.b.video;
-      Promise.allSettled([vA.play(), vB.play()]);
+      vA.playsInline = vB.playsInline = true;
+
       // timer
       startCardCountdown(timerId, b);
+
+      // Observe for autoplay when visible
+      previewObserver.observe(vA);
+      previewObserver.observe(vB);
+
       return el;
     }
 
@@ -448,7 +510,27 @@
         .forEach(b=> feedEl.appendChild(makeCard(b)));
     }
 
-    // accurate per-card countdown
+    // IntersectionObserver to only play visible preview videos
+    const previewObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(async (entry)=>{
+        const vid = entry.target;
+        if(entry.isIntersecting){
+          try{ await vid.play(); }catch{}
+        }else{
+          try{ vid.pause(); }catch{}
+        }
+      });
+    }, { root: feedEl, threshold: 0.35 });
+
+    function pauseFeedMedia(){
+      previewObserver.disconnect();
+      feedEl.querySelectorAll('video').forEach(v=>{ try{ v.pause(); }catch{} });
+      // stop timers
+      cardTimers.forEach((raf,id)=> cancelAnimationFrame(raf));
+      cardTimers.clear();
+    }
+
+    /* ========== Per-card accurate countdown ========== */
     const cardTimers = new Map();
     function startCardCountdown(timerId, battle){
       stopCardCountdown(timerId);
@@ -468,14 +550,8 @@
     function stopCardCountdown(timerId){
       if(cardTimers.has(timerId)){ cancelAnimationFrame(cardTimers.get(timerId)); cardTimers.delete(timerId); }
     }
-    function stopAllFeedVideos(){
-      feedEl.querySelectorAll('video').forEach(v=>{ try{ v.pause(); }catch{} });
-      // stop all timers
-      cardTimers.forEach((raf,id)=> cancelAnimationFrame(raf));
-      cardTimers.clear();
-    }
 
-    // ===== LIVE view wiring (SPA) =====
+    /* ========== LIVE view (SPA) ========== */
     let currentLive = null;
     const liveA = byId('liveA');
     const liveB = byId('liveB');
@@ -488,14 +564,14 @@
       const b = demoBattles.find(x=>x.id===battleId);
       if(!b) return;
       currentLive = { ...b, endAt: Date.now() + (b.endsIn*1000) };
-      // attach media (subscriber mode demo)
+
+      // Attach media (replace with SFU attach in prod)
       liveA.src = b.a.video; liveB.src = b.b.video;
+      liveA.playsInline = liveB.playsInline = true;
       Promise.allSettled([liveA.play(), liveB.play()]);
-      // who is active
+
       updateLiveTurnUI();
-      // timer
       startLiveCountdown();
-      // viewer count demo bump
       bumpViewers(+1);
       showView('live');
     }
@@ -516,30 +592,12 @@
       };
       liveRAF = requestAnimationFrame(tick);
     }
-    function stopLiveVideos(){
+    function stopLiveMedia(){
       try{ liveA.pause(); liveB.pause(); }catch{}
       cancelAnimationFrame(liveRAF); liveRAF = 0;
     }
 
-    // ===== Bottom nav SPA switching =====
-    document.querySelectorAll('footer .shape').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const dest = btn.dataset.nav;
-        if(dest==='live'){
-          // If no live selected, open the newest one; else keep current
-          if(!currentLive){ openLive(demoBattles[0].id); }
-          else{ showView('live'); }
-        }else{
-          showView(dest);
-        }
-      });
-    });
-    byId('backToFeed').addEventListener('click', ()=>{
-      bumpViewers(-1);
-      showView('feed');
-    });
-
-    // ===== Feed action buttons (Watch, Vote, Share) =====
+    // Feed actions
     feedEl.addEventListener('click', (e)=>{
       const btn = e.target.closest('button');
       if(!btn) return;
@@ -550,16 +608,20 @@
       if(action==='watch'){
         openLive(bid);
       }else if(action==='voteA'){
-        // call your callable cloud function here; counts are hidden
+        // TODO: call your callable function castVote({ battleId: bid, side:'a' })
         toast('Vote for A sent');
       }else if(action==='voteB'){
+        // TODO: call your callable function castVote({ battleId: bid, side:'b' })
         toast('Vote for B sent');
       }else if(action==='share'){
         shareLink(bid);
       }
     });
 
-    // ===== Global search (client-filter demo) =====
+    /* ========== Global search (client filter demo) ========== */
+    const resultsDrawer = byId('resultsDrawer');
+    const searchInput = byId('searchInput');
+
     function normalize(s){ return (s||'').toString().toLowerCase(); }
     function renderResults(list){
       const open = list && list.length;
@@ -611,7 +673,7 @@
       }
     });
 
-    // ===== Share / Mute All =====
+    /* ========== Share / Mute All / Visibility ========== */
     async function shareLink(battleId){
       const url = `${location.origin}${location.pathname}#watch=${encodeURIComponent(battleId)}`;
       try{
@@ -632,7 +694,7 @@
       document.body.appendChild(el);
       setTimeout(()=> el.remove(), 1400);
     }
-    const muteAllBtn = byId('muteAllBtn'); let mutedAll = false;
+    const muteAllBtn = byId('muteAllBtn'); let mutedAll = true; // start muted for autoplay
     function applyMuteAll(){
       document.querySelectorAll('video').forEach(v=> v.muted = mutedAll);
       muteAllBtn.setAttribute('aria-pressed', String(mutedAll));
@@ -641,37 +703,57 @@
     muteAllBtn.addEventListener('click', ()=>{
       mutedAll = !mutedAll; applyMuteAll();
       if(!mutedAll){
-        // resume playback where paused by OS policy
         document.querySelectorAll('video').forEach(v=> v.play().catch(()=>{}));
       }
     });
+    applyMuteAll();
 
-    // ===== Viewers demo =====
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.hidden){
+        pauseFeedMedia();
+        stopLiveMedia();
+      }else{
+        // resume visible stuff
+        if(views.feed.classList.contains('active')){
+          populateFeed();
+          // reconnect observer on new nodes
+          feedEl.querySelectorAll('video').forEach(v=> previewObserver.observe(v));
+        }else if(views.live.classList.contains('active') && currentLive){
+          Promise.allSettled([liveA.play(), liveB.play()]);
+          startLiveCountdown();
+        }
+      }
+    });
+
+    // Live viewer count demo
+    const viewerChip = byId('viewerChip');
     function bumpViewers(delta){
       const txt = viewerChip.textContent.replace(/[^\d]/g,'');
       const n = Math.max(0, (parseInt(txt||'0',10) + delta));
       viewerChip.textContent = `👁 ${n}`;
     }
 
-    // ===== Boot =====
-    (function boot(){
-      // Mobile 100vh fix
-      const appRoot = $('.app');
-      const setH = ()=>{ appRoot.style.height = window.innerHeight+'px'; };
-      setH(); addEventListener('resize', setH, {passive:true});
+    /* ========== FEED actions (watch/vote/share) already wired above ========== */
 
-      // Populate feed
+    /* ========== Boot ========== */
+    (function boot(){
       populateFeed();
 
-      // Deep link (optional)
+      // Deep link to live
       if(location.hash.startsWith('#watch=')){
         const id = decodeURIComponent(location.hash.split('=')[1]||'');
         if(id) openLive(id);
       }
-
-      // Start muted by default (autoplay policy)
-      applyMuteAll();
     })();
+
+    /* ===========================================================
+       BACKEND PREP (replace demo with real services)
+       - Replace demoBattles with Firestore query on "battles" where status == 'live'.
+       - In populateFeed(), build cards from snapshot docs.
+       - In openLive(), join your SFU room, attach remote MediaStreamTracks to liveA/liveB.
+       - Voting: add callable function (castVote) and call it on buttons.
+       - Presence: update "viewers" count in backend (or function).
+       =========================================================== */
   </script>
 </body>
 </html>
