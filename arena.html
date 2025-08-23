@@ -70,6 +70,7 @@
       object-fit:cover; background:#000;
       filter: brightness(.94) contrast(1.12) saturate(1.06);
       transition: filter .25s ease;
+      z-index:1;
     }
     #localVideo{ transform:scaleX(-1); }
 
@@ -78,6 +79,7 @@
       content:""; position:absolute; inset:0; pointer-events:none;
       background: rgba(0,0,0,.35);
       backdrop-filter: blur(2px);
+      z-index:2;
     }
     .pane.inactive video{ filter: brightness(.68) contrast(1.0) saturate(.85) }
 
@@ -89,6 +91,7 @@
         radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
         radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
       mix-blend-mode:screen; animation: paneSheen 6s ease-in-out infinite alternate;
+      z-index:2;
     }
     @keyframes paneSheen{ from{opacity:.32} to{opacity:.6} }
 
@@ -98,6 +101,7 @@
       flex-direction:column; gap:12px; text-align:center; padding:18px;
       background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
       font-weight:800; letter-spacing:.3px;
+      z-index:3;
     }
     .pane.error .fallback{ display:flex; }
     .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
@@ -451,7 +455,7 @@
 
     function showNextPad(){
       const cand = pickNext();
-           padAvatar.src = cand.image; padName.textContent = cand.handle;
+      padAvatar.src = cand.image; padName.textContent = cand.handle;
       padCountry.textContent = cand.country; padFlag.src = cand.flag;
       pad.style.display = 'flex';
       startBtnWrap.style.display = 'none';
@@ -472,16 +476,35 @@
     let currentStream = null;
 
     async function stopStream(stream){ if(!stream) return; stream.getTracks().forEach(t=>t.stop()); }
+
     async function startCamera(preferFacing = facing){
       try{
         await stopStream(currentStream);
-        const primary = { video: { facingMode:{ ideal: preferFacing }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:true };
+
+        // iOS-friendly constraints
+        const constraints = {
+          audio: true,
+          video: {
+            facingMode: { ideal: preferFacing },
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720,  max: 1080 }
+          }
+        };
+
+        let stream;
         try{
-          currentStream = await navigator.mediaDevices.getUserMedia(primary);
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
         }catch(_){
-          currentStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+          // Very old devices fallback
+          stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
         }
-        localVideo.srcObject = currentStream;
+
+        currentStream = stream;
+        localVideo.srcObject = stream;
+        localVideo.muted = true;                     // for autoplay policies
+        localVideo.setAttribute('playsinline','');   // iOS inline
+        await localVideo.play().catch(()=>{});       // ensure playback
+
         leftPane.classList.remove('error');
         camFallback.style.display = 'none';
         localVideo.style.transform = (preferFacing === 'user') ? 'scaleX(-1)' : 'none';
@@ -490,6 +513,14 @@
         camFallback.style.display = 'flex';
       }
     }
+
+    // extra resilience if tab visibility changes (mobile)
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState === 'visible' && localVideo.srcObject && localVideo.paused){
+        localVideo.play().catch(()=>{});
+      }
+    });
+
     document.getElementById('enableCamBtn')?.addEventListener('click', ()=> startCamera('user'));
     document.getElementById('retryCamBtn')?.addEventListener('click', ()=> startCamera(facing));
     document.getElementById('switchCamBtn')?.addEventListener('click', async ()=>{
@@ -530,9 +561,32 @@
         rightPane.classList.remove('inactive');
         setMicEnabled(false);
         opponentVideo.muted = false; // let their audio be heard (if present)
+        // try to play in case mobile paused it
+        opponentVideo.play().catch(()=>{});
       }
     }
-    function setTimer(){ timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`; }
+    function setTimer(){
+      timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`;
+    }
+
+    // 5-second buffer before opponent starts
+    function bufferBeforeOpponentStart(sec=5){
+      let t = sec;
+      timerEl.textContent = `Opponent turn in ${t}s…`;
+      const b = setInterval(()=>{
+        t--;
+        if(t>0){
+          timerEl.textContent = `Opponent turn in ${t}s…`;
+        }else{
+          clearInterval(b);
+          // Switch to opponent AFTER buffer
+          state.part = 1;
+          state.time = 33;
+          updateTurnUI();
+          startRound(); // start their timer
+        }
+      },1000);
+    }
 
     function startRound(){
       clearInterval(state.tick);
@@ -542,9 +596,9 @@
         if(state.time < 0){
           clearInterval(state.tick); endSound.play();
           if(state.part === 0){
-            state.part = 1; state.time = 33;
+            // Your turn ended → wait 5 seconds before opponent starts
             timerEl.textContent = "Switching…";
-            setTimeout(()=>{ updateTurnUI(); startRound(); }, 900);
+            bufferBeforeOpponentStart(5);
           }else if(state.round < 3){
             state.round++; state.part = 0; state.time = 33;
             timerEl.textContent = "Next Round…";
@@ -670,6 +724,7 @@
         fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight;
       });
 
+      // try to start cam; if autoplay blocks, fallback UI appears
       startCamera('user');
       instModal.style.display='grid';
       // ensure opponent video starts muted until it's their turn
