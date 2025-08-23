@@ -1,31 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
-  <title>BattleBillions — Unified App (Mobile-First)</title>
+  <title>BattleBillions — Live Feed</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
-
   <style>
     :root{
-      --gold:#ffd700;
-      --gold-1:#ffe88a;
-      --gold-2:#ffcc3b;
       --ink:#eaeaea;
       --muted:#b8b8b8;
-      --top-safe: max(12px, env(safe-area-inset-top));
-      --side-safe: max(12px, env(safe-area-inset-left));
-      --side-safe-r: max(12px, env(safe-area-inset-right));
-      --bottom-safe: max(18px, env(safe-area-inset-bottom));
       --glass: rgba(12,12,16,.55);
       --glass-2: rgba(20,20,26,.6);
+      --cyan:#47f5ff;         /* search accent */
+      --magenta:#ff53e1;      /* vote accent */
+      --purple:#9f7bff;       /* comments accent */
+      --red:#ff4c6a;          /* flag accent */
+      --grey:#c7c7c7;         /* mute accent */
+      --gold:#ffd700;         /* nav icons */
+      --safe-top: max(10px, env(safe-area-inset-top));
+      --safe-bottom: max(14px, env(safe-area-inset-bottom));
+      --side-pad: 56px;       /* room for side navs */
     }
 
     /* RESET */
     *{margin:0;padding:0;box-sizing:border-box}
-    html, body{
+    html,body{
       height:100%;
       width:100%;
       background:#000;
@@ -35,482 +36,439 @@
       touch-action:manipulation;
       overscroll-behavior: none;
     }
-
-    /* HIDE SCROLLBARS GLOBALLY (feed still scrolls, but bars are hidden) */
+    /* hide scrollbars (feed still scrolls) */
     *::-webkit-scrollbar{ width:0; height:0; display:none }
     *{ scrollbar-width: none }
 
-    /* Ambient */
-    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
-    .layer-nebula{
-      position:absolute; inset:-15%;
-      background: conic-gradient(from 0deg at 50% 50%,
-        rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
-      filter: blur(90px) saturate(130%); opacity:.24; animation: nebula 40s linear infinite;
+    /* BACKGROUND 3D */
+    #bg3d{
+      position:fixed; inset:0; z-index:0; display:block; pointer-events:none;
+      background:radial-gradient(1200px 800px at 30% 20%, #0a0a0d 0%, #000 70%);
     }
-    @keyframes nebula{ to{ transform: rotate(360deg) } }
-    .layer-stars{
-      position:absolute; inset:0;
-      background:
-        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.09), transparent 60%),
-        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.07), transparent 60%),
-        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.06), transparent 60%);
-      animation: stars 14s ease-in-out infinite alternate;
-    }
-    @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
 
-    /* Root App Grid */
-    .app{
+    /* APP LAYOUT */
+    .live-container{
       position:relative; z-index:1;
-      height:100dvh; /* modern viewport: prevents iOS toolbars shift */
-      width:100vw;
-      display:grid; grid-template-rows: auto 1fr auto;
-      padding-left: var(--side-safe);
-      padding-right: var(--side-safe-r);
+      min-height:100dvh;
+      padding: var(--safe-top) var(--side-pad) calc(var(--safe-bottom) + 84px);
     }
 
-    /* Top HUD */
-    .top{
-      display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:10px;
-      padding: calc(var(--top-safe)) clamp(12px,3vw,22px) 8px;
+    /* TOP SEARCH */
+    .top-bar{
+      position:sticky; top:0; z-index:5;
+      display:flex; justify-content:center; padding:8px 0 10px;
+      background: linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.25));
+      backdrop-filter: blur(12px);
     }
-    .hud-left, .hud-right{ display:flex; gap:10px; align-items:center; }
-    .pill{
-      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000; font-weight:800; border:none; border-radius:999px;
-      padding:6px 14px; box-shadow:0 0 18px rgba(255,215,0,.45);
-      cursor:pointer;
+    .search-wrap{
+      position:relative; width:min(92vw, 420px);
+      display:flex; align-items:center; gap:8px;
+      background:rgba(255,255,255,.06);
+      border-radius:18px; padding:6px 10px;
+      box-shadow:0 0 22px rgba(71,245,255,.18), inset 0 0 0 1px rgba(71,245,255,.22);
     }
-    .chip{
-      background:var(--glass); color:#fff; border-radius:999px;
-      backdrop-filter: blur(10px); padding:6px 12px; font-weight:800;
+    .search-wrap input{
+      flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:13px;
+      font-family:inherit;
     }
-    .btn-ghost{
-      background:transparent; color:#fff; border:none; cursor:pointer; font-weight:800;
-      text-shadow:0 1px 0 rgba(255,255,255,.2);
-      padding:6px 8px;
+    .clear-btn{
+      appearance:none; border:none; background:transparent; color:#bfefff; font-weight:800; cursor:pointer;
+      padding:4px 6px; border-radius:8px; display:none;
     }
+    .clear-btn.show{ display:inline-block; }
+    .auto-list{
+      position:absolute; left:0; right:0; top:calc(100% + 8px);
+      background:rgba(10,12,16,.95); border-radius:12px; padding:6px; display:none; z-index:10;
+      box-shadow: 0 16px 42px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    .auto-item{
+      padding:8px 10px; border-radius:10px; font-size:13px; color:#defbff; cursor:pointer;
+    }
+    .auto-item:hover{ background:rgba(255,255,255,.06); }
 
-    /* Search (center top) */
-    .search{
-      pointer-events:auto; display:flex; align-items:center; gap:8px; justify-content:center;
-      background: rgba(255,255,255,.08);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
-      padding:8px 10px; border-radius:14px; box-shadow:0 0 20px rgba(255,215,0,.15);
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .search:focus-within{ transform:translateY(-1px); box-shadow:0 0 28px rgba(255,215,0,.28) }
-    .search input{
-      width:min(64vw, 520px);
-      border:none; outline:none; background:transparent; color:#fff;
-      font-family:inherit; font-size:14px;
-    }
-    .search button{
-      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000; border:none; border-radius:10px; padding:8px 10px; cursor:pointer; font-weight:800;
-    }
-
-    /* Results drawer */
-    .results{
-      position:fixed; left:50%; top: calc(var(--top-safe) + 60px);
-      transform: translateX(-50%);
-      width:min(92vw, 760px); max-height: 52dvh; overflow:auto;
-      background: rgba(10,10,14,.9);
-      border-radius:14px; padding:8px; display:none; z-index:6;
-      box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
-    }
-    .res-item{
-      display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px;
-      background: rgba(255,255,255,.03);
-      margin:6px 0;
-    }
-    .res-item:hover{ background: rgba(255,255,255,.06) }
-    .res-flag{ width:22px; height:14px; object-fit:cover; border-radius:3px; }
-    .res-meta{ display:grid; gap:4px; }
-    .res-handle{ font-weight:800; font-size:13px }
-    .res-sub{ color:var(--muted); font-size:12px }
-    .res-cta{
-      margin-left:auto;
-      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000; border:none; border-radius:10px; padding:8px 10px; cursor:pointer; font-weight:800;
-    }
-
-    /* Views */
-    .views{ position:relative; overflow:hidden; }
-    .view{ position:absolute; inset:0; display:none; }
-    .view.active{ display:grid; grid-template-rows: 1fr; }
-
-    /* FEED (scrollable list of live battles) */
-    .feed{
-      height:100%;
-      overflow-y:auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 6px clamp(12px,3vw,22px);
-      display:grid; gap:12px;
-    }
+    /* FEED */
+    .feed{ display:grid; gap:14px; margin-top:10px; }
     .card{
       background: var(--glass-2);
-      border-radius:16px; padding:10px;
-      -webkit-backdrop-filter: blur(12px);
-      backdrop-filter: blur(12px);
+      border-radius:16px; padding:12px;
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
       box-shadow: 0 14px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
     }
-    .card-head{
-      display:flex; align-items:center; gap:10px; margin-bottom:8px;
-    }
-    .flag{ width:20px; height:14px; border-radius:3px; object-fit:cover }
-    .title{ font-weight:800; font-size:14px }
-    .sub{ color:var(--muted); font-size:12px }
-
     .split{
-      position:relative; display:grid; grid-template-columns:1fr 1fr; gap:6px; min-height:0;
-      border-radius:12px; overflow:hidden;
+      display:grid; grid-template-columns:1fr 1fr; gap:8px; border-radius:12px; overflow:hidden;
     }
-    .pane{ position:relative; overflow:hidden; min-height: 30dvh; }
-    .pane video{
-      width:100%; height:100%; object-fit:cover; display:block; background:#000;
-      filter: brightness(.96) contrast(1.08) saturate(1.06);
-    }
-    .pane::after{
-      content:""; position:absolute; inset:0; pointer-events:none;
-      background:
-        linear-gradient(to right, rgba(255,255,255,.04), transparent 20% 80%, rgba(255,255,255,.04)),
-        radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.06), transparent 70%),
-        radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.05), transparent 70%);
-      mix-blend-mode:screen;
-    }
+    .pane{ position:relative; min-height: 38dvh; background:#000; border-radius:12px; overflow:hidden; }
+    @media (max-width:700px){ .pane{ min-height: 42dvh } }
+    .pane video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; }
 
-    .underbar{
-      margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    /* OVERLAYS: avatar + flag badge + rank badge */
+    .overlay{
+      position:absolute; left:10px; top:10px; display:flex; align-items:center; gap:8px; z-index:2;
     }
-    .btn{
-      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000; font-weight:800; border:none; border-radius:12px; padding:10px 14px; cursor:pointer;
-      box-shadow:0 0 16px rgba(255,215,0,.35);
+    .avatar{
+      position:relative; width:48px; height:48px; border-radius:50%; overflow:hidden;
+      box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 10px rgba(255,255,255,.08);
+      background:#111;
     }
-    .ghost{
-      background:transparent; color:#fff; border:none; font-weight:800; cursor:pointer;
-      padding:8px 10px;
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .flag-badge{
+      position:absolute; right:-2px; bottom:-2px; width:18px; height:12px; border-radius:3px; object-fit:cover;
+      box-shadow:0 0 8px rgba(0,0,0,.5);
+      border:1px solid rgba(255,255,255,.6);
+      background:#000;
     }
-    .timer-chip{
-      background:rgba(0,0,0,.5); padding:8px 12px; border-radius:999px; font-weight:800; font-size:12px;
+    .name{
+      font-weight:800; font-size:13px; letter-spacing:.2px; text-shadow:0 2px 6px rgba(0,0,0,.5);
     }
+    .rank-row{
+      position:absolute; left:10px; top:64px; display:flex; gap:6px; z-index:2;
+    }
+    .rank-badge{
+      min-width:22px; height:22px; border-radius:999px; display:grid; place-items:center;
+      font-size:11px; font-weight:800; color:#000;
+      background:linear-gradient(180deg,#fff1a8,#ffd700);
+      box-shadow:0 0 10px rgba(255,215,0,.35), inset 0 0 0 1px rgba(0,0,0,.15);
+    }
+    .rank-badge.silver{ background:linear-gradient(180deg,#fafafa,#cfcfcf) }
+    .rank-badge.bronze{ background:linear-gradient(180deg,#ffd7b0,#c8903c) }
 
-    /* LIVE VIEW (SPA full view) */
-    .live-wrap{
-      position:relative; display:grid; grid-template-rows: 1fr auto; gap:8px;
-      padding: 6px clamp(12px,3vw,22px);
+    /* VOTE BUTTONS under each panel */
+    .panel-actions{
+      margin-top:8px; display:flex; gap:8px; justify-content:space-between;
     }
-    .live-split{
-      position:relative; display:grid; grid-template-columns:1fr 1fr; gap:6px; min-height:0;
-      border-radius:14px; overflow:hidden;
+    .pill{
+      flex:1; border:none; cursor:pointer; border-radius:12px; padding:10px 12px; font-weight:800;
+      background: linear-gradient(180deg, rgba(255,83,225,.18), rgba(159,123,255,.18));
+      color:#fff; box-shadow: inset 0 0 0 1px rgba(255,83,225,.45), 0 0 14px rgba(159,123,255,.18);
     }
-    .live-pane{ position:relative; overflow:hidden; min-height: 44dvh; }
-    .live-pane video{ width:100%; height:100%; object-fit:cover; background:#000; }
-    .live-pane.inactive::before{
-      content:""; position:absolute; inset:0; background:rgba(0,0,0,.32); z-index:2; backdrop-filter: blur(1.5px);
-    }
-    .mid-timer{
-      position:absolute; left:50%; top:10px; transform:translateX(-50%);
-      background:var(--glass); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
-      padding:8px 14px; border-radius:999px; font-weight:800; font-size:13px; z-index:5;
-    }
-    .vote-bar{
-      display:flex; justify-content:center; gap:10px; padding:4px 0 2px;
-    }
+    .pill:hover{ filter:brightness(1.08) }
 
-    /* Bottom shapes (match Arena) */
-    .bottom{
-      display:flex; align-items:center; justify-content:center; gap:22px;
-      padding: 8px clamp(12px,3vw,22px) calc(var(--bottom-safe) + 8px);
+    /* CARD ACTIONS (visible) */
+    .actions{
+      margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
     }
+    .a-btn{
+      border:none; border-radius:999px; padding:8px 12px; cursor:pointer; font-weight:800; font-size:12px; color:#000;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .a-share{ background: linear-gradient(180deg,#c8f6ff,#47f5ff) }
+    .a-comment{ background: linear-gradient(180deg,#ffd4ff,#ff53e1) }
+    .a-mute{ background: linear-gradient(180deg,#f2f2f2,#c7c7c7) }
+    .a-flag{ background: linear-gradient(180deg,#ffc2cf,#ff4c6a) }
+    .a-btn span{ color:#111 }
+
+    /* TITLE/INFO ROW */
+    .info{
+      display:flex; align-items:center; justify-content:space-between; margin-top:10px;
+    }
+    .meta{
+      display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px;
+    }
+    .meta .flag{ width:18px; height:12px; border-radius:3px; object-fit:cover; border:1px solid rgba(255,255,255,.6) }
+
+    /* SIDEBARS: Arena-style icons */
+    nav.side{
+      position:fixed; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:20px; z-index:6;
+    }
+    nav.side.left{ left:16px }
+    nav.side.right{ right:16px }
     .shape{
-      appearance:none; background:transparent; border:none; padding:0;
-      width:28px; height:28px; display:grid; place-items:center; cursor:pointer;
+      background:none; border:none; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center;
       filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
       transition: transform .18s ease, filter .18s ease;
-      touch-action: manipulation;
     }
     .shape:active{ transform: scale(.96) }
     .shape:hover{ transform:translateY(-2px) scale(1.06); filter:brightness(1.08); }
-    .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
-    .shape.gold svg{ stroke:url(#goldStroke); }
+    .shape svg{ width:100%; height:100%; fill:none; }
+    .strokeline{ stroke: var(--gold); stroke-width:2.2; }
+    .shape.logout .strokeline{ stroke:#ff4c4c }
 
-    /* Mobile tweaks */
-    @media (max-width: 900px){
-      .search input{ width:min(72vw,520px) }
-      .pane{ min-height: 32dvh }
-      .live-pane{ min-height: 46dvh }
-      .shape{ width:26px; height:26px }
+    /* Bottom-center triangle */
+    .center-triangle{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6 }
+
+    @media (max-width: 600px){
+      .live-container{ padding-left:50px; padding-right:50px }
+      .shape{ width:30px; height:30px }
     }
+
+    /* EMPTY STATE */
+    .empty{ text-align:center; color:#e8e8e8; opacity:.85; padding:18px 0 6px; font-size:13px }
   </style>
 </head>
 <body>
-  <!-- Gold stroke for icons -->
-  <svg width="0" height="0" style="position:absolute">
-    <defs>
-      <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#fff4b0"/>
-        <stop offset="60%" stop-color="#ffd700"/>
-        <stop offset="100%" stop-color="#ffbf2e"/>
-      </linearGradient>
-    </defs>
-  </svg>
+  <!-- Background explosions -->
+  <canvas id="bg3d" aria-hidden="true"></canvas>
 
-  <!-- Ambient -->
-  <div class="depth-stage" aria-hidden="true">
-    <div class="layer-nebula"></div>
-    <div class="layer-stars"></div>
+  <div class="live-container">
+    <!-- Top: Search -->
+    <div class="top-bar">
+      <div class="search-wrap" role="search">
+        <input id="searchInput" type="text" inputmode="search" placeholder="Search battles by country or city…" autocomplete="off"/>
+        <button id="clearBtn" class="clear-btn" aria-label="Clear search">✖</button>
+        <div id="autoList" class="auto-list" role="listbox" aria-label="Suggestions"></div>
+      </div>
+    </div>
+
+    <!-- FEED -->
+    <section id="feed" class="feed" aria-label="Live Battles Feed"><!-- cards injected --></section>
+    <div id="emptyMsg" class="empty" style="display:none">No battles found</div>
   </div>
 
-  <div class="app" role="application">
-    <!-- TOP BAR -->
-    <header class="top">
-      <div class="hud-left">
-        <button id="livePill" class="pill">LIVE</button>
-        <div id="viewerChip" class="chip">👁 0</div>
-      </div>
+  <!-- LEFT side (circle over square) -->
+  <nav class="side left" aria-label="Left sidebar">
+    <button class="shape" data-link="home.html" title="Home" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
+    </button>
+    <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
+    </button>
+  </nav>
 
-      <div class="search" id="searchBox" role="search">
-        <input id="searchInput" type="text" inputmode="search" placeholder="Search battles by country, city, or region… (e.g., Japan, Paris, West Coast)" autocomplete="off"/>
-        <button id="searchBtn">Search</button>
-      </div>
+  <!-- RIGHT side (diamond over X) -->
+  <nav class="side right" aria-label="Right sidebar">
+    <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
+    </button>
+    <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+        <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+  </nav>
 
-      <div class="hud-right">
-        <button id="shareBtn" class="btn-ghost">Share</button>
-        <button id="muteAllBtn" class="btn-ghost" aria-pressed="false">Mute</button>
-      </div>
-
-      <!-- Global results drawer -->
-      <div class="results" id="resultsDrawer" role="listbox" aria-label="Search results"></div>
-    </header>
-
-    <!-- VIEWS -->
-    <main class="views">
-      <!-- FEED VIEW (default, scrollable without visible bars) -->
-      <section id="view-feed" class="view active" aria-label="Live Battles Feed">
-        <div id="feed" class="feed" tabindex="0"><!-- cards injected by JS --></div>
-      </section>
-
-      <!-- LIVE VIEW (single battle, still SPA) -->
-      <section id="view-live" class="view" aria-label="Live Battle">
-        <div class="live-wrap">
-          <div class="mid-timer" id="liveTimer">Loading…</div>
-          <div class="live-split">
-            <div class="live-pane" id="lpA">
-              <video id="liveA" autoplay playsinline muted></video>
-            </div>
-            <div class="live-pane" id="lpB">
-              <video id="liveB" autoplay playsinline muted></video>
-            </div>
-          </div>
-          <div class="vote-bar">
-            <button id="voteA" class="btn">Vote A</button>
-            <button id="voteB" class="btn">Vote B</button>
-            <button id="backToFeed" class="ghost">← Back</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- LEADERBOARD -->
-      <section id="view-board" class="view" aria-label="Leaderboard">
-        <div class="feed" id="boardList">
-          <div class="card"><div class="title">🏆 Leaderboard</div><div class="sub">Live ranks update in real-time</div></div>
-          <div class="card"><div class="title">1) @Nova — 12,430 pts</div><div class="sub">United States</div></div>
-          <div class="card"><div class="title">2) @Kiro — 12,420 pts</div><div class="sub">Japan</div></div>
-          <div class="card"><div class="title">3) @Ari — 12,100 pts</div><div class="sub">France</div></div>
-        </div>
-      </section>
-
-      <!-- DISCOVER -->
-      <section id="view-discover" class="view" aria-label="Discover">
-        <div class="feed" id="discoverList">
-          <div class="card"><div class="title">🔎 Discover</div><div class="sub">New regions, trending tags, fresh matchups</div></div>
-          <div class="card"><div class="title">Trending · Southeast Asia</div><div class="sub">#DoubleTime · #Freestyle</div></div>
-          <div class="card"><div class="title">Rising · South America</div><div class="sub">@Sol vs @Vento</div></div>
-        </div>
-      </section>
-
-      <!-- PROFILE -->
-      <section id="view-profile" class="view" aria-label="Profile">
-        <div class="feed" id="profileView">
-          <div class="card"><div class="title">👤 Your Profile</div><div class="sub">Battles you’ve watched will appear here soon.</div></div>
-        </div>
-      </section>
-    </main>
-
-    <!-- BOTTOM NAV (shapes, same everywhere like Arena) -->
-    <footer class="bottom" aria-label="Navigation">
-      <!-- Circle = Home/Feed -->
-      <button class="shape gold" data-nav="feed" title="Home" aria-label="Home">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-      </button>
-      <!-- Square = Leaderboard -->
-      <button class="shape" data-nav="board" title="Leaderboard" aria-label="Leaderboard">
-        <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-      </button>
-      <!-- Diamond = Discover -->
-      <button class="shape gold" data-nav="discover" title="Discover" aria-label="Discover">
-        <svg viewBox="0 0 24 24"><polygon points="12,4 20,12 12,20 4,12"/></svg>
-      </button>
-      <!-- Triangle = Live -->
-      <button class="shape" data-nav="live" title="Live" aria-label="Live">
-        <svg viewBox="0 0 24 24"><polygon points="12,5 20,19 4,19"/></svg>
-      </button>
-      <!-- Profile glyph -->
-      <button class="shape" data-nav="profile" title="Profile" aria-label="Profile">
-        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4 0-8 2-8 5 0 1 0 1 0 1h16s0 0 0-1c0-3-4-5-8-5Z"/></svg>
-      </button>
-    </footer>
+  <!-- Bottom-center triangle -->
+  <div class="center-triangle">
+    <button class="shape" id="uploadBeatOpen" title="Upload Beat" aria-label="Upload Beat">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
+    </button>
   </div>
 
-  <script type="module">
-    /**
-     * MOBILE-FIRST SPA
-     *  - No visible scrollbars (feed still scrolls smoothly with momentum)
-     *  - Uses 100dvh + safe-area paddings to avoid iOS browser chrome jumps
-     *  - IntersectionObserver pauses offscreen feed videos (battery-friendly)
-     *  - Autoplay policy safe: all videos start muted; "Mute" toggles globally
-     *  - Ready for real backend:
-     *      • Replace demoBattles + populateFeed() with Firestore live query.
-     *      • Wire SFU (LiveKit/Agora/etc.) into openLive()/joinRoom().
-     *      • Wire votes via Callable Cloud Functions.
-     */
+  <!-- Three.js -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+    /***********************
+     * REGION COLOR MAPPING
+     ***********************/
+    const REGION_COLORS = {
+      ASIA:   { c1: 0xff3b3b, c2: 0xff7a7a },      // reds
+      AFRICA: { c1: 0x1ad67b, c2: 0x6df0a9 },      // greens
+      NA:     { c1: 0x4cb6ff, c2: 0x9dd7ff },      // blues
+      EUROPE: { c1: 0x9f7bff, c2: 0xd0c2ff },      // purples
+      SA:     { c1: 0xff8c3a, c2: 0xffc28f },      // oranges
+      OCE:    { c1: 0x42f9ff, c2: 0xaefbff },      // cyans
+    };
+    // quick country->region map (extend as needed)
+    const COUNTRY_REGION = {
+      US:'NA', CA:'NA', MX:'NA',
+      JP:'ASIA', CN:'ASIA', KR:'ASIA', IN:'ASIA',
+      NG:'AFRICA', ZA:'AFRICA', EG:'AFRICA',
+      FR:'EUROPE', DE:'EUROPE', IT:'EUROPE', GB:'EUROPE', ES:'EUROPE',
+      BR:'SA', AR:'SA', CL:'SA', CO:'SA', PE:'SA',
+      AU:'OCE', NZ:'OCE'
+    };
 
-    /* =========================
-       Demo data (replace later)
-       ========================= */
+    /***********************
+     * DEMO BATTLES
+     ***********************/
     const demoBattles = [
       {
-        id:'b1', liveRoomId:'', createdAt:Date.now()-1000*60*3,
-        a:{handle:'@Nova', country:'United States', flagUrl:'flag_us.png', video:'user2.mp4'},
-        b:{handle:'@Kiro', country:'Japan', flagUrl:'flag_jp.png', video:'user3.mp4'},
-        region:'North America', area:'West Coast', status:'live', round:1, part:0, endsIn:33
+        id:'b1',
+        a:{handle:'@Nova',  avatar:'user2.jpg', flag:'flag_jp.png', country:'JP', video:'user2.mp4', rank:1},
+        b:{handle:'@Kiro',  avatar:'user3.jpg', flag:'flag_us.png', country:'US', video:'user3.mp4', rank:4},
+        location:'Tokyo, Japan'
       },
       {
-        id:'b2', liveRoomId:'', createdAt:Date.now()-1000*60*6,
-        a:{handle:'@Ari', country:'France', flagUrl:'flag_fr.png', video:'user4.mp4'},
-        b:{handle:'@Zed', country:'Brazil', flagUrl:'flag_br.png', video:'user3.mp4'},
-        region:'Europe', area:'Paris', status:'live', round:2, part:1, endsIn:28
+        id:'b2',
+        a:{handle:'@Ari',   avatar:'user4.jpg', flag:'flag_fr.png', country:'FR', video:'user4.mp4', rank:2},
+        b:{handle:'@Zed',   avatar:'user3.jpg', flag:'flag_br.png', country:'BR', video:'user3.mp4', rank:12},
+        location:'Paris, France'
       },
       {
-        id:'b3', liveRoomId:'', createdAt:Date.now()-1000*60*9,
-        a:{handle:'@Sol', country:'Japan', flagUrl:'flag_jp.png', video:'user2.mp4'},
-        b:{handle:'@Vento', country:'Italy', flagUrl:'flag_it.png', video:'user4.mp4'},
-        region:'Asia', area:'Tokyo', status:'live', round:3, part:0, endsIn:19
+        id:'b3',
+        a:{handle:'@Sol',   avatar:'user2.jpg', flag:'flag_jp.png', country:'JP', video:'user2.mp4', rank:7},
+        b:{handle:'@Vento', avatar:'user4.jpg', flag:'flag_it.png', country:'IT', video:'user4.mp4', rank:9},
+        location:'Rome, Italy'
+      },
+      {
+        id:'b4',
+        a:{handle:'@Rico',  avatar:'user4.jpg', flag:'flag_br.png', country:'BR', video:'user4.mp4', rank:3},
+        b:{handle:'@Lyra',  avatar:'user3.jpg', flag:'flag_ca.png', country:'CA', video:'user3.mp4', rank:5},
+        location:'Toronto, Canada'
       }
     ];
 
-    /* ========== Helpers ========== */
-    const $  = (q)=>document.querySelector(q);
-    const $$ = (q)=>document.querySelectorAll(q);
-    const byId = (id)=>document.getElementById(id);
+    /***********************
+     * BUILD FEED CARDS
+     ***********************/
+    const feedEl = document.getElementById('feed');
+    const emptyMsg = document.getElementById('emptyMsg');
 
-    // iOS viewport safety: recalc 100dvh-like height when toolbars change
-    const appRoot = $('.app');
-    function lockViewportHeight(){
-      appRoot.style.height = window.innerHeight + 'px';
+    function rankBadge(rank){
+      if(rank == null || rank > 9) return '';
+      const cls = rank===1 ? '' : (rank<=3 ? 'silver' : 'bronze');
+      return `<div class="rank-badge ${cls}">${rank}</div>`;
     }
-    window.addEventListener('resize', lockViewportHeight, {passive:true});
-    window.addEventListener('orientationchange', ()=> setTimeout(lockViewportHeight, 250), {passive:true});
-    lockViewportHeight();
-
-    // prevent iOS rubber-band bounce
-    document.addEventListener('touchmove', (e)=>{
-      // allow only if target is inside a scrollable container (.feed)
-      const scroller = e.target.closest('.feed');
-      if(!scroller) e.preventDefault();
-    }, {passive:false});
-
-    /* ========== Views & Nav ========== */
-    const views = {
-      feed: byId('view-feed'),
-      live: byId('view-live'),
-      board: byId('view-board'),
-      discover: byId('view-discover'),
-      profile: byId('view-profile'),
-    };
-    function showView(name){
-      Object.values(views).forEach(v=>v.classList.remove('active'));
-      views[name].classList.add('active');
-
-      // Pause media appropriately
-      if(name!=='feed'){ pauseFeedMedia(); }
-      if(name!=='live'){ stopLiveMedia(); }
-    }
-
-    // Bottom nav
-    $$('footer .shape').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const dest = btn.dataset.nav;
-        if(dest==='live'){
-          if(!currentLive){ openLive(demoBattles[0].id); } else { showView('live'); }
-        }else{
-          showView(dest);
-        }
-      });
-    });
-    byId('backToFeed').addEventListener('click', ()=>{
-      bumpViewers(-1);
-      showView('feed');
-    });
-
-    /* ========== FEED population ========== */
-    const feedEl = byId('feed');
 
     function makeCard(b){
-      const aId = `va-${b.id}`;
-      const bId = `vb-${b.id}`;
-      const timerId = `tm-${b.id}`;
+      // Determine regions for explosion colors (used by background engine too)
+      const regionA = COUNTRY_REGION[b.a.country] || 'NA';
+      const regionB = COUNTRY_REGION[b.b.country] || regionA;
 
-      const el = document.createElement('div');
-      el.className='card';
-      el.innerHTML = `
-        <div class="card-head">
-          <img class="flag" src="${b.a.flagUrl||'flag_us.png'}" alt="">
-          <div>
-            <div class="title">${b.a.handle} vs ${b.b.handle}</div>
-            <div class="sub">${b.a.country} · ${b.region}${b.area?(' · '+b.area):''}</div>
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.dataset.location = (b.location||'').toLowerCase();
+      card.dataset.regionA = regionA;
+      card.dataset.regionB = regionB;
+
+      card.innerHTML = `
+        <div class="split">
+          <!-- LEFT PANE (A) -->
+          <div class="pane">
+            <video playsinline muted loop preload="metadata" src="${b.a.video}"></video>
+
+            <div class="overlay">
+              <div class="avatar">
+                <img src="${b.a.avatar}" alt="${b.a.handle}">
+                <img class="flag-badge" src="${b.a.flag}" alt="">
+              </div>
+              <div class="name">${b.a.handle}</div>
+            </div>
+            <div class="rank-row">
+              ${rankBadge(b.a.rank)}
+            </div>
+
+            <div class="panel-actions">
+              <button class="pill" data-vid="A" data-act="voteA">Vote A</button>
+            </div>
+          </div>
+
+          <!-- RIGHT PANE (B) -->
+          <div class="pane">
+            <video playsinline muted loop preload="metadata" src="${b.b.video}"></video>
+
+            <div class="overlay">
+              <div class="avatar">
+                <img src="${b.b.avatar}" alt="${b.b.handle}">
+                <img class="flag-badge" src="${b.b.flag}" alt="">
+              </div>
+              <div class="name">${b.b.handle}</div>
+            </div>
+            <div class="rank-row">
+              ${rankBadge(b.b.rank)}
+            </div>
+
+            <div class="panel-actions">
+              <button class="pill" data-vid="B" data-act="voteB">Vote B</button>
+            </div>
           </div>
         </div>
-        <div class="split">
-          <div class="pane"><video id="${aId}" playsinline muted loop preload="metadata"></video></div>
-          <div class="pane"><video id="${bId}" playsinline muted loop preload="metadata"></video></div>
+
+        <div class="info">
+          <div class="meta">
+            <!-- show flags only (no country text) -->
+            <img class="flag" src="${b.a.flag}" alt="">
+            <span>vs</span>
+            <img class="flag" src="${b.b.flag}" alt="">
+          </div>
+          <div class="meta">
+            <span>Live now</span>
+          </div>
         </div>
-        <div class="underbar">
-          <span class="timer-chip" id="${timerId}">Round ${b.round}/3 · ${b.part===0?'A':'B'} · ${b.endsIn}s</span>
-          <button class="btn" data-action="watch" data-battle="${b.id}">Watch</button>
-          <button class="btn" data-action="voteA" data-battle="${b.id}">Vote A</button>
-          <button class="btn" data-action="voteB" data-battle="${b.id}">Vote B</button>
-          <button class="ghost" data-action="share" data-battle="${b.id}">Share</button>
+
+        <div class="actions">
+          <button class="a-btn a-share"  data-act="share"  data-id="${b.id}">🔗 <span>Share</span></button>
+          <button class="a-btn a-comment" data-act="comment" data-id="${b.id}">💬 <span>Comment</span></button>
+          <button class="a-btn a-mute"   data-act="mute"   data-id="${b.id}">🔇 <span>Mute</span></button>
+          <button class="a-btn a-flag"   data-act="flag"   data-id="${b.id}">🚩 <span>Flag</span></button>
         </div>
       `;
 
-      // attach preview media (deferred actual play: IntersectionObserver)
-          const vA = el.querySelector('#'+aId);
-      const vB = el.querySelector('#'+bId);
-      vA.src = b.a.video; vB.src = b.b.video;
-      vA.playsInline = vB.playsInline = true;
-
-      // timer
-      startCardCountdown(timerId, b);
-
-      // Observe for autoplay when visible
-      previewObserver.observe(vA);
-      previewObserver.observe(vB);
-
-      return el;
+      // auto play previews when visible
+      observeVideo(card.querySelectorAll('video'));
+      // attach action handlers
+      card.querySelectorAll('[data-act]').forEach(btn=>{
+        btn.addEventListener('click', ()=> onCardAction(btn, card));
+      });
+      return card;
     }
 
-    function populateFeed(){
+    function populateFeed(list){
       feedEl.innerHTML = '';
-      demoBattles
-        .sort((x,y)=> y.createdAt - x.createdAt)
-        .forEach(b=> feedEl.appendChild(makeCard(b)));
+      list.forEach(b=> feedEl.appendChild(makeCard(b)));
+      emptyMsg.style.display = list.length ? 'none' : 'block';
     }
 
-    // IntersectionObserver to only play visible preview videos
+    /***********************
+     * SEARCH + AUTOCOMPLETE
+     ***********************/
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const autoList = document.getElementById('autoList');
+
+    const SUGGESTIONS = [
+      'Tokyo, Japan','Osaka, Japan','New York, USA','Los Angeles, USA','Paris, France','Rome, Italy',
+      'Toronto, Canada','São Paulo, Brazil','Seoul, South Korea','Lagos, Nigeria','Berlin, Germany'
+    ];
+
+    function applyFilter(term){
+      const t = (term||'').toLowerCase().trim();
+      const cards = Array.from(feedEl.children);
+      let shown = 0;
+      if(!t){
+        cards.forEach(c=> c.style.display='');
+        shown = cards.length;
+      }else{
+        cards.forEach(c=>{
+          const loc = c.dataset.location || '';
+          // partial + exact supported
+          c.style.display = (loc.includes(t) || t.includes(loc)) ? '' : 'none';
+          if(c.style.display!=='none') shown++;
+        });
+      }
+      emptyMsg.style.display = shown ? 'none' : 'block';
+    }
+
+    function updateAutocomplete(term){
+      const t = (term||'').toLowerCase().trim();
+      autoList.innerHTML = '';
+      if(!t){ autoList.style.display='none'; return; }
+      const matches = SUGGESTIONS.filter(s=> s.toLowerCase().includes(t)).slice(0,8);
+      if(!matches.length){ autoList.style.display='none'; return; }
+      matches.forEach(m=>{
+        const div = document.createElement('div');
+        div.className='auto-item';
+        div.textContent = m;
+        div.addEventListener('click', ()=>{
+          searchInput.value = m;
+          clearBtn.classList.add('show');
+          autoList.style.display='none';
+          applyFilter(m);
+        });
+        autoList.appendChild(div);
+      });
+      autoList.style.display='block';
+    }
+
+    searchInput.addEventListener('input', ()=>{
+      const v = searchInput.value;
+      clearBtn.classList.toggle('show', !!v.length);
+      updateAutocomplete(v);
+      applyFilter(v);
+    });
+    clearBtn.addEventListener('click', ()=>{
+      searchInput.value=''; clearBtn.classList.remove('show'); autoList.style.display='none';
+      applyFilter('');
+    });
+    document.addEventListener('click', (e)=>{
+      if(!autoList.contains(e.target) && !e.target.isSameNode(searchInput)){
+        autoList.style.display='none';
+      }
+    });
+
+    /***********************
+     * VIDEO OBSERVER
+     ***********************/
     const previewObserver = new IntersectionObserver((entries)=>{
       entries.forEach(async (entry)=>{
         const vid = entry.target;
@@ -520,240 +478,286 @@
           try{ vid.pause(); }catch{}
         }
       });
-    }, { root: feedEl, threshold: 0.35 });
+    }, { root: null, threshold: 0.4 });
 
-    function pauseFeedMedia(){
-      previewObserver.disconnect();
-      feedEl.querySelectorAll('video').forEach(v=>{ try{ v.pause(); }catch{} });
-      // stop timers
-      cardTimers.forEach((raf,id)=> cancelAnimationFrame(raf));
-      cardTimers.clear();
+    function observeVideo(nodeList){
+      nodeList.forEach(v=> previewObserver.observe(v));
     }
 
-    /* ========== Per-card accurate countdown ========== */
-    const cardTimers = new Map();
-    function startCardCountdown(timerId, battle){
-      stopCardCountdown(timerId);
-      const endAt = Date.now() + (battle.endsIn*1000);
-      const tick = ()=>{
-        const ms = Math.max(0, endAt - Date.now());
-        const s  = Math.ceil(ms/1000);
-        const el = byId(timerId);
-        if(!el){ cancelAnimationFrame(cardTimers.get(timerId)); return; }
-        el.textContent = `Round ${battle.round}/3 · ${battle.part===0?'A':'B'} · ${s}s`;
-        if(ms<=0){ return; }
-        const raf = requestAnimationFrame(tick);
-        cardTimers.set(timerId, raf);
-      };
-      cardTimers.set(timerId, requestAnimationFrame(tick));
-    }
-    function stopCardCountdown(timerId){
-      if(cardTimers.has(timerId)){ cancelAnimationFrame(cardTimers.get(timerId)); cardTimers.delete(timerId); }
-    }
-
-    /* ========== LIVE view (SPA) ========== */
-    let currentLive = null;
-    const liveA = byId('liveA');
-    const liveB = byId('liveB');
-    const lpA  = byId('lpA');
-    const lpB  = byId('lpB');
-    const liveTimer = byId('liveTimer');
-    let liveRAF = 0;
-
-    function openLive(battleId){
-      const b = demoBattles.find(x=>x.id===battleId);
-      if(!b) return;
-      currentLive = { ...b, endAt: Date.now() + (b.endsIn*1000) };
-
-      // Attach media (replace with SFU attach in prod)
-      liveA.src = b.a.video; liveB.src = b.b.video;
-      liveA.playsInline = liveB.playsInline = true;
-      Promise.allSettled([liveA.play(), liveB.play()]);
-
-      updateLiveTurnUI();
-      startLiveCountdown();
-      bumpViewers(+1);
-      showView('live');
-    }
-    function updateLiveTurnUI(){
-      if(!currentLive) return;
-      if(currentLive.part===0){ lpA.classList.remove('inactive'); lpB.classList.add('inactive'); }
-      else{ lpA.classList.add('inactive'); lpB.classList.remove('inactive'); }
-    }
-    function startLiveCountdown(){
-      cancelAnimationFrame(liveRAF);
-      const tick = ()=>{
-        if(!currentLive){ return; }
-        const ms = Math.max(0, currentLive.endAt - Date.now());
-        const s  = Math.ceil(ms/1000);
-        liveTimer.textContent = `Round ${currentLive.round}/3 · ${currentLive.part===0?'A':'B'} · ${s}s`;
-        if(ms<=0){ return; }
-        liveRAF = requestAnimationFrame(tick);
-      };
-      liveRAF = requestAnimationFrame(tick);
-    }
-    function stopLiveMedia(){
-      try{ liveA.pause(); liveB.pause(); }catch{}
-      cancelAnimationFrame(liveRAF); liveRAF = 0;
-    }
-
-    // Feed actions
-    feedEl.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button');
-      if(!btn) return;
-      const action = btn.dataset.action;
-      const bid = btn.dataset.battle;
-      if(!action || !bid) return;
-
-      if(action==='watch'){
-        openLive(bid);
-      }else if(action==='voteA'){
-        // TODO: call your callable function castVote({ battleId: bid, side:'a' })
-        toast('Vote for A sent');
-      }else if(action==='voteB'){
-        // TODO: call your callable function castVote({ battleId: bid, side:'b' })
-        toast('Vote for B sent');
-      }else if(action==='share'){
-        shareLink(bid);
+    /***********************
+     * CARD ACTIONS
+     ***********************/
+    async function onCardAction(btn, card){
+      const act = btn.dataset.act;
+      if(act==='share'){
+        const id = btn.dataset.id;
+        const url = `${location.origin}${location.pathname}#watch=${encodeURIComponent(id)}`;
+        try{
+          if(navigator.share){ await navigator.share({title:'BattleBillions', text:'Pull up to this battle', url}); }
+          else{ await navigator.clipboard.writeText(url); toast('Link copied'); }
+        }catch{}
+      }else if(act==='comment'){
+        toast('Comments coming soon');
+      }else if(act==='mute'){
+        const vids = card.querySelectorAll('video');
+        const currentlyMuted = vids[0]?.muted !== false ? true : vids[0].muted;
+        const newState = !currentlyMuted;
+        vids.forEach(v=> v.muted = newState);
+        toast(newState ? 'Muted' : 'Unmuted');
+      }else if(act==='flag'){
+        toast('Flag submitted');
+      }else if(act==='voteA'){
+        toast('Voted A');
+      }else if(act==='voteB'){
+        toast('Voted B');
       }
-    });
-
-    /* ========== Global search (client filter demo) ========== */
-    const resultsDrawer = byId('resultsDrawer');
-    const searchInput = byId('searchInput');
-
-    function normalize(s){ return (s||'').toString().toLowerCase(); }
-    function renderResults(list){
-      const open = list && list.length;
-      resultsDrawer.style.display = open ? 'block' : 'none';
-      resultsDrawer.innerHTML = (list||[]).map(b=>{
-        const A = b.a || {};
-        const B = b.b || {};
-        const ctry = (A.country || '—');
-        const flag = (A.flagUrl || 'flag_us.png');
-        const loc = b.area || b.region || ctry;
-        return `
-          <div class="res-item" role="option">
-            <img class="res-flag" src="${flag}" alt="">
-            <div class="res-meta">
-              <div class="res-handle">${A.handle || '@A'} vs ${(B.handle || '@B')}</div>
-              <div class="res-sub">${ctry}${loc && loc!==ctry ? ' · '+loc : ''}</div>
-            </div>
-            <button class="res-cta" data-watch="${b.id}">Watch</button>
-          </div>
-        `;
-      }).join('');
-      resultsDrawer.querySelectorAll('[data-watch]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const id = btn.dataset.watch;
-          resultsDrawer.style.display='none';
-          openLive(id);
-        });
-      });
     }
-    function applySearch(term){
-      const t = normalize(term);
-      if(!t){ resultsDrawer.style.display='none'; resultsDrawer.innerHTML=''; return; }
-      const res = demoBattles.filter(b=>{
-        const A = b.a||{}, B=b.b||{};
-        const hay = [A.handle,A.country,b.region,b.area,B.handle,B.country].map(normalize).join(' ');
-        return hay.includes(t) || hay.split(/\s+/).some(w=>w && t.includes(w));
-      });
-      renderResults(res);
-    }
-    byId('searchBtn').addEventListener('click', ()=> applySearch(searchInput.value) );
-    searchInput.addEventListener('input', (e)=>{
-      const v = e.currentTarget.value;
-      if(v.length>=2) applySearch(v); else { resultsDrawer.style.display='none'; resultsDrawer.innerHTML=''; }
-    });
-    document.addEventListener('click', (e)=>{
-      const box = byId('searchBox');
-      if(!box.contains(e.target) && !resultsDrawer.contains(e.target)){
-        resultsDrawer.style.display='none';
-      }
-    });
 
-    /* ========== Share / Mute All / Visibility ========== */
-    async function shareLink(battleId){
-      const url = `${location.origin}${location.pathname}#watch=${encodeURIComponent(battleId)}`;
-      try{
-        if(navigator.share){ await navigator.share({title:'Watch this Battle', text:'Pull up to the BattleBillions live', url}); }
-        else{ await navigator.clipboard.writeText(url); toast('🔗 Link copied'); }
-      }catch{}
-    }
     function toast(msg){
       const el = document.createElement('div');
       el.textContent = msg;
       el.style.position='fixed';
-      el.style.left='50%'; el.style.bottom='calc(var(--bottom-safe) + 20px)';
+      el.style.left='50%'; el.style.bottom='calc(var(--safe-bottom) + 24px)';
       el.style.transform='translateX(-50%)';
-      el.style.background='linear-gradient(180deg,var(--gold-1),var(--gold-2))';
-      el.style.color='#000'; el.style.fontWeight='800';
-      el.style.padding='8px 14px'; el.style.borderRadius='999px';
-      el.style.zIndex='999';
+      el.style.background='rgba(255,255,255,.92)';
+      el.style.color='#111'; el.style.fontWeight='800'; el.style.fontSize='12px';
+      el.style.padding='8px 12px'; el.style.borderRadius='999px';
+      el.style.zIndex='9999'; el.style.boxShadow='0 10px 30px rgba(0,0,0,.35)';
       document.body.appendChild(el);
-      setTimeout(()=> el.remove(), 1400);
+      setTimeout(()=> el.remove(), 1200);
     }
-    const muteAllBtn = byId('muteAllBtn'); let mutedAll = true; // start muted for autoplay
-    function applyMuteAll(){
-      document.querySelectorAll('video').forEach(v=> v.muted = mutedAll);
-      muteAllBtn.setAttribute('aria-pressed', String(mutedAll));
-      muteAllBtn.textContent = mutedAll ? 'Unmute' : 'Mute';
-    }
-    muteAllBtn.addEventListener('click', ()=>{
-      mutedAll = !mutedAll; applyMuteAll();
-      if(!mutedAll){
-        document.querySelectorAll('video').forEach(v=> v.play().catch(()=>{}));
-      }
-    });
-    applyMuteAll();
 
-    document.addEventListener('visibilitychange', ()=>{
-      if(document.hidden){
-        pauseFeedMedia();
-        stopLiveMedia();
-      }else{
-        // resume visible stuff
-        if(views.feed.classList.contains('active')){
-          populateFeed();
-          // reconnect observer on new nodes
-          feedEl.querySelectorAll('video').forEach(v=> previewObserver.observe(v));
-        }else if(views.live.classList.contains('active') && currentLive){
-          Promise.allSettled([liveA.play(), liveB.play()]);
-          startLiveCountdown();
+    /***********************
+     * NAV LINKS
+     ***********************/
+    document.querySelectorAll(".shape[data-link]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
+    });
+
+    /***********************
+     * INIT FEED
+     ***********************/
+    populateFeed(demoBattles);
+
+    /***********************
+     * BACKGROUND EXPLOSIONS
+     * - Continuous, color-coded by regions (randomized mix)
+     * - Dual-colored bursts to emulate cross-country clashes
+     ***********************/
+    (function explosions(){
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const canvas = document.getElementById('bg3d');
+
+      let glok=true;
+      try{
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if(!gl) throw 0;
+      }catch(e){
+        glok=false;
+      }
+      if(!glok) return;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
+      renderer.setClearColor(0x000000, 0);
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x000000, reduced ? 0.0006 : 0.0009);
+
+      let W=window.innerWidth, H=window.innerHeight;
+      const DPR = Math.min(window.devicePixelRatio||1, 1.75);
+      renderer.setPixelRatio(DPR); renderer.setSize(W,H,false);
+
+      const camera = new THREE.PerspectiveCamera(55, W/H, 0.1, 3000);
+      camera.position.set(0,0,140);
+
+      const hemi = new THREE.HemisphereLight(0xaaaaaa, 0x0a0a0a, 0.6);
+      const dir  = new THREE.DirectionalLight(0xffe7a4, 0.5);
+      dir.position.set(60,80,120);
+      scene.add(hemi,dir);
+
+      // particle sprite
+      const particleTex = (()=> {
+        const size = 128;
+        const c = document.createElement('canvas'); c.width=c.height=size;
+        const g = c.getContext('2d');
+        const grad = g.createRadialGradient(size/2,size/2,0, size/2,size/2,size/2);
+        grad.addColorStop(0,'rgba(255,255,255,0.95)');
+        grad.addColorStop(0.35,'rgba(255,255,255,0.35)');
+        grad.addColorStop(1,'rgba(255,255,255,0.0)');
+        g.fillStyle = grad; g.fillRect(0,0,size,size);
+        const tex = new THREE.CanvasTexture(c);
+        tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 1;
+        return tex;
+      })();
+
+      const baseMat = new THREE.PointsMaterial({
+        size: (reduced? 16 : 20),
+        map: particleTex, transparent:true, depthWrite:false,
+        blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
+      });
+
+      const pool=[]; function getPoints(n){
+        for(let i=pool.length-1;i>=0;i--){
+          const p=pool[i], existing=p.geometry.getAttribute('position').count;
+          if(existing>=n){ pool.splice(i,1); p.visible=true; return p; }
+        }
+        const g = new THREE.BufferGeometry();
+        const pos = new Float32Array(n*3);
+        const col = new Float32Array(n*3);
+        const siz = new Float32Array(n);
+        g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+        g.setAttribute('color',    new THREE.BufferAttribute(col,3));
+        g.setAttribute('size',     new THREE.BufferAttribute(siz,1));
+        const m = baseMat.clone();
+        const points = new THREE.Points(g,m); points.frustumCulled=false;
+        return points;
+      }
+      function releasePoints(p){ p.visible=false; pool.push(p); }
+
+      // ring mats created per explosion with chosen colors
+      function ringMaterial(hex, op){ return new THREE.MeshBasicMaterial({ color:hex, transparent:true, opacity:op, blending:THREE.AdditiveBlending, side:THREE.DoubleSide }); }
+
+      const explosions=[];
+      class Explosion{
+        constructor(colorA, colorB){
+          const x = (Math.random()*W - W/2)/6;
+          const y = (Math.random()*H - H/2)/6;
+          const z = Math.random()*(-40) - 10;
+          this.center = new THREE.Vector3(x,y,z);
+
+          const dual = colorB && colorB!==colorA;
+          this.cA = new THREE.Color(colorA);
+          this.cB = new THREE.Color(dual ? colorB : colorA);
+
+          this.life = reduced ? 1.4 : 1.8;
+          this.t=0;
+
+          this.count = (Math.random()*50 + (reduced?80:120))|0;
+          this.points = getPoints(this.count);
+          this.points.position.copy(this.center);
+
+          const g = this.points.geometry;
+          const pos = g.getAttribute('position').array;
+          const col = g.getAttribute('color').array;
+          const siz = g.getAttribute('size').array;
+
+          this.vel = new Float32Array(this.count*3);
+
+          for(let i=0;i<this.count;i++){
+            const dirv = new THREE.Vector3().randomDirection();
+            const speed = (Math.random()*22 + 12);
+            this.vel[i*3+0] = dirv.x*speed;
+            this.vel[i*3+1] = dirv.y*speed;
+            this.vel[i*3+2] = dirv.z*speed;
+
+            pos[i*3+0] = dirv.x*1.6;
+            pos[i*3+1] = dirv.y*1.6;
+            pos[i*3+2] = dirv.z*1.6;
+
+            // color blend across particles for dual color clash
+            const t = Math.random();
+            const c = this.cA.clone().lerp(this.cB, t);
+            col[i*3+0] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
+
+            siz[i] = Math.random()*6 + 10;
+          }
+          g.getAttribute('position').needsUpdate = true;
+          g.getAttribute('color').needsUpdate    = true;
+          g.getAttribute('size').needsUpdate     = true;
+          scene.add(this.points);
+
+          const r1c = this.cA.getHex();
+          const r2c = this.cB.getHex();
+          const ringGeo = new THREE.RingGeometry(6, 7.6, 64);
+          this.ring1 = new THREE.Mesh(ringGeo, ringMaterial(r1c, .85));
+          this.ring2 = new THREE.Mesh(ringGeo, ringMaterial(r2c, .6));
+          this.ring1.position.copy(this.center);
+          this.ring2.position.copy(this.center);
+          this.r1=6; this.r2=6;
+          scene.add(this.ring1,this.ring2);
+        }
+        update(dt){
+          this.t += dt; const f = this.t/this.life;
+          const g = this.points.geometry;
+          const pos = g.getAttribute('position').array;
+          const siz = g.getAttribute('size').array;
+
+          const drag = 1.0 - Math.min(0.05*dt*60, 0.05);
+          for(let i=0;i<this.count;i++){
+            const ix=i*3;
+            pos[ix+0]+=this.vel[ix+0]*dt;
+            pos[ix+1]+=this.vel[ix+1]*dt;
+            pos[ix+2]+=this.vel[ix+2]*dt;
+            this.vel[ix+0]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
+            siz[i]*=(1-dt*0.12); if(siz[i]<6) siz[i]=6;
+          }
+          g.getAttribute('position').needsUpdate = true;
+          g.getAttribute('size').needsUpdate     = true;
+
+          this.r1 += 110*dt; this.r2 += 135*dt;
+          this.ring1.scale.setScalar(this.r1/6);
+          this.ring2.scale.setScalar(this.r2/6);
+          this.ring1.material.opacity = Math.max(0, 0.9 - f*1.3);
+          this.ring2.material.opacity = Math.max(0, 0.7 - f*1.4);
+          this.ring1.lookAt(camera.position);
+          this.ring2.lookAt(camera.position);
+
+          return this.t < this.life;
+        }
+        dispose(){
+          scene.remove(this.points); releasePoints(this.points);
+          scene.remove(this.ring1); scene.remove(this.ring2);
         }
       }
-    });
 
-    // Live viewer count demo
-    const viewerChip = byId('viewerChip');
-    function bumpViewers(delta){
-      const txt = viewerChip.textContent.replace(/[^\d]/g,'');
-      const n = Math.max(0, (parseInt(txt||'0',10) + delta));
-      viewerChip.textContent = `👁 ${n}`;
-    }
+      // schedule
+      const MAX = reduced ? 6 : 12;
+      let prev = performance.now(), lastBlast = prev;
+      const INTERVAL = reduced ? 1500 : 1100;
 
-    /* ========== FEED actions (watch/vote/share) already wired above ========== */
-
-    /* ========== Boot ========== */
-    (function boot(){
-      populateFeed();
-
-      // Deep link to live
-      if(location.hash.startsWith('#watch=')){
-        const id = decodeURIComponent(location.hash.split('=')[1]||'');
-        if(id) openLive(id);
+      function randRegionColor(){
+        const keys = Object.keys(REGION_COLORS);
+        const r = REGION_COLORS[keys[(Math.random()*keys.length)|0]];
+        return [r.c1, r.c2];
       }
-    })();
 
-    /* ===========================================================
-       BACKEND PREP (replace demo with real services)
-       - Replace demoBattles with Firestore query on "battles" where status == 'live'.
-       - In populateFeed(), build cards from snapshot docs.
-       - In openLive(), join your SFU room, attach remote MediaStreamTracks to liveA/liveB.
-       - Voting: add callable function (castVote) and call it on buttons.
-       - Presence: update "viewers" count in backend (or function).
-       =========================================================== */
+      function loop(now){
+        const dt = Math.min(0.05,(now-prev)/1000); prev=now;
+
+        if(now - lastBlast > INTERVAL){
+          // choose single or dual color
+          let [c1a,c1b] = randRegionColor();
+          if(Math.random() > .5){
+            // dual region clash
+            const [c2a, c2b] = randRegionColor();
+            c1b = (Math.random()>.5 ? c2a : c2b);
+          }
+          if(explosions.length > MAX){
+            const old = explosions.shift(); old.dispose();
+          }
+          explosions.push(new Explosion(c1a, c1b));
+          lastBlast = now;
+        }
+
+        for(let i=explosions.length-1;i>=0;i--){
+          if(!explosions[i].update(dt)){
+            explosions[i].dispose();
+            explosions.splice(i,1);
+          }
+        }
+
+        camera.lookAt(0,0,0);
+        renderer.render(scene,camera);
+        requestAnimationFrame(loop);
+      }
+      function resize(){
+        W=window.innerWidth; H=window.innerHeight;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
+        renderer.setSize(W,H,false);
+        camera.aspect=W/H; camera.updateProjectionMatrix();
+      }
+      window.addEventListener('resize', resize, {passive:true});
+      requestAnimationFrame(loop);
+    })();
   </script>
 </body>
 </html>
