@@ -1,1 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Live Arena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gold:#ffd700;
+      --gold-1:#ffe88a;
+      --gold-2:#ffcc3b;
+      --ink:#eaeaea;
+      --muted:#b8b8b8;
+      --top-safe: max(14px, env(safe-area-inset-top));
+      --side-safe: max(14px, env(safe-area-inset-left));
+      --side-safe-r: max(14px, env(safe-area-inset-right));
+      --bottom-safe: max(16px, env(safe-area-inset-bottom));
+    }
 
+    *{margin:0;padding:0;box-sizing:border-box}
+    html, body{
+      height:100%; width:100%;
+      overflow:hidden; overscroll-behavior:none;
+      background:#000; color:var(--ink);
+      font-family:'Orbitron',sans-serif;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+    *::-webkit-scrollbar{ display:none; width:0; height:0 }
+
+    /* Ambient */
+    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+    .layer-nebula{
+      position:absolute; inset:-15%;
+      background: conic-gradient(from 0deg at 50% 50%,
+        rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
+      filter: blur(90px) saturate(130%); opacity:.36; animation: nebula 40s linear infinite;
+    }
+    @keyframes nebula{ to{ transform: rotate(360deg) } }
+    .layer-stars{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.09), transparent 60%),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.07), transparent 60%),
+        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.06), transparent 60%);
+      animation: stars 14s ease-in-out infinite alternate;
+    }
+    @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
+
+    /* Layout */
+    .wrap{
+      position:relative; z-index:1; height:100svh; width:100svw; overflow:hidden;
+      display:grid; grid-template-rows: auto 1fr auto;
+    }
+
+    /* Top HUD */
+    .top{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: calc(var(--top-safe)) clamp(12px,2.5vw,20px) 8px;
+      pointer-events:none;
+    }
+    .hud-left, .hud-right{ display:flex; gap:10px; align-items:center; pointer-events:auto; }
+    .pill{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; font-weight:800; border:none; border-radius:999px;
+      padding:6px 14px; box-shadow:0 0 18px rgba(255,215,0,.45);
+      cursor:pointer;
+    }
+    .chip{
+      background:rgba(0,0,0,.55); color:#fff; border-radius:999px;
+      backdrop-filter: blur(8px); padding:6px 12px; font-weight:800;
+    }
+    .btn-ghost{
+      background:transparent; color:#fff; border:none; cursor:pointer; font-weight:800;
+      text-shadow:0 1px 0 rgba(255,255,255,.2);
+    }
+
+    /* Streams */
+    .arena{
+      position:relative; display:grid; grid-template-columns: 1fr 1fr; gap:0; min-height:0;
+    }
+    .pane{ position:relative; overflow:hidden; min-width:0; }
+    video.stream{
+      width:100%; height:100%; object-fit:cover; display:block; background:#000;
+      filter: brightness(.96) contrast(1.08) saturate(1.06);
+    }
+    .pane.inactive::before{
+      content:""; position:absolute; inset:0; background:rgba(0,0,0,.32); z-index:2;
+      backdrop-filter: blur(1.5px);
+    }
+    .pane::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.05), transparent 20% 80%, rgba(255,255,255,.05)),
+        radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
+        radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
+      mix-blend-mode:screen; animation: paneSheen 6s ease-in-out infinite alternate;
+      z-index:1;
+    }
+    @keyframes paneSheen{ from{opacity:.3} to{opacity:.58} }
+
+    /* Center overlays for each pane (names/country) */
+    .meta{
+      position:absolute; left:12px; bottom:12px; z-index:3;
+      display:flex; align-items:center; gap:8px;
+      background:rgba(0,0,0,.48); backdrop-filter:blur(10px);
+      padding:8px 12px; border-radius:12px; font-size:12px;
+    }
+    .meta img.flag{ width:18px; height:12px; border-radius:2px; object-fit:cover; }
+
+    /* Mid HUD */
+    .mid{
+      pointer-events:none;
+      position:absolute; inset:0; display:grid; place-items:center; z-index:4;
+    }
+    .timer{
+      background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
+      padding:10px 18px; border-radius:999px; font-weight:800; font-size:15px;
+      text-shadow:0 0 12px rgba(255,215,0,.18);
+    }
+    .timer.animate{ animation:pulse 1.8s infinite; }
+    @keyframes pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+    /* Vote panel */
+    .vote{
+      position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 90px);
+      transform:translateX(-50%); z-index:5; display:flex; gap:10px; align-items:center;
+    }
+    .vote .card{
+      display:flex; align-items:center; gap:10px;
+      background:rgba(0,0,0,.5); backdrop-filter:blur(10px);
+      padding:10px 12px; border-radius:14px; min-width:130px; justify-content:space-between;
+    }
+    .vote .name{ font-weight:800; font-size:13px }
+    .vote .tally{ font-size:12px; color:var(--muted) }
+    .vote .btn{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; font-weight:800; border:none; border-radius:10px; padding:8px 10px; cursor:pointer;
+      box-shadow:0 0 16px rgba(255,215,0,.35);
+    }
+
+    /* Bottom bar: minimalist shapes (no boxes) */
+    .bottom{
+      display:flex; align-items:center; justify-content:center; gap:22px;
+      padding: 8px clamp(12px,2.5vw,20px) calc(var(--bottom-safe) + 8px);
+    }
+    .shape{
+      appearance:none; background:transparent; border:none; padding:0;
+      width:26px; height:26px; display:grid; place-items:center; cursor:pointer;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
+    .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
+    .shape.gold svg{ stroke:url(#goldStroke); }
+
+    /* Share toast */
+    .share-cta{
+      position:fixed; left:50%; bottom: calc(var(--bottom-safe) + 20px);
+      transform:translateX(-50%); z-index:6; display:none;
+    }
+    .share-cta .pill{ padding:8px 14px }
+
+    /* Mobile tweaks */
+    @media (max-width: 900px){
+      .vote{ bottom: calc(var(--bottom-safe) + 80px); }
+      .shape{ width:24px; height:24px }
+    }
+  </style>
+</head>
+<body>
+  <!-- Gold stroke gradient for vector shapes -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#fff4b0"/>
+        <stop offset="60%" stop-color="#ffd700"/>
+        <stop offset="100%" stop-color="#ffbf2e"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Ambient layers -->
+  <div class="depth-stage" aria-hidden="true">
+    <div class="layer-nebula"></div>
+    <div class="layer-stars"></div>
+  </div>
+
+  <div class="wrap" role="application" aria-label="Live Arena Viewer">
+    <!-- TOP -->
+    <header class="top">
+      <div class="hud-left">
+        <button id="liveBtn" class="pill">LIVE</button>
+        <div id="viewerChip" class="chip">👁 0</div>
+      </div>
+      <div class="hud-right">
+        <button id="shareBtn" class="btn-ghost">Share</button>
+        <button id="muteBtn" class="btn-ghost" aria-pressed="false">Mute</button>
+      </div>
+    </header>
+
+    <!-- ARENA -->
+    <main class="arena">
+      <!-- Competitor A -->
+      <section class="pane" id="paneA">
+        <video id="videoA" class="stream" autoplay playsinline muted></video>
+        <div class="meta"><span id="nameA">@CompetitorA</span> · <img class="flag" id="flagA" src="flag_us.png" alt="flag"/><span id="countryA">United States</span></div>
+      </section>
+
+      <!-- Competitor B -->
+      <section class="pane" id="paneB">
+        <video id="videoB" class="stream" autoplay playsinline muted></video>
+        <div class="meta"><span id="nameB">@CompetitorB</span> · <img class="flag" id="flagB" src="flag_jp.png" alt="flag"/><span id="countryB">Japan</span></div>
+      </section>
+
+      <!-- Center overlays -->
+      <div class="mid">
+        <div id="timer" class="timer">Loading battle…</div>
+      </div>
+
+      <!-- Voting -->
+      <div class="vote" id="voteBar" aria-label="Vote Panel">
+        <div class="card">
+          <div>
+            <div class="name" id="labelA">@CompetitorA</div>
+            <div class="tally">Votes: <span id="votesA">0</span></div>
+          </div>
+          <button id="voteA" class="btn">Vote</button>
+        </div>
+        <div class="card">
+          <div>
+            <div class="name" id="labelB">@CompetitorB</div>
+            <div class="tally">Votes: <span id="votesB">0</span></div>
+          </div>
+          <button id="voteB" class="btn">Vote</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- BOTTOM shapes -->
+    <footer class="bottom" aria-label="Navigation">
+      <button class="shape gold" id="homeBtn" title="Home">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button class="shape" id="boardBtn" title="Leaderboard">
+        <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+      </button>
+      <button class="shape gold" id="discoverBtn" title="Discover">
+        <svg viewBox="0 0 24 24"><polygon points="12,4 20,12 12,20 4,12"/></svg>
+      </button>
+      <button class="shape" id="profileBtn" title="Profile">
+        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4 0-8 2-8 5 0 1 0 1 0 1h16s0 0 0-1c0-3-4-5-8-5Z"/></svg>
+      </button>
+    </footer>
+
+    <!-- Share toast -->
+    <div class="share-cta" id="shareCta"><button class="pill">🔗 Link copied</button></div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    /**
+     * EXPECTED SUPPORTING FILES (same as your Arena page setup):
+     * - /js/firebase.js : exports { app, db, functions, doc, getDoc, onSnapshot, httpsCallable, serverTimestamp }
+     * - /js/session.js  : optional shared helpers (not required here)
+     *
+     * This page is VIEW-ONLY: it never requests camera/mic. It subscribes to a room as a SUBSCRIBER (SFU/WebRTC) — see joinRoom().
+     */
+
+    // ----------------- Basic helpers -----------------
+    const $ = (q)=>document.querySelector(q);
+    const byId = (id)=>document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const battleId = params.get('battle') || '';  // required
+    const roomId   = params.get('room')   || '';  // optional, for SFU
+
+    const videoA = byId('videoA');
+    const videoB = byId('videoB');
+    const paneA = byId('paneA');
+    const paneB = byId('paneB');
+
+    const nameA = byId('nameA'); const nameB = byId('nameB');
+    const labelA = byId('labelA'); const labelB = byId('labelB');
+    const flagA = byId('flagA'); const flagB = byId('flagB');
+    const countryA = byId('countryA'); const countryB = byId('countryB');
+
+    const timerEl = byId('timer');
+    const viewerChip = byId('viewerChip');
+
+    const votesA = byId('votesA'); const votesB = byId('votesB');
+    const voteBtnA = byId('voteA'); const voteBtnB = byId('voteB');
+
+    const shareBtn = byId('shareBtn'); const shareCta = byId('shareCta');
+    const muteBtn = byId('muteBtn');
+
+    // Nav
+    byId('homeBtn').onclick = ()=> location.href='home.html';
+    byId('boardBtn').onclick = ()=> location.href='leaderboard.html';
+    byId('discoverBtn').onclick = ()=> location.href='discover.html';
+    byId('profileBtn').onclick = ()=> location.href='profile.html';
+
+    // ----------------- Firebase wiring -----------------
+    import {
+      db, functions,
+      doc, getDoc, onSnapshot, httpsCallable, serverTimestamp
+    } from './js/firebase.js';
+
+    // Callable functions you’ll implement in Cloud Functions
+    const castVote   = httpsCallable(functions, 'castVote');     // { battleId, side:'a'|'b' }
+    const viewerJoin = httpsCallable(functions, 'viewerJoin');   // { battleId, roomId }
+    const viewerLeave= httpsCallable(functions, 'viewerLeave');  // { battleId, roomId }
+
+    // ----------------- Presence (viewer count) -----------------
+    async function joinPresence(){
+      try{
+        await viewerJoin({ battleId, roomId });
+      }catch(e){ /* silent */ }
+    }
+    async function leavePresence(){
+      try{
+        await viewerLeave({ battleId, roomId });
+      }catch(e){ /* silent */ }
+    }
+    window.addEventListener('pagehide', leavePresence);
+    window.addEventListener('beforeunload', leavePresence);
+
+    // ----------------- Battle subscription -----------------
+    let countdownRAF = 0;
+    function showTimer(text){ timerEl.textContent = text; }
+
+    function startAccurateCountdown(turnEndsAtMillis){
+      cancelAnimationFrame(countdownRAF);
+      timerEl.classList.add('animate');
+      const tick = ()=>{
+        const now = Date.now();
+        const ms = Math.max(0, turnEndsAtMillis - now);
+        const s  = Math.ceil(ms/1000);
+        const label = (current.part===0?'@A':'@B');
+        timerEl.textContent = `Round ${current.round}/3 | ${label} | ${s}s`;
+        if(ms<=0){ timerEl.classList.remove('animate'); return; }
+        countdownRAF = requestAnimationFrame(tick);
+      };
+      countdownRAF = requestAnimationFrame(tick);
+    }
+
+    // live battle state (updated from Firestore)
+    const current = { status:'loading', round:1, part:0, votes:{a:0,b:0}, turnEndsAt:null };
+
+    async function hydrateUser(uField, nameEl, countryEl, flagEl){
+      // uField can be {handle, country, flagUrl} if Arena wrote it into battle
+      // else fallback to /users/{uid}
+      if(!uField){
+        nameEl.textContent = '@Unknown';
+        countryEl.textContent = '—';
+        flagEl.style.visibility = 'hidden';
+        return;
+      }
+      if(uField.handle) nameEl.textContent = uField.handle;
+      if(uField.country){ countryEl.textContent = uField.country; }
+      if(uField.flagUrl){ flagEl.src = uField.flagUrl; flagEl.style.visibility='visible'; }
+    }
+
+    function updateVotesUI(v){
+      votesA.textContent = v?.a ?? 0;
+      votesB.textContent = v?.b ?? 0;
+    }
+
+    function updateTurnUI(){
+      // Part 0 => A active, Part 1 => B active
+      if(current.part === 0){ paneA.classList.remove('inactive'); paneB.classList.add('inactive'); }
+      else{ paneA.classList.add('inactive'); paneB.classList.remove('inactive'); }
+    }
+
+    async function subscribeBattle(){
+      if(!battleId){
+        showTimer('Missing battle id');
+        return;
+      }
+      const ref = doc(db,'battles', battleId);
+      const first = await getDoc(ref);
+      if(!first.exists()){
+        showTimer('Battle not found');
+      }
+
+      onSnapshot(ref, (snap)=>{
+        const b = snap.data();
+        if(!b){ return; }
+
+        // Names / countries (prefer embedded)
+        hydrateUser(b.competitorA || b.a, nameA, countryA, flagA);
+        hydrateUser(b.competitorB || b.b, nameB, countryB, flagB);
+        labelA.textContent = nameA.textContent;
+        labelB.textContent = nameB.textContent;
+
+        // Status / votes
+        current.status = b.status || current.status;
+        current.round  = b.round  || current.round;
+        current.part   = (typeof b.part==='number') ? b.part : current.part;
+        current.votes  = b.votes || current.votes;
+        updateVotesUI(current.votes);
+        updateTurnUI();
+
+        // Timer (expects Arena to keep battle.turnEndsAt = serverTimestamp() + remaining)
+        if(b.turnEndsAt?.toMillis){
+          startAccurateCountdown(b.turnEndsAt.toMillis());
+        }else{
+          timerEl.classList.remove('animate');
+          if(current.status==='live') showTimer(`Round ${current.round}/3`);
+          else if(current.status==='finished') showTimer('🔥 Battle Over 🔥');
+          else showTimer('Waiting…');
+        }
+
+        // Viewers (if Arena writes streams viewers on the battle doc)
+        if(typeof b.viewers === 'number'){ viewerChip.textContent = `👁 ${b.viewers}`; }
+      });
+    }
+
+    // ----------------- Voting -----------------
+    voteBtnA.addEventListener('click', async ()=>{
+      try{ await castVote({ battleId, side:'a' }); }catch(e){ /* optionally toast */ }
+    });
+    voteBtnB.addEventListener('click', async ()=>{
+      try{ await castVote({ battleId, side:'b' }); }catch(e){ /* optionally toast */ }
+    });
+
+    // ----------------- Sharing -----------------
+    shareBtn.addEventListener('click', async ()=>{
+      const url = location.href;
+      const data = { title:'Watch this Battle', text:'Pull up to the BattleBillions live', url };
+      try{
+        if(navigator.share){ await navigator.share(data); }
+        else{
+          await navigator.clipboard.writeText(url);
+          byId('shareCta').style.display='block';
+          setTimeout(()=> byId('shareCta').style.display='none', 1400);
+        }
+      }catch(e){}
+    });
+
+    // ----------------- Audio mute (viewer side) -----------------
+    let muted = false;
+    function applyMute(){
+      videoA.muted = muted;
+      videoB.muted = muted;
+      muteBtn.setAttribute('aria-pressed', String(muted));
+      muteBtn.textContent = muted ? 'Unmute' : 'Mute';
+    }
+    muteBtn.addEventListener('click', ()=>{
+      muted = !muted; applyMute();
+      if(!muted){ videoA.play().catch(()=>{}); videoB.play().catch(()=>{}); }
+    });
+
+    // ----------------- SFU / Room integration (SUBSCRIBER) -----------------
+    /**
+     * Replace this stub with your SFU/WebRTC client code.
+     * Goal:
+     *  - Join `roomId` as VIEWER
+     *  - Subscribe to two remote tracks: A and B
+     *  - Attach MediaStream(s) to `videoA` and `videoB`
+     *  - Autoplay policy: keep muted=true until user presses "Unmute"
+     */
+    async function joinRoom(roomId){
+      if(!roomId){
+        // Demo fallback: load sample media
+        videoA.src = 'user2.mp4';
+        videoB.src = 'user3.mp4';
+        videoA.loop = videoB.loop = true;
+        await Promise.allSettled([videoA.play(), videoB.play()]);
+        return;
+      }
+      // Example pseudo-code:
+      // const rtc = new YourSfuClient({ url, token });
+      // await rtc.join(roomId);
+      // const trackA = await rtc.subscribe('A');
+      // const trackB = await rtc.subscribe('B');
+      // videoA.srcObject = trackA.mediaStream;
+      // videoB.srcObject = trackB.mediaStream;
+      // await videoA.play().catch(()=>{}); await videoB.play().catch(()=>{});
+    }
+
+    // ----------------- Boot -----------------
+    (async function boot(){
+      // size fix for mobile 100vh issues
+      const root = $('.wrap');
+      const setH = ()=>{ root.style.height = window.innerHeight+'px'; };
+      setH(); addEventListener('resize', setH, {passive:true});
+
+      applyMute();
+      await subscribeBattle();
+      await joinPresence();
+      await joinRoom(roomId);
+    })();
+  </script>
+</body>
+</html>
