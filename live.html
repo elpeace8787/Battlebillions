@@ -11,20 +11,16 @@
     :root{
       --ink:#eaeaea;
       --muted:#b8b8b8;
-      --glass: rgba(12,12,16,.55);
-      --glass-2: rgba(20,20,26,.6);
       --cyan:#47f5ff;         /* search accent */
-      --magenta:#ff53e1;      /* vote accent */
+      --gold:#ffd700;         /* nav & pulses */
       --purple:#9f7bff;       /* comments accent */
-      --red:#ff4c6a;          /* flag accent */
+      --red:#ff4c6a;          /* flag/report accent */
       --grey:#c7c7c7;         /* mute accent */
-      --gold:#ffd700;         /* nav icons */
       --safe-top: max(10px, env(safe-area-inset-top));
       --safe-bottom: max(14px, env(safe-area-inset-bottom));
       --side-pad: 56px;       /* room for side navs */
     }
 
-    /* RESET */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{
       height:100%;
@@ -40,13 +36,13 @@
     *::-webkit-scrollbar{ width:0; height:0; display:none }
     *{ scrollbar-width: none }
 
-    /* BACKGROUND 3D */
+    /* BACKGROUND EXPLOSIONS LAYER */
     #bg3d{
       position:fixed; inset:0; z-index:0; display:block; pointer-events:none;
       background:radial-gradient(1200px 800px at 30% 20%, #0a0a0d 0%, #000 70%);
     }
 
-    /* APP LAYOUT */
+    /* PAGE LAYOUT */
     .live-container{
       position:relative; z-index:1;
       min-height:100dvh;
@@ -68,8 +64,7 @@
       box-shadow:0 0 22px rgba(71,245,255,.18), inset 0 0 0 1px rgba(71,245,255,.22);
     }
     .search-wrap input{
-      flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:13px;
-      font-family:inherit;
+      flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:13px; font-family:inherit;
     }
     .clear-btn{
       appearance:none; border:none; background:transparent; color:#bfefff; font-weight:800; cursor:pointer;
@@ -87,28 +82,46 @@
     }
     .auto-item:hover{ background:rgba(255,255,255,.06); }
 
-    /* FEED */
-    .feed{ display:grid; gap:14px; margin-top:10px; }
-    .card{
-      background: var(--glass-2);
-      border-radius:16px; padding:12px;
-      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-      box-shadow: 0 14px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+    /* FEED (no containers; just battles) */
+    .feed{ display:grid; gap:28px; margin-top:12px; }
+
+    /* BATTLE: full-width split */
+    .battle{
+      display:grid; gap:10px;
     }
     .split{
-      display:grid; grid-template-columns:1fr 1fr; gap:8px; border-radius:12px; overflow:hidden;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
     }
-    /* BIGGER BATTLE SCREENS */
-    .pane{ position:relative; min-height: 52dvh; background:#000; border-radius:12px; overflow:hidden; }
-    @media (max-width:700px){ .pane{ min-height: 58dvh } }
-    .pane video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; }
+    /* Wider panels & cinematic height */
+    .pane{
+      position:relative;
+      height: 62dvh;         /* bigger battle screens */
+      min-height: 360px;
+      background:#000;
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+    @media (max-width:900px){
+      .pane{ height: 58dvh }
+    }
+    @media (max-width:700px){
+      .split{ grid-template-columns: 1fr; }
+      .pane{ height: 48dvh }
+    }
+    .pane video{
+      width:100%; height:100%; object-fit:cover; display:block; background:#000;
+      transform: translateZ(0);
+    }
 
     /* OVERLAYS: avatar + flag badge + rank badge */
     .overlay{
-      position:absolute; left:10px; top:10px; display:flex; align-items:center; gap:8px; z-index:2;
+      position:absolute; left:12px; top:12px; display:flex; align-items:center; gap:10px; z-index:2;
     }
     .avatar{
-      position:relative; width:54px; height:54px; border-radius:50%; overflow:hidden;
+      position:relative; width:56px; height:56px; border-radius:50%; overflow:hidden;
       box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 10px rgba(255,255,255,.08);
       background:#111;
     }
@@ -123,7 +136,7 @@
       font-weight:800; font-size:13px; letter-spacing:.2px; text-shadow:0 2px 6px rgba(0,0,0,.5);
     }
     .rank-row{
-      position:absolute; left:10px; top:72px; display:flex; gap:6px; z-index:2;
+      position:absolute; left:12px; top:74px; display:flex; gap:6px; z-index:2;
     }
     .rank-badge{
       min-width:22px; height:22px; border-radius:999px; display:grid; place-items:center;
@@ -134,41 +147,54 @@
     .rank-badge.silver{ background:linear-gradient(180deg,#fafafa,#cfcfcf) }
     .rank-badge.bronze{ background:linear-gradient(180deg,#ffd7b0,#c8903c) }
 
-    /* VOTE BUTTONS under each panel */
+    /* VOTE under each panel */
     .panel-actions{
-      margin-top:8px; display:flex; gap:8px; justify-content:space-between;
+      margin-top:10px; display:flex; justify-content:center;
     }
-    .pill{
-      flex:1; border:none; cursor:pointer; border-radius:12px; padding:10px 12px; font-weight:800;
-      background: linear-gradient(180deg, rgba(255,83,225,.18), rgba(159,123,255,.18));
-      color:#fff; box-shadow: inset 0 0 0 1px rgba(255,83,225,.45), 0 0 14px rgba(159,123,255,.18);
+    .vote{
+      appearance:none; border:none; cursor:pointer;
+      border-radius:999px; padding:12px 18px; font-weight:800; font-size:13px; color:#111;
+      background:linear-gradient(180deg,#fff3bd,#ffd700);
+      box-shadow: 0 10px 22px rgba(255,215,0,.25), inset 0 0 0 1px rgba(0,0,0,.18);
+      transition: transform .12s ease, filter .12s ease, box-shadow .18s ease;
     }
-    .pill:hover{ filter:brightness(1.08) }
+    .vote:active{ transform: scale(.98) }
+    .vote[disabled]{ opacity:.65; cursor:default; filter:grayscale(.15) }
 
-    /* CARD ACTIONS (visible) */
+    /* Gold pulse on vote */
+    @keyframes pulseGold {
+      0% { box-shadow: 0 0 0 0 rgba(255,215,0,.55); transform: scale(1); }
+      50%{ box-shadow: 0 0 22px 10px rgba(255,215,0,.25); transform: scale(1.06); }
+      100%{ box-shadow: 0 0 0 0 rgba(255,215,0,.0); transform: scale(1); }
+    }
+    .vote.pulsing{ animation: pulseGold .6s ease-out 1; }
+
+    /* ACTION ICONS (glass circles) */
     .actions{
-      margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-top:12px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; align-items:center;
     }
-    .a-btn{
-      border:none; border-radius:999px; padding:8px 12px; cursor:pointer; font-weight:800; font-size:12px; color:#000;
-      display:inline-flex; align-items:center; gap:8px;
+    .gicon{
+      --sz: 44px;
+      width:var(--sz); height:var(--sz);
+      border-radius:50%; border:none; cursor:pointer; color:#fff; font-size:18px;
+      display:grid; place-items:center; backdrop-filter: blur(10px);
+      background: radial-gradient(120% 120% at 50% 50%, rgba(255,255,255,.18), rgba(255,255,255,.04));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.35);
+      transition: transform .12s ease, filter .12s ease;
     }
-    .a-share{ background: linear-gradient(180deg,#c8f6ff,#47f5ff) }
-    .a-comment{ background: linear-gradient(180deg,#ffd4ff,#ff53e1) }
-    .a-mute{ background: linear-gradient(180deg,#f2f2f2,#c7c7c7) }
-    .a-flag{ background: linear-gradient(180deg,#ffc2cf,#ff4c6a) }
-    .a-btn span{ color:#111 }
+    .gicon:active{ transform: scale(.96) }
+    .gicon.share{ box-shadow: inset 0 0 0 1px rgba(71,245,255,.35), 0 10px 30px rgba(0,0,0,.35) }
+    .gicon.comment{ box-shadow: inset 0 0 0 1px rgba(159,123,255,.35), 0 10px 30px rgba(0,0,0,.35) }
+    .gicon.mute{ box-shadow: inset 0 0 0 1px rgba(199,199,199,.35), 0 10px 30px rgba(0,0,0,.35) }
+    .gicon.flag{ box-shadow: inset 0 0 0 1px rgba(255,76,106,.35), 0 10px 30px rgba(0,0,0,.35) }
 
-    /* TITLE/INFO ROW (flags only) */
-    .info{
-      display:flex; align-items:center; justify-content:space-between; margin-top:10px;
-    }
+    /* META flags under battle (optional minimal row) */
     .meta{
-      display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px;
+      margin-top:10px; display:flex; align-items:center; justify-content:center; gap:12px; color:var(--muted); font-size:12px;
     }
-    .meta .flag{ width:18px; height:12px; border-radius:3px; object-fit:cover; border:1px solid rgba(255,255,255,.6) }
+    .meta .flag{ width:20px; height:14px; border-radius:3px; object-fit:cover; border:1px solid rgba(255,255,255,.6) }
 
-    /* SIDEBARS: Arena-style icons */
+    /* SIDEBARS: Arena-style shape icons */
     nav.side{
       position:fixed; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:20px; z-index:6;
     }
@@ -191,9 +217,9 @@
     @media (max-width: 600px){
       .live-container{ padding-left:50px; padding-right:50px }
       .shape{ width:30px; height:30px }
+      .gicon{ --sz: 42px }
     }
 
-    /* EMPTY STATE */
     .empty{ text-align:center; color:#e8e8e8; opacity:.85; padding:18px 0 6px; font-size:13px }
   </style>
 </head>
@@ -211,8 +237,8 @@
       </div>
     </div>
 
-    <!-- FEED -->
-    <section id="feed" class="feed" aria-label="Live Battles Feed"><!-- cards injected --></section>
+    <!-- FEED (battles injected) -->
+    <section id="feed" class="feed" aria-label="Live Battles Feed"></section>
     <div id="emptyMsg" class="empty" style="display:none">No battles found</div>
   </div>
 
@@ -260,7 +286,6 @@
       SA:     { c1: 0xff8c3a, c2: 0xffc28f },      // oranges
       OCE:    { c1: 0x42f9ff, c2: 0xaefbff },      // cyans
     };
-    // quick country->region map (extend as needed)
     const COUNTRY_REGION = {
       US:'NA', CA:'NA', MX:'NA',
       JP:'ASIA', CN:'ASIA', KR:'ASIA', IN:'ASIA',
@@ -301,7 +326,7 @@
     ];
 
     /***********************
-     * BUILD FEED CARDS
+     * FEED RENDER
      ***********************/
     const feedEl = document.getElementById('feed');
     const emptyMsg = document.getElementById('emptyMsg');
@@ -312,24 +337,23 @@
       return `<div class="rank-badge ${cls}">${rank}</div>`;
     }
 
-    function makeCard(b){
-      // Determine regions for explosion colors (used by background engine too)
+    function makeBattle(b){
       const regionA = COUNTRY_REGION[b.a.country] || 'NA';
       const regionB = COUNTRY_REGION[b.b.country] || regionA;
 
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.dataset.location = (b.location||'').toLowerCase();
-      card.dataset.handles = (`${b.a.handle} ${b.b.handle}`).toLowerCase();
-      card.dataset.regionA = regionA;
-      card.dataset.regionB = regionB;
+      const wrap = document.createElement('section');
+      wrap.className = 'battle';
+      wrap.dataset.location = (b.location||'').toLowerCase();
+      wrap.dataset.handles = (`${b.a.handle} ${b.b.handle}`).toLowerCase();
+      wrap.dataset.regionA = regionA;
+      wrap.dataset.regionB = regionB;
+      wrap.dataset.id = b.id;
 
-      card.innerHTML = `
+      wrap.innerHTML = `
         <div class="split">
-          <!-- LEFT PANE (A) -->
+          <!-- LEFT (A) -->
           <div class="pane">
             <video playsinline muted loop preload="metadata" src="${b.a.video}"></video>
-
             <div class="overlay">
               <div class="avatar">
                 <img src="${b.a.avatar}" alt="${b.a.handle}">
@@ -337,19 +361,12 @@
               </div>
               <div class="name">${b.a.handle}</div>
             </div>
-            <div class="rank-row">
-              ${rankBadge(b.a.rank)}
-            </div>
-
-            <div class="panel-actions">
-              <button class="pill" data-vid="A" data-act="voteA">Vote A</button>
-            </div>
+            <div class="rank-row">${rankBadge(b.a.rank)}</div>
           </div>
 
-          <!-- RIGHT PANE (B) -->
+          <!-- RIGHT (B) -->
           <div class="pane">
             <video playsinline muted loop preload="metadata" src="${b.b.video}"></video>
-
             <div class="overlay">
               <div class="avatar">
                 <img src="${b.b.avatar}" alt="${b.b.handle}">
@@ -357,60 +374,52 @@
               </div>
               <div class="name">${b.b.handle}</div>
             </div>
-            <div class="rank-row">
-              ${rankBadge(b.b.rank)}
-            </div>
-
-            <div class="panel-actions">
-              <button class="pill" data-vid="B" data-act="voteB">Vote B</button>
-            </div>
+            <div class="rank-row">${rankBadge(b.b.rank)}</div>
           </div>
         </div>
 
-        <div class="info">
-          <div class="meta">
-            <!-- show flags only (no country text) -->
-            <img class="flag" src="${b.a.flag}" alt="">
-            <span>vs</span>
-            <img class="flag" src="${b.b.flag}" alt="">
-          </div>
-          <div class="meta">
-            <span>Live now</span>
-          </div>
+        <!-- Vote under each panel -->
+        <div class="split" style="grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="panel-actions"><button class="vote" data-act="voteA">Vote</button></div>
+          <div class="panel-actions"><button class="vote" data-act="voteB">Vote</button></div>
         </div>
 
+        <!-- Actions (glass icons) -->
         <div class="actions">
-          <button class="a-btn a-share"  data-act="share"  data-id="${b.id}">🔗 <span>Share</span></button>
-          <button class="a-btn a-comment" data-act="comment" data-id="${b.id}">💬 <span>Comment</span></button>
-          <button class="a-btn a-mute"   data-act="mute"   data-id="${b.id}">🔇 <span>Mute</span></button>
-          <button class="a-btn a-flag"   data-act="flag"   data-id="${b.id}">🚩 <span>Flag</span></button>
+          <button class="gicon share"  data-act="share"  title="Share" aria-label="Share">🔗</button>
+          <button class="gicon comment" data-act="comment" title="Comment" aria-label="Comment">💬</button>
+          <button class="gicon mute"    data-act="mute"   title="Mute/Unmute" aria-label="Mute/Unmute">🔇</button>
+          <button class="gicon flag"    data-act="flag"   title="Report" aria-label="Report">🚩</button>
+        </div>
+
+        <!-- Flags row (minimal) -->
+        <div class="meta">
+          <img class="flag" src="${b.a.flag}" alt="">
+          <span>vs</span>
+          <img class="flag" src="${b.b.flag}" alt="">
         </div>
       `;
 
-      // auto play previews when visible
-      observeVideo(card.querySelectorAll('video'));
-      // attach action handlers
-      card.querySelectorAll('[data-act]').forEach(btn=>{
-        btn.addEventListener('click', ()=> onCardAction(btn, card));
+      observeVideo(wrap.querySelectorAll('video'));
+      wrap.querySelectorAll('[data-act]').forEach(btn=>{
+        btn.addEventListener('click', ()=> onBattleAction(btn, wrap));
       });
-      return card;
+      return wrap;
     }
 
     function populateFeed(list){
       feedEl.innerHTML = '';
-      list.forEach(b=> feedEl.appendChild(makeCard(b)));
+      list.forEach(b=> feedEl.appendChild(makeBattle(b)));
       emptyMsg.style.display = list.length ? 'none' : 'block';
     }
 
     /***********************
      * SEARCH + AUTOCOMPLETE
-     * - Now matches location (country/city) AND usernames (handles)
      ***********************/
     const searchInput = document.getElementById('searchInput');
     const clearBtn = document.getElementById('clearBtn');
     const autoList = document.getElementById('autoList');
 
-    // Build suggestions from locations + usernames
     const suggestSet = new Set();
     demoBattles.forEach(b=>{
       suggestSet.add(b.location);
@@ -421,18 +430,17 @@
 
     function applyFilter(term){
       const t = (term||'').toLowerCase().trim();
-      const cards = Array.from(feedEl.children);
-      let shown = 0;
+      const nodes = Array.from(feedEl.children);
+      let shown=0;
       if(!t){
-        cards.forEach(c=> c.style.display='');
-        shown = cards.length;
+        nodes.forEach(n=> n.style.display='');
+        shown = nodes.length;
       }else{
-        cards.forEach(c=>{
-          const loc = c.dataset.location || '';
-          const handles = c.dataset.handles || '';
-          // partial + exact supported (location OR username)
+        nodes.forEach(n=>{
+          const loc = n.dataset.location || '';
+          const handles = n.dataset.handles || '';
           const match = (loc.includes(t) || t.includes(loc) || handles.includes(t) || t.includes(handles));
-          c.style.display = match ? '' : 'none';
+          n.style.display = match ? '' : 'none';
           if(match) shown++;
         });
       }
@@ -443,9 +451,7 @@
       const t = (term||'').toLowerCase().trim();
       autoList.innerHTML = '';
       if(!t){ autoList.style.display='none'; return; }
-      const matches = SUGGESTIONS
-        .filter(s=> s.toLowerCase().includes(t))
-        .slice(0,10);
+      const matches = SUGGESTIONS.filter(s=> s.toLowerCase().includes(t)).slice(0,10);
       if(!matches.length){ autoList.style.display='none'; return; }
       matches.forEach(m=>{
         const div = document.createElement('div');
@@ -479,7 +485,7 @@
     });
 
     /***********************
-     * VIDEO OBSERVER
+     * VIDEO PREVIEW CONTROL
      ***********************/
     const previewObserver = new IntersectionObserver((entries)=>{
       entries.forEach(async (entry)=>{
@@ -497,13 +503,32 @@
     }
 
     /***********************
-     * CARD ACTIONS
+     * ACTIONS + VOTING (vote once per battle)
      ***********************/
-    async function onCardAction(btn, card){
+    const votedBattles = new Set();
+
+    async function onBattleAction(btn, battleEl){
       const act = btn.dataset.act;
+      const bid = battleEl.dataset.id;
+
+      if(act==='voteA' || act==='voteB'){
+        if(votedBattles.has(bid)){
+          toast('Vote already cast');
+          return;
+        }
+        votedBattles.add(bid);
+        // disable both vote buttons
+        battleEl.querySelectorAll('.vote').forEach(v=>{
+          v.classList.add('pulsing'); // play pulse on both for feedback
+          v.setAttribute('disabled','true');
+          setTimeout(()=> v.classList.remove('pulsing'), 650);
+        });
+        toast(act==='voteA' ? 'Voted A' : 'Voted B');
+        return;
+      }
+
       if(act==='share'){
-        const id = btn.dataset.id;
-        const url = `${location.origin}${location.pathname}#watch=${encodeURIComponent(id)}`;
+        const url = `${location.origin}${location.pathname}#watch=${encodeURIComponent(bid)}`;
         try{
           if(navigator.share){ await navigator.share({title:'BattleBillions', text:'Pull up to this battle', url}); }
           else{ await navigator.clipboard.writeText(url); toast('Link copied'); }
@@ -511,16 +536,12 @@
       }else if(act==='comment'){
         toast('Comments coming soon');
       }else if(act==='mute'){
-        const vids = card.querySelectorAll('video');
-        const newState = !(vids[0]?.muted === false && vids[1]?.muted === false);
-        vids.forEach(v=> v.muted = newState);
-        toast(newState ? 'Muted' : 'Unmuted');
+        const vids = battleEl.querySelectorAll('video');
+        const nowMuted = !(vids[0]?.muted === false && vids[1]?.muted === false);
+        vids.forEach(v=> v.muted = nowMuted);
+        toast(nowMuted ? 'Muted' : 'Unmuted');
       }else if(act==='flag'){
         toast('Flag submitted');
-      }else if(act==='voteA'){
-        toast('Voted A');
-      }else if(act==='voteB'){
-        toast('Voted B');
       }
     }
 
@@ -539,7 +560,7 @@
     }
 
     /***********************
-     * NAV LINKS
+     * NAV LINKS (Arena icons)
      ***********************/
     document.querySelectorAll(".shape[data-link]").forEach(btn=>{
       btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
@@ -551,9 +572,7 @@
     populateFeed(demoBattles);
 
     /***********************
-     * BACKGROUND EXPLOSIONS
-     * - Continuous, color-coded by regions (randomized mix)
-     * - Dual-colored bursts to emulate cross-country clashes
+     * BACKGROUND EXPLOSIONS (continuous, multi-colored)
      ***********************/
     (function explosions(){
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -563,9 +582,7 @@
       try{
         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
         if(!gl) throw 0;
-      }catch(e){
-        glok=false;
-      }
+      }catch(e){ glok=false; }
       if(!glok) return;
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
@@ -585,7 +602,6 @@
       dir.position.set(60,80,120);
       scene.add(hemi,dir);
 
-      // particle sprite
       const particleTex = (()=> {
         const size = 128;
         const c = document.createElement('canvas'); c.width=c.height=size;
@@ -609,7 +625,7 @@
       const pool=[]; function getPoints(n){
         for(let i=pool.length-1;i>=0;i--){
           const p=pool[i], existing=p.geometry.getAttribute('position').count;
-          if(existing>=n){ pool.splice(i,1); p.visible=true; return p; }
+        if(existing>=n){ pool.splice(i,1); p.visible=true; return p; }
         }
         const g = new THREE.BufferGeometry();
         const pos = new Float32Array(n*3);
@@ -623,8 +639,6 @@
         return points;
       }
       function releasePoints(p){ p.visible=false; pool.push(p); }
-
-      // ring mats created per explosion with chosen colors
       function ringMaterial(hex, op){ return new THREE.MeshBasicMaterial({ color:hex, transparent:true, opacity:op, blending:THREE.AdditiveBlending, side:THREE.DoubleSide }); }
 
       const explosions=[];
@@ -664,7 +678,6 @@
             pos[i*3+1] = dirv.y*1.6;
             pos[i*3+2] = dirv.z*1.6;
 
-            // color blend across particles for dual color clash
             const t = Math.random();
             const c = this.cA.clone().lerp(this.cB, t);
             col[i*3+0] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
@@ -720,11 +733,9 @@
         }
       }
 
-      // schedule
       const MAX = reduced ? 6 : 12;
       let prev = performance.now(), lastBlast = prev;
       const INTERVAL = reduced ? 1500 : 1100;
-
       function randRegionColor(){
         const keys = Object.keys(REGION_COLORS);
         const r = REGION_COLORS[keys[(Math.random()*keys.length)|0]];
@@ -735,10 +746,8 @@
         const dt = Math.min(0.05,(now-prev)/1000); prev=now;
 
         if(now - lastBlast > INTERVAL){
-          // choose single or dual color
           let [c1a,c1b] = randRegionColor();
           if(Math.random() > .5){
-            // dual region clash
             const [c2a, c2b] = randRegionColor();
             c1b = (Math.random()>.5 ? c2a : c2b);
           }
@@ -769,6 +778,9 @@
       window.addEventListener('resize', resize, {passive:true});
       requestAnimationFrame(loop);
     })();
+
+    /* Render feed on load */
+    populateFeed(demoBattles);
   </script>
 </body>
 </html>
