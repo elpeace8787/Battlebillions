@@ -18,6 +18,7 @@
       --side-safe: max(14px, env(safe-area-inset-left));
       --side-safe-r: max(14px, env(safe-area-inset-right));
       --bottom-safe: max(16px, env(safe-area-inset-bottom));
+      --glass: rgba(0,0,0,.55);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -37,7 +38,7 @@
       position:absolute; inset:-15%;
       background: conic-gradient(from 0deg at 50% 50%,
         rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
-      filter: blur(90px) saturate(130%); opacity:.36; animation: nebula 40s linear infinite;
+      filter: blur(90px) saturate(130%); opacity:.34; animation: nebula 40s linear infinite;
     }
     @keyframes nebula{ to{ transform: rotate(360deg) } }
     .layer-stars{
@@ -50,7 +51,7 @@
     }
     @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
 
-    /* Layout */
+    /* Root layout */
     .wrap{
       position:relative; z-index:1; height:100svh; width:100svw; overflow:hidden;
       display:grid; grid-template-rows: auto 1fr auto;
@@ -58,8 +59,9 @@
 
     /* Top HUD */
     .top{
-      display:flex; align-items:center; justify-content:space-between;
-      padding: calc(var(--top-safe)) clamp(12px,2.5vw,20px) 8px;
+      display:grid; grid-template-columns: 1fr auto 1fr; align-items:center;
+      gap:10px;
+      padding: calc(var(--top-safe)) clamp(12px,2.5vw,20px) 10px;
       pointer-events:none;
     }
     .hud-left, .hud-right{ display:flex; gap:10px; align-items:center; pointer-events:auto; }
@@ -70,12 +72,56 @@
       cursor:pointer;
     }
     .chip{
-      background:rgba(0,0,0,.55); color:#fff; border-radius:999px;
+      background:var(--glass); color:#fff; border-radius:999px;
       backdrop-filter: blur(8px); padding:6px 12px; font-weight:800;
     }
     .btn-ghost{
       background:transparent; color:#fff; border:none; cursor:pointer; font-weight:800;
       text-shadow:0 1px 0 rgba(255,255,255,.2);
+    }
+
+    /* Search (centered) */
+    .search{
+      pointer-events:auto; display:flex; align-items:center; gap:8px; justify-content:center;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+      padding:8px 10px; border-radius:14px; box-shadow:0 0 20px rgba(255,215,0,.15);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .search:focus-within{ transform:translateY(-1px); box-shadow:0 0 28px rgba(255,215,0,.28) }
+    .search input{
+      width:min(56vw, 520px);
+      border:none; outline:none; background:transparent; color:#fff;
+      font-family:inherit; font-size:14px;
+    }
+    .search button{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; border:none; border-radius:10px; padding:8px 10px; cursor:pointer; font-weight:800;
+    }
+
+    /* Search results drawer */
+    .results{
+      position:absolute; left:50%; top: calc(var(--top-safe) + 62px);
+      transform: translateX(-50%);
+      width:min(92vw, 760px); max-height: 50svh; overflow:auto;
+      background: rgba(10,10,14,.86);
+      border-radius:14px; padding:8px; display:none; z-index:6;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .res-item{
+      display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px;
+      background: rgba(255,255,255,.03);
+      margin:6px 0;
+    }
+    .res-item:hover{ background: rgba(255,255,255,.06) }
+    .res-flag{ width:22px; height:14px; object-fit:cover; border-radius:3px; }
+    .res-meta{ display:grid; gap:4px; }
+    .res-handle{ font-weight:800; font-size:13px }
+    .res-sub{ color:var(--muted); font-size:12px }
+    .res-cta{
+      margin-left:auto;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; border:none; border-radius:10px; padding:8px 10px; cursor:pointer; font-weight:800;
     }
 
     /* Streams */
@@ -102,47 +148,28 @@
     }
     @keyframes paneSheen{ from{opacity:.3} to{opacity:.58} }
 
-    /* Center overlays for each pane (names/country) */
+    /* Pane labels */
     .meta{
       position:absolute; left:12px; bottom:12px; z-index:3;
       display:flex; align-items:center; gap:8px;
-      background:rgba(0,0,0,.48); backdrop-filter:blur(10px);
+      background:var(--glass); backdrop-filter:blur(10px);
       padding:8px 12px; border-radius:12px; font-size:12px;
     }
     .meta img.flag{ width:18px; height:12px; border-radius:2px; object-fit:cover; }
 
-    /* Mid HUD */
+    /* Center timer */
     .mid{
-      pointer-events:none;
-      position:absolute; inset:0; display:grid; place-items:center; z-index:4;
+      pointer-events:none; position:absolute; inset:0; display:grid; place-items:center; z-index:4;
     }
     .timer{
-      background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
+      background:var(--glass); backdrop-filter:blur(8px);
       padding:10px 18px; border-radius:999px; font-weight:800; font-size:15px;
       text-shadow:0 0 12px rgba(255,215,0,.18);
     }
     .timer.animate{ animation:pulse 1.8s infinite; }
     @keyframes pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
 
-    /* Vote panel */
-    .vote{
-      position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 90px);
-      transform:translateX(-50%); z-index:5; display:flex; gap:10px; align-items:center;
-    }
-    .vote .card{
-      display:flex; align-items:center; gap:10px;
-      background:rgba(0,0,0,.5); backdrop-filter:blur(10px);
-      padding:10px 12px; border-radius:14px; min-width:130px; justify-content:space-between;
-    }
-    .vote .name{ font-weight:800; font-size:13px }
-    .vote .tally{ font-size:12px; color:var(--muted) }
-    .vote .btn{
-      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
-      color:#000; font-weight:800; border:none; border-radius:10px; padding:8px 10px; cursor:pointer;
-      box-shadow:0 0 16px rgba(255,215,0,.35);
-    }
-
-    /* Bottom bar: minimalist shapes (no boxes) */
+    /* Bottom shapes (same family as Arena) */
     .bottom{
       display:flex; align-items:center; justify-content:center; gap:22px;
       padding: 8px clamp(12px,2.5vw,20px) calc(var(--bottom-safe) + 8px);
@@ -166,8 +193,8 @@
 
     /* Mobile tweaks */
     @media (max-width: 900px){
-      .vote{ bottom: calc(var(--bottom-safe) + 80px); }
       .shape{ width:24px; height:24px }
+      .search input{ width: min(70vw, 520px); }
     }
   </style>
 </head>
@@ -196,10 +223,20 @@
         <button id="liveBtn" class="pill">LIVE</button>
         <div id="viewerChip" class="chip">👁 0</div>
       </div>
+
+      <!-- SEARCH CENTER -->
+      <div class="search" id="searchBox" role="search">
+        <input id="searchInput" type="text" placeholder="Search battles by country, city, or region… (e.g., Japan, Paris, West Coast)"/>
+        <button id="searchBtn">Search</button>
+      </div>
+
       <div class="hud-right">
         <button id="shareBtn" class="btn-ghost">Share</button>
         <button id="muteBtn" class="btn-ghost" aria-pressed="false">Mute</button>
       </div>
+
+      <!-- Results drawer -->
+      <div class="results" id="resultsDrawer" role="listbox" aria-label="Search results"></div>
     </header>
 
     <!-- ARENA -->
@@ -220,27 +257,9 @@
       <div class="mid">
         <div id="timer" class="timer">Loading battle…</div>
       </div>
-
-      <!-- Voting -->
-      <div class="vote" id="voteBar" aria-label="Vote Panel">
-        <div class="card">
-          <div>
-            <div class="name" id="labelA">@CompetitorA</div>
-            <div class="tally">Votes: <span id="votesA">0</span></div>
-          </div>
-          <button id="voteA" class="btn">Vote</button>
-        </div>
-        <div class="card">
-          <div>
-            <div class="name" id="labelB">@CompetitorB</div>
-            <div class="tally">Votes: <span id="votesB">0</span></div>
-          </div>
-          <button id="voteB" class="btn">Vote</button>
-        </div>
-      </div>
     </main>
 
-    <!-- BOTTOM shapes -->
+    <!-- BOTTOM shapes (keep like Arena) -->
     <footer class="bottom" aria-label="Navigation">
       <button class="shape gold" id="homeBtn" title="Home">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
@@ -263,19 +282,18 @@
   <!-- Scripts -->
   <script type="module">
     /**
-     * EXPECTED SUPPORTING FILES (same as your Arena page setup):
-     * - /js/firebase.js : exports { app, db, functions, doc, getDoc, onSnapshot, httpsCallable, serverTimestamp }
-     * - /js/session.js  : optional shared helpers (not required here)
-     *
-     * This page is VIEW-ONLY: it never requests camera/mic. It subscribes to a room as a SUBSCRIBER (SFU/WebRTC) — see joinRoom().
+     * VIEWER-ONLY page. New features vs previous version:
+     *  - Removed vote counts
+     *  - Added global search for live battles by country/area; results drawer with "Watch" CTA
+     *  - Kept Arena-like shape nav icons; overall visual polish
      */
 
-    // ----------------- Basic helpers -----------------
+    // ---------- Helpers ----------
     const $ = (q)=>document.querySelector(q);
     const byId = (id)=>document.getElementById(id);
     const params = new URLSearchParams(location.search);
-    const battleId = params.get('battle') || '';  // required
-    const roomId   = params.get('room')   || '';  // optional, for SFU
+    let battleId = params.get('battle') || '';  // can change if user clicks a search result
+    let roomId   = params.get('room')   || '';
 
     const videoA = byId('videoA');
     const videoB = byId('videoB');
@@ -283,54 +301,46 @@
     const paneB = byId('paneB');
 
     const nameA = byId('nameA'); const nameB = byId('nameB');
-    const labelA = byId('labelA'); const labelB = byId('labelB');
     const flagA = byId('flagA'); const flagB = byId('flagB');
     const countryA = byId('countryA'); const countryB = byId('countryB');
 
     const timerEl = byId('timer');
     const viewerChip = byId('viewerChip');
+    const resultsDrawer = byId('resultsDrawer');
+    const searchInput = byId('searchInput');
 
-    const votesA = byId('votesA'); const votesB = byId('votesB');
-    const voteBtnA = byId('voteA'); const voteBtnB = byId('voteB');
-
-    const shareBtn = byId('shareBtn'); const shareCta = byId('shareCta');
-    const muteBtn = byId('muteBtn');
-
-    // Nav
+    // Nav links
     byId('homeBtn').onclick = ()=> location.href='home.html';
     byId('boardBtn').onclick = ()=> location.href='leaderboard.html';
     byId('discoverBtn').onclick = ()=> location.href='discover.html';
     byId('profileBtn').onclick = ()=> location.href='profile.html';
 
-    // ----------------- Firebase wiring -----------------
+    // ---------- Firebase ----------
     import {
       db, functions,
-      doc, getDoc, onSnapshot, httpsCallable, serverTimestamp
+      collection, query, where, orderBy, limit, onSnapshot,
+      doc, getDoc, httpsCallable
     } from './js/firebase.js';
 
-    // Callable functions you’ll implement in Cloud Functions
-    const castVote   = httpsCallable(functions, 'castVote');     // { battleId, side:'a'|'b' }
-    const viewerJoin = httpsCallable(functions, 'viewerJoin');   // { battleId, roomId }
-    const viewerLeave= httpsCallable(functions, 'viewerLeave');  // { battleId, roomId }
+    // Callable presence fns (optional if you wired them)
+    const viewerJoin  = httpsCallable(functions, 'viewerJoin');   // { battleId, roomId }
+    const viewerLeave = httpsCallable(functions, 'viewerLeave');  // { battleId, roomId }
 
-    // ----------------- Presence (viewer count) -----------------
-    async function joinPresence(){
-      try{
-        await viewerJoin({ battleId, roomId });
-      }catch(e){ /* silent */ }
-    }
-    async function leavePresence(){
-      try{
-        await viewerLeave({ battleId, roomId });
-      }catch(e){ /* silent */ }
-    }
+    // ---------- Presence ----------
+    async function joinPresence(){ try{ if(battleId) await viewerJoin({ battleId, roomId }); }catch{} }
+    async function leavePresence(){ try{ if(battleId) await viewerLeave({ battleId, roomId }); }catch{} }
     window.addEventListener('pagehide', leavePresence);
     window.addEventListener('beforeunload', leavePresence);
 
-    // ----------------- Battle subscription -----------------
+    // ---------- Battle subscription ----------
     let countdownRAF = 0;
-    function showTimer(text){ timerEl.textContent = text; }
+    const current = { status:'loading', round:1, part:0, turnEndsAt:null };
 
+    function showTimer(t){ timerEl.textContent = t; }
+    function updateTurnUI(){
+      if(current.part === 0){ paneA.classList.remove('inactive'); paneB.classList.add('inactive'); }
+      else{ paneA.classList.add('inactive'); paneB.classList.remove('inactive'); }
+    }
     function startAccurateCountdown(turnEndsAtMillis){
       cancelAnimationFrame(countdownRAF);
       timerEl.classList.add('animate');
@@ -346,87 +356,147 @@
       countdownRAF = requestAnimationFrame(tick);
     }
 
-    // live battle state (updated from Firestore)
-    const current = { status:'loading', round:1, part:0, votes:{a:0,b:0}, turnEndsAt:null };
-
-    async function hydrateUser(uField, nameEl, countryEl, flagEl){
-      // uField can be {handle, country, flagUrl} if Arena wrote it into battle
-      // else fallback to /users/{uid}
-      if(!uField){
-        nameEl.textContent = '@Unknown';
-        countryEl.textContent = '—';
-        flagEl.style.visibility = 'hidden';
-        return;
-      }
-      if(uField.handle) nameEl.textContent = uField.handle;
-      if(uField.country){ countryEl.textContent = uField.country; }
-      if(uField.flagUrl){ flagEl.src = uField.flagUrl; flagEl.style.visibility='visible'; }
+    async function hydrateCompetitors(b){
+      const A = b.competitorA || b.a || {};
+      const B = b.competitorB || b.b || {};
+      nameA.textContent = A.handle || '@CompetitorA';
+      nameB.textContent = B.handle || '@CompetitorB';
+      countryA.textContent = A.country || '—';
+      countryB.textContent = B.country || '—';
+      if(A.flagUrl){ flagA.src = A.flagUrl; flagA.style.visibility='visible'; }
+      if(B.flagUrl){ flagB.src = B.flagUrl; flagB.style.visibility='visible'; }
     }
 
-    function updateVotesUI(v){
-      votesA.textContent = v?.a ?? 0;
-      votesB.textContent = v?.b ?? 0;
-    }
+    let unsubBattle = null;
+    async function subscribeBattle(id){
+      if(unsubBattle){ unsubBattle(); unsubBattle = null; }
+      if(!id){ showTimer('Select a battle to watch'); return; }
 
-    function updateTurnUI(){
-      // Part 0 => A active, Part 1 => B active
-      if(current.part === 0){ paneA.classList.remove('inactive'); paneB.classList.add('inactive'); }
-      else{ paneA.classList.add('inactive'); paneB.classList.remove('inactive'); }
-    }
-
-    async function subscribeBattle(){
-      if(!battleId){
-        showTimer('Missing battle id');
-        return;
-      }
-      const ref = doc(db,'battles', battleId);
+      const ref = doc(db,'battles', id);
       const first = await getDoc(ref);
-      if(!first.exists()){
-        showTimer('Battle not found');
-      }
+      if(!first.exists()){ showTimer('Battle not found'); return; }
 
-      onSnapshot(ref, (snap)=>{
-        const b = snap.data();
-        if(!b){ return; }
+      unsubBattle = onSnapshot(ref, (snap)=>{
+        const b = snap.data(); if(!b) return;
 
-        // Names / countries (prefer embedded)
-        hydrateUser(b.competitorA || b.a, nameA, countryA, flagA);
-        hydrateUser(b.competitorB || b.b, nameB, countryB, flagB);
-        labelA.textContent = nameA.textContent;
-        labelB.textContent = nameB.textContent;
-
-        // Status / votes
         current.status = b.status || current.status;
-        current.round  = b.round  || current.round;
-        current.part   = (typeof b.part==='number') ? b.part : current.part;
-        current.votes  = b.votes || current.votes;
-        updateVotesUI(current.votes);
+        current.round  = b.round  ?? current.round;
+        current.part   = b.part   ?? current.part;
         updateTurnUI();
 
-        // Timer (expects Arena to keep battle.turnEndsAt = serverTimestamp() + remaining)
-        if(b.turnEndsAt?.toMillis){
-          startAccurateCountdown(b.turnEndsAt.toMillis());
-        }else{
+        hydrateCompetitors(b);
+
+        if(b.turnEndsAt?.toMillis){ startAccurateCountdown(b.turnEndsAt.toMillis()); }
+        else{
           timerEl.classList.remove('animate');
           if(current.status==='live') showTimer(`Round ${current.round}/3`);
           else if(current.status==='finished') showTimer('🔥 Battle Over 🔥');
           else showTimer('Waiting…');
         }
 
-        // Viewers (if Arena writes streams viewers on the battle doc)
         if(typeof b.viewers === 'number'){ viewerChip.textContent = `👁 ${b.viewers}`; }
       });
     }
 
-    // ----------------- Voting -----------------
-    voteBtnA.addEventListener('click', async ()=>{
-      try{ await castVote({ battleId, side:'a' }); }catch(e){ /* optionally toast */ }
+    // ---------- Search (countries/areas) ----------
+    // Strategy: listen to a limited window of live battles and client-filter by term.
+    // For larger scale, move filtering into a Cloud Function / Algolia index.
+    const LIVE_LIMIT = 30;
+    let liveUnsub = null;
+    let liveCache = []; // cached list of live battles
+
+    function normalize(str){ return (str||'').toString().toLowerCase(); }
+
+    function renderResults(list){
+      const open = list && list.length;
+      resultsDrawer.style.display = open ? 'block' : 'none';
+      resultsDrawer.innerHTML = (list||[]).map(b=>{
+        const a = b.competitorA || b.a || {};
+        const ctry = (a.country || b.country || '—');
+        const flag = (a.flagUrl || 'flag_us.png');
+        const loc = b.area || b.region || ctry;
+        return `
+          <div class="res-item" role="option">
+            <img class="res-flag" src="${flag}" alt="">
+            <div class="res-meta">
+              <div class="res-handle">${a.handle || '@CompetitorA'} vs ${(b.competitorB?.handle || b.b?.handle || '@CompetitorB')}</div>
+              <div class="res-sub">${ctry}${loc && loc!==ctry ? ' · '+loc : ''}</div>
+            </div>
+            <button class="res-cta" data-battle="${b.id}" data-room="${b.liveRoomId||''}">Watch</button>
+          </div>
+        `;
+      }).join('');
+      resultsDrawer.querySelectorAll('.res-cta').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const id = e.currentTarget.dataset.battle;
+          const room = e.currentTarget.dataset.room || '';
+          // navigate to this battle in-place
+          battleId = id; roomId = room;
+          resultsDrawer.style.display = 'none';
+          history.replaceState({}, '', `?battle=${encodeURIComponent(battleId)}${roomId?`&room=${encodeURIComponent(roomId)}`:''}`);
+          // restart presence + subscription + media
+          (async()=>{
+            await leavePresence();
+            await joinPresence();
+            await subscribeBattle(battleId);
+            await joinRoom(roomId); // reattach media
+          })();
+        });
+      });
+    }
+
+    async function subscribeLiveList(){
+      if(liveUnsub) liveUnsub();
+      const qLive = query(
+        collection(db,'battles'),
+        where('status','==','live'),
+        orderBy('createdAt','desc'),
+        limit(LIVE_LIMIT)
+      );
+      liveUnsub = onSnapshot(qLive, snap=>{
+        liveCache = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+        // if user hasn't typed, keep drawer hidden
+        const term = normalize(searchInput.value.trim());
+        if(term){
+          applySearch(term);
+        }
+      });
+    }
+
+    function applySearch(term){
+      const t = normalize(term);
+      if(!t){ resultsDrawer.style.display='none'; resultsDrawer.innerHTML=''; return; }
+      const res = liveCache.filter(b=>{
+        const A = b.competitorA || b.a || {};
+        const B = b.competitorB || b.b || {};
+        const hay = [
+          A.handle, A.country, b.country, b.region, b.area,
+          B.handle, B.country,
+          b.title, b.tags && b.tags.join(' ')
+        ].map(normalize).join(' ');
+        return hay.includes(t) || hay.split(/\s+/).some(w=> w && t.includes(w));
+      }).slice(0, 20);
+      renderResults(res);
+    }
+
+    byId('searchBtn').addEventListener('click', ()=>{
+      applySearch(searchInput.value);
     });
-    voteBtnB.addEventListener('click', async ()=>{
-      try{ await castVote({ battleId, side:'b' }); }catch(e){ /* optionally toast */ }
+    searchInput.addEventListener('input', (e)=>{
+      const val = e.currentTarget.value;
+      if(val.length>=2) applySearch(val);
+      else { resultsDrawer.style.display='none'; resultsDrawer.innerHTML=''; }
+    });
+    // close results when clicking outside
+    document.addEventListener('click', (e)=>{
+      const box = byId('searchBox');
+      if(!box.contains(e.target) && !resultsDrawer.contains(e.target)){
+        resultsDrawer.style.display='none';
+      }
     });
 
-    // ----------------- Sharing -----------------
+    // ---------- Share / Mute ----------
+    const shareBtn = byId('shareBtn'); const shareCta = byId('shareCta');
     shareBtn.addEventListener('click', async ()=>{
       const url = location.href;
       const data = { title:'Watch this Battle', text:'Pull up to the BattleBillions live', url };
@@ -434,17 +504,15 @@
         if(navigator.share){ await navigator.share(data); }
         else{
           await navigator.clipboard.writeText(url);
-          byId('shareCta').style.display='block';
-          setTimeout(()=> byId('shareCta').style.display='none', 1400);
+          shareCta.style.display='block';
+          setTimeout(()=> shareCta.style.display='none', 1400);
         }
-      }catch(e){}
+      }catch{}
     });
 
-    // ----------------- Audio mute (viewer side) -----------------
-    let muted = false;
+    const muteBtn = byId('muteBtn'); let muted = false;
     function applyMute(){
-      videoA.muted = muted;
-      videoB.muted = muted;
+      videoA.muted = muted; videoB.muted = muted;
       muteBtn.setAttribute('aria-pressed', String(muted));
       muteBtn.textContent = muted ? 'Unmute' : 'Mute';
     }
@@ -453,43 +521,34 @@
       if(!muted){ videoA.play().catch(()=>{}); videoB.play().catch(()=>{}); }
     });
 
-    // ----------------- SFU / Room integration (SUBSCRIBER) -----------------
-    /**
-     * Replace this stub with your SFU/WebRTC client code.
-     * Goal:
-     *  - Join `roomId` as VIEWER
-     *  - Subscribe to two remote tracks: A and B
-     *  - Attach MediaStream(s) to `videoA` and `videoB`
-     *  - Autoplay policy: keep muted=true until user presses "Unmute"
-     */
+    // ---------- SFU / playback stub ----------
     async function joinRoom(roomId){
+      // If no room is supplied, demo fallback media.
       if(!roomId){
-        // Demo fallback: load sample media
-        videoA.src = 'user2.mp4';
-        videoB.src = 'user3.mp4';
+        videoA.src = 'user2.mp4'; videoB.src = 'user3.mp4';
         videoA.loop = videoB.loop = true;
         await Promise.allSettled([videoA.play(), videoB.play()]);
         return;
       }
-      // Example pseudo-code:
+      // Plug-in your SFU client here to attach remote tracks to videoA/videoB.
+      // Example:
       // const rtc = new YourSfuClient({ url, token });
       // await rtc.join(roomId);
-      // const trackA = await rtc.subscribe('A');
-      // const trackB = await rtc.subscribe('B');
-      // videoA.srcObject = trackA.mediaStream;
-      // videoB.srcObject = trackB.mediaStream;
+      // const trackA = await rtc.subscribe('A'); videoA.srcObject = trackA.stream;
+      // const trackB = await rtc.subscribe('B'); videoB.srcObject = trackB.stream;
       // await videoA.play().catch(()=>{}); await videoB.play().catch(()=>{});
     }
 
-    // ----------------- Boot -----------------
+    // ---------- Boot ----------
     (async function boot(){
-      // size fix for mobile 100vh issues
+      // height fix for mobile 100vh
       const root = $('.wrap');
       const setH = ()=>{ root.style.height = window.innerHeight+'px'; };
       setH(); addEventListener('resize', setH, {passive:true});
 
       applyMute();
-      await subscribeBattle();
+      await subscribeLiveList();
+      await subscribeBattle(battleId);
       await joinPresence();
       await joinRoom(roomId);
     })();
