@@ -14,17 +14,18 @@
       --gold-2:#ffcc3b;
       --ink:#eaeaea;
       --muted:#b8b8b8;
-      --top-safe: max(14px, env(safe-area-inset-top));
-      --side-safe: max(14px, env(safe-area-inset-left));
-      --side-safe-r: max(14px, env(safe-area-inset-right));
-      --bottom-safe: max(16px, env(safe-area-inset-bottom));
+      --top-safe: max(12px, env(safe-area-inset-top));
+      --side-safe: max(12px, env(safe-area-inset-left));
+      --side-safe-r: max(12px, env(safe-area-inset-right));
+      --bottom-safe: max(18px, env(safe-area-inset-bottom));
       --glass: rgba(0,0,0,.55);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
     html, body{
       height:100%; width:100%;
-      overflow:hidden; overscroll-behavior:none;
+      overflow:hidden; /* no scroll on mobile */
+      overscroll-behavior:none;
       background:#000; color:var(--ink);
       font-family:'Orbitron',sans-serif;
       -webkit-tap-highlight-color:transparent;
@@ -38,7 +39,7 @@
       position:absolute; inset:-15%;
       background: conic-gradient(from 0deg at 50% 50%,
         rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
-      filter: blur(90px) saturate(130%); opacity:.34; animation: nebula 40s linear infinite;
+      filter: blur(90px) saturate(130%); opacity:.30; animation: nebula 40s linear infinite;
     }
     @keyframes nebula{ to{ transform: rotate(360deg) } }
     .layer-stars{
@@ -61,7 +62,7 @@
     .top{
       display:grid; grid-template-columns: 1fr auto 1fr; align-items:center;
       gap:10px;
-      padding: calc(var(--top-safe)) clamp(12px,2.5vw,20px) 10px;
+      padding: calc(var(--top-safe)) clamp(12px,3vw,22px) 10px;
       pointer-events:none;
     }
     .hud-left, .hud-right{ display:flex; gap:10px; align-items:center; pointer-events:auto; }
@@ -73,7 +74,7 @@
     }
     .chip{
       background:var(--glass); color:#fff; border-radius:999px;
-      backdrop-filter: blur(8px); padding:6px 12px; font-weight:800;
+      backdrop-filter: blur(10px); padding:6px 12px; font-weight:800;
     }
     .btn-ghost{
       background:transparent; color:#fff; border:none; cursor:pointer; font-weight:800;
@@ -134,7 +135,7 @@
       filter: brightness(.96) contrast(1.08) saturate(1.06);
     }
     .pane.inactive::before{
-      content:""; position:absolute; inset:0; background:rgba(0,0,0,.32); z-index:2;
+      content:""; position:absolute; inset:0; background:rgba(0,0,0,.34); z-index:2;
       backdrop-filter: blur(1.5px);
     }
     .pane::after{
@@ -169,14 +170,26 @@
     .timer.animate{ animation:pulse 1.8s infinite; }
     @keyframes pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
 
-    /* Bottom shapes (same family as Arena) */
+    /* Vote panel (no counts shown) */
+    .vote{
+      position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 96px);
+      transform:translateX(-50%); z-index:5; display:flex; gap:12px; align-items:center;
+    }
+    .vote .btn{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; font-weight:800; border:none; border-radius:12px; padding:10px 14px; cursor:pointer;
+      box-shadow:0 0 16px rgba(255,215,0,.35);
+      min-width:110px;
+    }
+
+    /* Bottom shapes (match Arena: circle, square, diamond, triangle, profile) */
     .bottom{
-      display:flex; align-items:center; justify-content:center; gap:22px;
-      padding: 8px clamp(12px,2.5vw,20px) calc(var(--bottom-safe) + 8px);
+      display:flex; align-items:center; justify-content:center; gap:24px;
+      padding: 8px clamp(12px,3vw,22px) calc(var(--bottom-safe) + 10px);
     }
     .shape{
       appearance:none; background:transparent; border:none; padding:0;
-      width:26px; height:26px; display:grid; place-items:center; cursor:pointer;
+      width:28px; height:28px; display:grid; place-items:center; cursor:pointer;
       filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
       transition: transform .18s ease, filter .18s ease;
     }
@@ -191,10 +204,11 @@
     }
     .share-cta .pill{ padding:8px 14px }
 
-    /* Mobile tweaks */
+    /* Mobile first tweaks */
     @media (max-width: 900px){
-      .shape{ width:24px; height:24px }
+      .shape{ width:26px; height:26px }
       .search input{ width: min(70vw, 520px); }
+      .vote{ bottom: calc(var(--bottom-safe) + 88px); }
     }
   </style>
 </head>
@@ -257,19 +271,33 @@
       <div class="mid">
         <div id="timer" class="timer">Loading battle…</div>
       </div>
+
+      <!-- Voting (counts hidden) -->
+      <div class="vote" id="voteBar" aria-label="Vote Panel">
+        <button id="voteA" class="btn">Vote A</button>
+        <button id="voteB" class="btn">Vote B</button>
+      </div>
     </main>
 
-    <!-- BOTTOM shapes (keep like Arena) -->
+    <!-- BOTTOM shapes (match Arena) -->
     <footer class="bottom" aria-label="Navigation">
+      <!-- Circle -->
       <button class="shape gold" id="homeBtn" title="Home">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
       </button>
+      <!-- Square -->
       <button class="shape" id="boardBtn" title="Leaderboard">
         <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
       </button>
+      <!-- Diamond -->
       <button class="shape gold" id="discoverBtn" title="Discover">
         <svg viewBox="0 0 24 24"><polygon points="12,4 20,12 12,20 4,12"/></svg>
       </button>
+      <!-- Triangle -->
+      <button class="shape" id="liveNavBtn" title="Live">
+        <svg viewBox="0 0 24 24"><polygon points="12,5 20,19 4,19"/></svg>
+      </button>
+      <!-- Profile glyph (kept minimal to match shapes) -->
       <button class="shape" id="profileBtn" title="Profile">
         <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4 0-8 2-8 5 0 1 0 1 0 1h16s0 0 0-1c0-3-4-5-8-5Z"/></svg>
       </button>
@@ -282,37 +310,38 @@
   <!-- Scripts -->
   <script type="module">
     /**
-     * VIEWER-ONLY page. New features vs previous version:
-     *  - Removed vote counts
-     *  - Added global search for live battles by country/area; results drawer with "Watch" CTA
-     *  - Kept Arena-like shape nav icons; overall visual polish
+     * VIEWER-ONLY Live page.
+     * - Vote buttons kept (no numeric tallies shown).
+     * - Mobile-first (100svh, safe-areas, no scroll).
+     * - Bottom shape icons match Arena (circle/square/diamond/triangle/profile).
+     * - Global search for battles (country/area).
      */
 
     // ---------- Helpers ----------
     const $ = (q)=>document.querySelector(q);
     const byId = (id)=>document.getElementById(id);
     const params = new URLSearchParams(location.search);
-    let battleId = params.get('battle') || '';  // can change if user clicks a search result
+    let battleId = params.get('battle') || '';  // can change when selecting search result
     let roomId   = params.get('room')   || '';
 
+    // DOM refs
     const videoA = byId('videoA');
     const videoB = byId('videoB');
     const paneA = byId('paneA');
     const paneB = byId('paneB');
-
     const nameA = byId('nameA'); const nameB = byId('nameB');
     const flagA = byId('flagA'); const flagB = byId('flagB');
     const countryA = byId('countryA'); const countryB = byId('countryB');
-
     const timerEl = byId('timer');
     const viewerChip = byId('viewerChip');
     const resultsDrawer = byId('resultsDrawer');
     const searchInput = byId('searchInput');
 
-    // Nav links
+    // Bottom nav (shape icons)
     byId('homeBtn').onclick = ()=> location.href='home.html';
     byId('boardBtn').onclick = ()=> location.href='leaderboard.html';
     byId('discoverBtn').onclick = ()=> location.href='discover.html';
+    byId('liveNavBtn').onclick = ()=> location.href='live.html';
     byId('profileBtn').onclick = ()=> location.href='profile.html';
 
     // ---------- Firebase ----------
@@ -322,9 +351,10 @@
       doc, getDoc, httpsCallable
     } from './js/firebase.js';
 
-    // Callable presence fns (optional if you wired them)
+    // Callable cloud functions (optional if you wired them)
     const viewerJoin  = httpsCallable(functions, 'viewerJoin');   // { battleId, roomId }
     const viewerLeave = httpsCallable(functions, 'viewerLeave');  // { battleId, roomId }
+    const castVote    = httpsCallable(functions, 'castVote');     // { battleId, side:'a'|'b' }
 
     // ---------- Presence ----------
     async function joinPresence(){ try{ if(battleId) await viewerJoin({ battleId, roomId }); }catch{} }
@@ -348,7 +378,7 @@
         const now = Date.now();
         const ms = Math.max(0, turnEndsAtMillis - now);
         const s  = Math.ceil(ms/1000);
-        const label = (current.part===0?'@A':'@B');
+        const label = (current.part===0 ? '@A' : '@B');
         timerEl.textContent = `Round ${current.round}/3 | ${label} | ${s}s`;
         if(ms<=0){ timerEl.classList.remove('animate'); return; }
         countdownRAF = requestAnimationFrame(tick);
@@ -399,8 +429,6 @@
     }
 
     // ---------- Search (countries/areas) ----------
-    // Strategy: listen to a limited window of live battles and client-filter by term.
-    // For larger scale, move filtering into a Cloud Function / Algolia index.
     const LIVE_LIMIT = 30;
     let liveUnsub = null;
     let liveCache = []; // cached list of live battles
@@ -411,15 +439,16 @@
       const open = list && list.length;
       resultsDrawer.style.display = open ? 'block' : 'none';
       resultsDrawer.innerHTML = (list||[]).map(b=>{
-        const a = b.competitorA || b.a || {};
-        const ctry = (a.country || b.country || '—');
-        const flag = (a.flagUrl || 'flag_us.png');
+        const A = b.competitorA || b.a || {};
+        const B = b.competitorB || b.b || {};
+        const ctry = (A.country || b.country || '—');
+        const flag = (A.flagUrl || 'flag_us.png');
         const loc = b.area || b.region || ctry;
         return `
           <div class="res-item" role="option">
             <img class="res-flag" src="${flag}" alt="">
             <div class="res-meta">
-              <div class="res-handle">${a.handle || '@CompetitorA'} vs ${(b.competitorB?.handle || b.b?.handle || '@CompetitorB')}</div>
+              <div class="res-handle">${A.handle || '@CompetitorA'} vs ${(B.handle || '@CompetitorB')}</div>
               <div class="res-sub">${ctry}${loc && loc!==ctry ? ' · '+loc : ''}</div>
             </div>
             <button class="res-cta" data-battle="${b.id}" data-room="${b.liveRoomId||''}">Watch</button>
@@ -430,11 +459,9 @@
         btn.addEventListener('click', (e)=>{
           const id = e.currentTarget.dataset.battle;
           const room = e.currentTarget.dataset.room || '';
-          // navigate to this battle in-place
           battleId = id; roomId = room;
           resultsDrawer.style.display = 'none';
           history.replaceState({}, '', `?battle=${encodeURIComponent(battleId)}${roomId?`&room=${encodeURIComponent(roomId)}`:''}`);
-          // restart presence + subscription + media
           (async()=>{
             await leavePresence();
             await joinPresence();
@@ -455,11 +482,8 @@
       );
       liveUnsub = onSnapshot(qLive, snap=>{
         liveCache = snap.docs.map(d=>({ id:d.id, ...d.data() }));
-        // if user hasn't typed, keep drawer hidden
         const term = normalize(searchInput.value.trim());
-        if(term){
-          applySearch(term);
-        }
+        if(term){ applySearch(term); }
       });
     }
 
@@ -487,12 +511,19 @@
       if(val.length>=2) applySearch(val);
       else { resultsDrawer.style.display='none'; resultsDrawer.innerHTML=''; }
     });
-    // close results when clicking outside
     document.addEventListener('click', (e)=>{
       const box = byId('searchBox');
       if(!box.contains(e.target) && !resultsDrawer.contains(e.target)){
         resultsDrawer.style.display='none';
       }
+    });
+
+    // ---------- Voting (counts hidden) ----------
+    byId('voteA').addEventListener('click', async ()=>{
+      try{ if(battleId) await castVote({ battleId, side:'a' }); }catch{}
+    });
+    byId('voteB').addEventListener('click', async ()=>{
+      try{ if(battleId) await castVote({ battleId, side:'b' }); }catch{}
     });
 
     // ---------- Share / Mute ----------
@@ -523,15 +554,14 @@
 
     // ---------- SFU / playback stub ----------
     async function joinRoom(roomId){
-      // If no room is supplied, demo fallback media.
+      // If no room supplied, demo fallback media so UI is visible.
       if(!roomId){
         videoA.src = 'user2.mp4'; videoB.src = 'user3.mp4';
         videoA.loop = videoB.loop = true;
         await Promise.allSettled([videoA.play(), videoB.play()]);
         return;
       }
-      // Plug-in your SFU client here to attach remote tracks to videoA/videoB.
-      // Example:
+      // Integrate your SFU here (LiveKit/Agora/custom) to attach remote tracks:
       // const rtc = new YourSfuClient({ url, token });
       // await rtc.join(roomId);
       // const trackA = await rtc.subscribe('A'); videoA.srcObject = trackA.stream;
@@ -541,7 +571,7 @@
 
     // ---------- Boot ----------
     (async function boot(){
-      // height fix for mobile 100vh
+      // Mobile 100vh fix
       const root = $('.wrap');
       const setH = ()=>{ root.style.height = window.innerHeight+'px'; };
       setH(); addEventListener('resize', setH, {passive:true});
