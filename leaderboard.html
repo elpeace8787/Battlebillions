@@ -1,1 +1,529 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#eaeaea;
+      --muted:#b8b8b8;
+      --cyan:#47f5ff;
+      --gold:#ffd700;
+      --purple:#9f7bff;
+      --red:#ff4c6a;
+      --safe-top:max(10px, env(safe-area-inset-top));
+      --safe-bottom:max(14px, env(safe-area-inset-bottom));
+      --side-pad:44px;
+      --glass:rgba(255,255,255,.06);
+      --glassEdge:rgba(255,255,255,.12);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{
+      height:100%;
+      width:100%;
+      background:#000;
+      color:var(--ink);
+      font-family:'Orbitron',sans-serif;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      overscroll-behavior:none;
+    }
+    /* hide scrollbars (still scrollable) */
+    *::-webkit-scrollbar{ width:0; height:0; display:none }
+    *{ scrollbar-width:none }
+
+    /* Ambient background (soft vignette) */
+    body::before{
+      content:""; position:fixed; inset:-10%; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(900px 600px at 25% 15%, rgba(255,215,0,.06), transparent 60%),
+        radial-gradient(800px 600px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
+        radial-gradient(1200px 1000px at 50% 80%, rgba(159,123,255,.05), transparent 70%);
+      filter: blur(2px);
+    }
+
+    .page{
+      position:relative; z-index:1;
+      min-height:100dvh;
+      padding: var(--safe-top) var(--side-pad) calc(var(--safe-bottom) + 90px);
+    }
+
+    /* HEADER */
+    .header{
+      position:sticky; top:0; z-index:5;
+      display:grid; gap:10px;
+      background: linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,.3));
+      backdrop-filter: blur(12px);
+      padding-bottom:10px;
+    }
+    .title{
+      display:flex; justify-content:center; align-items:center; gap:10px;
+      font-weight:800; letter-spacing:.4px; text-transform:uppercase;
+      padding-top:6px;
+    }
+    .title span{
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.18), rgba(255,255,255,0) 20% 80%, rgba(255,255,255,.18)),
+        linear-gradient(180deg, #f2f2f2 0%, #c7c7c7 38%, #9d9d9d 56%, #f0f0f0 86%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow: 0 4px 24px rgba(255,215,0,.12);
+      font-size:22px;
+    }
+
+    /* TOP CONTROLS: search + window tabs */
+    .controls{
+      display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center;
+      padding:0 4px;
+    }
+    .search{
+      position:relative; display:flex; align-items:center; gap:8px;
+      background:var(--glass); border-radius:18px; padding:6px 10px;
+      box-shadow:0 0 22px rgba(71,245,255,.18), inset 0 0 0 1px rgba(71,245,255,.22);
+      width:min(92vw,560px); margin:0 auto;
+    }
+    .search input{
+      flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:13px; font-family:inherit;
+    }
+    .search .clear{ display:none; appearance:none; border:none; background:transparent; color:#bfefff; font-weight:800; cursor:pointer; }
+    .search .clear.show{ display:inline-block; }
+    .window-tabs{
+      display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+    }
+    .tab{
+      font-size:12px; font-weight:800; color:#111; cursor:pointer; border:none;
+      padding:8px 12px; border-radius:999px;
+      background:linear-gradient(180deg,#fff3bd,#ffd700);
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(255,215,0,.2);
+      opacity:.6; transition:opacity .15s ease, transform .12s ease;
+    }
+    .tab.active{ opacity:1; transform:translateY(-1px) }
+    .tabs-wrap{ display:flex; gap:8px; align-items:center; }
+
+    /* FILTER STRIP */
+    .filters{
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px; padding:0 6px;
+    }
+    .chip{
+      display:flex; align-items:center; gap:8px;
+      background:rgba(255,255,255,.06);
+      border-radius:999px; padding:8px 10px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.35);
+    }
+    .chip select, .chip input{
+      background:transparent; border:none; color:#fff; font-family:inherit; font-size:12px; outline:none;
+    }
+    .chip label{ font-size:11px; color:#cfefff; opacity:.9 }
+
+    /* ZODIAC grid selector */
+    .zodiacs{
+      display:grid; grid-template-columns: repeat(6, minmax(44px,1fr));
+      gap:8px; justify-items:center; max-width:600px; margin:8px auto 0;
+    }
+    .z{
+      width:100%; padding:8px 0; text-align:center; font-size:11px; font-weight:800; cursor:pointer;
+      background:rgba(255,255,255,.06); color:#e8e8e8; border:none; border-radius:12px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+      transition:transform .12s ease, filter .12s ease, background .12s ease;
+    }
+    .z.active{
+      background:linear-gradient(180deg,#fff3bd,#ffd700);
+      color:#111; box-shadow:0 10px 22px rgba(255,215,0,.25), inset 0 0 0 1px rgba(0,0,0,.18);
+    }
+
+    /* RESULTS LIST */
+    .list{
+      display:grid; gap:12px; margin-top:14px;
+    }
+    .row{
+      display:grid; grid-template-columns: 56px 1fr auto; gap:12px; align-items:center;
+      background:rgba(255,255,255,.045);
+      border-radius:16px; padding:10px 12px;
+      box-shadow:0 10px 32px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    .av{
+      width:56px; height:56px; border-radius:50%; overflow:hidden; position:relative; background:#111;
+      box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 10px rgba(255,255,255,.08);
+    }
+    .av img{ width:100%; height:100%; object-fit:cover }
+    .badge-flag{ position:absolute; right:-2px; bottom:-2px; width:18px; height:12px; border-radius:3px; border:1px solid rgba(255,255,255,.6) }
+    .who{
+      display:grid; gap:4px;
+    }
+    .topline{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .handle{ font-weight:800; font-size:14px }
+    .loc{ font-size:11px; color:var(--muted) }
+    .ranks{
+      display:flex; gap:6px; align-items:center;
+    }
+    .rbadge{
+      min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center;
+      font-size:11px; font-weight:800; color:#000;
+      background:linear-gradient(180deg,#fff1a8,#ffd700);
+      box-shadow:0 0 10px rgba(255,215,0,.35), inset 0 0 0 1px rgba(0,0,0,.15);
+    }
+    .rbadge.silver{ background:linear-gradient(180deg,#fafafa,#cfcfcf) }
+    .rbadge.bronze{ background:linear-gradient(180deg,#ffd7b0,#c8903c) }
+    .stats{
+      display:flex; gap:12px; font-size:11px; color:#cfefff; flex-wrap:wrap;
+    }
+    .score{
+      font-weight:800; color:#111; padding:8px 10px; border-radius:999px;
+      background:linear-gradient(180deg,#fff3bd,#ffd700);
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(255,215,0,.2);
+    }
+
+    /* SIDE ICONS (Arena parity) */
+    nav.side{
+      position:fixed; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:20px; z-index:6;
+    }
+    nav.side.left{ left:16px }
+    nav.side.right{ right:16px }
+    .shape{
+      background:none; border:none; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .shape:active{ transform: scale(.96) }
+    .shape:hover{ transform:translateY(-2px) scale(1.06); filter:brightness(1.08) }
+    .shape svg{ width:100%; height:100%; fill:none }
+    .strokeline{ stroke: var(--gold); stroke-width:2.2 }
+    .shape.logout .strokeline{ stroke:#ff4c4c }
+
+    /* Bottom-center triangle */
+    .center-triangle{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6 }
+
+    @media (max-width:640px){
+      .controls{ grid-template-columns: 1fr }
+      .window-tabs{ order:2 }
+      .search{ order:1; width:min(94vw,560px) }
+      .row{ grid-template-columns: 56px 1fr; }
+      .score{ justify-self:start; margin-top:6px }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Sticky Header -->
+    <header class="header">
+      <div class="title"><span>Global Leaderboard</span></div>
+
+      <div class="controls">
+        <div class="search" role="search">
+          <input id="q" type="text" placeholder="Search by username, city, or country…" autocomplete="off"/>
+          <button id="qClear" class="clear" aria-label="Clear search">✖</button>
+        </div>
+        <div class="tabs-wrap">
+          <button class="tab active" data-window="all">All-time</button>
+          <button class="tab" data-window="30d">30d</button>
+          <button class="tab" data-window="7d">7d</button>
+          <button class="tab" data-window="24h">24h</button>
+        </div>
+      </div>
+
+      <!-- Filter strip -->
+      <div class="filters">
+        <div class="chip">
+          <label for="region">Region</label>
+          <select id="region">
+            <option value="">World</option>
+            <option value="NA">North America</option>
+            <option value="EUROPE">Europe</option>
+            <option value="ASIA">Asia</option>
+            <option value="AFRICA">Africa</option>
+            <option value="SA">South America</option>
+            <option value="OCE">Oceania</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="country">Country</label>
+          <select id="country">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="city">City</label>
+          <input id="city" type="text" placeholder="All" />
+        </div>
+
+        <div class="chip">
+          <label for="gender">Gender</label>
+          <select id="gender">
+            <option value="">All</option>
+            <option value="M">Men</option>
+            <option value="F">Women</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="sort">Sort</label>
+          <select id="sort">
+            <option value="score">Score</option>
+            <option value="wins">Wins</option>
+            <option value="winrate">Win rate</option>
+            <option value="recent">Most active</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Zodiac grid -->
+      <div class="zodiacs" id="zodiacs" aria-label="Zodiac filter">
+        <button class="z" data-sign="Aries">Aries</button>
+        <button class="z" data-sign="Taurus">Taurus</button>
+        <button class="z" data-sign="Gemini">Gemini</button>
+        <button class="z" data-sign="Cancer">Cancer</button>
+        <button class="z" data-sign="Leo">Leo</button>
+        <button class="z" data-sign="Virgo">Virgo</button>
+        <button class="z" data-sign="Libra">Libra</button>
+        <button class="z" data-sign="Scorpio">Scorpio</button>
+        <button class="z" data-sign="Sagittarius">Sagittarius</button>
+        <button class="z" data-sign="Capricorn">Capricorn</button>
+        <button class="z" data-sign="Aquarius">Aquarius</button>
+        <button class="z" data-sign="Pisces">Pisces</button>
+      </div>
+    </header>
+
+    <!-- RESULTS -->
+    <main class="list" id="list" aria-live="polite"></main>
+  </div>
+
+  <!-- LEFT side (circle over square) -->
+  <nav class="side left" aria-label="Left sidebar">
+    <button class="shape" data-link="home.html" title="Home" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
+    </button>
+    <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
+    </button>
+  </nav>
+
+  <!-- RIGHT side (diamond over X) -->
+  <nav class="side right" aria-label="Right sidebar">
+    <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
+    </button>
+    <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+        <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Bottom-center triangle -->
+  <div class="center-triangle">
+    <button class="shape" data-link="arena.html" title="Arena" aria-label="Arena">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
+    </button>
+  </div>
+
+  <script>
+    /***********************
+     * DEMO DATA
+     * (Wire to backend later: replace with API results)
+     ***********************/
+    const USERS = [
+      // region, country, city, gender, zodiac, score, wins, losses, activity (timestamp), rankBadge (1..9|null)
+      {handle:'@Nova',    avatar:'user2.jpg', flag:'flag_jp.png', region:'ASIA',   country:'JP', city:'Tokyo',     gender:'F', zodiac:'Leo',        score:2420, wins:312, losses:88,  recent:  Date.now()-1000*60*5,   badge:1},
+      {handle:'@Kiro',    avatar:'user3.jpg', flag:'flag_us.png', region:'NA',     country:'US', city:'New York',  gender:'M', zodiac:'Aries',      score:2310, wins:290, losses:110, recent:  Date.now()-1000*60*40,  badge:3},
+      {handle:'@Ari',     avatar:'user4.jpg', flag:'flag_fr.png', region:'EUROPE', country:'FR', city:'Paris',     gender:'F', zodiac:'Pisces',     score:2280, wins:270, losses:120, recent:  Date.now()-1000*60*15,  badge:2},
+      {handle:'@Zed',     avatar:'user3.jpg', flag:'flag_br.png', region:'SA',     country:'BR', city:'Rio',       gender:'M', zodiac:'Scorpio',    score:2210, wins:250, losses:130, recent:  Date.now()-1000*60*55,  badge:4},
+      {handle:'@Sol',     avatar:'user2.jpg', flag:'flag_jp.png', region:'ASIA',   country:'JP', city:'Osaka',     gender:'M', zodiac:'Virgo',      score:2140, wins:220, losses:145, recent:  Date.now()-1000*60*8,   badge:6},
+      {handle:'@Vento',   avatar:'user4.jpg', flag:'flag_it.png', region:'EUROPE', country:'IT', city:'Rome',      gender:'M', zodiac:'Taurus',     score:2090, wins:205, losses:152, recent:  Date.now()-1000*60*75,  badge:7},
+      {handle:'@Rico',    avatar:'user4.jpg', flag:'flag_br.png', region:'SA',     country:'BR', city:'São Paulo', gender:'M', zodiac:'Gemini',     score:2065, wins:201, losses:160, recent:  Date.now()-1000*60*9,   badge:5},
+      {handle:'@Lyra',    avatar:'user3.jpg', flag:'flag_ca.png', region:'NA',     country:'CA', city:'Toronto',   gender:'F', zodiac:'Aquarius',   score:2005, wins:190, losses:170, recent:  Date.now()-1000*60*2,   badge:8},
+      {handle:'@Neon',    avatar:'user4.jpg', flag:'flag_gb.png', region:'EUROPE', country:'GB', city:'London',    gender:'M', zodiac:'Cancer',     score:1980, wins:180, losses:174, recent:  Date.now()-1000*60*180, badge:9},
+      {handle:'@Mina',    avatar:'user3.jpg', flag:'flag_de.png', region:'EUROPE', country:'DE', city:'Berlin',    gender:'F', zodiac:'Libra',      score:1972, wins:179, losses:175, recent:  Date.now()-1000*60*24,  badge:null},
+      {handle:'@Sage',    avatar:'user2.jpg', flag:'flag_au.png', region:'OCE',    country:'AU', city:'Sydney',    gender:'M', zodiac:'Capricorn',  score:1950, wins:175, losses:177, recent:  Date.now()-1000*60*300, badge:null},
+      {handle:'@Asha',    avatar:'user2.jpg', flag:'flag_in.png', region:'ASIA',   country:'IN', city:'Mumbai',    gender:'F', zodiac:'Sagittarius',score:1910, wins:170, losses:190, recent:  Date.now()-1000*60*35,  badge:null},
+    ];
+
+    // COUNTRY LOOKUP per region (for cascading select)
+    const REGION_COUNTRIES = {
+      NA: ['US','CA','MX'],
+      EUROPE: ['FR','DE','IT','GB','ES'],
+      ASIA: ['JP','CN','KR','IN'],
+      AFRICA: ['NG','ZA','EG'],
+      SA: ['BR','AR','CL','CO','PE'],
+      OCE: ['AU','NZ']
+    };
+
+    // Country -> pretty name + placeholder flag path (your assets should match)
+    const COUNTRY_LABEL = {
+      US:'United States', CA:'Canada', MX:'Mexico', JP:'Japan', CN:'China', KR:'South Korea', IN:'India',
+      NG:'Nigeria', ZA:'South Africa', EG:'Egypt',
+      FR:'France', DE:'Germany', IT:'Italy', GB:'United Kingdom', ES:'Spain',
+      BR:'Brazil', AR:'Argentina', CL:'Chile', CO:'Colombia', PE:'Peru',
+      AU:'Australia', NZ:'New Zealand'
+    };
+
+    /***********************
+     * ELEMENTS
+     ***********************/
+    const listEl = document.getElementById('list');
+    const qEl = document.getElementById('q');
+    const qClear = document.getElementById('qClear');
+    const regionEl = document.getElementById('region');
+    const countryEl = document.getElementById('country');
+    const cityEl = document.getElementById('city');
+    const genderEl = document.getElementById('gender');
+    const sortEl = document.getElementById('sort');
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const zodiacsWrap = document.getElementById('zodiacs');
+
+    let activeWindow = 'all';
+    const activeZodiacs = new Set();
+
+    /***********************
+     * HELPERS
+     ***********************/
+    function winrate(u){
+      const total = u.wins + u.losses;
+      return total ? (u.wins/total) : 0;
+    }
+    function lastActiveScore(u){ // more recent => larger
+      return -u.recent;
+    }
+    function rb(u){
+      if(!u.badge || u.badge>9) return '';
+      const cls = u.badge===1 ? '' : (u.badge<=3?'silver':'bronze');
+      return `<div class="rbadge ${cls}">${u.badge}</div>`;
+    }
+    function row(u, idx){
+      return `
+        <div class="row" data-user="${u.handle}">
+          <div class="av">
+            <img src="${u.avatar}" alt="${u.handle}">
+            <img class="badge-flag" src="${u.flag}" alt="">
+          </div>
+          <div class="who">
+            <div class="topline">
+              <div class="handle">${u.handle}</div>
+              <div class="loc">${COUNTRY_LABEL[u.country]||u.country} • ${u.city}</div>
+              <div class="ranks">${rb(u)}</div>
+            </div>
+            <div class="stats">
+              <span>W ${u.wins}</span>
+              <span>L ${u.losses}</span>
+              <span>WR ${(winrate(u)*100).toFixed(1)}%</span>
+              <span>Zodiac: ${u.zodiac}</span>
+              <span>${u.gender==='M'?'Men':'Women'}</span>
+            </div>
+          </div>
+          <div class="score">Score ${u.score}</div>
+        </div>
+      `;
+    }
+
+    function applyFilters(){
+      const q = (qEl.value||'').trim().toLowerCase();
+      const region = regionEl.value;
+      const country = countryEl.value;
+      const city = (cityEl.value||'').trim().toLowerCase();
+      const gender = genderEl.value;
+      const sort = sortEl.value;
+
+      let out = USERS.filter(u=>{
+        if(region && u.region!==region) return false;
+        if(country && u.country!==country) return false;
+        if(city && !u.city.toLowerCase().includes(city)) return false;
+        if(gender && u.gender!==gender) return false;
+        if(activeZodiacs.size && !activeZodiacs.has(u.zodiac)) return false;
+
+        if(q){
+          const hay = `${u.handle} ${COUNTRY_LABEL[u.country]||u.country} ${u.city}`.toLowerCase();
+          if(!hay.includes(q)) return false;
+        }
+        // time window demo: could adjust score by decay or filter by recent here
+        if(activeWindow==='24h' && (Date.now()-u.recent) > 86400000) return false;
+        if(activeWindow==='7d' && (Date.now()-u.recent) > 7*86400000) return false;
+        if(activeWindow==='30d' && (Date.now()-u.recent) > 30*86400000) return false;
+        return true;
+      });
+
+      // Sorting
+      out.sort((a,b)=>{
+        if(sort==='wins') return b.wins - a.wins;
+        if(sort==='winrate') return winrate(b) - winrate(a);
+        if(sort==='recent') return lastActiveScore(a) - lastActiveScore(b);
+        return b.score - a.score; // default score
+      });
+
+      renderList(out);
+    }
+
+    function renderList(arr){
+      listEl.innerHTML = arr.map(row).join('');
+    }
+
+    function populateCountries(){
+      const region = regionEl.value;
+      countryEl.innerHTML = `<option value="">All</option>`;
+      if(!region){ return; }
+      (REGION_COUNTRIES[region]||[]).forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value=c; opt.textContent = COUNTRY_LABEL[c]||c;
+        countryEl.appendChild(opt);
+      });
+    }
+
+    /***********************
+     * EVENTS
+     ***********************/
+    qEl.addEventListener('input', ()=>{
+      qClear.classList.toggle('show', !!qEl.value.length);
+      applyFilters();
+    });
+    qClear.addEventListener('click', ()=>{
+      qEl.value=''; qClear.classList.remove('show'); applyFilters();
+    });
+
+    regionEl.addEventListener('change', ()=>{
+      populateCountries();
+      applyFilters();
+    });
+    countryEl.addEventListener('change', applyFilters);
+    cityEl.addEventListener('input', applyFilters);
+    genderEl.addEventListener('change', applyFilters);
+    sortEl.addEventListener('change', applyFilters);
+
+    tabs.forEach(t=>{
+      t.addEventListener('click', ()=>{
+        tabs.forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        activeWindow = t.dataset.window;
+        applyFilters();
+      });
+    });
+
+    zodiacsWrap.querySelectorAll('.z').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const s = btn.dataset.sign;
+        if(activeZodiacs.has(s)){ activeZodiacs.delete(s); btn.classList.remove('active'); }
+        else { activeZodiacs.add(s); btn.classList.add('active'); }
+        applyFilters();
+      });
+    });
+
+    // Side icon navigation
+    document.querySelectorAll(".shape[data-link]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
+    });
+
+    /***********************
+     * INIT
+     ***********************/
+    populateCountries();
+    applyFilters();
+  </script>
+</body>
+</html>
