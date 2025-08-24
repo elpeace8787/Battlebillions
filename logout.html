@@ -1,1 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Logout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#f5f5f5;
+      --gold:#ffd700;
+      --cyan:#7ff3ff;
+      --safe-top:max(10px, env(safe-area-inset-top));
+      --safe-bottom:max(14px, env(safe-area-inset-bottom));
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{
+      height:100%; width:100%; background:#000; color:var(--ink);
+      font-family:'Orbitron',sans-serif;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation; overscroll-behavior:none; overflow:hidden;
+    }
+    *::-webkit-scrollbar{display:none} *{scrollbar-width:none}
 
+    #bg3d{position:fixed; inset:0; z-index:0; pointer-events:none;}
+
+    .page{
+      position:relative; z-index:1;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      height:100dvh; padding:var(--safe-top) 20px var(--safe-bottom);
+      text-align:center;
+    }
+    h1{
+      font-size:22px; font-weight:800; margin-bottom:14px;
+      background:linear-gradient(120deg,#fff,#ffd700); -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow:0 0 12px rgba(255,215,0,.5);
+    }
+    p{ font-size:14px; margin-bottom:28px; color:#bbb; }
+
+    .btns{ display:flex; flex-direction:column; gap:12px; width:100%; max-width:260px; }
+    .btn{
+      border:none; cursor:pointer; font-weight:800; font-size:14px;
+      padding:12px 20px; border-radius:12px;
+      color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
+      box-shadow:0 0 18px rgba(255,215,0,.4);
+      transition:transform .2s ease;
+    }
+    .btn:hover{ transform:scale(1.04); }
+
+    .btn.secondary{
+      background:linear-gradient(180deg,#dff9ff,#7ff3ff);
+      box-shadow:0 0 18px rgba(127,243,255,.3);
+    }
+
+    /* Shape nav */
+    nav.side{
+      position:fixed; top:50%; transform:translateY(-50%);
+      display:flex; flex-direction:column; gap:20px; z-index:7;
+    }
+    nav.side.left{ left:16px }
+    nav.side.right{ right:16px }
+    .shape{ background:none; border:none; width:36px; height:36px; cursor:pointer; }
+    .shape svg{ width:100%; height:100%; fill:none }
+    .strokeline{ stroke:var(--gold); stroke-width:2.2 }
+    .logout .strokeline{ stroke:#ff4c4c }
+    .center-triangle{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:7 }
+  </style>
+</head>
+<body>
+  <canvas id="bg3d"></canvas>
+
+  <div class="page">
+    <h1>You’ve been logged out</h1>
+    <p>Thanks for being part of BattleBillions. Come back anytime to continue your journey.</p>
+    <div class="btns">
+      <button class="btn" onclick="location.href='index.html'">🔑 Sign back in</button>
+      <button class="btn secondary" onclick="location.href='home.html'">🏠 Return Home</button>
+    </div>
+  </div>
+
+  <!-- LEFT side -->
+  <nav class="side left">
+    <button class="shape" onclick="location.href='home.html'">
+      <svg viewBox="0 0 24 24"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
+    </button>
+    <button class="shape" onclick="location.href='leaderboard.html'">
+      <svg viewBox="0 0 24 24"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
+    </button>
+  </nav>
+
+  <!-- RIGHT side -->
+  <nav class="side right">
+    <button class="shape" onclick="location.href='discover.html'">
+      <svg viewBox="0 0 24 24"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
+    </button>
+    <button class="shape logout" onclick="location.href='logout.html'">
+      <svg viewBox="0 0 24 24">
+        <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+        <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Bottom triangle -->
+  <div class="center-triangle">
+    <button class="shape" onclick="location.href='arena.html'">
+      <svg viewBox="0 0 24 24"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
+    </button>
+  </div>
+
+  <!-- Three.js background explosions -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+    (function(){
+      const canvas=document.getElementById("bg3d");
+      try{
+        const gl=canvas.getContext("webgl")||canvas.getContext("experimental-webgl");
+        if(!gl) return;
+      }catch(e){return;}
+      let width=innerWidth,height=innerHeight;
+      const renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:true});
+      renderer.setSize(width,height);
+      renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));
+      const scene=new THREE.Scene();
+      const camera=new THREE.PerspectiveCamera(55,width/height,0.1,3000);
+      camera.position.z=120;
+      const hemi=new THREE.HemisphereLight(0x999999,0x080808,0.8);
+      scene.add(hemi);
+
+      function makeTexture(){
+        const s=128,c=document.createElement("canvas");c.width=c.height=s;
+        const g=c.getContext("2d");
+        const grd=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+        grd.addColorStop(0,"rgba(255,255,255,0.95)");
+        grd.addColorStop(0.35,"rgba(255,255,255,0.35)");
+        grd.addColorStop(1,"rgba(255,255,255,0)");
+        g.fillStyle=grd; g.fillRect(0,0,s,s);
+        return new THREE.CanvasTexture(c);
+      }
+      const particleTex=makeTexture();
+
+      class Explosion{
+        constructor(){
+          this.life=1.5; this.t=0;
+          this.count=80;
+          const g=new THREE.BufferGeometry();
+          g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(this.count*3),3));
+          g.setAttribute("color",new THREE.BufferAttribute(new Float32Array(this.count*3),3));
+          const mat=new THREE.PointsMaterial({size:14,map:particleTex,transparent:true,vertexColors:true,blending:THREE.AdditiveBlending});
+          this.points=new THREE.Points(g,mat);
+          scene.add(this.points);
+          this.vel=new Float32Array(this.count*3);
+          const pos=g.getAttribute("position").array;
+          const col=g.getAttribute("color").array;
+          for(let i=0;i<this.count;i++){
+            const ix=i*3; const dir=new THREE.Vector3().randomDirection();
+            const speed=30+Math.random()*40;
+            this.vel[ix]=dir.x*speed; this.vel[ix+1]=dir.y*speed; this.vel[ix+2]=dir.z*speed;
+            pos[ix]=dir.x; pos[ix+1]=dir.y; pos[ix+2]=dir.z;
+            col[ix]=Math.random(); col[ix+1]=Math.random(); col[ix+2]=Math.random();
+          }
+          g.getAttribute("position").needsUpdate=true;
+          g.getAttribute("color").needsUpdate=true;
+        }
+        update(dt){
+          this.t+=dt; const f=this.t/this.life;
+          const g=this.points.geometry; const pos=g.getAttribute("position").array;
+          for(let i=0;i<this.count;i++){
+            const ix=i*3;
+            pos[ix]+=this.vel[ix]*dt; pos[ix+1]+=this.vel[ix+1]*dt; pos[ix+2]+=this.vel[ix+2]*dt;
+          }
+          g.getAttribute("position").needsUpdate=true;
+          this.points.material.opacity=1-f;
+          return this.t<this.life;
+        }
+      }
+
+      const explosions=[]; let prev=performance.now();
+      function loop(now){
+        const dt=Math.min(0.05,(now-prev)/1000); prev=now;
+        if(Math.random()<0.04){ explosions.push(new Explosion()); }
+        for(let i=explosions.length-1;i>=0;i--){
+          if(!explosions[i].update(dt)){ scene.remove(explosions[i].points); explosions.splice(i,1); }
+        }
+        renderer.render(scene,camera); requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+      addEventListener("resize",()=>{width=innerWidth;height=innerHeight;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();});
+    })();
+  </script>
+</body>
+</html>
