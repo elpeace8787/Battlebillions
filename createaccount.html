@@ -74,7 +74,7 @@
 
     .title{font-size:20px; color:var(--ink); margin:4px 0 14px}
 
-    /* Forms */
+    /* Grid + inputs */
     .grid{display:grid; gap:12px}
     @media (min-width:700px){
       .grid.cols-2{grid-template-columns:1fr 1fr}
@@ -88,6 +88,17 @@
     input:focus, select:focus{box-shadow:var(--ring)}
     .hint{font-size:11px; color:var(--ink-3)}
     .error{font-size:12px; color:var(--err); margin-top:6px; display:none}
+
+    /* “Drop pill” selects */
+    .pill-select{
+      appearance:none;
+      background:#111;
+      border-radius:999px;
+      padding:12px 16px;
+    }
+    .pill-row{display:flex; gap:10px; flex-wrap:wrap}
+    .pill-col{flex:1 1 110px}
+
     .chipset{display:flex; flex-wrap:wrap; gap:8px}
     .chip{
       padding:8px 12px; border-radius:999px; background:#111; font-size:12px; cursor:pointer; user-select:none
@@ -213,7 +224,7 @@
         <div class="grid cols-3">
           <div>
             <label for="ca-country">Country</label>
-            <select id="ca-country">
+            <select id="ca-country" class="pill-select">
               <option value="">Select country</option>
               <option>United States</option>
               <option>Canada</option>
@@ -230,15 +241,35 @@
             <label for="ca-city">City</label>
             <input id="ca-city" type="text" placeholder="City"/>
           </div>
-          <div>
-            <label for="ca-dob">Date of Birth</label>
-            <input id="ca-dob" type="date"/>
-            <div class="error" id="err-dob">You must be 13+ to join.</div>
+
+          <!-- Birthday as pill selects -->
+          <div class="pill-col">
+            <label for="ca-dob-month">Birth Month</label>
+            <select id="ca-dob-month" class="pill-select"></select>
           </div>
+          <div class="pill-col">
+            <label for="ca-dob-day">Birth Day</label>
+            <select id="ca-dob-day" class="pill-select"></select>
+          </div>
+          <div class="pill-col">
+            <label for="ca-dob-year">Birth Year</label>
+            <select id="ca-dob-year" class="pill-select"></select>
+          </div>
+          <div class="hint" style="grid-column:1/-1">Select Month • Day • Year</div>
+          <div class="error" id="err-dob" style="grid-column:1/-1">You must be 13+ to join.</div>
+
+          <!-- Chinese Zodiac -->
           <div>
             <label for="ca-zodiac">Chinese Zodiac</label>
-            <input id="ca-zodiac" type="text" placeholder="Auto from DOB" readonly/>
+            <select id="ca-zodiac" class="pill-select">
+              <option value="">Auto (from year)</option>
+              <option>Rat</option><option>Ox</option><option>Tiger</option><option>Rabbit</option>
+              <option>Dragon</option><option>Snake</option><option>Horse</option><option>Goat</option>
+              <option>Monkey</option><option>Rooster</option><option>Dog</option><option>Pig</option>
+            </select>
+            <div class="hint">Auto-fills from the selected year. You can override if you want.</div>
           </div>
+
           <div>
             <label for="ca-lang">Languages</label>
             <select id="ca-lang" multiple>
@@ -254,7 +285,7 @@
           </div>
           <div>
             <label for="ca-ethnicity">Ethnicity (optional)</label>
-            <select id="ca-ethnicity">
+            <select id="ca-ethnicity" class="pill-select">
               <option value="">Prefer not to say</option>
               <option>African / African American</option>
               <option>Asian</option>
@@ -268,7 +299,7 @@
           </div>
           <div>
             <label for="ca-timezone">Timezone</label>
-            <select id="ca-timezone">
+            <select id="ca-timezone" class="pill-select">
               <option value="">Auto-detect</option>
               <option>America/New_York</option>
               <option>America/Chicago</option>
@@ -299,7 +330,7 @@
           </div>
           <div>
             <label for="ca-role">Role (optional)</label>
-            <select id="ca-role">
+            <select id="ca-role" class="pill-select">
               <option value="">Select role</option>
               <option>Student</option>
               <option>Creator</option>
@@ -398,8 +429,11 @@
         email: get('ca-email'),
         pw: get('ca-password'),
         pw2: get('ca-password2'),
-        dob: get('ca-dob'),
-        zodiac: get('ca-zodiac'),
+        // Birthday pieces:
+        m: get('ca-dob-month'),
+        d: get('ca-dob-day'),
+        y: get('ca-dob-year'),
+        zodiacSel: get('ca-zodiac'),
         tz: get('ca-timezone'),
         terms: get('ca-terms'),
         privacy: get('ca-privacy'),
@@ -425,25 +459,93 @@
         return ['—','Weak','OK','Strong'][score];
       };
 
-      // Chinese zodiac from DOB
+      // Chinese zodiac from Gregorian year
       const zodiacNames = ['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
-      function chineseZodiac(year){
-        // 2008 = Rat (mod 12 === 0); adjust offset to align
-        const offset = (year - 2008) % 12;
-        const idx = (offset + 12) % 12;
+      function chineseZodiacByYear(year){
+        // 2008 = Rat (index 0)
+        const idx = ((year - 2008) % 12 + 12) % 12;
         return zodiacNames[idx];
       }
 
+      // Build month/day/year
+      const months = [
+        'January','February','March','April','May','June',
+        'July','August','September','October','November','December'
+      ];
+      // Populate months
+      f.m.innerHTML = '<option value="">Month</option>' +
+        months.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+
+      // Populate years (13+ rule helper; still let user pick older)
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const startYear = currentYear - 100;
+      const endYear = currentYear; // show all, validate later
+      let yearOpts = '<option value="">Year</option>';
+      for(let y=endYear; y>=startYear; y--){
+        yearOpts += `<option value="${y}">${y}</option>`;
+      }
+      f.y.innerHTML = yearOpts;
+
+      // Days per month/year
+      function daysInMonth(month, year){
+        if(!month || !year) return 31;
+        return new Date(year, month, 0).getDate();
+      }
+      function refreshDays(){
+        const m = parseInt(f.m.value,10);
+        const y = parseInt(f.y.value,10);
+        const max = daysInMonth(m,y);
+        const current = parseInt(f.d.value||'0',10);
+        let html = '<option value="">Day</option>';
+        for(let i=1;i<=max;i++){ html += `<option value="${i}">${i}</option>`; }
+        f.d.innerHTML = html;
+        if(current && current <= max){ f.d.value = String(current); }
+      }
+      f.d.innerHTML = '<option value="">Day</option>'; // initial
+
+      // Birthday → zodiac auto
+      function maybeUpdateZodiac(){
+        const y = parseInt(f.y.value,10);
+        if(y){
+          const z = chineseZodiacByYear(y);
+          // Only auto-set if user hasn't manually chosen a different one
+          if(!f.zodiacSel.dataset.userOverride){
+            f.zodiacSel.value = z;
+          }
+        }
+      }
+
       // Age calc
-      function ageFrom(dateStr){
-        if(!dateStr) return 0;
+      function ageFromParts(y,m,d){
+        if(!y || !m || !d) return 0;
         const today = new Date();
-        const dob = new Date(dateStr);
+        const dob = new Date(y, m-1, d);
         let age = today.getFullYear() - dob.getFullYear();
-        const m = today.getMonth() - dob.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+        const mm = today.getMonth() - dob.getMonth();
+        if (mm < 0 || (mm === 0 && today.getDate() < dob.getDate())) age--;
         return age;
       }
+
+      // Events for DOB selects
+      f.m.addEventListener('change', ()=>{
+        refreshDays();
+      });
+      f.y.addEventListener('change', ()=>{
+        refreshDays();
+        maybeUpdateZodiac();
+      });
+      f.d.addEventListener('change', ()=>{ /* no-op except keeping value */ });
+
+      // User override tracking for zodiac
+      f.zodiacSel.addEventListener('change', ()=>{
+        // If user picks anything (including clearing), mark override
+        f.zodiacSel.dataset.userOverride = '1';
+      });
+
+      // Password strength text
+      const pwHint = document.getElementById('pw-hint');
+      get('ca-password').addEventListener('input', ()=> pwHint.textContent = 'Strength: ' + strength(get('ca-password').value));
 
       // Progress UI
       function showStep(n){
@@ -454,19 +556,8 @@
         barFill.style.width = pct + '%';
       }
 
-      // Hook DOB → zodiac auto
-      f.dob.addEventListener('change', ()=>{
-        const y = new Date(f.dob.value).getFullYear();
-        if(!isNaN(y)){ f.zodiac.value = chineseZodiac(y); }
-      });
-
-      // Password strength text
-      const pwHint = document.getElementById('pw-hint');
-      f.pw.addEventListener('input', ()=> pwHint.textContent = 'Strength: ' + strength(f.pw.value));
-
       // Next buttons
       document.getElementById('ca-next-1').addEventListener('click', ()=>{
-        // Validate step 1
         let ok = true;
         // Handle
         if(!reHandle.test(f.handle.value.trim())){ err.handle.style.display='block'; ok=false; } else err.handle.style.display='none';
@@ -484,8 +575,16 @@
 
       document.getElementById('ca-next-2').addEventListener('click', ()=>{
         // Validate age >= 13
-        const a = ageFrom(f.dob.value);
-        if(a < 13){ err.dob.style.display='block'; return; } else err.dob.style.display='none';
+        const y = parseInt(f.y.value,10);
+        const m = parseInt(f.m.value,10);
+        const d = parseInt(f.d.value,10);
+        const a = ageFromParts(y,m,d);
+        if(a < 13 || !y || !m || !d){
+          err.dob.style.display='block';
+          return;
+        } else {
+          err.dob.style.display='none';
+        }
 
         // Timezone default if none
         if(!f.tz.value){ try { f.tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(_){} }
@@ -529,6 +628,23 @@
           alert('Please complete required fields.');
           return;
         }
+        // DOB check (again)
+        const y = parseInt(f.y.value,10);
+        const m = parseInt(f.m.value,10);
+        const d = parseInt(f.d.value,10);
+        const a = ageFromParts(y,m,d);
+        if(a < 13 || !y || !m || !d){
+          err.dob.style.display='block';
+          return;
+        } else {
+          err.dob.style.display='none';
+        }
+
+        // Auto-set zodiac if none chosen
+        if(!f.zodiacSel.value && y){
+          f.zodiacSel.value = chineseZodiacByYear(y);
+        }
+
         // Success shimmer + redirect
         const box = document.getElementById('success');
         box.style.display='flex';
@@ -536,7 +652,6 @@
       });
 
       // Initialize
-      // Pre-fill timezone if possible
       try { f.tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(_){}
       showStep(1);
     })();
