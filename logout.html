@@ -80,20 +80,21 @@
 
   <!-- LEFT side -->
   <nav class="side left">
-    <button class="shape" onclick="location.href='home.html'">
+    <button class="shape" onclick="location.href='home.html'" title="Home">
       <svg viewBox="0 0 24 24"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
     </button>
-    <button class="shape" onclick="location.href='leaderboard.html'">
+    <button class="shape" onclick="location.href='leaderboard.html'" title="Leaderboard">
       <svg viewBox="0 0 24 24"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
     </button>
   </nav>
 
   <!-- RIGHT side -->
   <nav class="side right">
-    <button class="shape" onclick="location.href='discover.html'">
+    <button class="shape" onclick="location.href='discover.html'" title="Discover">
       <svg viewBox="0 0 24 24"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
     </button>
-    <button class="shape logout" onclick="location.href='logout.html'">
+    <!-- X icon links to logout.html -->
+    <button class="shape logout" onclick="location.href='logout.html'" title="Logout">
       <svg viewBox="0 0 24 24">
         <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
         <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
@@ -103,12 +104,12 @@
 
   <!-- Bottom triangle -->
   <div class="center-triangle">
-    <button class="shape" onclick="location.href='arena.html'">
+    <button class="shape" onclick="location.href='arena.html'" title="Arena">
       <svg viewBox="0 0 24 24"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
     </button>
   </div>
 
-  <!-- Three.js background explosions -->
+  <!-- Three.js explosions -->
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
     (function(){
@@ -141,8 +142,7 @@
 
       class Explosion{
         constructor(){
-          this.life=1.5; this.t=0;
-          this.count=80;
+          this.life=1.5; this.t=0; this.count=80;
           const g=new THREE.BufferGeometry();
           g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(this.count*3),3));
           g.setAttribute("color",new THREE.BufferAttribute(new Float32Array(this.count*3),3));
