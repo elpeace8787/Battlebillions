@@ -16,9 +16,13 @@
       --red:#ff4c6a;
       --safe-top:max(10px, env(safe-area-inset-top));
       --safe-bottom:max(14px, env(safe-area-inset-bottom));
-      --side-pad:44px;
+      --side-pad:clamp(12px, 4vw, 44px);
       --glass:rgba(255,255,255,.06);
       --glassEdge:rgba(255,255,255,.12);
+      --bg-grad:
+        radial-gradient(900px 600px at 25% 15%, rgba(255,215,0,.06), transparent 60%),
+        radial-gradient(800px 600px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
+        radial-gradient(1200px 1000px at 50% 80%, rgba(159,123,255,.05), transparent 70%);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -31,6 +35,7 @@
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
       overscroll-behavior:none;
+      overflow-x:hidden;
     }
     /* hide scrollbars (still scrollable) */
     *::-webkit-scrollbar{ width:0; height:0; display:none }
@@ -39,10 +44,7 @@
     /* Ambient background (soft vignette) */
     body::before{
       content:""; position:fixed; inset:-10%; pointer-events:none; z-index:0;
-      background:
-        radial-gradient(900px 600px at 25% 15%, rgba(255,215,0,.06), transparent 60%),
-        radial-gradient(800px 600px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
-        radial-gradient(1200px 1000px at 50% 80%, rgba(159,123,255,.05), transparent 70%);
+      background:var(--bg-grad);
       filter: blur(2px);
     }
 
@@ -56,14 +58,14 @@
     .header{
       position:sticky; top:0; z-index:5;
       display:grid; gap:10px;
-      background: linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,.3));
+      background: linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35));
       backdrop-filter: blur(12px);
-      padding-bottom:10px;
+      padding:10px var(--side-pad) 12px;
+      margin:0 calc(var(--side-pad) * -1);
     }
     .title{
       display:flex; justify-content:center; align-items:center; gap:10px;
       font-weight:800; letter-spacing:.4px; text-transform:uppercase;
-      padding-top:6px;
     }
     .title span{
       background:
@@ -74,22 +76,26 @@
       font-size:22px;
     }
 
-    /* TOP CONTROLS: search + window tabs */
+    /* TOP CONTROLS: search + window tabs + single Filters button */
     .controls{
-      display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center;
-      padding:0 4px;
+      display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center;
+    }
+    @media (max-width:860px){
+      .controls{ grid-template-columns: 1fr auto; grid-auto-rows:auto }
+      .tabs-wrap{ grid-column: 1 / -1; justify-content:center }
     }
     .search{
       position:relative; display:flex; align-items:center; gap:8px;
       background:var(--glass); border-radius:18px; padding:6px 10px;
       box-shadow:0 0 22px rgba(71,245,255,.18), inset 0 0 0 1px rgba(71,245,255,.22);
-      width:min(92vw,620px); margin:0 auto;
+      width:100%;
     }
     .search input{
       flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:13px; font-family:inherit;
     }
     .search .clear{ display:none; appearance:none; border:none; background:transparent; color:#bfefff; font-weight:800; cursor:pointer; }
     .search .clear.show{ display:inline-block; }
+
     .window-tabs{
       display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
     }
@@ -101,22 +107,65 @@
       opacity:.6; transition:opacity .15s ease, transform .12s ease;
     }
     .tab.active{ opacity:1; transform:translateY(-1px) }
-    .tabs-wrap{ display:flex; gap:8px; align-items:center; }
 
-    /* FILTER STRIP */
-    .filters{
-      display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px; padding:0 6px;
+    .filterBtn{
+      border:none; cursor:pointer; font-weight:800;
+      padding:8px 12px; border-radius:14px; color:#111;
+      background:linear-gradient(180deg,#dff9ff,#7ff3ff);
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(127,243,255,.2);
     }
+    .filterBtn[data-count]:after{
+      content:attr(data-count);
+      margin-left:8px; font-size:11px; color:#000; background:#ffd700; padding:2px 6px; border-radius:10px;
+      box-shadow: 0 0 10px rgba(255,215,0,.5);
+    }
+
+    /* FILTER SHEET (single drop box) */
+    .sheet-backdrop{
+      position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:20;
+      display:none;
+    }
+    .sheet{
+      position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+      width:min(94vw, 820px); max-height:80vh; overflow:auto; z-index:21; display:none;
+      background:rgba(20,20,24,.7); backdrop-filter: blur(14px) saturate(130%);
+      border-radius:18px; padding:14px;
+      box-shadow: 0 20px 80px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.12);
+    }
+    .sheet header{
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
+    }
+    .sheet header h3{ font-size:14px; letter-spacing:.3px }
+    .sheet header button{
+      border:none; background:transparent; color:#fff; font-weight:800; cursor:pointer; font-size:14px;
+    }
+    .grid{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;
+    }
+    @media (max-width:760px){ .grid{ grid-template-columns: 1fr } }
     .chip{
       display:flex; align-items:center; gap:8px;
       background:rgba(255,255,255,.06);
-      border-radius:999px; padding:8px 10px;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.35);
+      border-radius:12px; padding:10px 12px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
     }
+    .chip label{ font-size:11px; color:#cfefff; opacity:.9; min-width:92px }
     .chip select, .chip input{
-      background:transparent; border:none; color:#fff; font-family:inherit; font-size:12px; outline:none;
+      flex:1; background:transparent; border:none; outline:none; color:#fff; font-family:inherit; font-size:12px;
     }
-    .chip label{ font-size:11px; color:#cfefff; opacity:.9 }
+    .sheet footer{
+      margin-top:12px; display:flex; gap:10px; justify-content:flex-end;
+    }
+    .btn{
+      border:none; cursor:pointer; font-weight:800; padding:10px 14px; border-radius:12px;
+    }
+    .btn.primary{
+      color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(255,215,0,.2);
+    }
+    .btn.ghost{
+      color:#bfefff; background:rgba(255,255,255,.08); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)
+    }
 
     /* RESULTS LIST */
     .list{
@@ -134,17 +183,11 @@
     }
     .av img{ width:100%; height:100%; object-fit:cover }
     .badge-flag{ position:absolute; right:-2px; bottom:-2px; width:18px; height:12px; border-radius:3px; border:1px solid rgba(255,255,255,.6) }
-    .who{
-      display:grid; gap:4px;
-    }
-    .topline{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    }
+    .who{ display:grid; gap:4px; }
+    .topline{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .handle{ font-weight:800; font-size:14px }
     .loc{ font-size:11px; color:var(--muted) }
-    .ranks{
-      display:flex; gap:6px; align-items:center;
-    }
+    .ranks{ display:flex; gap:6px; align-items:center; }
     .rbadge{
       min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center;
       font-size:11px; font-weight:800; color:#000;
@@ -153,9 +196,7 @@
     }
     .rbadge.silver{ background:linear-gradient(180deg,#fafafa,#cfcfcf) }
     .rbadge.bronze{ background:linear-gradient(180deg,#ffd7b0,#c8903c) }
-    .stats{
-      display:flex; gap:12px; font-size:11px; color:#cfefff; flex-wrap:wrap;
-    }
+    .stats{ display:flex; gap:12px; font-size:11px; color:#cfefff; flex-wrap:wrap; }
     .score{
       font-weight:800; color:#111; padding:8px 10px; border-radius:999px;
       background:linear-gradient(180deg,#fff3bd,#ffd700);
@@ -181,16 +222,6 @@
 
     /* Bottom-center triangle */
     .center-triangle{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6 }
-
-    @media (max-width:760px){
-      .controls{ grid-template-columns: 1fr }
-      .window-tabs{ order:2 }
-      .search{ order:1; width:min(94vw,620px) }
-    }
-    @media (max-width:640px){
-      .row{ grid-template-columns: 56px 1fr; }
-      .score{ justify-self:start; margin-top:6px }
-    }
   </style>
 </head>
 <body>
@@ -204,129 +235,17 @@
           <input id="q" type="text" placeholder="Search users or any rank list (city, country, school, language, zodiac…)" autocomplete="off"/>
           <button id="qClear" class="clear" aria-label="Clear search">✖</button>
         </div>
+
         <div class="tabs-wrap">
           <button class="tab active" data-window="all">All-time</button>
           <button class="tab" data-window="30d">30d</button>
           <button class="tab" data-window="7d">7d</button>
           <button class="tab" data-window="24h">24h</button>
         </div>
-      </div>
 
-      <!-- Filter strip -->
-      <div class="filters">
-        <div class="chip">
-          <label for="region">Region</label>
-          <select id="region">
-            <option value="">World</option>
-            <option value="NA">North America</option>
-            <option value="EUROPE">Europe</option>
-            <option value="ASIA">Asia</option>
-            <option value="AFRICA">Africa</option>
-            <option value="SA">South America</option>
-            <option value="OCE">Oceania</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="country">Country</label>
-          <select id="country">
-            <option value="">All</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="city">City</label>
-          <input id="city" type="text" placeholder="All" />
-        </div>
-
-        <div class="chip">
-          <label for="gender">Gender</label>
-          <select id="gender">
-            <option value="">All</option>
-            <option value="M">Men</option>
-            <option value="F">Women</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="age">Age</label>
-          <select id="age">
-            <option value="">All</option>
-            <option value="13-17">13–17</option>
-            <option value="18-24">18–24</option>
-            <option value="25-34">25–34</option>
-            <option value="35-44">35–44</option>
-            <option value="45+">45+</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="ethnicity">Ethnicity</label>
-          <select id="ethnicity">
-            <option value="">All</option>
-            <option value="Black">Black</option>
-            <option value="Latino">Latino</option>
-            <option value="White">White</option>
-            <option value="Asian">Asian</option>
-            <option value="Middle Eastern">Middle Eastern</option>
-            <option value="Indigenous">Indigenous</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="language">Language</label>
-          <select id="language">
-            <option value="">All</option>
-            <option value="English">English</option>
-            <option value="Spanish">Spanish</option>
-            <option value="French">French</option>
-            <option value="Portuguese">Portuguese</option>
-            <option value="Japanese">Japanese</option>
-            <option value="Chinese">Chinese</option>
-            <option value="Hindi">Hindi</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="school">High School</label>
-          <input id="school" type="text" placeholder="All"/>
-        </div>
-
-        <div class="chip">
-          <label for="college">College</label>
-          <input id="college" type="text" placeholder="All"/>
-        </div>
-
-        <div class="chip">
-          <label for="zodiac">Zodiac</label>
-          <select id="zodiac">
-            <option value="">All</option>
-            <option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option>
-            <option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option>
-            <option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="czodiac">Chinese Zodiac</label>
-          <select id="czodiac">
-            <option value="">All</option>
-            <option>Rat</option><option>Ox</option><option>Tiger</option><option>Rabbit</option>
-            <option>Dragon</option><option>Snake</option><option>Horse</option><option>Goat</option>
-            <option>Monkey</option><option>Rooster</option><option>Dog</option><option>Pig</option>
-          </select>
-        </div>
-
-        <div class="chip">
-          <label for="sort">Sort</label>
-          <select id="sort">
-            <option value="votes">Vote Count</option>
-            <option value="wins">Wins</option>
-            <option value="winrate">Win rate</option>
-            <option value="recent">Most active</option>
-          </select>
-        </div>
+        <button id="openFilters" class="filterBtn" data-count="0" aria-haspopup="dialog" aria-controls="filterSheet">
+          Filters
+        </button>
       </div>
     </header>
 
@@ -364,15 +283,139 @@
     </button>
   </div>
 
+  <!-- FILTER SHEET -->
+  <div id="backdrop" class="sheet-backdrop" aria-hidden="true"></div>
+  <section id="filterSheet" class="sheet" role="dialog" aria-modal="true" aria-label="Leaderboard Filters">
+    <header>
+      <h3>Filters</h3>
+      <button id="closeFilters" aria-label="Close">✖</button>
+    </header>
+
+    <div class="grid">
+      <div class="chip">
+        <label for="region">Region</label>
+        <select id="region">
+          <option value="">World</option>
+          <option value="NA">North America</option>
+          <option value="EUROPE">Europe</option>
+          <option value="ASIA">Asia</option>
+          <option value="AFRICA">Africa</option>
+          <option value="SA">South America</option>
+          <option value="OCE">Oceania</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <label for="country">Country</label>
+        <select id="country"><option value="">All</option></select>
+      </div>
+
+      <div class="chip">
+        <label for="city">City</label>
+        <input id="city" type="text" placeholder="All" />
+      </div>
+
+      <div class="chip">
+        <label for="gender">Gender</label>
+        <select id="gender">
+          <option value="">All</option>
+          <option value="M">Men</option>
+          <option value="F">Women</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <label for="age">Age</label>
+        <select id="age">
+          <option value="">All</option>
+          <option value="13-17">13–17</option>
+          <option value="18-24">18–24</option>
+          <option value="25-34">25–34</option>
+          <option value="35-44">35–44</option>
+          <option value="45+">45+</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <label for="ethnicity">Ethnicity</label>
+        <select id="ethnicity">
+          <option value="">All</option>
+          <option value="Black">Black</option>
+          <option value="Latino">Latino</option>
+          <option value="White">White</option>
+          <option value="Asian">Asian</option>
+          <option value="Middle Eastern">Middle Eastern</option>
+          <option value="Indigenous">Indigenous</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <label for="language">Language</label>
+        <select id="language">
+          <option value="">All</option>
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Hindi">Hindi</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <label for="school">High School</label>
+        <input id="school" type="text" placeholder="All"/>
+      </div>
+
+      <div class="chip">
+        <label for="college">College</label>
+        <input id="college" type="text" placeholder="All"/>
+      </div>
+
+      <div class="chip">
+        <label for="zodiac">Zodiac</label>
+        <select id="zodiac">
+          <option value="">All</option>
+          <option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option>
+          <option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option>
+          <option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <label for="czodiac">Chinese Zodiac</label>
+        <select id="czodiac">
+          <option value="">All</option>
+          <option>Rat</option><option>Ox</option><option>Tiger</option><option>Rabbit</option>
+          <option>Dragon</option><option>Snake</option><option>Horse</option><option>Goat</option>
+          <option>Monkey</option><option>Rooster</option><option>Dog</option><option>Pig</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <label for="sort">Sort</label>
+        <select id="sort">
+          <option value="votes">Vote Count</option>
+          <option value="wins">Wins</option>
+          <option value="winrate">Win rate</option>
+          <option value="recent">Most active</option>
+        </select>
+      </div>
+    </div>
+
+    <footer>
+      <button id="resetFilters" class="btn ghost">Reset</button>
+      <button id="applyFilters" class="btn primary">Apply</button>
+    </footer>
+  </section>
+
   <script>
     /***********************
      * DEMO DATA
-     * (Replace with API results later)
      ***********************/
     const USERS = [
-      // handle, avatar, flag, region, country, city, gender, age, ethnicity,
-      // language, school, college, zodiac (Western), czodiac (Chinese),
-      // votes (public), wins, losses, recent timestamp, badge (1..9|null)
       {handle:'@Nova',  avatar:'user2.jpg', flag:'flag_jp.png', region:'ASIA',   country:'JP', city:'Tokyo',     gender:'F', age:24, ethnicity:'Asian',        language:'Japanese',  school:'Shinjuku HS',     college:'Waseda Univ',    zodiac:'Leo',        czodiac:'Dragon', votes:981234, wins:312, losses:88,  recent:Date.now()-1e3*60*5,   badge:1},
       {handle:'@Kiro',  avatar:'user3.jpg', flag:'flag_us.png', region:'NA',     country:'US', city:'New York',  gender:'M', age:26, ethnicity:'Latino',       language:'English',    school:'Bronx HS',        college:'NYU',            zodiac:'Aries',      czodiac:'Snake',  votes:902210, wins:290, losses:110, recent:Date.now()-1e3*60*40,  badge:3},
       {handle:'@Ari',   avatar:'user4.jpg', flag:'flag_fr.png', region:'EUROPE', country:'FR', city:'Paris',     gender:'F', age:22, ethnicity:'White',        language:'French',     school:'Lycée Buffon',    college:'Sorbonne',       zodiac:'Pisces',     czodiac:'Rabbit', votes:876540, wins:270, losses:120, recent:Date.now()-1e3*60*15,  badge:2},
@@ -387,7 +430,6 @@
       {handle:'@Asha',  avatar:'user2.jpg', flag:'flag_in.png', region:'ASIA',   country:'IN', city:'Mumbai',    gender:'F', age:21, ethnicity:'Asian',        language:'Hindi',      school:'Mumbai Central',  college:'IIT Bombay',     zodiac:'Sagittarius',czodiac:'Pig',    votes:698332, wins:170, losses:190, recent:Date.now()-1e3*60*35,  badge:null},
     ];
 
-    // COUNTRY LOOKUP per region (for cascading select)
     const REGION_COUNTRIES = {
       NA: ['US','CA','MX'],
       EUROPE: ['FR','DE','IT','GB','ES'],
@@ -397,7 +439,6 @@
       OCE: ['AU','NZ']
     };
 
-    // Country -> pretty name (match your assets)
     const COUNTRY_LABEL = {
       US:'United States', CA:'Canada', MX:'Mexico', JP:'Japan', CN:'China', KR:'South Korea', IN:'India',
       NG:'Nigeria', ZA:'South Africa', EG:'Egypt',
@@ -412,7 +453,15 @@
     const listEl = document.getElementById('list');
     const qEl = document.getElementById('q');
     const qClear = document.getElementById('qClear');
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const openFilters = document.getElementById('openFilters');
+    const closeFilters = document.getElementById('closeFilters');
+    const backdrop = document.getElementById('backdrop');
+    const filterSheet = document.getElementById('filterSheet');
+    const resetFilters = document.getElementById('resetFilters');
+    const applyFiltersBtn = document.getElementById('applyFilters');
 
+    // Filter inputs (inside sheet)
     const regionEl = document.getElementById('region');
     const countryEl = document.getElementById('country');
     const cityEl = document.getElementById('city');
@@ -426,8 +475,6 @@
     const czodiacEl = document.getElementById('czodiac');
     const sortEl = document.getElementById('sort');
 
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-
     let activeWindow = 'all';
 
     /***********************
@@ -437,7 +484,7 @@
       const total = u.wins + u.losses;
       return total ? (u.wins/total) : 0;
     }
-    function lastActiveScore(u){ // more recent => larger
+    function lastActiveScore(u){
       return -u.recent;
     }
     function rb(u){
@@ -478,6 +525,24 @@
       `;
     }
 
+    function getActiveCount(){
+      let c = 0;
+      const v = (el)=> (el.value && el.value.trim()!=='');
+      if(v(regionEl)) c++;
+      if(v(countryEl)) c++;
+      if(v(cityEl)) c++;
+      if(v(genderEl)) c++;
+      if(v(ageEl)) c++;
+      if(v(ethnicityEl)) c++;
+      if(v(languageEl)) c++;
+      if(v(schoolEl)) c++;
+      if(v(collegeEl)) c++;
+      if(v(zodiacEl)) c++;
+      if(v(czodiacEl)) c++;
+      if(v(sortEl) && sortEl.value!=='votes') c++; // count only if not default
+      return c;
+    }
+
     function applyFilters(){
       const q = (qEl.value||'').trim().toLowerCase();
       const region = regionEl.value;
@@ -511,7 +576,6 @@
           if(!(a>=lo && a<=hi)) return false;
         }
 
-        // universal search: user or ANY rank list attribute
         if(q){
           const hay = [
             u.handle, u.city, (COUNTRY_LABEL[u.country]||u.country),
@@ -522,7 +586,6 @@
           if(!hay.includes(q)) return false;
         }
 
-        // time windows (demo: filter by recent activity)
         if(activeWindow==='24h' && (Date.now()-u.recent) > 86400000) return false;
         if(activeWindow==='7d'  && (Date.now()-u.recent) > 7*86400000) return false;
         if(activeWindow==='30d' && (Date.now()-u.recent) > 30*86400000) return false;
@@ -530,19 +593,17 @@
         return true;
       });
 
-      // Sorting
       out.sort((a,b)=>{
         if(sort==='wins') return b.wins - a.wins;
-        if(sort==='winrate') return (winrate(b) - winrate(a));
+        if(sort==='winrate') return ( (a.wins/(a.wins+a.losses||1)) < (b.wins/(b.wins+b.losses||1)) ) ? 1 : -1;
         if(sort==='recent') return lastActiveScore(a) - lastActiveScore(b);
-        return b.votes - a.votes; // default by votes
+        return b.votes - a.votes;
       });
 
-      renderList(out);
-    }
+      listEl.innerHTML = out.map(row).join('');
 
-    function renderList(arr){
-      listEl.innerHTML = arr.map(row).join('');
+      // update filter count on button
+      openFilters.setAttribute('data-count', getActiveCount());
     }
 
     function populateCountries(){
@@ -556,6 +617,17 @@
       });
     }
 
+    function openSheet(){
+      backdrop.style.display='block';
+      filterSheet.style.display='block';
+      document.body.style.overflow='hidden'; // prevent page shift on mobile
+    }
+    function closeSheet(){
+      backdrop.style.display='none';
+      filterSheet.style.display='none';
+      document.body.style.overflow='auto';
+    }
+
     /***********************
      * EVENTS
      ***********************/
@@ -567,22 +639,6 @@
       qEl.value=''; qClear.classList.remove('show'); applyFilters();
     });
 
-    regionEl.addEventListener('change', ()=>{
-      populateCountries();
-      applyFilters();
-    });
-    countryEl.addEventListener('change', applyFilters);
-    cityEl.addEventListener('input', applyFilters);
-    genderEl.addEventListener('change', applyFilters);
-    ageEl.addEventListener('change', applyFilters);
-    ethnicityEl.addEventListener('change', applyFilters);
-    languageEl.addEventListener('change', applyFilters);
-    schoolEl.addEventListener('input', applyFilters);
-    collegeEl.addEventListener('input', applyFilters);
-    zodiacEl.addEventListener('change', applyFilters);
-    czodiacEl.addEventListener('change', applyFilters);
-    sortEl.addEventListener('change', applyFilters);
-
     tabs.forEach(t=>{
       t.addEventListener('click', ()=>{
         tabs.forEach(x=>x.classList.remove('active'));
@@ -590,6 +646,31 @@
         activeWindow = t.dataset.window;
         applyFilters();
       });
+    });
+
+    // Filter sheet
+    openFilters.addEventListener('click', openSheet);
+    closeFilters.addEventListener('click', closeSheet);
+    backdrop.addEventListener('click', closeSheet);
+
+    // Cascading selects
+    regionEl.addEventListener('change', ()=>{
+      populateCountries();
+    });
+
+    // Apply / Reset
+    applyFiltersBtn.addEventListener('click', ()=>{
+      applyFilters();
+      closeSheet();
+    });
+    resetFilters.addEventListener('click', ()=>{
+      [regionEl,countryEl,cityEl,genderEl,ageEl,ethnicityEl,languageEl,schoolEl,collegeEl,zodiacEl,czodiacEl].forEach(el=>{
+        if(el.tagName==='SELECT') el.selectedIndex = 0; else el.value='';
+      });
+      sortEl.value='votes';
+      populateCountries();
+      applyFilters();
+      openFilters.setAttribute('data-count','0');
     });
 
     // Side icon navigation
