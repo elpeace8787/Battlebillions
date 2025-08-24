@@ -15,7 +15,6 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#000;color:var(--ink)}
-
     /* Background canvas */
     #bg3d{
       position:fixed; inset:0; width:100%; height:100%; display:block;
@@ -29,61 +28,33 @@
     header{text-align:center}
 
     /* ===== Advanced 3D Title ===== */
-    .title-wrap{
-      perspective:1200px;
-      display:inline-block;
-      user-select:none;
-    }
-    .title-3d{
-      position:relative;
-      display:inline-block;
-      transform-style:preserve-3d;
-      transition:transform .3s ease;
-    }
+    .title-wrap{ perspective:1200px; display:inline-block; user-select:none; }
+    .title-3d{ position:relative; display:inline-block; transform-style:preserve-3d; transition:transform .3s ease; }
     header h1{
       --shine: linear-gradient(180deg, #fafafa 0%, #dcdcdc 28%, #a9a9a9 55%, #f3f3f3 82%);
-      margin:0;
-      font-size:38px;
-      letter-spacing:.6px;
-      text-transform:uppercase;
-      line-height:1;
+      margin:0; font-size:38px; letter-spacing:.6px; text-transform:uppercase; line-height:1;
       background:
         linear-gradient(120deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 22% 78%, rgba(255,255,255,.18) 100%),
         var(--shine);
       -webkit-background-clip:text; background-clip:text; color:transparent;
       filter: drop-shadow(0 8px 22px rgba(0,0,0,.35)) drop-shadow(0 2px 8px rgba(255,215,0,.18));
-      position:relative;
-      z-index:2;
-      animation:titleGlow 7.2s ease-in-out infinite;
+      position:relative; z-index:2; animation:titleGlow 7.2s ease-in-out infinite;
     }
-    /* Extruded “sides” */
     header h1::before{
-      content:"3ATTLE33ILLIONS";
-      position:absolute; inset:0;
-      color:#0e0e10; opacity:.5; z-index:-1;
-      transform: translate3d(0, 0, -3px);
-      filter: blur(.6px);
-      text-shadow:
-        0 1px 0 #09090a,
-        0 2px 0 #0b0b0d,
-        0 3px 0 #0d0d10,
-        0 4px 0 #0f0f12;
+      content:"3ATTLE33ILLIONS"; position:absolute; inset:0; color:#0e0e10; opacity:.5; z-index:-1;
+      transform: translate3d(0, 0, -3px); filter: blur(.6px);
+      text-shadow: 0 1px 0 #09090a, 0 2px 0 #0b0b0d, 0 3px 0 #0d0d10, 0 4px 0 #0f0f12;
     }
-    /* Gold rim */
     header h1::after{
-      content:"3ATTLE33ILLIONS";
-      position:absolute; inset:0; z-index:3;
+      content:"3ATTLE33ILLIONS"; position:absolute; inset:0; z-index:3;
       background: linear-gradient(90deg, rgba(255,215,0,.0), rgba(255,215,0,.55), rgba(255,215,0,.0));
       -webkit-background-clip:text; background-clip:text; color:transparent;
-      mix-blend-mode:screen; opacity:.55;
-      animation: rimSweep 3.6s linear infinite;
+      mix-blend-mode:screen; opacity:.55; animation: rimSweep 3.6s linear infinite;
     }
-    /* Sheen layer (slanted) */
     .title-sheen{
       position:absolute; left:-8%; top:-20%; width:120%; height:140%;
       background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.22) 50%, rgba(255,255,255,0) 100%);
-      transform: translateZ(8px) skewX(-18deg);
-      pointer-events:none; filter: blur(8px) opacity(.55);
+      transform: translateZ(8px) skewX(-18deg); pointer-events:none; filter: blur(8px) opacity(.55);
       animation: sheenSlide 4.8s ease-in-out infinite;
     }
     @keyframes sheenSlide{
@@ -103,7 +74,7 @@
 
     /* ===== Forms / Buttons ===== */
     .form{display:grid; gap:12px}
-    .btn, input{
+    .btn, input, select{
       width:100%; padding:12px 16px; border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(15,15,17,.28);
@@ -119,11 +90,10 @@
     .btn.ghost:hover{border-color:#fff}
 
     label{font-size:12px;color:var(--ink-2)}
-    input{color:#eaeaea}
-    input:focus{outline:0;border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,.25)}
+    input:focus, select:focus{outline:0;border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,.25)}
     .pw-wrap{position:relative}
     .pw-toggle{position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px;}
-    .actions{display:flex; gap:12px; margin-top:4px}
+    .actions{display:flex; gap:12px; margin-top:4px; flex-wrap:wrap}
 
     .divider{display:flex;align-items:center;gap:10px;margin:2px 0 6px}
     .divider::before,.divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
@@ -149,29 +119,26 @@
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .hidden{display:none !important;}
 
-    @media (prefers-reduced-motion: reduce){ #bg3d{opacity:.6} .title-3d{transform:none !重要} .title-sheen{animation:none} header h1{animation:none} }
+    @media (prefers-reduced-motion: reduce){ #bg3d{opacity:.6} .title-3d{transform:none !important} .title-sheen{animation:none} header h1{animation:none} }
 
-    /* ===== Route outlets ===== */
-    .route-auth{display:block;}       /* login route container */
-    .route-frame{display:none;}       /* iframe route container */
+    /* ===== Routes ===== */
+    .route-auth{display:block;}
+    .route-frame{display:none;}
     .route-active{display:block !important;}
 
-    .frame-wrap{
-      position:fixed; inset:0; display:grid; place-items:stretch;
-      z-index:2; /* above bg */
-      overflow:hidden;
-    }
-    /* double-buffered iframes */
+    /* Auth subviews */
+    #view-auth, #view-create { display:none; }
+    #view-auth.active, #view-create.active { display:block; }
+
+    /* Frame system for non-auth routes */
+    .frame-wrap{ position:fixed; inset:0; z-index:2; overflow:hidden; }
     .route-iframe{
       position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent;
-      opacity:0; transition:opacity .18s ease;
-      pointer-events:none; /* only the visible one will enable events */
+      opacity:0; transition:opacity .18s ease; pointer-events:none;
     }
-    .route-iframe.visible{
-      opacity:1; pointer-events:auto;
-    }
+    .route-iframe.visible{opacity:1; pointer-events:auto;}
 
-    /* Prevent any auth flash while frame is active */
+    /* When frames are active, hide entire auth container */
     .app-shell.frame-active #route-auth { display: none !important; }
   </style>
 </head>
@@ -179,9 +146,8 @@
   <!-- Background explosions -->
   <canvas id="bg3d"></canvas>
 
-  <!-- ====== APP SHELL ====== -->
   <main class="app-shell">
-    <!-- ===== Auth/Login Route ===== -->
+    <!-- ===== Auth container (has Login + Create as subviews) ===== -->
     <div id="route-auth" class="route-auth route-active">
       <div class="stack">
         <header>
@@ -193,7 +159,8 @@
           </div>
         </header>
 
-        <section id="view-auth">
+        <!-- ===== LOGIN VIEW ===== -->
+        <section id="view-auth" class="active">
           <form id="authForm" class="form" autocomplete="on">
             <div class="row">
               <label for="email">Email</label>
@@ -213,7 +180,6 @@
           </form>
 
           <div class="divider"><span>or continue with</span></div>
-
           <section class="providers">
             <div class="provider-bar">
               <!-- Google -->
@@ -246,11 +212,64 @@
 
           <p id="status" class="status" role="status" aria-live="polite"></p>
         </section>
+
+        <!-- ===== CREATE ACCOUNT VIEW (merged) ===== -->
+        <section id="view-create">
+          <form id="createForm" class="form" autocomplete="on">
+            <div id="credBlock">
+              <div class="row">
+                <label for="caEmail">Email</label>
+                <input id="caEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+              </div>
+              <div class="row">
+                <label for="caPassword">Password</label>
+                <input id="caPassword" type="password" minlength="6" placeholder="At least 6 characters" autocomplete="new-password" />
+              </div>
+              <div class="row">
+                <label for="caConfirm">Confirm Password</label>
+                <input id="caConfirm" type="password" minlength="6" placeholder="Re-enter password" autocomplete="new-password" />
+              </div>
+              <div class="row">
+                <label for="displayName">Display Name <span class="note" style="color:var(--muted)">(shown to others)</span></label>
+                <input id="displayName" type="text" maxlength="40" placeholder="e.g., ElPeace" />
+              </div>
+              <div class="divider"></div>
+            </div>
+
+            <div class="row">
+              <label for="username">Username <span class="note" style="color:var(--muted)">(unique, no spaces)</span></label>
+              <input id="username" type="text" maxlength="24" placeholder="e.g., elpeace8787" required />
+            </div>
+
+            <div class="row">
+              <label>Date of Birth</label>
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px">
+                <select id="dobMonth" required>
+                  <option value="">Month</option>
+                  <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                  <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                  <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                  <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                </select>
+                <select id="dobDay" required><option value="">Day</option></select>
+                <select id="dobYear" required><option value="">Year</option></select>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="createSubmit" class="btn primary">Save & Continue</button>
+              <button type="button" id="createBack" class="btn ghost">Back</button>
+            </div>
+
+            <p id="createStatus" class="status" role="status" aria-live="polite"></p>
+          </form>
+        </section>
       </div>
+
       <footer class="foot">© <span id="year"></span> BattleBillions</footer>
     </div>
 
-    <!-- ===== Frame Route (double-buffered iframes) ===== -->
+    <!-- ===== Frame Route (for non-auth pages) ===== -->
     <div id="route-frame" class="route-frame">
       <div class="frame-wrap">
         <iframe id="frameA" class="route-iframe visible"  title="BattleBillions View A" allow="autoplay; clipboard-read; clipboard-write"></iframe>
@@ -261,10 +280,9 @@
 
   <!-- ===================== APP LOGIC ===================== -->
   <script>
-    // Year stamp
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Password toggle
+    // Password toggle (login)
     (function(){
       const pw = document.getElementById("password");
       const btn = document.getElementById("togglePw");
@@ -292,188 +310,369 @@
       wrap.addEventListener("mouseleave", ()=>{ el.style.transform = "rotateY(0deg) rotateX(0deg)"; });
     })();
 
-    /* ===== Simple Hash Router (no auth blocking) ===== */
+    /* ===== Hash Router =====
+       - /auth/login        -> Login section
+       - /auth/create       -> Create section (default mode)
+       - /auth/create?mode=complete -> Create section (completion mode)
+       - Other routes       -> iframes (home, discover, opponent, battle, leaderboard, profile)
+    */
     const routes = {
-      "/auth/login":  { type:"auth" },
-      "/auth/create": { type:"frame", src:"createaccount.html" },
+      "/auth/login":  { type:"auth", sub:"login" },
+      "/auth/create": { type:"auth", sub:"create" },
       "/home":        { type:"frame", src:"home.html" },
       "/discover":    { type:"frame", src:"discover.html" },
       "/opponent":    { type:"frame", src:"opponent.html" },
       "/battle":      { type:"frame", src:"live.html" },
       "/leaderboard": { type:"frame", src:"leaderboard.html" },
-      "/profile":     { type:"frame", src:"profile.html" } // supports /profile/<uid>
+      "/profile":     { type:"frame", src:"profile.html" }
     };
 
-    const authView  = document.getElementById("route-auth");
-    const frameView = document.getElementById("route-frame");
-    const appShell  = document.querySelector(".app-shell");
+    const authContainer = document.getElementById("route-auth");
+    const loginView     = document.getElementById("view-auth");
+    const createView    = document.getElementById("view-create");
+    const frameView     = document.getElementById("route-frame");
+    const appShell      = document.querySelector(".app-shell");
+    const statusEl      = document.getElementById("status");
+    const createStatus  = document.getElementById("createStatus");
 
     // Double-buffer iframes
     const frameA = document.getElementById("frameA");
     const frameB = document.getElementById("frameB");
-    let visible = frameA;      // currently shown iframe
-    let hidden  = frameB;      // used to preload next page
+    let visible = frameA;
+    let hidden  = frameB;
 
-    // Robust hash parser (handles /auth/create + /profile/:id)
+    function setAuthSubview(which){
+      loginView.classList.remove("active");
+      createView.classList.remove("active");
+      if (which === "login") loginView.classList.add("active");
+      if (which === "create") createView.classList.add("active");
+    }
+
     function parseHash(){
       const raw  = location.hash || "#/auth/login";
-      const path = raw.slice(1).split("?")[0];           // "/auth/create", "/home", "/profile/123"
-      const parts = path.split("/").filter(Boolean);     // ["auth","create"] etc
+      const [path, query] = raw.slice(1).split("?");
+      const parts = path.split("/").filter(Boolean);
 
-      // Explicit multi-segment support
-      if (parts[0] === "auth" && parts[1] === "create") {
-        return { base: "/auth/create", id: null };
+      // /auth/login and /auth/create
+      if (parts[0] === "auth" && (parts[1] === "login" || parts[1] === "create")){
+        return { base: `/auth/${parts[1]}`, query: new URLSearchParams(query||"") };
       }
+
+      // /profile/<id>
       if (parts[0] === "profile" && parts[1]) {
-        return { base: "/profile", id: parts[1] };
+        return { base: "/profile", id: parts[1], query: new URLSearchParams(query||"") };
       }
 
-      // Single-segment routes or /auth/login
+      // single segment
       const base = `/${parts[0] || "auth"}`;
-      if (base === "/auth") return { base: "/auth/login", id: null }; // normalize login
-
-      return { base, id: null };
+      if (base === "/auth") return { base:"/auth/login", query:new URLSearchParams(query||"") };
+      return { base, query:new URLSearchParams(query||"") };
     }
 
-    function showAuth(){
-      appShell && appShell.classList.remove("frame-active");
-      authView.classList.add("route-active");
+    function showAuth(sub){
+      appShell.classList.remove("frame-active");
       frameView.classList.remove("route-active");
+      authContainer.classList.add("route-active");
+      setAuthSubview(sub);
     }
 
-    // Preload next page in the hidden iframe; swap when ready (instant)
     function showFrame(src){
-      // prepare views
-      appShell && appShell.classList.add("frame-active");
-      authView.classList.remove("route-active");
+      appShell.classList.add("frame-active");
+      authContainer.classList.remove("route-active");
       frameView.classList.add("route-active");
 
       const abs = new URL(src, location.href).href;
-      // If current visible already shows desired page, do nothing
       if (visible.src === abs) return;
 
-      // Load in hidden iframe
-      hidden.removeAttribute("src"); // clear old to free memory in some browsers
+      hidden.removeAttribute("src");
       hidden.classList.remove("visible");
-      hidden.addEventListener("load", swapOnce, { once:true });
-
-      // Kick off preload
-      hidden.src = src;
-
-      function swapOnce(){
-        // Fade-in hidden, fade-out visible (instant feel)
+      hidden.addEventListener("load", ()=>{
         visible.classList.remove("visible");
         hidden.classList.add("visible");
-
-        // Swap references
-        const tmp = visible;
-        visible = hidden;
-        hidden  = tmp;
-
-        // Reset the newly hidden iframe to blank to avoid playing audio/video
+        const tmp = visible; visible = hidden; hidden = tmp;
         hidden.removeAttribute("src");
         hidden.classList.remove("visible");
-      }
+      }, { once:true });
+      hidden.src = src;
     }
 
     function navigate(){
-      const { base, id } = parseHash();
+      const { base, id, query } = parseHash();
       const route = routes[base] || routes["/auth/login"];
 
-      if(route.type === "auth"){
-        showAuth();
+      if (route.type === "auth"){
+        const sub = route.sub === "create" ? "create" : "login";
+        showAuth(sub);
+        // When entering create, set completion mode flag (used by create logic)
+        window.__completionMode = (sub === "create" && (query && query.get("mode")==="complete"));
         return;
       }
-      if(route.type === "frame"){
+
+      if (route.type === "frame"){
         let src = route.src;
-        if(base === "/profile" && id){ src = `${src}?uid=${encodeURIComponent(id)}`; }
+        if (base === "/profile" && id) src = `${src}?uid=${encodeURIComponent(id)}`;
         showFrame(src);
         return;
       }
-      // Fallback
-      showAuth();
+
+      showAuth("login");
     }
 
     window.addEventListener("hashchange", navigate);
-
-    // Hook up buttons to routes (email form uses SPA; you can swap for real email auth later)
     document.getElementById("authForm").addEventListener("submit", (e)=>{
       e.preventDefault();
-      location.hash = "/home";
+      location.hash = "/home"; // replace later with real email sign-in if needed
     });
     document.getElementById("modeBtn").addEventListener("click", ()=>{ location.hash = "/auth/create"; });
 
-    // Default route on first load
+    // Defaults
     if(!location.hash){ location.hash = "/auth/login"; }
     navigate();
+
+    // Create view: populate DOB day/year
+    (function initDOBOptions(){
+      const mEl = document.getElementById('dobMonth');
+      const dEl = document.getElementById('dobDay');
+      const yEl = document.getElementById('dobYear');
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const minYear = currentYear - 100;
+      for(let y=currentYear; y>=minYear; y--) {
+        const opt = document.createElement('option');
+        opt.value = String(y); opt.textContent = String(y);
+        yEl.appendChild(opt);
+      }
+      function fillDays(){
+        const m = parseInt(mEl.value||'0',10);
+        const y = parseInt(yEl.value||'0',10);
+        const daysInMonth = (m && y) ? new Date(y, m, 0).getDate() : 31;
+        const cur = dEl.value;
+        dEl.innerHTML = '<option value="">Day</option>';
+        for(let d=1; d<=daysInMonth; d++){
+          const opt = document.createElement('option');
+          opt.value=String(d); opt.textContent=String(d);
+          dEl.appendChild(opt);
+        }
+        if(cur && parseInt(cur,10)<=daysInMonth) dEl.value = cur;
+      }
+      mEl.addEventListener('change', fillDays);
+      yEl.addEventListener('change', fillDays);
+      fillDays();
+    })();
+
   </script>
 
-  <!-- ===== Enable real social logins + profile completion gate ===== -->
+  <!-- ===== Firebase auth + profile completion logic (merged) ===== -->
   <script type="module">
-    import {
+    // We rely on your local firebase.js for core exports.
+    // If it doesn't export createUserWithEmailAndPassword yet, we fall back to CDN import.
+    let mod = await import("./firebase.js");
+    const {
       auth, db,
       googleProvider, facebookProvider, twitterProvider,
       signInWithPopup, onAuthStateChanged,
+      signInWithEmailAndPassword, // optional if you later wire email login
       doc, getDoc, setDoc, serverTimestamp
-    } from "./firebase.js";
+    } = mod;
 
-    const status = document.getElementById("status");
+    let { createUserWithEmailAndPassword } = mod;
+    if(!createUserWithEmailAndPassword){
+      const authMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+      createUserWithEmailAndPassword = authMod.createUserWithEmailAndPassword;
+    }
+
+    const statusEl = document.getElementById("status");
+    const createStatus = document.getElementById("createStatus");
+
+    // ---- Chinese New Year dates (1980–2030) for zodiac calc
+    const CNY = {1980:"1980-02-16",1981:"1981-02-05",1982:"1982-01-25",1983:"1983-02-13",1984:"1984-02-02",
+      1985:"1985-02-20",1986:"1986-02-09",1987:"1987-01-29",1988:"1988-02-17",1989:"1989-02-06",
+      1990:"1990-01-27",1991:"1991-02-15",1992:"1992-02-04",1993:"1993-01-23",1994:"1994-02-10",
+      1995:"1995-01-31",1996:"1996-02-19",1997:"1997-02-07",1998:"1998-01-28",1999:"1999-02-16",
+      2000:"2000-02-05",2001:"2001-01-24",2002:"2002-02-12",2003:"2003-02-01",2004:"2004-01-22",
+      2005:"2005-02-09",2006:"2006-01-29",2007:"2007-02-18",2008:"2008-02-07",2009:"2009-01-26",
+      2010:"2010-02-14",2011:"2011-02-03",2012:"2012-01-23",2013:"2013-02-10",2014:"2014-01-31",
+      2015:"2015-02-19",2016:"2016-02-08",2017:"2017-01-28",2018:"2018-02-16",2019:"2019-02-05",
+      2020:"2020-01-25",2021:"2021-02-12",2022:"2022-02-01",2023:"2023-01-22",2024:"2024-02-10",
+      2025:"2025-01-29",2026:"2026-02-17",2027:"2027-02-06",2028:"2028-01-26",2029:"2029-02-13",
+      2030:"2030-02-03"};
+    const CH_ANIMALS = ["Rat","Ox","Tiger","Rabbit","Dragon","Snake","Horse","Goat","Monkey","Rooster","Dog","Pig"];
+    const pad = n => String(n).padStart(2,'0');
+    const iso = (y,m,d) => `${y}-${pad(m)}-${pad(d)}`;
+    const computeAge = (dob)=>{
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+      return age;
+    };
+    const westernZodiac = (m,d)=>{
+      const s = [
+        {n:"Capricorn",f:[12,22],t:[1,19]},{n:"Aquarius",f:[1,20],t:[2,18]},
+        {n:"Pisces",f:[2,19],t:[3,20]},{n:"Aries",f:[3,21],t:[4,19]},
+        {n:"Taurus",f:[4,20],t:[5,20]},{n:"Gemini",f:[5,21],t:[6,20]},
+        {n:"Cancer",f:[6,21],t:[7,22]},{n:"Leo",f:[7,23],t:[8,22]},
+        {n:"Virgo",f:[8,23],t:[9,22]},{n:"Libra",f:[9,23],t:[10,22]},
+        {n:"Scorpio",f:[10,23],t:[11,21]},{n:"Sagittarius",f:[11,22],t:[12,21]}
+      ];
+      for(const x of s){
+        const [fm,fd]=x.f,[tm,td]=x.t;
+        if (fm<=tm){ if((m>fm||(m===fm&&d>=fd))&&(m<tm||(m===tm&&d<=td))) return x.n; }
+        else { if((m>fm||(m===fm&&d>=fd))||(m<tm||(m===tm&&d<=td))) return x.n; }
+      }
+      return "Capricorn";
+    };
+    const chineseZodiac = (y,m,d)=>{
+      let year=y;
+      if(CNY[y]){
+        const cny = new Date(CNY[y]+"T00:00:00Z");
+        const dob = new Date(`${iso(y,m,d)}T00:00:00Z`);
+        if(dob < cny) year=y-1;
+      }
+      const idx=(year-1900)%12;
+      return CH_ANIMALS[(idx+12)%12];
+    };
+    const sanitizeUsername = u => (u||"").trim().toLowerCase().replace(/\s+/g,'').replace(/[^a-z0-9._-]/g,'').slice(0,24);
 
     async function ensureUserDoc(user){
       const ref = doc(db, "users", user.uid);
       const snap = await getDoc(ref);
-      if (!snap.exists()) {
+      if(!snap.exists()){
         await setDoc(ref, {
           email: user.email || "",
           displayName: user.displayName || "",
           avatarURL: user.photoURL || "",
           createdAt: serverTimestamp(),
-          // Required for completion gate:
-          username: null,
-          dob: null,
-          age: null,
-          westernZodiac: null,
-          chineseZodiac: null
+          username:null, dob:null, age:null, westernZodiac:null, chineseZodiac:null
         });
-        return { existed:false, data:null };
+        return {existed:false, data:null};
       }
-      return { existed:true, data:snap.data() };
+      return {existed:true, data:snap.data()};
     }
+    const needsCompletion = (data)=>!(data && data.username && data.dob && data.age && data.westernZodiac && data.chineseZodiac);
 
-    function needsCompletion(data){
-      if (!data) return true;
-      return !(data.username && data.dob && data.age && data.westernZodiac && data.chineseZodiac);
-    }
-
-    async function handleOAuth(provider){
+    // ---- Social buttons
+    const handleOAuth = async (provider)=>{
       try{
         const res = await signInWithPopup(auth, provider);
         const { data } = await ensureUserDoc(res.user);
-        if (needsCompletion(data)) {
+        if(needsCompletion(data)){
           location.hash = "/auth/create?mode=complete";
-        } else {
+        }else{
           location.hash = "/home";
         }
       }catch(err){
-        if(status) status.textContent = err?.message || "Sign-in failed.";
+        statusEl.textContent = err?.message || "Sign-in failed.";
       }
-    }
+    };
+    document.getElementById("googleBtn")?.addEventListener("click", ()=>handleOAuth(googleProvider));
+    document.getElementById("facebookBtn")?.addEventListener("click", ()=>handleOAuth(facebookProvider));
+    document.getElementById("twitterBtn")?.addEventListener("click", ()=>handleOAuth(twitterProvider));
 
-    document.getElementById("googleBtn")?.addEventListener("click", ()=> handleOAuth(googleProvider));
-    document.getElementById("facebookBtn")?.addEventListener("click", ()=> handleOAuth(facebookProvider));
-    document.getElementById("twitterBtn")?.addEventListener("click", ()=> handleOAuth(twitterProvider));
-
-    // If already signed in and at auth routes, route appropriately
+    // Already signed in? route accordingly when at auth views
     onAuthStateChanged(auth, async (u)=>{
-      if (!u) return;
-      if (location.hash.startsWith("#/auth")) {
+      if(!u) return;
+      if(location.hash.startsWith("#/auth")){
         const ref = doc(db, "users", u.uid);
         const snap = await getDoc(ref);
-        if (!snap.exists() || needsCompletion(snap.data())) {
+        if(!snap.exists() || needsCompletion(snap.data())){
           location.hash = "/auth/create?mode=complete";
-        } else {
+        }else{
           location.hash = "/home";
         }
+      }
+    });
+
+    // ---- Email login (stubbed to route; wire real sign-in if you like)
+    document.getElementById("authForm").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      // If you want real email login:
+      // const email = document.getElementById("email").value.trim();
+      // const pw    = document.getElementById("password").value;
+      // try { await signInWithEmailAndPassword(auth,email,pw); location.hash="/home"; }
+      // catch(err){ statusEl.textContent = err?.message || "Sign-in failed."; return; }
+      location.hash="/home";
+    });
+
+    // ---- Create Account form (merged)
+    const credBlock     = document.getElementById("credBlock");
+    const caEmailEl     = document.getElementById("caEmail");
+    const caPwEl        = document.getElementById("caPassword");
+    const caConfirmEl   = document.getElementById("caConfirm");
+    const displayNameEl = document.getElementById("displayName");
+    const usernameEl    = document.getElementById("username");
+    const mEl           = document.getElementById("dobMonth");
+    const dEl           = document.getElementById("dobDay");
+    const yEl           = document.getElementById("dobYear");
+
+    function completionMode(){ return !!window.__completionMode; }
+
+    function updateCreateUIForMode(){
+      if (completionMode()){
+        credBlock.style.display = "none";
+      } else {
+        credBlock.style.display = "";
+      }
+    }
+    // Run whenever route changes (navigate() sets window.__completionMode)
+    window.addEventListener("hashchange", updateCreateUIForMode);
+    updateCreateUIForMode();
+
+    document.getElementById("createBack").addEventListener("click", ()=>{
+      if (completionMode()) location.hash="/home"; else location.hash="/auth/login";
+    });
+
+    document.getElementById("createForm").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      createStatus.textContent = "";
+
+      const username = sanitizeUsername(usernameEl.value);
+      if(!username) return createStatus.textContent="Please enter a valid username.";
+
+      const m = parseInt(mEl.value||"0",10);
+      const d = parseInt(dEl.value||"0",10);
+      const y = parseInt(yEl.value||"0",10);
+      if(!m || !d || !y) return createStatus.textContent="Please select your full date of birth.";
+
+      const dobISO = iso(y,m,d);
+      const dob = new Date(`${dobISO}T00:00:00`);
+      const age = computeAge(dob);
+      if (age < 13) return createStatus.textContent="You must be at least 13 years old to play.";
+
+      const wz = westernZodiac(m,d);
+      const cz = chineseZodiac(y,m,d);
+
+      try{
+        let user = auth.currentUser;
+
+        if (!completionMode()){
+          const email = (caEmailEl.value||"").trim();
+          const pw    = caPwEl.value||"";
+          const cfm   = caConfirmEl.value||"";
+          const dname = (displayNameEl.value||"").trim();
+          if(!email || !pw || !cfm) return createStatus.textContent="Please fill email and both password fields.";
+          if(pw !== cfm) return createStatus.textContent="Passwords do not match.";
+
+          const cred = await createUserWithEmailAndPassword(auth, email, pw);
+          user = cred.user;
+
+          const ref = doc(db, "users", user.uid);
+          await setDoc(ref, {
+            email, displayName: dname || "", avatarURL: user.photoURL || "", createdAt: serverTimestamp(),
+            username, dob: dobISO, age, westernZodiac: wz, chineseZodiac: cz
+          }, { merge:true });
+
+        } else {
+          if(!user) return createStatus.textContent="Please sign in again to finish profile.";
+          const ref = doc(db, "users", user.uid);
+          await setDoc(ref, {
+            username, dob: dobISO, age, westernZodiac: wz, chineseZodiac: cz
+          }, { merge:true });
+        }
+
+        location.hash="/home";
+      }catch(err){
+        createStatus.textContent = err?.message || "Could not save your profile.";
       }
     });
   </script>
@@ -563,7 +762,6 @@
         const y = rand(-0.45* height, 0.45*height) / 6;
         const z = rand(-60, 20);
         this.center = new THREE.Vector3(x,y,z);
-
         this.life = reduced ? 1.5 : 1.9;
         this.t = 0;
 
