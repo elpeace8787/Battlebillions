@@ -18,7 +18,6 @@
       --safe-bottom:max(14px, env(safe-area-inset-bottom));
       --side-pad:clamp(12px, 4vw, 44px);
       --glass:rgba(255,255,255,.06);
-      --glassEdge:rgba(255,255,255,.12);
       --bg-grad:
         radial-gradient(900px 600px at 25% 15%, rgba(255,215,0,.06), transparent 60%),
         radial-gradient(800px 600px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
@@ -54,7 +53,7 @@
       padding: var(--safe-top) var(--side-pad) calc(var(--safe-bottom) + 90px);
     }
 
-    /* HEADER */
+    /* HEADER (no borders; pure glass + gradient) */
     .header{
       position:sticky; top:0; z-index:5;
       display:grid; gap:10px;
@@ -87,7 +86,8 @@
     .search{
       position:relative; display:flex; align-items:center; gap:8px;
       background:var(--glass); border-radius:18px; padding:6px 10px;
-      box-shadow:0 0 22px rgba(71,245,255,.18), inset 0 0 0 1px rgba(71,245,255,.22);
+      /* no borders; soft glow only */
+      box-shadow:0 0 22px rgba(71,245,255,.18);
       width:100%;
     }
     .search input{
@@ -103,7 +103,7 @@
       font-size:12px; font-weight:800; color:#111; cursor:pointer; border:none;
       padding:8px 12px; border-radius:999px;
       background:linear-gradient(180deg,#fff3bd,#ffd700);
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(255,215,0,.2);
+      box-shadow:0 8px 22px rgba(255,215,0,.2);
       opacity:.6; transition:opacity .15s ease, transform .12s ease;
     }
     .tab.active{ opacity:1; transform:translateY(-1px) }
@@ -112,7 +112,7 @@
       border:none; cursor:pointer; font-weight:800;
       padding:8px 12px; border-radius:14px; color:#111;
       background:linear-gradient(180deg,#dff9ff,#7ff3ff);
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(127,243,255,.2);
+      box-shadow:0 8px 22px rgba(127,243,255,.2);
     }
     .filterBtn[data-count]:after{
       content:attr(data-count);
@@ -120,17 +120,16 @@
       box-shadow: 0 0 10px rgba(255,215,0,.5);
     }
 
-    /* FILTER SHEET (single drop box) */
+    /* FILTER SHEET (no borders; glass card) */
     .sheet-backdrop{
-      position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:20;
-      display:none;
+      position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:20; display:none;
     }
     .sheet{
       position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
       width:min(94vw, 820px); max-height:80vh; overflow:auto; z-index:21; display:none;
       background:rgba(20,20,24,.7); backdrop-filter: blur(14px) saturate(130%);
       border-radius:18px; padding:14px;
-      box-shadow: 0 20px 80px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.12);
+      box-shadow: 0 20px 80px rgba(0,0,0,.6);
     }
     .sheet header{
       display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
@@ -147,7 +146,8 @@
       display:flex; align-items:center; gap:8px;
       background:rgba(255,255,255,.06);
       border-radius:12px; padding:10px 12px;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+      /* no outline */
+      box-shadow:none;
     }
     .chip label{ font-size:11px; color:#cfefff; opacity:.9; min-width:92px }
     .chip select, .chip input{
@@ -156,33 +156,27 @@
     .sheet footer{
       margin-top:12px; display:flex; gap:10px; justify-content:flex-end;
     }
-    .btn{
-      border:none; cursor:pointer; font-weight:800; padding:10px 14px; border-radius:12px;
-    }
+    .btn{ border:none; cursor:pointer; font-weight:800; padding:10px 14px; border-radius:12px; }
     .btn.primary{
       color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(255,215,0,.2);
+      box-shadow:0 8px 22px rgba(255,215,0,.2);
     }
-    .btn.ghost{
-      color:#bfefff; background:rgba(255,255,255,.08); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)
-    }
+    .btn.ghost{ color:#bfefff; background:rgba(255,255,255,.08) }
 
-    /* RESULTS LIST */
-    .list{
-      display:grid; gap:12px; margin-top:14px;
-    }
+    /* RESULTS LIST (clean glass rows, no borders) */
+    .list{ display:grid; gap:12px; margin-top:14px; }
     .row{
-      display:grid; grid-template-columns: 56px 1fr auto; gap:12px; align-items:center;
+      display:grid; grid-template-columns: 56px 1fr; gap:12px; align-items:center;
       background:rgba(255,255,255,.045);
       border-radius:16px; padding:10px 12px;
-      box-shadow:0 10px 32px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+      box-shadow:0 10px 32px rgba(0,0,0,.35);
     }
     .av{
       width:56px; height:56px; border-radius:50%; overflow:hidden; position:relative; background:#111;
       box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 10px rgba(255,255,255,.08);
     }
     .av img{ width:100%; height:100%; object-fit:cover }
-    .badge-flag{ position:absolute; right:-2px; bottom:-2px; width:18px; height:12px; border-radius:3px; border:1px solid rgba(255,255,255,.6) }
+    .badge-flag{ position:absolute; right:-2px; bottom:-2px; width:18px; height:12px; border-radius:3px; /* no border */ }
     .who{ display:grid; gap:4px; }
     .topline{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .handle{ font-weight:800; font-size:14px }
@@ -192,20 +186,16 @@
       min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center;
       font-size:11px; font-weight:800; color:#000;
       background:linear-gradient(180deg,#fff1a8,#ffd700);
-      box-shadow:0 0 10px rgba(255,215,0,.35), inset 0 0 0 1px rgba(0,0,0,.15);
+      box-shadow:0 0 10px rgba(255,215,0,.35);
     }
     .rbadge.silver{ background:linear-gradient(180deg,#fafafa,#cfcfcf) }
     .rbadge.bronze{ background:linear-gradient(180deg,#ffd7b0,#c8903c) }
     .stats{ display:flex; gap:12px; font-size:11px; color:#cfefff; flex-wrap:wrap; }
-    .score{
-      font-weight:800; color:#111; padding:8px 10px; border-radius:999px;
-      background:linear-gradient(180deg,#fff3bd,#ffd700);
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 8px 22px rgba(255,215,0,.2);
-    }
 
     /* SIDE ICONS (Arena parity) */
     nav.side{
       position:fixed; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:20px; z-index:6;
+      transition: opacity .25s ease, transform .25s ease;
     }
     nav.side.left{ left:16px }
     nav.side.right{ right:16px }
@@ -221,7 +211,16 @@
     .shape.logout .strokeline{ stroke:#ff4c4c }
 
     /* Bottom-center triangle */
-    .center-triangle{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6 }
+    .center-triangle{
+      position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    /* Auto-hide icons while scrolling */
+    .nav-hidden nav.side,
+    .nav-hidden .center-triangle{
+      opacity:0; pointer-events:none; transform:translateY(6px);
+    }
   </style>
 </head>
 <body>
@@ -461,7 +460,7 @@
     const resetFilters = document.getElementById('resetFilters');
     const applyFiltersBtn = document.getElementById('applyFilters');
 
-    // Filter inputs (inside sheet)
+    // Filter inputs
     const regionEl = document.getElementById('region');
     const countryEl = document.getElementById('country');
     const cityEl = document.getElementById('city');
@@ -520,7 +519,6 @@
               <span>${u.college}</span>
             </div>
           </div>
-          <div class="score">Vote Count</div>
         </div>
       `;
     }
@@ -595,7 +593,11 @@
 
       out.sort((a,b)=>{
         if(sort==='wins') return b.wins - a.wins;
-        if(sort==='winrate') return ( (a.wins/(a.wins+a.losses||1)) < (b.wins/(b.wins+b.losses||1)) ) ? 1 : -1;
+        if(sort==='winrate') {
+          const aw = a.wins/(a.wins+a.losses||1);
+          const bw = b.wins/(b.wins+b.losses||1);
+          return bw - aw;
+        }
         if(sort==='recent') return lastActiveScore(a) - lastActiveScore(b);
         return b.votes - a.votes;
       });
@@ -654,9 +656,7 @@
     backdrop.addEventListener('click', closeSheet);
 
     // Cascading selects
-    regionEl.addEventListener('change', ()=>{
-      populateCountries();
-    });
+    regionEl.addEventListener('change', populateCountries);
 
     // Apply / Reset
     applyFiltersBtn.addEventListener('click', ()=>{
@@ -678,6 +678,15 @@
       btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
     });
 
+    // Auto-hide icons on scroll, re-show when idle
+    let navHideTimer = null;
+    const root = document.body;
+    window.addEventListener('scroll', ()=>{
+      root.classList.add('nav-hidden');
+      if(navHideTimer) clearTimeout(navHideTimer);
+      navHideTimer = setTimeout(()=> root.classList.remove('nav-hidden'), 350);
+    }, { passive:true });
+
     /***********************
      * INIT
      ***********************/
@@ -686,3 +695,4 @@
   </script>
 </body>
 </html>
+  
