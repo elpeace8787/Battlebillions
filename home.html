@@ -324,34 +324,31 @@
     </button>
   </div>
 
-  <!-- ===== APP LOGIC (reads Firestore user and fills UI) ===== -->
+  <!-- Firebase-driven profile fill -->
   <script type="module">
-    // Try to use your firebase.js first
-    let local = {};
-    try { local = await import("./firebase.js"); } catch (e) { console.warn("firebase.js not found", e); }
-
-    const {
-      auth, db,
-      onAuthStateChanged: OASC, signOut: SO,
-      doc: DOC, getDoc: GDC
-    } = local;
-
-    // Fallback to CDN if needed (still uses your initialized instances if firebase.js exported them)
-    let onAuthStateChanged = OASC, signOut = SO;
-    let doc = DOC, getDoc = GDC;
-
-    if (!onAuthStateChanged || !signOut) {
-      const a = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-      onAuthStateChanged = onAuthStateChanged || a.onAuthStateChanged;
-      signOut = signOut || a.signOut;
-    }
-    if (!doc || !getDoc) {
-      const f = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      doc = doc || f.doc;
-      getDoc = getDoc || f.getDoc;
+    // --- Load your initialized firebase.js (required) ---
+    let fb = {};
+    try {
+      fb = await import("./firebase.js");
+    } catch (e) {
+      console.error("firebase.js not found or failed to load:", e);
     }
 
-    // DOM helpers
+    // Required named exports from firebase.js
+    const need = ["auth","db","onAuthStateChanged","signOut","doc","getDoc"];
+    const missing = need.filter(k => !fb[k]);
+    if (missing.length) {
+      console.error("firebase.js is missing exports:", missing.join(", "));
+    }
+
+    const auth = fb.auth;
+    const db = fb.db;
+    const onAuthStateChanged = fb.onAuthStateChanged;
+    const signOut = fb.signOut;
+    const doc = fb.doc;
+    const getDoc = fb.getDoc;
+
+    // --- DOM helpers ---
     const $ = (s)=>document.querySelector(s);
     const avatarImg = $('#avatar');
     const flagImg   = $('#flag');
@@ -371,134 +368,84 @@
     const mediaGrid   = $('#mediaGrid');
     const bioEl       = $('#bio');
 
-    // Utility
-    function initialsFrom(nameOrEmail, handle){
-      const src = (handle && handle.replace('@','')) || nameOrEmail || 'BB';
-      const parts = src.split(/[^\w]+/).filter(Boolean);
-      if(parts.length>=2) return (parts[0][0] + parts[1][0]).toUpperCase();
-      return src.slice(0,2).toUpperCase();
+    // --- Utilities ---
+    function initialsFrom(str) {
+      const s = (str || "BB").toString();
+      const parts = s.replace("@","").split(/[^\w]+/).filter(Boolean);
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return s.slice(0,2).toUpperCase();
     }
-    function setAvatar(url, fallbackInitials){
-      if(url){
+    function setAvatar(url, fallbackInitials) {
+      if (url) {
         avatarImg.src = url;
-        avatarImg.onerror = ()=>{ avatarImg.removeAttribute('src'); avatarImg.alt = fallbackInitials; };
-      }else{
+        avatarImg.onerror = () => { avatarImg.removeAttribute('src'); avatarImg.alt = fallbackInitials; };
+      } else {
         avatarImg.removeAttribute('src');
         avatarImg.alt = fallbackInitials;
       }
     }
     function flagFromCountry(country){
-      if(!country) return '';
       const map = {
-        "United States":"flag_us.png",
-        "USA":"flag_us.png",
-        "Japan":"flag_jp.png",
-        "Canada":"flag_ca.png",
-        "United Kingdom":"flag_uk.png",
-        "Australia":"flag_au.png"
+        "United States":"flag_us.png", "USA":"flag_us.png",
+        "Japan":"flag_jp.png", "Canada":"flag_ca.png",
+        "United Kingdom":"flag_uk.png", "Australia":"flag_au.png"
       };
-      return map[country] || '';
+      return map[country || ""] || "";
     }
-    const fmt = (n)=> Number.isFinite(n) ? n : 0;
+    const nz = (n)=> Number.isFinite(n) ? n : 0;
 
-    // Tabs
-    const tabBtns = Array.from(document.querySelectorAll('.tab'));
-    tabBtns.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        tabBtns.forEach(x=>x.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-        document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
-      });
-    });
+    // --- UI Fillers (auth first, then Firestore) ---
+    function fillFromAuth(u) {
+      const username = (u.displayName || (u.email?.split("@")[0]) || "player").toLowerCase();
+      const handle = "@" + username;
+      displayEl.textContent = u.displayName || username;
+      handleEl.textContent  = handle;
+      setAvatar(u.photoURL || "", initialsFrom(displayEl.textContent || handle));
+      flagImg.style.display = "none";
+      top9Wrap.style.display = "none";
+      // Stats → zeros by default
+      statVotes.textContent  = "0";
+      statWins.textContent   = "0";
+      statLoss.textContent   = "0";
+      statWR.textContent     = "0%";
+      statStreak.textContent = "0";
+      statRank.textContent   = "—";
+      bioEl.textContent      = "Let's battle. ⚡";
+      mediaGrid.innerHTML    = '';
+      battlesList.innerHTML  = '';
+    }
 
-    // Shape nav links
-    document.querySelectorAll(".shape[data-link]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
-    });
-
-    // Follow / share / report
-    $('#followBtn')?.addEventListener('click', (e)=>{
-      const followed = e.currentTarget.dataset.on === '1';
-      e.currentTarget.dataset.on = followed ? '0' : '1';
-      e.currentTarget.textContent = followed ? 'Follow' : 'Following';
-      e.currentTarget.style.background = followed
-        ? 'linear-gradient(180deg,#fff3bd,#ffd700)'
-        : 'linear-gradient(180deg,#dff9ff,#7ff3ff)';
-    });
-    $('#shareBtn')?.addEventListener('click', async ()=>{
-      try{
-        await navigator.share?.({ title:'BattleBillions', url: location.href });
-        alert('Shared!');
-      }catch{
-        try{
-          await navigator.clipboard?.writeText(location.href);
-          alert('Link copied!');
-        }catch{ alert('Copied link:\n'+location.href); }
-      }
-    });
-    $('#reportBtn')?.addEventListener('click', ()=> alert('Thanks — report submitted for review.'));
-
-    // Auto-hide side nav on scroll
-    let navHideTimer=null;
-    window.addEventListener('scroll', ()=>{
-      document.body.classList.add('nav-hidden');
-      if(navHideTimer) clearTimeout(navHideTimer);
-      navHideTimer = setTimeout(()=> document.body.classList.remove('nav-hidden'), 350);
-    }, {passive:true});
-
-    // Logout
-    $('#logoutBtn')?.addEventListener('click', async ()=>{
-      try { await signOut(auth); location.href = 'index.html#/auth/login'; }
-      catch(e){ alert(e?.message || 'Logout failed'); }
-    });
-
-    // Load signed-in user + profile
-    onAuthStateChanged(auth, async (user)=>{
-      if(!user){
-        // Not signed in → back to SPA login
-        location.href = 'index.html#/auth/login';
-        return;
-      }
-
-      let profile = {};
-      try{
-        const snap = await getDoc(doc(db, "users", user.uid));
-        profile = snap.exists() ? (snap.data() || {}) : {};
-      }catch(e){
-        console.warn('Failed to load profile:', e);
-      }
-
-      const username = (profile.username || (user.email?.split('@')[0]) || 'player').toString().toLowerCase();
-      const display  = profile.username || user.displayName || username;
-      const handle   = '@' + username;
+    function fillFromProfile(u, profile) {
+      const uname   = (profile.username || u.displayName || (u.email?.split("@")[0]) || "player").toString();
+      const handle  = "@" + uname.toLowerCase();
 
       // Header
-      setAvatar(profile.avatarURL || user.photoURL || '', initialsFrom(display || user.email || '', username));
-      const fs = flagFromCountry(profile.country);
-      if(fs){ flagImg.src = fs; flagImg.style.display=''; } else { flagImg.style.display='none'; }
-      displayEl.textContent = display;
+      displayEl.textContent = profile.username || u.displayName || uname;
       handleEl.textContent  = handle;
+      setAvatar(profile.avatarURL || u.photoURL || "", initialsFrom(displayEl.textContent || handle));
 
-      if(profile.top9Rank){
+      const fs = flagFromCountry(profile.country);
+      if (fs) { flagImg.src = fs; flagImg.style.display = ""; } else { flagImg.style.display = "none"; }
+
+      if (profile.top9Rank) {
         rankBadge.textContent = profile.top9Rank;
-        top9Wrap.style.display = '';
-      }else{
-        top9Wrap.style.display = 'none';
+        top9Wrap.style.display = "";
+      } else {
+        top9Wrap.style.display = "none";
       }
 
       // Stats
-      const wins   = fmt(profile.wins);
-      const losses = fmt(profile.losses);
+      const wins   = nz(profile.wins);
+      const losses = nz(profile.losses);
       const total  = wins + losses;
-      const wr     = total ? (wins/total*100).toFixed(1) : '0.0';
+      const wr     = total ? (wins / total * 100).toFixed(1) : "0.0";
 
-      statVotes.textContent  = (fmt(profile.votes)||0).toLocaleString();
+      statVotes.textContent  = (nz(profile.votes) || 0).toLocaleString();
       statWins.textContent   = wins;
       statLoss.textContent   = losses;
-      statWR.textContent     = wr + '%';
-      statStreak.textContent = fmt(profile.streak)||0;
-      statRank.textContent   = profile.rank ?? '—';
+      statWR.textContent     = wr + "%";
+      statStreak.textContent = nz(profile.streak) || 0;
+      statRank.textContent   = (profile.rank ?? "—");
 
       // About
       bioEl.textContent = profile.bio || "Let's battle. ⚡";
@@ -506,10 +453,10 @@
       // Media
       const media = Array.isArray(profile.media) ? profile.media : [];
       mediaGrid.innerHTML = media.length
-        ? media.map(src => `<div class="thumb"><img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover"/></div>`).join('')
+        ? media.map(src => `<div class="thumb"><img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover"/></div>`).join("")
         : '<div class="muted">No media yet.</div>';
 
-      // Battles (optional array in profile)
+      // Battles
       const battles = Array.isArray(profile.battles) ? profile.battles : [];
       battlesList.innerHTML = battles.length ? battles.map(b => `
         <article class="battle" data-id="${b.id || ''}">
@@ -541,13 +488,12 @@
             <button class="act" data-act="flag">Flag</button>
           </div>
         </article>
-      `).join('') : '<div class="muted">No recent battles yet.</div>';
+      `).join("") : '<div class="muted">No recent battles yet.</div>';
 
       // Autoplay previews
       document.querySelectorAll('.panelVid video').forEach(v=>{
         v.addEventListener('canplay', ()=> v.play().catch(()=>{}));
       });
-
       // Vote demo
       document.querySelectorAll('.battle').forEach(card=>{
         const voted={me:false,op:false};
@@ -558,7 +504,78 @@
           });
         });
       });
+    }
+
+    // --- Buttons / nav ---
+    const shareBtn  = document.getElementById('shareBtn');
+    const reportBtn = document.getElementById('reportBtn');
+    const followBtn = document.getElementById('followBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    followBtn?.addEventListener('click', (e)=>{
+      const on = e.currentTarget.dataset.on === '1';
+      e.currentTarget.dataset.on = on ? '0' : '1';
+      e.currentTarget.textContent = on ? 'Follow' : 'Following';
+      e.currentTarget.style.background = on
+        ? 'linear-gradient(180deg,#fff3bd,#ffd700)'
+        : 'linear-gradient(180deg,#dff9ff,#7ff3ff)';
     });
+    shareBtn?.addEventListener('click', async ()=>{
+      try { await navigator.share?.({ title:'BattleBillions', url: location.href }); alert('Shared!'); }
+      catch {
+        try { await navigator.clipboard?.writeText(location.href); alert('Link copied!'); }
+        catch { alert('Copied link:\n'+location.href); }
+      }
+    });
+    reportBtn?.addEventListener('click', ()=> alert('Thanks — report submitted for review.'));
+    logoutBtn?.addEventListener('click', async ()=>{
+      try { await signOut(auth); location.href = 'index.html#/auth/login'; }
+      catch(e){ alert(e?.message || 'Logout failed'); }
+    });
+    document.querySelectorAll(".shape[data-link]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
+    });
+
+    // --- Start: show something immediately, then enhance with Firestore ---
+    if (!onAuthStateChanged || !auth) {
+      console.error("Auth not available. Ensure firebase.js initializes Firebase and exports { auth, onAuthStateChanged }.");
+    } else {
+      onAuthStateChanged(auth, async (user)=>{
+        if (!user) {
+          // not signed in → back to SPA login
+          location.href = 'index.html#/auth/login';
+          return;
+        }
+        // Show immediate info from Auth
+        fillFromAuth(user);
+
+        // Then fetch profile (if possible)
+        try {
+          if (!db || !doc || !getDoc) {
+            console.warn("Firestore not available. Showing auth-only info.");
+            return;
+          }
+          const snap = await getDoc(doc(db, "users", user.uid));
+          if (snap.exists()) {
+            const profile = snap.data() || {};
+            fillFromProfile(user, profile);
+          } else {
+            console.warn("User profile doc not found; showing auth-only info.");
+          }
+        } catch (err) {
+          console.warn("Failed to read user profile:", err);
+          // Keep the auth-only UI
+        }
+      });
+    }
+
+    // Auto-hide side nav on scroll
+    let navHideTimer=null;
+    window.addEventListener('scroll', ()=>{
+      document.body.classList.add('nav-hidden');
+      if(navHideTimer) clearTimeout(navHideTimer);
+      navHideTimer = setTimeout(()=> document.body.classList.remove('nav-hidden'), 350);
+    }, {passive:true});
   </script>
 
   <!-- Three.js -->
