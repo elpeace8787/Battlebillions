@@ -10,7 +10,7 @@
       --ink:#f5f5f5; --ink-2:#cecece; --muted:#8a8a8a;
       --google-border:#dadce0;
       --facebook:#1877F2;
-      --tiktok:#000000;
+      --github:#0d1117;
       --accent:#ffd700;
     }
     *{box-sizing:border-box}
@@ -111,7 +111,7 @@
     .pbtn svg{ width:22px; height:22px; }
     .pbtn.google{ background:rgba(255,255,255,0.9); border-color:var(--google-border) }
     .pbtn.facebook{ background:rgba(24,119,242,0.9); border-color:rgba(24,119,242,1) }
-    .pbtn.tiktok{ background:rgba(0,0,0,0.85); border-color:#222 }
+    .pbtn.github{ background:rgba(13,17,23,0.95); border-color:#30363d }
 
     .status{min-height:18px;font-size:12px;text-align:center;color:var(--muted)}
     .foot{position:fixed;left:0;right:0;bottom:12px;text-align:center;font-size:12px;color:var(--muted)}
@@ -126,18 +126,14 @@
     .route-frame{display:none;}       /* iframe route container */
     .route-active{display:block !important;}
 
-    .frame-wrap{
-      position:fixed; inset:0; z-index:2; overflow:hidden;
-    }
+    .frame-wrap{ position:fixed; inset:0; z-index:2; overflow:hidden; }
     /* double-buffered iframes */
     .route-iframe{
       position:absolute; inset:0; width:100%; height:100%; border:0; background:transparent;
       opacity:0; transition:opacity .18s ease;
-      pointer-events:none; /* only the visible one will enable events */
+      pointer-events:none;
     }
-    .route-iframe.visible{
-      opacity:1; pointer-events:auto;
-    }
+    .route-iframe.visible{ opacity:1; pointer-events:auto; }
 
     /* Prevent any auth flash while frame is active */
     .app-shell.frame-active #route-auth { display: none !important; }
@@ -149,7 +145,7 @@
 
   <!-- ====== APP SHELL ====== -->
   <main class="app-shell">
-    <!-- ===== Auth/Login Route (kept exactly as your design) ===== -->
+    <!-- ===== Auth/Login Route ===== -->
     <div id="route-auth" class="route-auth route-active">
       <div class="stack">
         <header>
@@ -184,6 +180,7 @@
 
           <section class="providers">
             <div class="provider-bar">
+              <!-- Google -->
               <button id="googleBtn" class="pbtn google" title="Continue with Google" aria-label="Continue with Google">
                 <span class="sr-only">Continue with Google</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -193,6 +190,7 @@
                 </svg>
               </button>
 
+              <!-- Facebook -->
               <button id="facebookBtn" class="pbtn facebook" title="Continue with Facebook" aria-label="Continue with Facebook">
                 <span class="sr-only">Continue with Facebook</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -200,11 +198,11 @@
                 </svg>
               </button>
 
-              <button id="tiktokBtn" class="pbtn tiktok" title="Continue with TikTok" aria-label="Continue with TikTok">
-                <span class="sr-only">Continue with TikTok</span>
+              <!-- GitHub (replaces TikTok) -->
+              <button id="githubBtn" class="pbtn github" title="Continue with GitHub" aria-label="Continue with GitHub">
+                <span class="sr-only">Continue with GitHub</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M14.5 2v9.2a3.8 3.8 0 1 1-3-3.7" fill="none" stroke="#69C9D0" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M14.5 4.2c.9 1.6 2.6 3 4.5 3.2V10c-1.9-.1-3.4-.7-4.5-1.5v4.7a5.8 5.8 0 1 1-4.6-5.6" fill="none" stroke="#EE1D52" stroke-width="2" stroke-linecap="round"/>
+                  <path fill="#ffffff" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.1c-3.2.7-3.88-1.37-3.88-1.37-.53-1.36-1.3-1.73-1.3-1.73-1.06-.72.08-.7.08-.7 1.17.08 1.78 1.21 1.78 1.21 1.04 1.78 2.74 1.27 3.41.97.11-.76.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.3 1.2-3.11-.12-.29-.52-1.45.11-3.02 0 0 .97-.31 3.19 1.19a11.1 11.1 0 0 1 5.8 0c2.21-1.5 3.18-1.19 3.18-1.19.63 1.57.23 2.73.11 3.02.75.8 1.2 1.85 1.2 3.11 0 4.43-2.7 5.41-5.27 5.7.42.36.8 1.08.8 2.18v3.23c0 .31.21.68.8.56A11.5 11.5 0 0 0 12 .5Z"/>
                 </svg>
               </button>
             </div>
@@ -230,7 +228,7 @@
     // Year stamp
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Password toggle (unchanged)
+    // Password toggle
     (function(){
       const pw = document.getElementById("password");
       const btn = document.getElementById("togglePw");
@@ -241,7 +239,7 @@
       });
     })();
 
-    // 3D Title parallax (unchanged)
+    // 3D Title parallax
     (function(){
       const wrap = document.getElementById("titleWrap");
       const el   = document.getElementById("title3d");
@@ -268,7 +266,6 @@
       "/battle":      { type:"frame", src:"live.html" },
       "/leaderboard": { type:"frame", src:"leaderboard.html" },
       "/profile":     { type:"frame", src:"profile.html" } // supports /profile/<uid>
-      // Wallet/Messages/Settings/Logout will be sections under Home later
     };
 
     const authView  = document.getElementById("route-auth");
@@ -281,24 +278,20 @@
     let visible = frameA;      // currently shown iframe
     let hidden  = frameB;      // used to preload next page
 
-    // Robust hash parser (handles /auth/create + /profile/:id)
+    // Robust hash parser
     function parseHash(){
       const raw  = location.hash || "#/auth/login";
-      const path = raw.slice(1).split("?")[0];           // "/auth/create", "/home", "/profile/123"
-      const parts = path.split("/").filter(Boolean);     // ["auth","create"] etc
+      const path = raw.slice(1).split("?")[0];
+      const parts = path.split("/").filter(Boolean);
 
-      // Explicit multi-segment support
       if (parts[0] === "auth" && parts[1] === "create") {
         return { base: "/auth/create", id: null };
       }
       if (parts[0] === "profile" && parts[1]) {
         return { base: "/profile", id: parts[1] };
       }
-
-      // Single-segment routes or /auth/login
       const base = `/${parts[0] || "auth"}`;
-      if (base === "/auth") return { base: "/auth/login", id: null }; // normalize login
-
+      if (base === "/auth") return { base: "/auth/login", id: null };
       return { base, id: null };
     }
 
@@ -308,36 +301,24 @@
       frameView.classList.remove("route-active");
     }
 
-    // Preload next page in the hidden iframe; swap when ready (instant)
+    // Preload next page in hidden iframe; swap when ready
     function showFrame(src){
-      // prepare views
       appShell && appShell.classList.add("frame-active");
       authView.classList.remove("route-active");
       frameView.classList.add("route-active");
 
       const abs = new URL(src, location.href).href;
-      // If current visible already shows desired page, do nothing
       if (visible.src === abs) return;
 
-      // Load in hidden iframe
-      hidden.removeAttribute("src"); // clear old to free memory in some browsers
+      hidden.removeAttribute("src");
       hidden.classList.remove("visible");
       hidden.addEventListener("load", swapOnce, { once:true });
-
-      // Kick off preload
       hidden.src = src;
 
       function swapOnce(){
-        // Fade-in hidden, fade-out visible (instant feel)
         visible.classList.remove("visible");
         hidden.classList.add("visible");
-
-        // Swap references
-        const tmp = visible;
-        visible = hidden;
-        hidden  = tmp;
-
-        // Reset the newly hidden iframe to blank to avoid playing audio/video
+        const tmp = visible; visible = hidden; hidden = tmp;
         hidden.removeAttribute("src");
         hidden.classList.remove("visible");
       }
@@ -346,40 +327,95 @@
     function navigate(){
       const { base, id } = parseHash();
       const route = routes[base] || routes["/auth/login"];
-
-      if(route.type === "auth"){
-        showAuth();
-        return;
-      }
-
+      if(route.type === "auth"){ showAuth(); return; }
       if(route.type === "frame"){
         let src = route.src;
         if(base === "/profile" && id){ src = `${src}?uid=${encodeURIComponent(id)}`; }
-        showFrame(src);
-        return;
+        showFrame(src); return;
       }
-
-      // Fallback
       showAuth();
     }
 
     window.addEventListener("hashchange", navigate);
 
-    // Hook up buttons to routes (simple & immediate)
+    // Email form → Home (you can later replace with real email auth)
     document.getElementById("authForm").addEventListener("submit", (e)=>{
       e.preventDefault();
       location.hash = "/home";
     });
     document.getElementById("modeBtn").addEventListener("click", ()=>{ location.hash = "/auth/create"; });
 
-    // Social buttons (Google/Facebook wired later via firebase.js; TikTok is a stub for now)
-    document.getElementById("googleBtn").addEventListener("click", ()=>{ location.hash = "/home"; });
-    document.getElementById("facebookBtn").addEventListener("click", ()=>{ location.hash = "/home"; });
-    document.getElementById("tiktokBtn").addEventListener("click", ()=>{ location.hash = "/home"; });
-
-    // Default route on first load
+    // Default route
     if(!location.hash){ location.hash = "/auth/login"; }
     navigate();
+  </script>
+
+  <!-- ===== Enable real social logins + profile completion gate ===== -->
+  <script>
+  (async function enableSocialLogins(){
+    try{
+      const mod = await import("./firebase.js");
+      const {
+        auth, db,
+        googleProvider, facebookProvider, githubProvider,
+        signInWithPopup, onAuthStateChanged,
+        doc, getDoc, setDoc, serverTimestamp
+      } = mod;
+
+      async function ensureUserDoc(user){
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          await setDoc(ref, {
+            email: user.email || "",
+            displayName: user.displayName || "",
+            avatarURL: user.photoURL || "",
+            createdAt: serverTimestamp(),
+            username: null,
+            dob: null,
+            age: null,
+            westernZodiac: null,
+            chineseZodiac: null
+          });
+          return { existed:false, data:null };
+        }
+        return { existed:true, data:snap.data() };
+      }
+      function needsCompletion(data){
+        if (!data) return true;
+        return !(data.username && data.dob && data.age && data.westernZodiac && data.chineseZodiac);
+      }
+      async function handleOAuth(provider){
+        const res = await signInWithPopup(auth, provider);
+        const { data } = await ensureUserDoc(res.user);
+        if (needsCompletion(data)) {
+          location.hash = "/auth/create?mode=complete";
+        } else {
+          location.hash = "/home";
+        }
+      }
+
+      document.getElementById("googleBtn")?.addEventListener("click", ()=> handleOAuth(googleProvider));
+      document.getElementById("facebookBtn")?.addEventListener("click", ()=> handleOAuth(facebookProvider));
+      document.getElementById("githubBtn")?.addEventListener("click", ()=> handleOAuth(githubProvider));
+
+      onAuthStateChanged(auth, async (u)=>{
+        if (!u) return;
+        if (location.hash.startsWith("#/auth")) {
+          const ref = doc(db, "users", u.uid);
+          const snap = await getDoc(ref);
+          if (!snap.exists() || needsCompletion(snap.data())) {
+            location.hash = "/auth/create?mode=complete";
+          } else {
+            location.hash = "/home";
+          }
+        }
+      });
+    }catch(e){
+      const status = document.getElementById("status");
+      if (status) status.textContent = "Social login temporarily unavailable.";
+    }
+  })();
   </script>
 
   <!-- Three.js background -->
