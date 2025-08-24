@@ -121,19 +121,17 @@
     .route-frame{display:none;}       /* iframe route container */
     .route-active{display:block !important;}
 
-    /* Frame container occupies viewport; keeps background visible through transparent pages */
     .frame-wrap{
-      position:fixed; inset:0; padding:0; display:grid; place-items:stretch;
-      z-index:2;      /* above bg, below any future global nav if added later */
+      position:fixed; inset:0; display:grid; place-items:stretch;
+      z-index:2; /* above bg */
     }
     .route-iframe{
-      width:100vw; height:100vh; border:0; background: transparent;
-      /* allow the legacy pages to render their own UIs fully */
+      width:100vw; height:100vh; border:0; background:transparent;
     }
   </style>
 </head>
 <body>
-  <!-- Background explosions (Three.js) -->
+  <!-- Background explosions -->
   <canvas id="bg3d"></canvas>
 
   <!-- ====== APP SHELL ====== -->
@@ -227,7 +225,7 @@
     // Year stamp
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Password toggle (unchanged)
+    // Password toggle
     (function(){
       const pw = document.getElementById("password");
       const btn = document.getElementById("togglePw");
@@ -238,7 +236,7 @@
       });
     })();
 
-    // 3D Title parallax (unchanged)
+    // 3D Title parallax
     (function(){
       const wrap = document.getElementById("titleWrap");
       const el   = document.getElementById("title3d");
@@ -255,11 +253,7 @@
       wrap.addEventListener("mouseleave", ()=>{ el.style.transform = "rotateY(0deg) rotateX(0deg)"; });
     })();
 
-    /* ===== Simple Hash Router =====
-       - Auth routes render the local login view.
-       - All other routes load existing pages into an iframe for SPA-like transitions now.
-       - Later we can replace each iframe target with a native in-app view without changing URLs.
-    */
+    /* ===== Simple Hash Router (no auth blocking) ===== */
     const routes = {
       "/auth/login": { type:"auth" },
       "/auth/create": { type:"frame", src:"createaccount.html" },
@@ -269,116 +263,74 @@
       "/battle":     { type:"frame", src:"live.html" },
       "/leaderboard":{ type:"frame", src:"leaderboard.html" },
       "/profile":    { type:"frame", src:"profile.html" } // supports /profile/<uid>
-      // Wallet/Messages/Settings/Logout will live inside Home later, per your plan
     };
+
+    const authView  = document.getElementById("route-auth");
+    const frameView = document.getElementById("route-frame");
+    const frameEl   = document.getElementById("pageFrame");
 
     function parseHash(){
       const raw = location.hash || "#/auth/login";
       const m = raw.match(/^#(\/[^?]*)/);
       const path = m ? m[1] : "/auth/login";
-      const [base, id] = path.startsWith("/profile/") ? ["/profile", path.split("/")[2]] : [path, null];
-      const query = Object.fromEntries(new URLSearchParams((raw.split("?")[1]||"")));
-      return { base, id, query, raw };
+      const parts = path.split("/").filter(Boolean); // ["profile","uid"] etc
+      const base = parts.length > 1 ? `/${parts[0]}` : `/${parts[0]||"auth"}`;
+      const id = parts.length > 1 ? parts[1] : null;
+      return { base, id };
     }
-
-    const authView   = document.getElementById("route-auth");
-    const frameView  = document.getElementById("route-frame");
-    const frameEl    = document.getElementById("pageFrame");
 
     function showAuth(){
       authView.classList.add("route-active");
       frameView.classList.remove("route-active");
     }
     function showFrame(src){
-      frameEl.src = src;
+      // Avoid unnecessary reloads
+      if(frameEl.src !== new URL(src, location.href).href){
+        frameEl.src = src;
+      }
       frameView.classList.add("route-active");
       authView.classList.remove("route-active");
-    }
-
-    // Lightweight guard: if Firebase is available, require auth for protected routes.
-    let isAuthed = false;
-    let firebaseReady = false;
-
-    async function initFirebase(){
-      try{
-        const mod = await import("./firebase.js"); // your file path (same folder)
-        const { auth, onAuthStateChanged, signInWithEmailAndPassword,
-                signInWithPopup, googleProvider, facebookProvider } = mod;
-
-        firebaseReady = true;
-
-        // Upgrade login form to real sign-in (non-blocking navigation still works)
-        const form = document.getElementById("authForm");
-        const emailEl = document.getElementById("email");
-        const pwEl    = document.getElementById("password");
-
-        form.addEventListener("submit", async (e)=>{
-          e.preventDefault();
-          const email = (emailEl.value||"").trim();
-          const pw    = pwEl.value||"";
-          if(email && pw){
-            // Fire-and-forget sign-in; routing still immediate below
-            signInWithEmailAndPassword(auth, email, pw).catch(()=>{});
-          }
-          location.hash = "/home";
-        });
-
-        // Provider buttons (fire-and-forget)
-        document.getElementById("googleBtn").addEventListener("click", ()=>{ signInWithPopup(auth, googleProvider).catch(()=>{}); location.hash="/home"; });
-        document.getElementById("facebookBtn").addEventListener("click", ()=>{ signInWithPopup(auth, facebookProvider).catch(()=>{}); location.hash="/home"; });
-        document.getElementById("instagramBtn").addEventListener("click", ()=>{ location.hash="/home"; }); // wire later when provider ready
-        document.getElementById("tiktokBtn").addEventListener("click", ()=>{ location.hash="/home"; });    // wire later when provider ready
-
-        onAuthStateChanged(auth, (user)=>{
-          isAuthed = !!user;
-          // If user hits auth routes while authed, send to Home
-          const { base } = parseHash();
-          if(isAuthed && (base==="/auth/login" || base==="/auth/create")){
-            location.hash = "/home";
-          }
-        });
-      }catch(e){
-        // Firebase not available; proceed without blocking
-        firebaseReady = false;
-      }
-    }
-    initFirebase();
-
-    function requiresAuth(base){
-      // Only auth routes are public; everything else is protected
-      return !(base === "/auth/login" || base === "/auth/create");
     }
 
     function navigate(){
       const { base, id } = parseHash();
       const route = routes[base] || routes["/auth/login"];
 
-      // Guard (if Firebase is present). If not present, we don't block.
-      if(firebaseReady && requiresAuth(base) && !isAuthed){
+      if(route.type === "auth"){
         showAuth();
-        if(location.hash !== "#/auth/login") location.hash = "/auth/login";
         return;
       }
 
-      if(route.type === "auth"){
-        showAuth();
-      }else if(route.type === "frame"){
-        // Support /profile/<uid>
+      if(route.type === "frame"){
         let src = route.src;
         if(base === "/profile" && id){ src = `${src}?uid=${encodeURIComponent(id)}`; }
         showFrame(src);
-      }else{
-        showAuth(); // fallback
+        return;
       }
+
+      // Fallback
+      showAuth();
     }
 
     window.addEventListener("hashchange", navigate);
+
+    // Hook up buttons to routes (no auth blocking)
+    document.getElementById("authForm").addEventListener("submit", (e)=>{
+      e.preventDefault();
+      location.hash = "/home";
+    });
+    document.getElementById("modeBtn").addEventListener("click", ()=>{ location.hash = "/auth/create"; });
+    document.getElementById("googleBtn").addEventListener("click", ()=>{ location.hash = "/home"; });
+    document.getElementById("facebookBtn").addEventListener("click", ()=>{ location.hash = "/home"; });
+    document.getElementById("instagramBtn").addEventListener("click", ()=>{ location.hash = "/home"; });
+    document.getElementById("tiktokBtn").addEventListener("click", ()=>{ location.hash = "/home"; });
+
     // Default route on first load
     if(!location.hash){ location.hash = "/auth/login"; }
     navigate();
   </script>
 
-  <!-- Three.js background (unchanged visuals) -->
+  <!-- Three.js background -->
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
   (function(){
@@ -463,6 +415,7 @@
         const y = rand(-0.45* height, 0.45*height) / 6;
         const z = rand(-60, 20);
         this.center = new THREE.Vector3(x,y,z);
+
         this.life = reduced ? 1.5 : 1.9;
         this.t = 0;
 
