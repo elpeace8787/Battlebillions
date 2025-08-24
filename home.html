@@ -1,720 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
-  <title>BattleBillions — Profile</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>BattleBillions — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@600&display=swap" rel="stylesheet"/>
   <style>
     :root{
-      --ink:#eaeaea; --muted:#b8b8b8;
-      --gold:#ffd700; --cyan:#47f5ff; --pink:#ff4c6a;
-      --safe-top:max(10px, env(safe-area-inset-top));
-      --safe-bottom:max(14px, env(safe-area-inset-bottom));
-      --side-pad:clamp(12px,4vw,44px);
-      --glass:rgba(255,255,255,.06);
-      --bg-grad:
-        radial-gradient(900px 600px at 25% 15%, rgba(255,215,0,.06), transparent 60%),
-        radial-gradient(800px 600px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
-        radial-gradient(1200px 1000px at 50% 80%, rgba(159,123,255,.05), transparent 70%);
+      --ink:#f5f5f5; --ink-2:#cecece; --muted:#8a8a8a;
+      --accent:#ffd700; --panel:rgba(255,255,255,.06); --edge:rgba(255,255,255,.12);
+      --bg:#000;
     }
-    *{margin:0;padding:0;box-sizing:border-box}
-    html,body{
-      height:100%; width:100%; background:#000; color:var(--ink);
-      font-family:'Orbitron',sans-serif; -webkit-tap-highlight-color:transparent;
-      touch-action:manipulation; overscroll-behavior:none; overflow-x:hidden;
-    }
-    /* hide scrollbars but keep scrolling */
-    *::-webkit-scrollbar{ width:0; height:0; display:none }
-    *{ scrollbar-width:none }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 
-    /* Background canvas (explosions) */
-    #bg3d{
-      position:fixed; inset:0; width:100%; height:100%; display:block;
-      z-index:0; pointer-events:none;
-      background: radial-gradient(1200px 900px at 20% 10%, #0b0b0d 0%, #000 70%);
+    .shell{min-height:100vh; display:grid; grid-template-rows:auto 1fr; gap:16px}
+    .topbar{
+      position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; background:rgba(10,10,12,.5); backdrop-filter:saturate(120%) blur(8px); border-bottom:1px solid var(--edge);
     }
-    body::before{
-      content:""; position:fixed; inset:-10%; pointer-events:none; z-index:0;
-      background:var(--bg-grad); filter:blur(2px);
-    }
-
-    .page{
-      position:relative; z-index:1; min-height:100dvh;
-      padding: var(--safe-top) var(--side-pad) calc(var(--safe-bottom) + 90px);
-    }
-
-    /* Header (glass, no borders) */
-    .header{
-      position:sticky; top:0; z-index:5;
-      margin:0 calc(var(--side-pad)*-1);
-      background: linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35));
-      backdrop-filter: blur(12px);
-      padding:12px var(--side-pad) 14px;
-    }
-    .topline{
-      display:flex; align-items:center; gap:12px; justify-content:space-between;
-    }
-    .title{
-      display:flex; align-items:center; gap:12px;
-    }
+    .brand{display:flex; align-items:center; gap:10px; font-family:'Orbitron',sans-serif; letter-spacing:.4px; color:var(--accent); font-weight:700;}
+    .brand .dot{width:8px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 10px rgba(255,215,0,.7)}
+    .userbox{display:flex; align-items:center; gap:12px}
     .avatar{
-      width:56px; height:56px; border-radius:50%; overflow:hidden; background:#111;
-      box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 10px rgba(255,255,255,.08);
-      position:relative;
+      width:40px;height:40px;border-radius:999px; background:#111; border:1px solid var(--edge); overflow:hidden; display:grid; place-items:center;
     }
-    .avatar img{ width:100%; height:100%; object-fit:cover }
-    .flag-badge{
-      position:absolute; right:-3px; bottom:-3px; width:20px; height:14px; border-radius:3px;
-      box-shadow:0 0 8px rgba(0,0,0,.6);
-    }
-    .nameblock{
-      display:flex; flex-direction:column; gap:4px;
-    }
-    .display{
-      font-weight:800; letter-spacing:.3px; text-transform:uppercase; font-size:18px;
-      background:
-        linear-gradient(120deg, rgba(255,255,255,.18), rgba(255,255,255,0) 20% 80%, rgba(255,255,255,.18)),
-        linear-gradient(180deg, #f2f2f2 0%, #c7c7c7 38%, #9d9d9d 56%, #f0f0f0 86%);
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-      text-shadow: 0 4px 24px rgba(255,215,0,.12);
-    }
-    .handle{ font-size:12px; color:var(--muted) }
-    .top9{
-      display:flex; align-items:center; gap:6px; margin-top:2px;
-    }
-    .rank-badge{
-      min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center;
-      font-size:11px; font-weight:800; color:#000;
-      background:linear-gradient(180deg,#fff1a8,#ffd700);
-      box-shadow:0 0 10px rgba(255,215,0,.35);
-    }
-    .actions{
-      display:flex; gap:10px;
-    }
-    .btn{
-      border:none; cursor:pointer; font-weight:800; border-radius:12px; padding:10px 14px;
-      color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
-      box-shadow:0 8px 22px rgba(255,215,0,.2);
-    }
-    .btn.ghost{
-      color:#bfefff; background:rgba(255,255,255,.08);
-    }
+    .avatar img{width:100%;height:100%;object-fit:cover;display:none}
+    .avatar .initials{font-weight:700}
+    .meta{display:flex; flex-direction:column; line-height:1.1}
+    .meta .name{font-size:13px}
+    .meta .handle{font-size:12px;color:var(--muted)}
+    .btn{appearance:none;border:1px solid var(--edge);background:#121214;color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.warn{border-color:transparent;background:#1a1a1a}
 
-    /* Stats bar */
-    .stats{
-      display:grid; grid-template-columns: repeat(6, 1fr); gap:8px; margin-top:12px;
-    }
-    @media (max-width:840px){ .stats{ grid-template-columns: repeat(3, 1fr) } }
-    .stat{
-      background:rgba(255,255,255,.06); border-radius:14px; padding:10px 8px;
-      display:grid; gap:2px; justify-items:center;
-    }
-    .stat .num{ font-weight:800; font-size:15px }
-    .stat .lab{ font-size:10px; color:#cfefff }
+    .main{padding:16px}
+    .grid{display:grid; gap:14px; grid-template-columns: repeat(auto-fill,minmax(260px,1fr));}
+    .card{background:var(--panel); border:1px solid var(--edge); border-radius:16px; padding:16px; box-shadow:0 0 24px rgba(255,215,0,.06);}
+    .card h3{margin:0 0 8px}
+    .muted{color:var(--muted); font-size:13px}
 
-    /* Tabs */
-    .tabs{
-      margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
-    }
-    .tab{
-      font-size:12px; font-weight:800; color:#111; cursor:pointer; border:none;
-      padding:8px 12px; border-radius:999px;
-      background:linear-gradient(180deg,#dff9ff,#7ff3ff);
-      box-shadow:0 8px 22px rgba(127,243,255,.2);
-      opacity:.7; transition:opacity .15s ease, transform .12s ease;
-    }
-    .tab.active{ opacity:1; transform:translateY(-1px) }
+    .status{min-height:18px;font-size:12px;color:var(--muted);text-align:center;margin:8px 0}
 
-    /* Panels */
-    .panel{ display:none; margin-top:14px }
-    .panel.active{ display:block }
-
-    /* Battles list (glass cards but ultra minimal, no borders) */
-    .battles{
-      display:grid; gap:14px;
-    }
-    .battle{
-      background:rgba(20,20,24,.35);
-      backdrop-filter: blur(10px) saturate(130%);
-      border-radius:18px; padding:12px;
-      box-shadow:0 12px 40px rgba(0,0,0,.35);
-    }
-    .battle-top{
-      display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;
-    }
-    .bt-meta{ display:flex; align-items:center; gap:10px; }
-    .bt-time{ font-size:11px; color:#cfefff }
-    .bt-title{ font-size:13px; font-weight:800 }
-
-    /* Two video panels side-by-side */
-    .bt-panels{
-      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
-    }
-    @media (max-width:760px){
-      .bt-panels{ grid-template-columns:1fr; }
-    }
-    .panelVid{
-      position:relative; aspect-ratio: 16/9; border-radius:14px; overflow:hidden;
-      background:#000;
-      box-shadow:0 10px 28px rgba(0,0,0,.35);
-    }
-    .panelVid video{ width:100%; height:100%; object-fit:cover }
-    .overlay-min{
-      position:absolute; inset:0; pointer-events:none; display:flex; align-items:flex-start; justify-content:space-between; padding:8px;
-    }
-    .min-tag{
-      font-size:10px; padding:6px 10px; border-radius:999px;
-      color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
-      box-shadow:0 8px 22px rgba(255,215,0,.2);
-    }
-
-    /* Vote area */
-    .voteRow{
-      margin-top:10px; display:grid; grid-template-columns: 1fr auto 1fr; gap:10px; align-items:center;
-    }
-    .voteBtn{
-      border:none; cursor:pointer; border-radius:12px; padding:10px 14px; font-weight:800; color:#111;
-      background:linear-gradient(180deg,#fff3bd,#ffd700);
-      box-shadow:0 8px 22px rgba(255,215,0,.2);
-      transition: transform .12s ease;
-    }
-    .voteBtn:active{ transform: scale(.98) }
-    .midTimer{
-      font-size:12px; color:#cfefff; text-align:center;
-      background:rgba(255,255,255,.06); border-radius:999px; padding:6px 10px;
-    }
-
-    /* Actions under card */
-    .acts{
-      margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;
-    }
-    .act{
-      border:none; cursor:pointer; font-weight:800; border-radius:12px; padding:8px 12px; font-size:12px;
-      color:#bfefff; background:rgba(255,255,255,.08);
-    }
-
-    /* About + Media */
-    .about, .media{ display:grid; gap:10px }
-    .about p{ color:#d8f7ff; font-size:12px; line-height:1.45 }
-    .media .grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px }
-    @media (max-width:760px){ .media .grid{ grid-template-columns: repeat(2,1fr) } }
-    .thumb{ aspect-ratio:1/1; border-radius:12px; overflow:hidden; background:#0a0a0a }
-
-    /* Shape nav */
-    nav.side{
-      position:fixed; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:20px; z-index:6;
-      transition: opacity .25s ease, transform .25s ease;
-    }
-    nav.side.left{ left:16px }
-    nav.side.right{ right:16px }
-    .shape{
-      background:none; border:none; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center;
-      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
-      transition: transform .18s ease, filter .18s ease;
-    }
-    .shape:active{ transform: scale(.96) }
-    .shape:hover{ transform:translateY(-2px) scale(1.06); filter:brightness(1.08) }
-    .shape svg{ width:100%; height:100%; fill:none }
-    .strokeline{ stroke: var(--gold); stroke-width:2.2 }
-    .shape.logout .strokeline{ stroke:#ff4c4c }
-    .center-triangle{
-      position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6;
-      transition: opacity .25s ease, transform .25s ease;
-    }
-    .nav-hidden nav.side, .nav-hidden .center-triangle{
-      opacity:0; pointer-events:none; transform:translateY(6px);
-    }
+    .foot{padding:12px; text-align:center; color:var(--muted); font-size:12px; border-top:1px solid var(--edge)}
+    a.link{color:var(--ink-2); text-decoration:none}
   </style>
 </head>
 <body>
-  <!-- Background explosions -->
-  <canvas id="bg3d"></canvas>
-
-  <div class="page">
-    <!-- Header -->
-    <header class="header">
-      <div class="topline">
-        <div class="title">
-          <div class="avatar">
-            <img id="avatar" src="user2.jpg" alt="Avatar"/>
-            <img id="flag" class="flag-badge" src="flag_us.png" alt=""/>
-          </div>
-          <div class="nameblock">
-            <div id="display" class="display">Nova</div>
-            <div class="handle" id="handle">@Nova</div>
-            <div class="top9" id="top9Wrap">
-              <div class="rank-badge" id="rankBadge">1</div>
-              <div class="handle" style="color:#d6fffd">Top 9 Honor</div>
-            </div>
-          </div>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="dot"></span> BattleBillions</div>
+      <div class="userbox">
+        <div class="avatar" id="userAvatar">
+          <img id="userAvatarImg" alt=""/>
+          <span class="initials" id="userAvatarInit">BB</span>
         </div>
-        <div class="actions">
-          <button class="btn" id="followBtn">Follow</button>
-          <button class="btn ghost" id="shareBtn">Share</button>
-          <button class="btn ghost" id="reportBtn">Report</button>
+        <div class="meta">
+          <span class="name"   id="userName">Loading…</span>
+          <span class="handle" id="userHandle"></span>
         </div>
+        <button class="btn warn" id="logoutBtn" title="Log out">Logout</button>
       </div>
-
-      <section class="stats" id="stats">
-        <div class="stat"><div class="num" id="statVotes">0</div><div class="lab">Votes</div></div>
-        <div class="stat"><div class="num" id="statWins">0</div><div class="lab">Wins</div></div>
-        <div class="stat"><div class="num" id="statLoss">0</div><div class="lab">Losses</div></div>
-        <div class="stat"><div class="num" id="statWR">0%</div><div class="lab">Win Rate</div></div>
-        <div class="stat"><div class="num" id="statStreak">0</div><div class="lab">Streak</div></div>
-        <div class="stat"><div class="num" id="statRank">—</div><div class="lab">Global Rank</div></div>
-      </section>
-
-      <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="battles" role="tab" aria-selected="true">Battles</button>
-        <button class="tab" data-tab="about" role="tab">About</button>
-        <button class="tab" data-tab="media" role="tab">Media</button>
-      </nav>
     </header>
 
-    <!-- Panels -->
-    <section id="panel-battles" class="panel active">
-      <div class="battles" id="battlesList"></div>
-    </section>
+    <main class="main">
+      <div class="status" id="status"></div>
 
-    <section id="panel-about" class="panel">
-      <div class="about" id="aboutBox">
-        <p id="bio">Loading…</p>
-      </div>
-    </section>
+      <div class="grid">
+        <section class="card">
+          <h3>Welcome back 👋</h3>
+          <p class="muted">This page reads your profile from Firestore and shows your avatar & username. Use the same pattern on your other pages.</p>
+        </section>
 
-    <section id="panel-media" class="panel">
-      <div class="media">
-        <div class="grid" id="mediaGrid">
-          <!-- thumbs injected -->
-        </div>
+        <section class="card">
+          <h3>Your Profile Snapshot</h3>
+          <pre class="muted" id="profileDump" style="white-space:pre-wrap;margin:0">—</pre>
+        </section>
+
+        <section class="card">
+          <h3>Quick Links</h3>
+          <p><a class="link" href="index.html#/discover">Go to Discover</a></p>
+          <p><a class="link" href="index.html#/opponent">Find Opponent</a></p>
+          <p><a class="link" href="index.html#/leaderboard">Leaderboard</a></p>
+          <p><a class="link" href="index.html#/profile">Profile</a></p>
+        </section>
       </div>
-    </section>
+    </main>
+
+    <footer class="foot">© <span id="year"></span> BattleBillions</footer>
   </div>
 
-  <!-- LEFT side (circle over square) -->
-  <nav class="side left" aria-label="Left sidebar">
-    <button class="shape" data-link="home.html" title="Home" aria-label="Home">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
-    </button>
-    <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
-    </button>
-  </nav>
-
-  <!-- RIGHT side (diamond over X) -->
-  <nav class="side right" aria-label="Right sidebar">
-    <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
-    </button>
-    <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
-        <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
-      </svg>
-    </button>
-  </nav>
-
-  <!-- Bottom-center triangle (Arena) -->
-  <div class="center-triangle">
-    <button class="shape" data-link="arena.html" title="Arena" aria-label="Arena">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
-    </button>
-  </div>
-
-  <!-- Three.js -->
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
-    /********************
-     * Demo data
-     ********************/
-    const DEMO_USERS = {
-      "@Nova": {
-        display:"Nova", handle:"@Nova", avatar:"user2.jpg", flag:"flag_jp.png",
-        votes:981234, wins:312, losses:88, streak:12, rank:1,
-        bio:"Tokyo-raised, world-staged. Precision flows. ✨",
-        top9:1,
-        media:["thumb1.jpg","thumb2.jpg","thumb3.jpg","thumb4.jpg"],
-        battles:[
-          {
-            id:"b1", title:"Arena Finals — Heat 7", ago:"4m ago",
-            me:{ name:"Nova", video:"clip_nova.mp4", tag:"You" },
-            op:{ name:"Kiro", video:"clip_kiro.mp4", tag:"Opponent" },
-            timer:"Round 2 • 00:33"
-          },
-          {
-            id:"b2", title:"Ranked Clash — Platinum II", ago:"12m ago",
-            me:{ name:"Nova", video:"clip_nova2.mp4", tag:"You" },
-            op:{ name:"Ari", video:"clip_ari.mp4", tag:"Opponent" },
-            timer:"Round 1 • 00:21"
-          }
-        ]
-      },
-      "@Kiro": {
-        display:"Kiro", handle:"@Kiro", avatar:"user3.jpg", flag:"flag_us.png",
-        votes:902210, wins:290, losses:110, streak:6, rank:3,
-        bio:"Bronx to global. Heavy punchlines only. 🗽",
-        top9:3,
-        media:["thumb5.jpg","thumb6.jpg","thumb7.jpg","thumb8.jpg"],
-        battles:[]
-      }
-    };
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-    function getParam(name){
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name);
+    // Avatar helpers (initials fallback)
+    function initialsFrom(nameOrEmail, handle){
+      const src = (handle && handle.replace('@','')) || nameOrEmail || 'BB';
+      const parts = src.split(/[^\w]+/).filter(Boolean);
+      if(parts.length>=2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return src.slice(0,2).toUpperCase();
+    }
+    function showAvatar(url, initials){
+      const img = document.getElementById('userAvatarImg');
+      const init = document.getElementById('userAvatarInit');
+      if(url){
+        img.src = url;
+        img.onload = ()=>{ img.style.display='block'; init.style.display='none'; };
+        img.onerror = ()=>{ img.style.display='none'; init.textContent = initials; init.style.display='block'; };
+      }else{
+        img.style.display='none';
+        init.textContent = initials;
+        init.style.display='block';
+      }
+    }
+  </script>
+
+  <!-- Firebase auth + Firestore: read user and fill UI -->
+  <script type="module">
+    let local={};
+    try{ local = await import("./firebase.js"); }catch(e){ console.warn("firebase.js not found (home.html)."); }
+
+    const {
+      auth, db,
+      onAuthStateChanged:OASC, signOut:SO,
+      doc:DOC, getDoc:GDC
+    } = local;
+
+    // Backfill from CDN if your firebase.js didn’t export these (still uses your initialized instances)
+    let onAuthStateChanged=OASC, signOut=SO;
+    let doc=DOC, getDoc=GDC;
+    if(!onAuthStateChanged || !signOut){
+      const a = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+      onAuthStateChanged = onAuthStateChanged || a.onAuthStateChanged;
+      signOut = signOut || a.signOut;
+    }
+    if(!doc || !getDoc){
+      const f = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      doc = doc || f.doc;
+      getDoc = getDoc || f.getDoc;
     }
 
-    /********************
-     * Populate profile
-     ********************/
-    const uKey = getParam('u') || "@Nova";
-    const U = DEMO_USERS[uKey] || Object.values(DEMO_USERS)[0];
+    const $ = s=>document.querySelector(s);
+    const statusEl = $('#status');
 
-    // Header fill
-    document.getElementById('avatar').src = U.avatar;
-    document.getElementById('flag').src   = U.flag;
-    document.getElementById('display').textContent = U.display;
-    document.getElementById('handle').textContent  = U.handle;
-    document.getElementById('rankBadge').textContent = U.top9 || '';
-    if(!U.top9){ document.getElementById('top9Wrap').style.display='none'; }
-
-    // Stats
-    const total = U.wins + U.losses;
-    document.getElementById('statVotes').textContent = U.votes.toLocaleString();
-    document.getElementById('statWins').textContent  = U.wins;
-    document.getElementById('statLoss').textContent  = U.losses;
-    document.getElementById('statWR').textContent    = (total? (U.wins/total*100):0).toFixed(1) + '%';
-    document.getElementById('statStreak').textContent= U.streak;
-    document.getElementById('statRank').textContent  = U.rank;
-
-    // About
-    document.getElementById('bio').textContent = U.bio;
-
-    // Media
-    const mediaGrid = document.getElementById('mediaGrid');
-    mediaGrid.innerHTML = (U.media||[]).map(src=>`<div class="thumb"><img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover"/></div>`).join('');
-
-    // Battles
-    const battlesList = document.getElementById('battlesList');
-    battlesList.innerHTML = (U.battles||[]).map(b => `
-      <article class="battle" data-id="${b.id}">
-        <div class="battle-top">
-          <div class="bt-meta">
-            <div class="bt-title">${b.title}</div>
-            <div class="bt-time">${b.ago}</div>
-          </div>
-        </div>
-
-        <div class="bt-panels">
-          <div class="panelVid">
-            <video src="${b.me.video}" muted playsinline loop></video>
-            <div class="overlay-min">
-              <span class="min-tag">${b.me.tag}</span>
-            </div>
-          </div>
-          <div class="panelVid">
-            <video src="${b.op.video}" muted playsinline loop></video>
-            <div class="overlay-min">
-              <span class="min-tag">${b.op.tag}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="voteRow">
-          <button class="voteBtn" data-side="me" aria-label="Vote left">Vote</button>
-          <div class="midTimer">${b.timer}</div>
-          <button class="voteBtn" data-side="op" aria-label="Vote right">Vote</button>
-        </div>
-
-        <div class="acts">
-          <button class="act" data-act="share">Share</button>
-          <button class="act" data-act="comment">Comment</button>
-          <button class="act" data-act="mute">Mute</button>
-          <button class="act" data-act="flag">Flag</button>
-        </div>
-      </article>
-    `).join('');
-
-    // Autoplay previews
-    document.querySelectorAll('.panelVid video').forEach(v=>{
-      v.addEventListener('canplay', ()=> v.play().catch(()=>{}));
+    $('#logoutBtn').addEventListener('click', async ()=>{
+      try{ await signOut(auth); location.href = 'index.html#/auth/login'; }
+      catch(e){ statusEl.textContent = e?.message || 'Logout failed.'; }
     });
 
-    /********************
-     * Tabs
-     ********************/
-    const tabBtns = Array.from(document.querySelectorAll('.tab'));
-    tabBtns.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        tabBtns.forEach(x=>x.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-        document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
-      });
-    });
+    function dumpProfile(data){
+      const el = document.getElementById('profileDump');
+      try{ el.textContent = JSON.stringify(data || {}, null, 2); }
+      catch{ el.textContent = '—'; }
+    }
 
-    /********************
-     * Actions
-     ********************/
-    document.getElementById('followBtn').addEventListener('click', (e)=>{
-      const followed = e.currentTarget.dataset.on === '1';
-      e.currentTarget.dataset.on = followed ? '0' : '1';
-      e.currentTarget.textContent = followed ? 'Follow' : 'Following';
-      if(!followed) e.currentTarget.style.background = 'linear-gradient(180deg,#dff9ff,#7ff3ff)';
-      else e.currentTarget.style.background = 'linear-gradient(180deg,#fff3bd,#ffd700)';
-    });
-    document.getElementById('shareBtn').addEventListener('click', async ()=>{
-      try{
-        await navigator.share?.({ title:`${U.display} on BattleBillions`, url: location.href });
-        alert('Shared!');
-      }catch{ alert('Copied link:\n'+location.href); }
-    });
-    document.getElementById('reportBtn').addEventListener('click', ()=>{
-      alert('Thanks — report submitted for review.');
-    });
-
-    // Vote (single-shot per side per card, client-only demo)
-    document.querySelectorAll('.battle').forEach(card=>{
-      const voted = {me:false, op:false};
-      card.querySelectorAll('.voteBtn').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const side = btn.dataset.side;
-          if(voted[side]) return;
-          voted[side] = true;
-          btn.textContent = 'Voted';
-          btn.style.filter = 'brightness(1.1)';
-          // Hook: send to backend here
-        });
-      });
-    });
-
-    // Shape nav links
-    document.querySelectorAll(".shape[data-link]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
-    });
-    document.getElementById('logoutBtn').addEventListener('click', ()=>{
-      // Hook to auth signOut; then:
-      window.location.href = 'login.html';
-    });
-
-    // Auto-hide nav on scroll
-    let navHideTimer=null;
-    window.addEventListener('scroll', ()=>{
-      document.body.classList.add('nav-hidden');
-      if(navHideTimer) clearTimeout(navHideTimer);
-      navHideTimer = setTimeout(()=> document.body.classList.remove('nav-hidden'), 350);
-    }, {passive:true});
-
-    /********************
-     * Background explosions (lightweight)
-     ********************/
-    (function(){
-      const canvas = document.getElementById('bg3d');
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let width = innerWidth, height = innerHeight;
-      let glOK=false;
-      try{
-        const gl = canvas.getContext('webgl',{antialias:false}) || canvas.getContext('experimental-webgl');
-        glOK=!!gl;
-      }catch(e){ glOK=false; }
-      if(!glOK) return;
-
-      const DPR_LIMIT=1.75;
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
-      renderer.setClearColor(0x000000,0);
-      renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT));
-      renderer.setSize(width, height, false);
-
-      const scene = new THREE.Scene();
-      const camera= new THREE.PerspectiveCamera(55, width/height, 0.1, 3000);
-      camera.position.set(0,0,140);
-
-      const hemi = new THREE.HemisphereLight(0x888888,0x080808,0.9);
-      const dir  = new THREE.DirectionalLight(0xffe7a4,0.7); dir.position.set(60,80,120);
-      scene.add(hemi,dir);
-
-      // Sprite
-      function sprite(){
-        const s=128, c=document.createElement('canvas'); c.width=c.height=s;
-        const g=c.getContext('2d'), grd=g.createRadialGradient(s/2,s/2,0, s/2,s/2,s/2);
-        grd.addColorStop(0,'rgba(255,255,255,0.95)');
-        grd.addColorStop(0.35,'rgba(255,255,255,0.35)');
-        grd.addColorStop(1,'rgba(255,255,255,0)');
-        g.fillStyle=grd; g.fillRect(0,0,s,s);
-        const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; return tex;
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){
+        // Not signed in → send to login in the SPA
+        location.href = 'index.html#/auth/login';
+        return;
       }
-      const particleTex = sprite();
-      const baseMat = new THREE.PointsMaterial({
-        size:(prefersReduced? 14:18), map:particleTex, transparent:true, depthWrite:false,
-        blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
-      });
 
-      // Ambient embers
-      (function(){
-        const COUNT = prefersReduced? 250:500;
-        const g=new THREE.BufferGeometry();
-        const pos=new Float32Array(COUNT*3), col=new Float32Array(COUNT*3);
-        for(let i=0;i<COUNT;i++){
-          pos[i*3+0]=(Math.random()-0.5)*460;
-          pos[i*3+1]=(Math.random()-0.5)*280;
-          pos[i*3+2]=-60 - Math.random()*180;
-          const t=Math.random()*0.5+0.35;
-          col[i*3+0]=t; col[i*3+1]=t*0.9; col[i*3+2]=t*0.85;
-        }
-        g.setAttribute('position', new THREE.BufferAttribute(pos,3));
-        g.setAttribute('color', new THREE.BufferAttribute(col,3));
-        const m=new THREE.PointsMaterial({ size:prefersReduced?1.6:2.4, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
-        const p=new THREE.Points(g,m); p.frustumCulled=false; p.userData={t:0};
-        scene.add(p);
-        // gentle drift
-        const tick = ()=>{
-          p.userData.t += 0.0015;
-          p.position.y = Math.sin(p.userData.t*8)*1.4;
-          p.rotation.z += 0.0008;
-          requestAnimationFrame(tick);
-        };
-        tick();
-      })();
-
-      // Points pool
-      const pool=[];
-      function getPoints(n){
-        for(let i=pool.length-1;i>=0;i--){
-          const p=pool[i];
-          if(p.geometry.getAttribute('position').count>=n){ pool.splice(i,1); p.visible=true; return p; }
-        }
-        const g=new THREE.BufferGeometry();
-        g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n*3),3));
-        g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n*3),3));
-        g.setAttribute('size',  new THREE.BufferAttribute(new Float32Array(n),1));
-        const pts=new THREE.Points(g, baseMat.clone()); pts.frustumCulled=false; return pts;
-      }
-      function releasePoints(p){ p.visible=false; pool.push(p); }
-
-      const PALETTES = [
-        [0xffd700,0xff9b00,0xff4d00],
-        [0x47f5ff,0x27d8ff,0x1597ff],
-        [0xff4c6a,0xff2a9f,0xff6ec7],
-        [0xad8cff,0x7f63ff,0x3f2cff],
-        [0x7cff8b,0x2cff6c,0x00d46b],
-      ];
-
-      class Explosion {
-        constructor(){
-          const x=(Math.random()-0.5)*width/6;
-          const y=(Math.random()-0.5)*height/6;
-          const z=-30 - Math.random()*40;
-          this.center=new THREE.Vector3(x,y,z);
-          this.count=(Math.random()*60+(prefersReduced?70:120))|0;
-
-          this.points=getPoints(this.count); this.points.position.copy(this.center);
-          const g=this.points.geometry;
-          const pos=g.getAttribute('position').array;
-          const col=g.getAttribute('color').array;
-          const siz=g.getAttribute('size').array;
-
-          const pal=PALETTES[(Math.random()*PALETTES.length)|0];
-          const cA=new THREE.Color(pal[0]), cB=new THREE.Color(pal[1]), cC=new THREE.Color(pal[2]);
-          this.vel=new Float32Array(this.count*3);
-          this.life=prefersReduced?1.2:1.6; this.t=0;
-
-          for(let i=0;i<this.count;i++){
-            const dirv=new THREE.Vector3().randomDirection();
-            const speed=12+Math.random()*30;
-            const ix=i*3;
-            this.vel[ix+0]=dirv.x*speed;
-            this.vel[ix+1]=dirv.y*speed;
-            this.vel[ix+2]=dirv.z*speed;
-            pos[ix+0]=dirv.x*1.6; pos[ix+1]=dirv.y*1.6; pos[ix+2]=dirv.z*1.6;
-
-            const t=i/this.count;
-            const cc=(t<.5)? cA.clone().lerp(cB,t*2) : cB.clone().lerp(cC,(t-.5)*2);
-            col[ix+0]=cc.r; col[ix+1]=cc.g; col[ix+2]=cc.b;
-            siz[i]=8+Math.random()*12;
-          }
-          g.getAttribute('position').needsUpdate=true;
-          g.getAttribute('color').needsUpdate=true;
-          g.getAttribute('size').needsUpdate=true;
-          scene.add(this.points);
-
-          const ringGeo=new THREE.RingGeometry(5,6.6,64);
-          const m1=new THREE.MeshBasicMaterial({color:0xffd700, transparent:true, opacity:0.85, blending:THREE.AdditiveBlending, side:THREE.DoubleSide});
-          const m2=new THREE.MeshBasicMaterial({color:0xffa500, transparent:true, opacity:0.55, blending:THREE.AdditiveBlending, side:THREE.DoubleSide});
-          this.ring1=new THREE.Mesh(ringGeo,m1); this.ring2=new THREE.Mesh(ringGeo,m2);
-          this.ring1.position.copy(this.center); this.ring2.position.copy(this.center);
-          this.r1=5; this.r2=5; scene.add(this.ring1,this.ring2);
-        }
-        update(dt){
-          this.t+=dt; const f=this.t/this.life;
-          const g=this.points.geometry;
-          const pos=g.getAttribute('position').array;
-          const col=g.getAttribute('color').array;
-          const siz=g.getAttribute('size').array;
-          const drag=1.0 - Math.min(0.05*dt*60, 0.05);
-          for(let i=0;i<this.count;i++){
-            const ix=i*3;
-            pos[ix+0]+=this.vel[ix+0]*dt;
-            pos[ix+1]+=this.vel[ix+1]*dt;
-            pos[ix+2]+=this.vel[ix+2]*dt;
-            this.vel[ix+0]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
-            siz[i]*=(1-dt*0.1); if(siz[i]<7) siz[i]=7;
-            const toGold = Math.max(0, Math.min(1, (f-0.3)/0.5 ));
-            col[ix+0]=col[ix+0]*(1-toGold)+1.0*toGold;
-            col[ix+1]=col[ix+1]*(1-toGold)+0.72*toGold;
-            col[ix+2]=col[ix+2]*(1-toGold)+0.28*toGold;
-          }
-          g.getAttribute('position').needsUpdate=true;
-          g.getAttribute('color').needsUpdate=true;
-          g.getAttribute('size').needsUpdate=true;
-
-          this.r1+=100*dt; this.r2+=125*dt;
-          this.ring1.scale.setScalar(this.r1/5);
-          this.ring2.scale.setScalar(this.r2/5);
-          this.ring1.material.opacity=Math.max(0,0.9 - f*1.25);
-          this.ring2.material.opacity=Math.max(0,0.6 - f*1.3);
-          this.ring1.lookAt(camera.position); this.ring2.lookAt(camera.position);
-
-          return this.t<this.life;
-        }
-        dispose(){
-          scene.remove(this.points); releasePoints(this.points);
-          scene.remove(this.ring1); scene.remove(this.ring2);
+      // Load Firestore user document
+      let profile = {};
+      if(db && user.uid){
+        try{
+          const snap = await getDoc(doc(db, "users", user.uid));
+          profile = snap.exists() ? (snap.data()||{}) : {};
+        }catch(e){
+          console.warn('Firestore profile fetch failed:', e);
         }
       }
 
-      const explosions=[];
-      const MAX = prefersReduced? 4: 8;
-      const INTERVAL = prefersReduced? 2000: 1200;
-      let prev=performance.now(), last=prev;
+      // Derive display + handle + avatar
+      const username = profile.username
+        || (user.displayName ? user.displayName.replace(/\s+/g,'').toLowerCase() : null)
+        || (user.email ? user.email.split('@')[0] : 'player');
 
-      function loop(now){
-        const dt=Math.min(0.05,(now-prev)/1000); prev=now;
-        if(now-last>INTERVAL){
-          if(explosions.length>MAX){ const old=explosions.shift(); old.dispose(); }
-          explosions.push(new Explosion());
-          last=now;
-        }
-        for(let i=explosions.length-1;i>=0;i--){
-          if(!explosions[i].update(dt)){ explosions[i].dispose(); explosions.splice(i,1); }
-        }
-        camera.lookAt(0,0,0);
-        renderer.render(scene,camera);
-        requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
+      const displayName = profile.username || user.displayName || username;
+      const avatarURL = profile.avatarURL || user.photoURL || null;
 
-      function resize(){
-        width=innerWidth; height=innerHeight;
-        renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT));
-        renderer.setSize(width,height,false);
-        camera.aspect=width/height; camera.updateProjectionMatrix();
-      }
-      addEventListener('resize', resize, {passive:true});
-    })();
+      $('#userName').textContent   = displayName;
+      $('#userHandle').textContent = '@'+String(username||'player');
+
+      showAvatar(avatarURL, initialsFrom(displayName || user.email || '', username));
+
+      // Optional: dump profile for quick verification
+      dumpProfile({ uid:user.uid, email:user.email, ...profile });
+    });
   </script>
 </body>
 </html>
-  
