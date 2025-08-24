@@ -1,37 +1,19 @@
-// /js/firebase.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { initializeApp } from "firebase/app";
 import {
-  getAuth,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+  getAuth, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider,
+  signInWithPopup, signInWithEmailAndPassword, onAuthStateChanged
+} from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  appId: "YOUR_APP_ID",
-};
+const app = initializeApp({ /* your keys */ });
+export const auth = getAuth(app);
+export const db   = getFirestore(app);
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Providers
-const googleProvider = new GoogleAuthProvider();
-const facebookProvider = new FacebookAuthProvider();
+export const googleProvider   = new GoogleAuthProvider();
+export const facebookProvider = new FacebookAuthProvider();
+export const twitterProvider  = new TwitterAuthProvider();
 
 export {
-  auth,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  googleProvider,
-  facebookProvider
+  signInWithPopup, signInWithEmailAndPassword, onAuthStateChanged,
+  doc, getDoc, setDoc, serverTimestamp
 };
