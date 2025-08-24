@@ -40,7 +40,14 @@
     *::-webkit-scrollbar{ width:0; height:0; display:none }
     *{ scrollbar-width:none }
 
-    /* Ambient background (soft vignette) */
+    /* 3D explosions background canvas */
+    #bg3d{
+      position:fixed; inset:0; width:100%; height:100%; display:block;
+      z-index:0; pointer-events:none;
+      background: radial-gradient(1200px 900px at 20% 10%, #0b0b0d 0%, #000 70%);
+    }
+
+    /* Soft ambient vignette above canvas (still behind content) */
     body::before{
       content:""; position:fixed; inset:-10%; pointer-events:none; z-index:0;
       background:var(--bg-grad);
@@ -53,7 +60,7 @@
       padding: var(--safe-top) var(--side-pad) calc(var(--safe-bottom) + 90px);
     }
 
-    /* HEADER (no borders; pure glass + gradient) */
+    /* HEADER (glass, no borders) */
     .header{
       position:sticky; top:0; z-index:5;
       display:grid; gap:10px;
@@ -75,7 +82,7 @@
       font-size:22px;
     }
 
-    /* TOP CONTROLS: search + window tabs + single Filters button */
+    /* TOP CONTROLS */
     .controls{
       display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center;
     }
@@ -86,12 +93,12 @@
     .search{
       position:relative; display:flex; align-items:center; gap:8px;
       background:var(--glass); border-radius:18px; padding:6px 10px;
-      /* no borders; soft glow only */
       box-shadow:0 0 22px rgba(71,245,255,.18);
       width:100%;
     }
     .search input{
       flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:13px; font-family:inherit;
+      text-shadow:0 0 6px rgba(0,0,0,.5);
     }
     .search .clear{ display:none; appearance:none; border:none; background:transparent; color:#bfefff; font-weight:800; cursor:pointer; }
     .search .clear.show{ display:inline-block; }
@@ -120,7 +127,7 @@
       box-shadow: 0 0 10px rgba(255,215,0,.5);
     }
 
-    /* FILTER SHEET (no borders; glass card) */
+    /* FILTER SHEET (glass, no borders) */
     .sheet-backdrop{
       position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:20; display:none;
     }
@@ -146,7 +153,6 @@
       display:flex; align-items:center; gap:8px;
       background:rgba(255,255,255,.06);
       border-radius:12px; padding:10px 12px;
-      /* no outline */
       box-shadow:none;
     }
     .chip label{ font-size:11px; color:#cfefff; opacity:.9; min-width:92px }
@@ -163,24 +169,24 @@
     }
     .btn.ghost{ color:#bfefff; background:rgba(255,255,255,.08) }
 
-    /* RESULTS LIST (clean glass rows, no borders) */
+    /* RESULTS LIST — rows are TRANSPARENT, just text glow */
     .list{ display:grid; gap:12px; margin-top:14px; }
     .row{
       display:grid; grid-template-columns: 56px 1fr; gap:12px; align-items:center;
-      background:rgba(255,255,255,.045);
+      background: transparent; /* <<< transparent to reveal explosions */
       border-radius:16px; padding:10px 12px;
-      box-shadow:0 10px 32px rgba(0,0,0,.35);
+      box-shadow:none;
     }
     .av{
       width:56px; height:56px; border-radius:50%; overflow:hidden; position:relative; background:#111;
       box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 10px rgba(255,255,255,.08);
     }
     .av img{ width:100%; height:100%; object-fit:cover }
-    .badge-flag{ position:absolute; right:-2px; bottom:-2px; width:18px; height:12px; border-radius:3px; /* no border */ }
+    .badge-flag{ position:absolute; right:-2px; bottom:-2px; width:18px; height:12px; border-radius:3px; }
     .who{ display:grid; gap:4px; }
     .topline{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .handle{ font-weight:800; font-size:14px }
-    .loc{ font-size:11px; color:var(--muted) }
+    .handle{ font-weight:800; font-size:14px; text-shadow:0 0 8px rgba(0,0,0,.6) }
+    .loc{ font-size:11px; color:var(--muted); text-shadow:0 0 8px rgba(0,0,0,.6) }
     .ranks{ display:flex; gap:6px; align-items:center; }
     .rbadge{
       min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center;
@@ -190,9 +196,9 @@
     }
     .rbadge.silver{ background:linear-gradient(180deg,#fafafa,#cfcfcf) }
     .rbadge.bronze{ background:linear-gradient(180deg,#ffd7b0,#c8903c) }
-    .stats{ display:flex; gap:12px; font-size:11px; color:#cfefff; flex-wrap:wrap; }
+    .stats{ display:flex; gap:12px; font-size:11px; color:#cfefff; flex-wrap:wrap; text-shadow:0 0 8px rgba(0,0,0,.6) }
 
-    /* SIDE ICONS (Arena parity) */
+    /* SIDE ICONS (auto-hide on scroll) */
     nav.side{
       position:fixed; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:20px; z-index:6;
       transition: opacity .25s ease, transform .25s ease;
@@ -224,6 +230,9 @@
   </style>
 </head>
 <body>
+  <!-- 3D background -->
+  <canvas id="bg3d"></canvas>
+
   <div class="page">
     <!-- Sticky Header -->
     <header class="header">
@@ -603,8 +612,6 @@
       });
 
       listEl.innerHTML = out.map(row).join('');
-
-      // update filter count on button
       openFilters.setAttribute('data-count', getActiveCount());
     }
 
@@ -622,7 +629,7 @@
     function openSheet(){
       backdrop.style.display='block';
       filterSheet.style.display='block';
-      document.body.style.overflow='hidden'; // prevent page shift on mobile
+      document.body.style.overflow='hidden';
     }
     function closeSheet(){
       backdrop.style.display='none';
@@ -650,15 +657,12 @@
       });
     });
 
-    // Filter sheet
     openFilters.addEventListener('click', openSheet);
     closeFilters.addEventListener('click', closeSheet);
     backdrop.addEventListener('click', closeSheet);
 
-    // Cascading selects
     regionEl.addEventListener('change', populateCountries);
 
-    // Apply / Reset
     applyFiltersBtn.addEventListener('click', ()=>{
       applyFilters();
       closeSheet();
@@ -673,12 +677,11 @@
       openFilters.setAttribute('data-count','0');
     });
 
-    // Side icon navigation
     document.querySelectorAll(".shape[data-link]").forEach(btn=>{
       btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
     });
 
-    // Auto-hide icons on scroll, re-show when idle
+    // Auto-hide icons on scroll
     let navHideTimer = null;
     const root = document.body;
     window.addEventListener('scroll', ()=>{
@@ -687,12 +690,249 @@
       navHideTimer = setTimeout(()=> root.classList.remove('nav-hidden'), 350);
     }, { passive:true });
 
-    /***********************
-     * INIT
-     ***********************/
+    // INIT
     populateCountries();
     applyFilters();
   </script>
+
+  <!-- Three.js explosions (lightweight) -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+  (function(){
+    const canvas = document.getElementById('bg3d');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let width = window.innerWidth, height = window.innerHeight;
+
+    let glOK = false;
+    try{
+      const gl = canvas.getContext('webgl',{antialias:false}) || canvas.getContext('experimental-webgl');
+      glOK = !!gl;
+    }catch(e){ glOK=false; }
+    if(!glOK) return;
+
+    const DPR_LIMIT = 1.75;
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT));
+    renderer.setSize(width, height, false);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, width/height, 0.1, 3000);
+    camera.position.set(0,0,140);
+
+    const hemi = new THREE.HemisphereLight(0x888888, 0x080808, 0.9);
+    const dir  = new THREE.DirectionalLight(0xffe7a4, 0.7); dir.position.set(60,80,120);
+    scene.add(hemi, dir);
+
+    // Particle sprite (soft disk)
+    function makeSprite(){
+      const s=128, c=document.createElement('canvas'); c.width=c.height=s;
+      const g=c.getContext('2d'), grd=g.createRadialGradient(s/2,s/2,0, s/2,s/2,s/2);
+      grd.addColorStop(0,'rgba(255,255,255,0.95)');
+      grd.addColorStop(0.35,'rgba(255,255,255,0.35)');
+      grd.addColorStop(1,'rgba(255,255,255,0)');
+      g.fillStyle=grd; g.fillRect(0,0,s,s);
+      const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter;
+      return tex;
+    }
+    const particleTex = makeSprite();
+    const baseMat = new THREE.PointsMaterial({
+      size:(reduced? 16:20), map:particleTex, transparent:true, depthWrite:false,
+      blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
+    });
+
+    // Ambient embers (very light)
+    function makeAmbient(){
+      const COUNT = reduced ? 300 : 600;
+      const g=new THREE.BufferGeometry();
+      const pos=new Float32Array(COUNT*3), col=new Float32Array(COUNT*3);
+      for(let i=0;i<COUNT;i++){
+        pos[i*3+0]=(Math.random()-0.5)*440;
+        pos[i*3+1]=(Math.random()-0.5)*260;
+        pos[i*3+2]=-60 - Math.random()*180;
+        const t = Math.random()*0.5+0.35;
+        col[i*3+0]=t; col[i*3+1]=t*0.9; col[i*3+2]=t*0.85;
+      }
+      g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+      g.setAttribute('color', new THREE.BufferAttribute(col,3));
+      const m=new THREE.PointsMaterial({ size:reduced?1.8:2.6, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
+      const p=new THREE.Points(g,m); p.frustumCulled=false; p.userData={t:0};
+      return p;
+    }
+    const ambient = makeAmbient(); scene.add(ambient);
+
+    // Color palettes for explosions (multi-colored)
+    const PALETTES = [
+      [0xffd700,0xff9b00,0xff4d00], // gold -> orange
+      [0x47f5ff,0x27d8ff,0x1597ff], // cyans
+      [0xff4c6a,0xff2a9f,0xff6ec7], // neon pinks
+      [0xad8cff,0x7f63ff,0x3f2cff], // purples
+      [0x7cff8b,0x2cff6c,0x00d46b], // greens
+    ];
+
+    // Points pool to reuse
+    const pool=[];
+    function getPoints(count){
+      for(let i=pool.length-1;i>=0;i--){
+        const p=pool[i];
+        if(p.geometry.getAttribute('position').count>=count){ pool.splice(i,1); p.visible=true; return p; }
+      }
+      const g=new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count*3),3));
+      g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count*3),3));
+      g.setAttribute('size',  new THREE.BufferAttribute(new Float32Array(count),1));
+      const m=baseMat.clone();
+      const pts=new THREE.Points(g,m); pts.frustumCulled=false;
+      return pts;
+    }
+    function releasePoints(p){ p.visible=false; pool.push(p); }
+
+    class Explosion{
+      constructor(){
+        const x=(Math.random()-0.5)*width/6;
+        const y=(Math.random()-0.5)*height/6;
+        const z=-30 - Math.random()*40;
+        this.center=new THREE.Vector3(x,y,z);
+        this.count=(Math.random()*60+(reduced?80:140))|0;
+
+        this.points=getPoints(this.count); this.points.position.copy(this.center);
+
+        const g=this.points.geometry;
+        const pos=g.getAttribute('position').array;
+        const col=g.getAttribute('color').array;
+        const siz=g.getAttribute('size').array;
+
+        // pick palette
+        const pal = PALETTES[(Math.random()*PALETTES.length)|0];
+        const cA=new THREE.Color(pal[0]), cB=new THREE.Color(pal[1]), cC=new THREE.Color(pal[2]);
+
+        this.vel=new Float32Array(this.count*3);
+        this.life=reduced?1.4:1.8; this.t=0;
+
+        for(let i=0;i<this.count;i++){
+          const dirv=new THREE.Vector3().randomDirection();
+          const speed=12+Math.random()*34;
+          const ix=i*3;
+          this.vel[ix+0]=dirv.x*speed;
+          this.vel[ix+1]=dirv.y*speed;
+          this.vel[ix+2]=dirv.z*speed;
+          pos[ix+0]=dirv.x*1.6; pos[ix+1]=dirv.y*1.6; pos[ix+2]=dirv.z*1.6;
+
+          // gradient across particles
+          const t=i/this.count;
+          const cc = (t<.5)? cA.clone().lerp(cB, t*2) : cB.clone().lerp(cC, (t-.5)*2);
+          col[ix+0]=cc.r; col[ix+1]=cc.g; col[ix+2]=cc.b;
+          siz[i]=8+Math.random()*14;
+        }
+        g.getAttribute('position').needsUpdate=true;
+        g.getAttribute('color').needsUpdate=true;
+        g.getAttribute('size').needsUpdate=true;
+
+        scene.add(this.points);
+
+        // shockwave rings
+        const ringGeo=new THREE.RingGeometry(5,6.6,64);
+        const m1=new THREE.MeshBasicMaterial({color:pal[0], transparent:true, opacity:0.85, blending:THREE.AdditiveBlending, side:THREE.DoubleSide});
+        const m2=new THREE.MeshBasicMaterial({color:pal[1], transparent:true, opacity:0.55, blending:THREE.AdditiveBlending, side:THREE.DoubleSide});
+        this.ring1=new THREE.Mesh(ringGeo,m1); this.ring2=new THREE.Mesh(ringGeo,m2);
+        this.ring1.position.copy(this.center); this.ring2.position.copy(this.center);
+        this.r1=5; this.r2=5; scene.add(this.ring1,this.ring2);
+
+        this.shake=0.35;
+      }
+      update(dt){
+        this.t+=dt; const f=this.t/this.life;
+
+        const g=this.points.geometry;
+        const pos=g.getAttribute('position').array;
+        const col=g.getAttribute('color').array;
+        const siz=g.getAttribute('size').array;
+
+        const drag=1.0 - Math.min(0.05*dt*60, 0.05);
+        for(let i=0;i<this.count;i++){
+          const ix=i*3;
+          pos[ix+0]+=this.vel[ix+0]*dt;
+          pos[ix+1]+=this.vel[ix+1]*dt;
+          pos[ix+2]+=this.vel[ix+2]*dt;
+          this.vel[ix+0]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
+
+          siz[i]*=(1-dt*0.1); if(siz[i]<7) siz[i]=7;
+          // gentle fade to warm gold tint near the end
+          const toGold = Math.max(0, Math.min(1, (f-0.3)/0.5 ));
+          col[ix+0]=col[ix+0]*(1-toGold) + 1.0*toGold;
+          col[ix+1]=col[ix+1]*(1-toGold) + 0.72*toGold;
+          col[ix+2]=col[ix+2]*(1-toGold) + 0.28*toGold;
+        }
+        g.getAttribute('position').needsUpdate=true;
+        g.getAttribute('color').needsUpdate=true;
+        g.getAttribute('size').needsUpdate=true;
+
+        // Rings
+        this.r1+=100*dt; this.r2+=125*dt;
+        this.ring1.scale.setScalar(this.r1/5);
+        this.ring2.scale.setScalar(this.r2/5);
+        const o1=Math.max(0,0.9 - f*1.25), o2=Math.max(0,0.6 - f*1.3);
+        this.ring1.material.opacity=o1; this.ring2.material.opacity=o2;
+        this.ring1.lookAt(camera.position); this.ring2.lookAt(camera.position);
+
+        // mild shake
+        if(this.shake>0){
+          const s=this.shake*(1-f);
+          camera.position.x += (Math.random()-0.5)*s;
+          camera.position.y += (Math.random()-0.5)*s;
+        }
+        return this.t<this.life;
+      }
+      dispose(){
+        scene.remove(this.points); releasePoints(this.points);
+        scene.remove(this.ring1); scene.remove(this.ring2);
+      }
+    }
+
+    const explosions=[];
+    const BLAST_INTERVAL = reduced ? 1900 : 1200;
+    const MAX_EXPLOSIONS = reduced ? 5 : 10;
+    let prev=performance.now(), lastBlast=prev;
+
+    // kick off with one
+    explosions.push(new Explosion());
+
+    function loop(now){
+      const dt=Math.min(0.05,(now-prev)/1000); prev=now;
+
+      ambient.userData.t += dt*0.15;
+      ambient.position.y = Math.sin(ambient.userData.t)*1.6;
+      ambient.rotation.z += dt*0.015;
+
+      if(now-lastBlast>BLAST_INTERVAL){
+        if(explosions.length>MAX_EXPLOSIONS){
+          const old=explosions.shift(); old.dispose();
+        }
+        explosions.push(new Explosion());
+        lastBlast=now;
+      }
+
+      for(let i=explosions.length-1;i>=0;i--){
+        if(!explosions[i].update(dt)){
+          explosions[i].dispose();
+          explosions.splice(i,1);
+        }
+      }
+
+      camera.lookAt(0,0,0);
+      renderer.render(scene,camera);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    function resize(){
+      width=window.innerWidth; height=window.innerHeight;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, DPR_LIMIT));
+      renderer.setSize(width,height,false);
+      camera.aspect=width/height; camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize',resize,{passive:true});
+  })();
+  </script>
 </body>
 </html>
-  
