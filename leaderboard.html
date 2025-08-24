@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +13,6 @@
       --muted:#b8b8b8;
       --cyan:#47f5ff;
       --gold:#ffd700;
-      --purple:#9f7bff;
       --red:#ff4c6a;
       --safe-top:max(10px, env(safe-area-inset-top));
       --safe-bottom:max(14px, env(safe-area-inset-bottom));
@@ -85,7 +83,7 @@
       position:relative; display:flex; align-items:center; gap:8px;
       background:var(--glass); border-radius:18px; padding:6px 10px;
       box-shadow:0 0 22px rgba(71,245,255,.18), inset 0 0 0 1px rgba(71,245,255,.22);
-      width:min(92vw,560px); margin:0 auto;
+      width:min(92vw,620px); margin:0 auto;
     }
     .search input{
       flex:1; border:none; outline:none; background:transparent; color:#fff; font-size:13px; font-family:inherit;
@@ -119,22 +117,6 @@
       background:transparent; border:none; color:#fff; font-family:inherit; font-size:12px; outline:none;
     }
     .chip label{ font-size:11px; color:#cfefff; opacity:.9 }
-
-    /* ZODIAC grid selector */
-    .zodiacs{
-      display:grid; grid-template-columns: repeat(6, minmax(44px,1fr));
-      gap:8px; justify-items:center; max-width:600px; margin:8px auto 0;
-    }
-    .z{
-      width:100%; padding:8px 0; text-align:center; font-size:11px; font-weight:800; cursor:pointer;
-      background:rgba(255,255,255,.06); color:#e8e8e8; border:none; border-radius:12px;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
-      transition:transform .12s ease, filter .12s ease, background .12s ease;
-    }
-    .z.active{
-      background:linear-gradient(180deg,#fff3bd,#ffd700);
-      color:#111; box-shadow:0 10px 22px rgba(255,215,0,.25), inset 0 0 0 1px rgba(0,0,0,.18);
-    }
 
     /* RESULTS LIST */
     .list{
@@ -200,10 +182,12 @@
     /* Bottom-center triangle */
     .center-triangle{ position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:6 }
 
-    @media (max-width:640px){
+    @media (max-width:760px){
       .controls{ grid-template-columns: 1fr }
       .window-tabs{ order:2 }
-      .search{ order:1; width:min(94vw,560px) }
+      .search{ order:1; width:min(94vw,620px) }
+    }
+    @media (max-width:640px){
       .row{ grid-template-columns: 56px 1fr; }
       .score{ justify-self:start; margin-top:6px }
     }
@@ -217,7 +201,7 @@
 
       <div class="controls">
         <div class="search" role="search">
-          <input id="q" type="text" placeholder="Search by username, city, or country…" autocomplete="off"/>
+          <input id="q" type="text" placeholder="Search users or any rank list (city, country, school, language, zodiac…)" autocomplete="off"/>
           <button id="qClear" class="clear" aria-label="Clear search">✖</button>
         </div>
         <div class="tabs-wrap">
@@ -265,30 +249,84 @@
         </div>
 
         <div class="chip">
+          <label for="age">Age</label>
+          <select id="age">
+            <option value="">All</option>
+            <option value="13-17">13–17</option>
+            <option value="18-24">18–24</option>
+            <option value="25-34">25–34</option>
+            <option value="35-44">35–44</option>
+            <option value="45+">45+</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="ethnicity">Ethnicity</label>
+          <select id="ethnicity">
+            <option value="">All</option>
+            <option value="Black">Black</option>
+            <option value="Latino">Latino</option>
+            <option value="White">White</option>
+            <option value="Asian">Asian</option>
+            <option value="Middle Eastern">Middle Eastern</option>
+            <option value="Indigenous">Indigenous</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="language">Language</label>
+          <select id="language">
+            <option value="">All</option>
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="Portuguese">Portuguese</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Hindi">Hindi</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="school">High School</label>
+          <input id="school" type="text" placeholder="All"/>
+        </div>
+
+        <div class="chip">
+          <label for="college">College</label>
+          <input id="college" type="text" placeholder="All"/>
+        </div>
+
+        <div class="chip">
+          <label for="zodiac">Zodiac</label>
+          <select id="zodiac">
+            <option value="">All</option>
+            <option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option>
+            <option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option>
+            <option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <label for="czodiac">Chinese Zodiac</label>
+          <select id="czodiac">
+            <option value="">All</option>
+            <option>Rat</option><option>Ox</option><option>Tiger</option><option>Rabbit</option>
+            <option>Dragon</option><option>Snake</option><option>Horse</option><option>Goat</option>
+            <option>Monkey</option><option>Rooster</option><option>Dog</option><option>Pig</option>
+          </select>
+        </div>
+
+        <div class="chip">
           <label for="sort">Sort</label>
           <select id="sort">
-            <option value="score">Score</option>
+            <option value="votes">Vote Count</option>
             <option value="wins">Wins</option>
             <option value="winrate">Win rate</option>
             <option value="recent">Most active</option>
           </select>
         </div>
-      </div>
-
-      <!-- Zodiac grid -->
-      <div class="zodiacs" id="zodiacs" aria-label="Zodiac filter">
-        <button class="z" data-sign="Aries">Aries</button>
-        <button class="z" data-sign="Taurus">Taurus</button>
-        <button class="z" data-sign="Gemini">Gemini</button>
-        <button class="z" data-sign="Cancer">Cancer</button>
-        <button class="z" data-sign="Leo">Leo</button>
-        <button class="z" data-sign="Virgo">Virgo</button>
-        <button class="z" data-sign="Libra">Libra</button>
-        <button class="z" data-sign="Scorpio">Scorpio</button>
-        <button class="z" data-sign="Sagittarius">Sagittarius</button>
-        <button class="z" data-sign="Capricorn">Capricorn</button>
-        <button class="z" data-sign="Aquarius">Aquarius</button>
-        <button class="z" data-sign="Pisces">Pisces</button>
       </div>
     </header>
 
@@ -329,22 +367,24 @@
   <script>
     /***********************
      * DEMO DATA
-     * (Wire to backend later: replace with API results)
+     * (Replace with API results later)
      ***********************/
     const USERS = [
-      // region, country, city, gender, zodiac, score, wins, losses, activity (timestamp), rankBadge (1..9|null)
-      {handle:'@Nova',    avatar:'user2.jpg', flag:'flag_jp.png', region:'ASIA',   country:'JP', city:'Tokyo',     gender:'F', zodiac:'Leo',        score:2420, wins:312, losses:88,  recent:  Date.now()-1000*60*5,   badge:1},
-      {handle:'@Kiro',    avatar:'user3.jpg', flag:'flag_us.png', region:'NA',     country:'US', city:'New York',  gender:'M', zodiac:'Aries',      score:2310, wins:290, losses:110, recent:  Date.now()-1000*60*40,  badge:3},
-      {handle:'@Ari',     avatar:'user4.jpg', flag:'flag_fr.png', region:'EUROPE', country:'FR', city:'Paris',     gender:'F', zodiac:'Pisces',     score:2280, wins:270, losses:120, recent:  Date.now()-1000*60*15,  badge:2},
-      {handle:'@Zed',     avatar:'user3.jpg', flag:'flag_br.png', region:'SA',     country:'BR', city:'Rio',       gender:'M', zodiac:'Scorpio',    score:2210, wins:250, losses:130, recent:  Date.now()-1000*60*55,  badge:4},
-      {handle:'@Sol',     avatar:'user2.jpg', flag:'flag_jp.png', region:'ASIA',   country:'JP', city:'Osaka',     gender:'M', zodiac:'Virgo',      score:2140, wins:220, losses:145, recent:  Date.now()-1000*60*8,   badge:6},
-      {handle:'@Vento',   avatar:'user4.jpg', flag:'flag_it.png', region:'EUROPE', country:'IT', city:'Rome',      gender:'M', zodiac:'Taurus',     score:2090, wins:205, losses:152, recent:  Date.now()-1000*60*75,  badge:7},
-      {handle:'@Rico',    avatar:'user4.jpg', flag:'flag_br.png', region:'SA',     country:'BR', city:'São Paulo', gender:'M', zodiac:'Gemini',     score:2065, wins:201, losses:160, recent:  Date.now()-1000*60*9,   badge:5},
-      {handle:'@Lyra',    avatar:'user3.jpg', flag:'flag_ca.png', region:'NA',     country:'CA', city:'Toronto',   gender:'F', zodiac:'Aquarius',   score:2005, wins:190, losses:170, recent:  Date.now()-1000*60*2,   badge:8},
-      {handle:'@Neon',    avatar:'user4.jpg', flag:'flag_gb.png', region:'EUROPE', country:'GB', city:'London',    gender:'M', zodiac:'Cancer',     score:1980, wins:180, losses:174, recent:  Date.now()-1000*60*180, badge:9},
-      {handle:'@Mina',    avatar:'user3.jpg', flag:'flag_de.png', region:'EUROPE', country:'DE', city:'Berlin',    gender:'F', zodiac:'Libra',      score:1972, wins:179, losses:175, recent:  Date.now()-1000*60*24,  badge:null},
-      {handle:'@Sage',    avatar:'user2.jpg', flag:'flag_au.png', region:'OCE',    country:'AU', city:'Sydney',    gender:'M', zodiac:'Capricorn',  score:1950, wins:175, losses:177, recent:  Date.now()-1000*60*300, badge:null},
-      {handle:'@Asha',    avatar:'user2.jpg', flag:'flag_in.png', region:'ASIA',   country:'IN', city:'Mumbai',    gender:'F', zodiac:'Sagittarius',score:1910, wins:170, losses:190, recent:  Date.now()-1000*60*35,  badge:null},
+      // handle, avatar, flag, region, country, city, gender, age, ethnicity,
+      // language, school, college, zodiac (Western), czodiac (Chinese),
+      // votes (public), wins, losses, recent timestamp, badge (1..9|null)
+      {handle:'@Nova',  avatar:'user2.jpg', flag:'flag_jp.png', region:'ASIA',   country:'JP', city:'Tokyo',     gender:'F', age:24, ethnicity:'Asian',        language:'Japanese',  school:'Shinjuku HS',     college:'Waseda Univ',    zodiac:'Leo',        czodiac:'Dragon', votes:981234, wins:312, losses:88,  recent:Date.now()-1e3*60*5,   badge:1},
+      {handle:'@Kiro',  avatar:'user3.jpg', flag:'flag_us.png', region:'NA',     country:'US', city:'New York',  gender:'M', age:26, ethnicity:'Latino',       language:'English',    school:'Bronx HS',        college:'NYU',            zodiac:'Aries',      czodiac:'Snake',  votes:902210, wins:290, losses:110, recent:Date.now()-1e3*60*40,  badge:3},
+      {handle:'@Ari',   avatar:'user4.jpg', flag:'flag_fr.png', region:'EUROPE', country:'FR', city:'Paris',     gender:'F', age:22, ethnicity:'White',        language:'French',     school:'Lycée Buffon',    college:'Sorbonne',       zodiac:'Pisces',     czodiac:'Rabbit', votes:876540, wins:270, losses:120, recent:Date.now()-1e3*60*15,  badge:2},
+      {handle:'@Zed',   avatar:'user3.jpg', flag:'flag_br.png', region:'SA',     country:'BR', city:'Rio',       gender:'M', age:28, ethnicity:'Latino',       language:'Portuguese', school:'Rio Norte HS',    college:'PUC-Rio',        zodiac:'Scorpio',    czodiac:'Horse',  votes:834221, wins:250, losses:130, recent:Date.now()-1e3*60*55,  badge:4},
+      {handle:'@Sol',   avatar:'user2.jpg', flag:'flag_jp.png', region:'ASIA',   country:'JP', city:'Osaka',     gender:'M', age:29, ethnicity:'Asian',        language:'Japanese',   school:'Osaka HS',        college:'Osaka Univ',     zodiac:'Virgo',      czodiac:'Goat',   votes:801120, wins:220, losses:145, recent:Date.now()-1e3*60*8,   badge:6},
+      {handle:'@Vento', avatar:'user4.jpg', flag:'flag_it.png', region:'EUROPE', country:'IT', city:'Rome',      gender:'M', age:31, ethnicity:'White',        language:'Italian',    school:'Roma Liceo',      college:'Sapienza',       zodiac:'Taurus',     czodiac:'Dog',    votes:792404, wins:205, losses:152, recent:Date.now()-1e3*60*75,  badge:7},
+      {handle:'@Rico',  avatar:'user4.jpg', flag:'flag_br.png', region:'SA',     country:'BR', city:'São Paulo', gender:'M', age:25, ethnicity:'Latino',       language:'Portuguese', school:'Paulista HS',     college:'USP',            zodiac:'Gemini',     czodiac:'Monkey', votes:788001, wins:201, losses:160, recent:Date.now()-1e3*60*9,   badge:5},
+      {handle:'@Lyra',  avatar:'user3.jpg', flag:'flag_ca.png', region:'NA',     country:'CA', city:'Toronto',   gender:'F', age:23, ethnicity:'Middle Eastern',language:'English',    school:'North York HS',   college:'U of T',         zodiac:'Aquarius',   czodiac:'Rooster',votes:744220, wins:190, losses:170, recent:Date.now()-1e3*60*2,   badge:8},
+      {handle:'@Neon',  avatar:'user4.jpg', flag:'flag_gb.png', region:'EUROPE', country:'GB', city:'London',    gender:'M', age:27, ethnicity:'White',        language:'English',    school:'Hackney HS',      college:'UCL',            zodiac:'Cancer',     czodiac:'Ox',     votes:732990, wins:180, losses:174, recent:Date.now()-1e3*60*180, badge:9},
+      {handle:'@Mina',  avatar:'user3.jpg', flag:'flag_de.png', region:'EUROPE', country:'DE', city:'Berlin',    gender:'F', age:24, ethnicity:'White',        language:'German',     school:'Berlin Mitte HS', college:'TU Berlin',      zodiac:'Libra',      czodiac:'Rat',    votes:729112, wins:179, losses:175, recent:Date.now()-1e3*60*24,  badge:null},
+      {handle:'@Sage',  avatar:'user2.jpg', flag:'flag_au.png', region:'OCE',    country:'AU', city:'Sydney',    gender:'M', age:30, ethnicity:'White',        language:'English',    school:'Sydney HS',       college:'UNSW',           zodiac:'Capricorn',  czodiac:'Tiger',  votes:701090, wins:175, losses:177, recent:Date.now()-1e3*60*300, badge:null},
+      {handle:'@Asha',  avatar:'user2.jpg', flag:'flag_in.png', region:'ASIA',   country:'IN', city:'Mumbai',    gender:'F', age:21, ethnicity:'Asian',        language:'Hindi',      school:'Mumbai Central',  college:'IIT Bombay',     zodiac:'Sagittarius',czodiac:'Pig',    votes:698332, wins:170, losses:190, recent:Date.now()-1e3*60*35,  badge:null},
     ];
 
     // COUNTRY LOOKUP per region (for cascading select)
@@ -357,7 +397,7 @@
       OCE: ['AU','NZ']
     };
 
-    // Country -> pretty name + placeholder flag path (your assets should match)
+    // Country -> pretty name (match your assets)
     const COUNTRY_LABEL = {
       US:'United States', CA:'Canada', MX:'Mexico', JP:'Japan', CN:'China', KR:'South Korea', IN:'India',
       NG:'Nigeria', ZA:'South Africa', EG:'Egypt',
@@ -372,16 +412,23 @@
     const listEl = document.getElementById('list');
     const qEl = document.getElementById('q');
     const qClear = document.getElementById('qClear');
+
     const regionEl = document.getElementById('region');
     const countryEl = document.getElementById('country');
     const cityEl = document.getElementById('city');
     const genderEl = document.getElementById('gender');
+    const ageEl = document.getElementById('age');
+    const ethnicityEl = document.getElementById('ethnicity');
+    const languageEl = document.getElementById('language');
+    const schoolEl = document.getElementById('school');
+    const collegeEl = document.getElementById('college');
+    const zodiacEl = document.getElementById('zodiac');
+    const czodiacEl = document.getElementById('czodiac');
     const sortEl = document.getElementById('sort');
+
     const tabs = Array.from(document.querySelectorAll('.tab'));
-    const zodiacsWrap = document.getElementById('zodiacs');
 
     let activeWindow = 'all';
-    const activeZodiacs = new Set();
 
     /***********************
      * HELPERS
@@ -398,7 +445,7 @@
       const cls = u.badge===1 ? '' : (u.badge<=3?'silver':'bronze');
       return `<div class="rbadge ${cls}">${u.badge}</div>`;
     }
-    function row(u, idx){
+    function row(u){
       return `
         <div class="row" data-user="${u.handle}">
           <div class="av">
@@ -412,14 +459,21 @@
               <div class="ranks">${rb(u)}</div>
             </div>
             <div class="stats">
+              <span>Votes ${u.votes.toLocaleString()}</span>
               <span>W ${u.wins}</span>
               <span>L ${u.losses}</span>
               <span>WR ${(winrate(u)*100).toFixed(1)}%</span>
-              <span>Zodiac: ${u.zodiac}</span>
               <span>${u.gender==='M'?'Men':'Women'}</span>
+              <span>Age ${u.age}</span>
+              <span>${u.ethnicity}</span>
+              <span>${u.language}</span>
+              <span>${u.zodiac}</span>
+              <span>${u.czodiac}</span>
+              <span>${u.school}</span>
+              <span>${u.college}</span>
             </div>
           </div>
-          <div class="score">Score ${u.score}</div>
+          <div class="score">Vote Count</div>
         </div>
       `;
     }
@@ -430,6 +484,13 @@
       const country = countryEl.value;
       const city = (cityEl.value||'').trim().toLowerCase();
       const gender = genderEl.value;
+      const ageBand = ageEl.value;
+      const ethnicity = ethnicityEl.value;
+      const language = languageEl.value;
+      const school = (schoolEl.value||'').trim().toLowerCase();
+      const college = (collegeEl.value||'').trim().toLowerCase();
+      const zodiac = zodiacEl.value;
+      const czodiac = czodiacEl.value;
       const sort = sortEl.value;
 
       let out = USERS.filter(u=>{
@@ -437,25 +498,44 @@
         if(country && u.country!==country) return false;
         if(city && !u.city.toLowerCase().includes(city)) return false;
         if(gender && u.gender!==gender) return false;
-        if(activeZodiacs.size && !activeZodiacs.has(u.zodiac)) return false;
+        if(ethnicity && u.ethnicity!==ethnicity) return false;
+        if(language && u.language!==language) return false;
+        if(school && !(u.school||'').toLowerCase().includes(school)) return false;
+        if(college && !(u.college||'').toLowerCase().includes(college)) return false;
+        if(zodiac && u.zodiac!==zodiac) return false;
+        if(czodiac && u.czodiac!==czodiac) return false;
 
+        if(ageBand){
+          const a=u.age||0;
+          const [lo,hi] = ageBand==='45+' ? [45,999] : ageBand.split('-').map(Number);
+          if(!(a>=lo && a<=hi)) return false;
+        }
+
+        // universal search: user or ANY rank list attribute
         if(q){
-          const hay = `${u.handle} ${COUNTRY_LABEL[u.country]||u.country} ${u.city}`.toLowerCase();
+          const hay = [
+            u.handle, u.city, (COUNTRY_LABEL[u.country]||u.country),
+            u.region, u.gender==='M'?'men':'women',
+            String(u.age), u.ethnicity, u.language, u.school, u.college,
+            u.zodiac, u.czodiac
+          ].join(' ').toLowerCase();
           if(!hay.includes(q)) return false;
         }
-        // time window demo: could adjust score by decay or filter by recent here
+
+        // time windows (demo: filter by recent activity)
         if(activeWindow==='24h' && (Date.now()-u.recent) > 86400000) return false;
-        if(activeWindow==='7d' && (Date.now()-u.recent) > 7*86400000) return false;
+        if(activeWindow==='7d'  && (Date.now()-u.recent) > 7*86400000) return false;
         if(activeWindow==='30d' && (Date.now()-u.recent) > 30*86400000) return false;
+
         return true;
       });
 
       // Sorting
       out.sort((a,b)=>{
         if(sort==='wins') return b.wins - a.wins;
-        if(sort==='winrate') return winrate(b) - winrate(a);
+        if(sort==='winrate') return (winrate(b) - winrate(a));
         if(sort==='recent') return lastActiveScore(a) - lastActiveScore(b);
-        return b.score - a.score; // default score
+        return b.votes - a.votes; // default by votes
       });
 
       renderList(out);
@@ -494,6 +574,13 @@
     countryEl.addEventListener('change', applyFilters);
     cityEl.addEventListener('input', applyFilters);
     genderEl.addEventListener('change', applyFilters);
+    ageEl.addEventListener('change', applyFilters);
+    ethnicityEl.addEventListener('change', applyFilters);
+    languageEl.addEventListener('change', applyFilters);
+    schoolEl.addEventListener('input', applyFilters);
+    collegeEl.addEventListener('input', applyFilters);
+    zodiacEl.addEventListener('change', applyFilters);
+    czodiacEl.addEventListener('change', applyFilters);
     sortEl.addEventListener('change', applyFilters);
 
     tabs.forEach(t=>{
@@ -501,15 +588,6 @@
         tabs.forEach(x=>x.classList.remove('active'));
         t.classList.add('active');
         activeWindow = t.dataset.window;
-        applyFilters();
-      });
-    });
-
-    zodiacsWrap.querySelectorAll('.z').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const s = btn.dataset.sign;
-        if(activeZodiacs.has(s)){ activeZodiacs.delete(s); btn.classList.remove('active'); }
-        else { activeZodiacs.add(s); btn.classList.add('active'); }
         applyFilters();
       });
     });
