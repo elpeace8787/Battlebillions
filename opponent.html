@@ -1,1 +1,547 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Opponent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#eaeaea; --muted:#b8b8b8;
+      --gold:#ffd700; --cyan:#7ff3ff; --violet:#ad8cff;
+      --safe-top:max(10px, env(safe-area-inset-top));
+      --safe-bottom:max(14px, env(safe-area-inset-bottom));
+      --side-pad:clamp(12px,4vw,44px);
+      --glass:rgba(255,255,255,.06);
+      --bg-grad:
+        radial-gradient(900px 600px at 25% 15%, rgba(255,215,0,.05), transparent 60%),
+        radial-gradient(800px 600px at 80% 20%, rgba(127,243,255,.05), transparent 60%),
+        radial-gradient(1200px 1000px at 50% 80%, rgba(159,123,255,.05), transparent 70%);
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{
+      height:100%; width:100%; background:#000; color:var(--ink);
+      font-family:'Orbitron',sans-serif; -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation; overscroll-behavior:none; overflow-x:hidden;
+    }
+    /* hide scrollbars but keep scrolling */
+    *::-webkit-scrollbar{ width:0; height:0; display:none }
+    *{ scrollbar-width:none }
+
+    /* Background canvas (subtle explosions) */
+    #bg3d{
+      position:fixed; inset:0; width:100%; height:100%; display:block;
+      z-index:0; pointer-events:none;
+      background: radial-gradient(1200px 900px at 20% 10%, #0b0b0d 0%, #000 70%);
+    }
+    body::before{
+      content:""; position:fixed; inset:-10%; pointer-events:none; z-index:0;
+      background:var(--bg-grad); filter:blur(2px);
+    }
+
+    .page{
+      position:relative; z-index:1; min-height:100dvh;
+      padding: calc(var(--safe-top) + 8px) var(--side-pad) calc(var(--safe-bottom) + 100px);
+    }
+
+    /* Header (glass, sticky) */
+    .header{
+      position:sticky; top:0; z-index:6;
+      margin:0 calc(var(--side-pad)*-1);
+      padding:12px var(--side-pad) 16px;
+      background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.45));
+      backdrop-filter: blur(12px);
+    }
+    .row{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    .title{
+      display:flex; align-items:center; gap:10px;
+      font-weight:800; font-size:18px; text-transform:uppercase; letter-spacing:.3px;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.18), rgba(255,255,255,0) 20% 80%, rgba(255,255,255,.18)),
+        linear-gradient(180deg, #f2f2f2 0%, #c7c7c7 38%, #9d9d9d 56%, #f0f0f0 86%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow:0 4px 24px rgba(255,215,0,.12);
+    }
+    .mini-acts{ display:flex; gap:10px; flex-wrap:wrap }
+    .pill{
+      border:none; cursor:pointer; font-weight:800; border-radius:999px; padding:8px 12px; font-size:12px;
+      color:#111; background:linear-gradient(180deg,#dff9ff,#7ff3ff);
+      box-shadow:0 8px 22px rgba(127,243,255,.2);
+    }
+    .pill.gold{ background:linear-gradient(180deg,#fff3bd,#ffd700) }
+
+    /* Split Screen */
+    .split{
+      margin-top:14px;
+      display:grid; grid-template-columns: 1fr 1fr; gap:14px;
+    }
+    @media (max-width:900px){ .split{ grid-template-columns:1fr } }
+
+    .panelVid{
+      position:relative; aspect-ratio: 16/9; border-radius:16px; overflow:hidden; background:#000;
+      backdrop-filter: blur(10px) saturate(130%);
+      box-shadow:0 16px 44px rgba(0,0,0,.42);
+    }
+    .panelVid video{ width:100%; height:100%; object-fit:cover }
+
+    /* Overlay info */
+    .overlay{
+      position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:10px; pointer-events:none;
+    }
+    .tag{
+      font-size:11px; padding:6px 10px; border-radius:999px;
+      color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
+      box-shadow:0 8px 22px rgba(255,215,0,.2);
+    }
+    .metaRight{
+      display:flex; align-items:center; gap:10px;
+    }
+    .viewerBtn, .liveBtn{
+      pointer-events:auto; border:none; cursor:pointer; font-weight:800; border-radius:999px; padding:6px 10px; font-size:11px;
+      color:#111; background:linear-gradient(180deg,#dff9ff,#7ff3ff);
+      box-shadow:0 8px 22px rgba(127,243,255,.2);
+    }
+
+    /* Opponent header strip inside panels */
+    .opHead{
+      position:absolute; left:10px; bottom:10px; right:10px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px; pointer-events:none;
+    }
+    .face{
+      position:relative; display:flex; align-items:center; gap:10px;
+    }
+    .avatar{ width:40px; height:40px; border-radius:50%; overflow:hidden; background:#0a0a0a; box-shadow:0 0 10px rgba(0,0,0,.5) }
+    .avatar img{ width:100%; height:100%; object-fit:cover }
+    .flag{ position:absolute; right:-4px; bottom:-4px; width:18px; height:12px; border-radius:2px; box-shadow:0 0 6px rgba(0,0,0,.6) }
+    .who{ display:flex; flex-direction:column; gap:2px }
+    .uname{ font-weight:800; font-size:13px }
+    .top9{ min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center;
+      font-size:11px; font-weight:800; color:#111; background:linear-gradient(180deg,#fff1a8,#ffd700);
+      box-shadow:0 0 8px rgba(255,215,0,.35) }
+    .opActs{ display:flex; gap:8px; pointer-events:auto }
+    .smallBtn{
+      border:none; cursor:pointer; font-weight:800; border-radius:999px; padding:6px 10px; font-size:11px;
+      color:#bfefff; background:rgba(255,255,255,.08);
+    }
+
+    /* Next Opponent pad (RIGHT panel content) */
+    .nextWrap{
+      position:absolute; inset:0; display:grid; place-items:center; padding:12px;
+    }
+    .nextCard{
+      width:min(86%, 520px);
+      background:rgba(20,20,24,.35); backdrop-filter:blur(12px) saturate(130%);
+      border-radius:16px; padding:14px;
+      box-shadow:0 16px 44px rgba(0,0,0,.42);
+      display:grid; gap:12px; justify-items:center;
+    }
+    .nextHeader{
+      display:flex; align-items:center; gap:10px;
+    }
+    .nextFace{ position:relative; width:54px; height:54px; border-radius:50%; overflow:hidden; background:#0a0a0a }
+    .nextFace img{ width:100%; height:100%; object-fit:cover }
+    .nextFlag{ position:absolute; right:-3px; bottom:-3px; width:18px; height:12px; border-radius:2px; box-shadow:0 0 6px rgba(0,0,0,.6) }
+    .nextName{ font-weight:800; font-size:16px }
+    .nextHandle{ font-size:12px; color:#cfefff }
+    .nextBadge{ min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center; font-size:11px; font-weight:800; color:#111; background:linear-gradient(180deg,#fff1a8,#ffd700); box-shadow:0 0 8px rgba(255,215,0,.35) }
+
+    .nextVideo{ width:100%; border-radius:12px; overflow:hidden; aspect-ratio: 16/9; background:#000; box-shadow:0 12px 32px rgba(0,0,0,.35) }
+    .nextActs{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center }
+    .btn{
+      border:none; cursor:pointer; font-weight:800; border-radius:12px; padding:10px 14px; font-size:13px;
+      color:#111; background:linear-gradient(180deg,#dff9ff,#7ff3ff);
+      box-shadow:0 10px 28px rgba(127,243,255,.22);
+    }
+    .btn.gold{ background:linear-gradient(180deg,#fff3bd,#ffd700) }
+
+    /* Shape nav (consistent) */
+    nav.side{
+      position:fixed; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:20px; z-index:7;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    nav.side.left{ left:16px }
+    nav.side.right{ right:16px }
+    .shape{
+      background:none; border:none; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .shape:active{ transform: scale(.96) }
+    .shape:hover{ transform:translateY(-2px) scale(1.06); filter:brightness(1.08) }
+    .shape svg{ width:100%; height:100%; fill:none }
+    .strokeline{ stroke: var(--gold); stroke-width:2.2 }
+    .shape.logout .strokeline{ stroke:#ff4c4c }
+    .center-triangle{
+      position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:7;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    /* Active highlight: Opponent page = diamond context (Discover-like) */
+    .side.right .shape:first-child .strokeline{ stroke: var(--gold); filter: drop-shadow(0 0 8px rgba(255,215,0,.6)); }
+
+    /* Autohide on scroll (optional) */
+    .nav-hidden nav.side, .nav-hidden .center-triangle{ opacity:0; pointer-events:none; transform:translateY(6px) }
+  </style>
+</head>
+<body>
+  <!-- Background explosions -->
+  <canvas id="bg3d"></canvas>
+
+  <div class="page">
+    <header class="header">
+      <div class="row">
+        <div class="title">Opponent</div>
+        <div class="mini-acts">
+          <button class="pill gold" onclick="location.href='live.html'">Live</button>
+          <button class="pill" id="sharePage">Share</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Split screen: LEFT = Current Opponent, RIGHT = Next Opponent pad centered -->
+    <section class="split">
+      <!-- LEFT: Current Opponent Panel -->
+      <article class="panelVid" id="currentPanel">
+        <video src="clip_kiro.mp4" muted playsinline loop></video>
+
+        <div class="overlay">
+          <span class="tag">Current Opponent</span>
+          <div class="metaRight">
+            <button class="liveBtn" onclick="location.href='live.html'">Go to Live</button>
+            <button class="viewerBtn" onclick="location.href='live.html'">👁️ 1.3k</button>
+          </div>
+        </div>
+
+        <div class="opHead">
+          <div class="face">
+            <div class="avatar"><img id="curAvatar" src="user3.jpg" alt=""/></div>
+            <img id="curFlag" class="flag" src="flag_us.png" alt=""/>
+            <div class="who">
+              <div class="uname" id="curName">@Kiro</div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="top9" id="curTop9">3</span>
+                <button class="smallBtn" onclick="location.href='profile.html?u=%40Kiro'">Profile</button>
+              </div>
+            </div>
+          </div>
+          <div class="opActs">
+            <button class="smallBtn" onclick="alert('Shared!')">Share</button>
+            <button class="smallBtn" onclick="alert('Muted')">Mute</button>
+            <button class="smallBtn" onclick="alert('Reported')">Flag</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- RIGHT: Next Opponent centered pad w/ Accept + Next under video -->
+      <article class="panelVid">
+        <div class="nextWrap">
+          <div class="nextCard" id="nextCard">
+            <div class="nextHeader">
+              <div class="nextFace"><img id="nAvatar" src="user4.jpg" alt=""/></div>
+              <img id="nFlag" class="nextFlag" src="flag_br.png" alt=""/>
+              <div>
+                <div class="nextName" id="nName">Samba Wave</div>
+                <div class="nextHandle" id="nHandle">@SambaWave • 🇧🇷</div>
+              </div>
+              <div class="nextBadge" id="nTop9">2</div>
+            </div>
+
+            <div class="nextVideo">
+              <video id="nVideo" src="clip_samba.mp4" muted playsinline loop></video>
+            </div>
+
+            <div class="nextActs">
+              <button class="btn gold" id="acceptBtn">Accept</button>
+              <button class="btn" id="nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <!-- LEFT side (circle over square) -->
+  <nav class="side left" aria-label="Left sidebar">
+    <button class="shape" data-link="home.html" title="Home" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
+    </button>
+    <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
+    </button>
+  </nav>
+
+  <!-- RIGHT side (diamond over X) -->
+  <nav class="side right" aria-label="Right sidebar">
+    <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
+    </button>
+    <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+        <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Bottom-center triangle (Arena) -->
+  <div class="center-triangle">
+    <button class="shape" data-link="arena.html" title="Arena" aria-label="Arena">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
+    </button>
+  </div>
+
+  <!-- Three.js for background -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script>
+    /********************
+     * Mock rotation of next opponents
+     ********************/
+    const OPPONENTS = [
+      { name:'Samba Wave', handle:'@SambaWave', avatar:'user4.jpg', flag:'flag_br.png', top9:2, video:'clip_samba.mp4', country:'🇧🇷' },
+      { name:'Nova', handle:'@Nova', avatar:'user2.jpg', flag:'flag_jp.png', top9:1, video:'clip_nova2.mp4', country:'🇯🇵' },
+      { name:'Ari', handle:'@Ari', avatar:'user6.jpg', flag:'flag_ng.png', top9:5, video:'clip_ari.mp4', country:'🇳🇬' },
+      { name:'Flex', handle:'@Flex', avatar:'user5.jpg', flag:'flag_us.png', top9:null, video:'clip_flex.mp4', country:'🇺🇸' },
+    ];
+    let idx = 0;
+
+    function fillNext(o){
+      document.getElementById('nAvatar').src = o.avatar;
+      document.getElementById('nFlag').src = o.flag;
+      document.getElementById('nName').textContent = o.name;
+      document.getElementById('nHandle').textContent = `${o.handle} • ${o.country}`;
+      document.getElementById('nTop9').style.display = o.top9? 'grid':'none';
+      if(o.top9){ document.getElementById('nTop9').textContent = o.top9; }
+      const v = document.getElementById('nVideo');
+      v.src = o.video; v.load(); v.play().catch(()=>{});
+    }
+    fillNext(OPPONENTS[idx]);
+
+    document.getElementById('nextBtn').addEventListener('click', ()=>{
+      idx = (idx+1) % OPPONENTS.length;
+      fillNext(OPPONENTS[idx]);
+    });
+
+    document.getElementById('acceptBtn').addEventListener('click', ()=>{
+      // Hook: backend accept challenge, route to arena with opponent context
+      alert('Challenge accepted! Redirecting to Arena…');
+      window.location.href = 'arena.html';
+    });
+
+    // Share page
+    document.getElementById('sharePage').addEventListener('click', async()=>{
+      try{
+        await navigator.share?.({ title:'BattleBillions — Opponent', url: location.href });
+      }catch{
+        navigator.clipboard?.writeText(location.href);
+        alert('Link copied!');
+      }
+    });
+
+    // Shape nav links
+    document.querySelectorAll(".shape[data-link]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
+    });
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      window.location.href='login.html';
+    });
+
+    // Autoplay current panel
+    document.querySelectorAll('.panelVid video').forEach(v=>{
+      v.addEventListener('canplay', ()=> v.play().catch(()=>{}), {once:true});
+    });
+
+    // Auto-hide nav on scroll
+    let navHideTimer=null;
+    window.addEventListener('scroll', ()=>{
+      document.body.classList.add('nav-hidden');
+      if(navHideTimer) clearTimeout(navHideTimer);
+      navHideTimer = setTimeout(()=> document.body.classList.remove('nav-hidden'), 350);
+    }, {passive:true});
+
+    /********************
+     * Background explosions (subtle)
+     ********************/
+    (function(){
+      const canvas = document.getElementById('bg3d');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let width = innerWidth, height = innerHeight;
+      let glOK=false;
+      try{
+        const gl = canvas.getContext('webgl',{antialias:false}) || canvas.getContext('experimental-webgl');
+        glOK=!!gl;
+      }catch(e){ glOK=false; }
+      if(!glOK) return;
+
+      const DPR_LIMIT=1.75;
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
+      renderer.setClearColor(0x000000,0);
+      renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT));
+      renderer.setSize(width, height, false);
+
+      const scene = new THREE.Scene();
+      const camera= new THREE.PerspectiveCamera(55, width/height, 0.1, 3000);
+      camera.position.set(0,0,140);
+
+      const hemi = new THREE.HemisphereLight(0x777777,0x080808,0.9);
+      const dir  = new THREE.DirectionalLight(0xffe7a4,0.6); dir.position.set(60,80,120);
+      scene.add(hemi,dir);
+
+      // Sprite
+      function sprite(){
+        const s=128, c=document.createElement('canvas'); c.width=c.height=s;
+        const g=c.getContext('2d'), grd=g.createRadialGradient(s/2,s/2,0, s/2,s/2,s/2);
+        grd.addColorStop(0,'rgba(255,255,255,0.95)');
+        grd.addColorStop(0.35,'rgba(255,255,255,0.35)');
+        grd.addColorStop(1,'rgba(255,255,255,0)');
+        g.fillStyle=grd; g.fillRect(0,0,s,s);
+        const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; return tex;
+      }
+      const particleTex = sprite();
+      const baseMat = new THREE.PointsMaterial({
+        size:(reduced? 13:16), map:particleTex, transparent:true, depthWrite:false,
+        blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
+      });
+
+      // Points pool
+      const pool=[];
+      function getPoints(n){
+        for(let i=pool.length-1;i>=0;i--){
+          const p=pool[i];
+          if(p.geometry.getAttribute('position').count>=n){ pool.splice(i,1); p.visible=true; return p; }
+        }
+        const g=new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n*3),3));
+        g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n*3),3));
+        g.setAttribute('size',  new THREE.BufferAttribute(new Float32Array(n),1));
+        const pts=new THREE.Points(g, baseMat.clone()); pts.frustumCulled=false; return pts;
+      }
+      function releasePoints(p){ p.visible=false; pool.push(p); }
+
+      const PALETTES = [
+        [0xffd700,0xff9b00,0xff4d00],
+        [0x7ff3ff,0x27d8ff,0x1597ff],
+        [0xff4c6a,0xff2a9f,0xff6ec7],
+        [0xad8cff,0x7f63ff,0x3f2cff],
+        [0x7cff8b,0x2cff6c,0x00d46b],
+      ];
+
+      class Explosion {
+        constructor(){
+          const x=(Math.random()-0.5)*width/5;
+          const y=(Math.random()-0.5)*height/5;
+          const z=-30 - Math.random()*40;
+          this.center=new THREE.Vector3(x,y,z);
+          this.count=(Math.random()*50+(reduced?50:100))|0;
+
+          this.points=getPoints(this.count); this.points.position.copy(this.center);
+          const g=this.points.geometry;
+          const pos=g.getAttribute('position').array;
+          const col=g.getAttribute('color').array;
+          const siz=g.getAttribute('size').array;
+
+          const pal=PALETTES[(Math.random()*PALETTES.length)|0];
+          const cA=new THREE.Color(pal[0]), cB=new THREE.Color(pal[1]), cC=new THREE.Color(pal[2]);
+          this.vel=new Float32Array(this.count*3);
+          this.life=reduced?1.2:1.6; this.t=0;
+
+          for(let i=0;i<this.count;i++){
+            const dirv=new THREE.Vector3().randomDirection();
+            const speed=10+Math.random()*26;
+            const ix=i*3;
+            this.vel[ix+0]=dirv.x*speed;
+            this.vel[ix+1]=dirv.y*speed;
+            this.vel[ix+2]=dirv.z*speed;
+            pos[ix+0]=dirv.x*1.6; pos[ix+1]=dirv.y*1.6; pos[ix+2]=dirv.z*1.6;
+
+            const t=i/this.count;
+            const cc=(t<.5)? cA.clone().lerp(cB,t*2) : cB.clone().lerp(cC,(t-.5)*2);
+            col[ix+0]=cc.r; col[ix+1]=cc.g; col[ix+2]=cc.b;
+            siz[i]=7+Math.random()*10;
+          }
+          g.getAttribute('position').needsUpdate=true;
+          g.getAttribute('color').needsUpdate=true;
+          g.getAttribute('size').needsUpdate=true;
+          scene.add(this.points);
+
+          const ringGeo=new THREE.RingGeometry(4.6,6.2,64);
+          const m1=new THREE.MeshBasicMaterial({color:0xffd700, transparent:true, opacity:0.8, blending:THREE.AdditiveBlending, side:THREE.DoubleSide});
+          const m2=new THREE.MeshBasicMaterial({color:0xffa500, transparent:true, opacity:0.5, blending:THREE.AdditiveBlending, side:THREE.DoubleSide});
+          this.ring1=new THREE.Mesh(ringGeo,m1); this.ring2=new THREE.Mesh(ringGeo,m2);
+          this.ring1.position.copy(this.center); this.ring2.position.copy(this.center);
+          this.r1=4.6; this.r2=4.6; scene.add(this.ring1,this.ring2);
+        }
+        update(dt){
+          this.t+=dt; const f=this.t/this.life;
+          const g=this.points.geometry;
+          const pos=g.getAttribute('position').array;
+          const col=g.getAttribute('color').array;
+          const siz=g.getAttribute('size').array;
+          const drag=1.0 - Math.min(0.05*dt*60, 0.05);
+          for(let i=0;i<this.count;i++){
+            const ix=i*3;
+            pos[ix+0]+=this.vel[ix+0]*dt;
+            pos[ix+1]+=this.vel[ix+1]*dt;
+            pos[ix+2]+=this.vel[ix+2]*dt;
+            this.vel[ix+0]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
+            siz[i]*=(1-dt*0.1); if(siz[i]<6) siz[i]=6;
+            const toGold = Math.max(0, Math.min(1, (f-0.35)/0.5 ));
+            col[ix+0]=col[ix+0]*(1-toGold)+1.0*toGold;
+            col[ix+1]=col[ix+1]*(1-toGold)+0.72*toGold;
+            col[ix+2]=col[ix+2]*(1-toGold)+0.28*toGold;
+          }
+          g.getAttribute('position').needsUpdate=true;
+          g.getAttribute('color').needsUpdate=true;
+          g.getAttribute('size').needsUpdate=true;
+
+          this.r1+=90*dt; this.r2+=115*dt;
+          this.ring1.scale.setScalar(this.r1/4.6);
+          this.ring2.scale.setScalar(this.r2/4.6);
+          this.ring1.material.opacity=Math.max(0,0.85 - f*1.2);
+          this.ring2.material.opacity=Math.max(0,0.5 - f*1.25);
+          this.ring1.lookAt(camera.position); this.ring2.lookAt(camera.position);
+
+          return this.t<this.life;
+        }
+        dispose(){
+          scene.remove(this.points); releasePoints(this.points);
+          scene.remove(this.ring1); scene.remove(this.ring2);
+        }
+      }
+
+      const explosions=[];
+      const MAX = reduced? 4: 7;
+      const INTERVAL = reduced? 2400: 1500;
+      let prev=performance.now(), last=prev;
+
+      function loop(now){
+        const dt=Math.min(0.05,(now-prev)/1000); prev=now;
+        if(now-last>INTERVAL){
+          if(explosions.length>MAX){ const old=explosions.shift(); old.dispose(); }
+          explosions.push(new Explosion());
+          last=now;
+        }
+        for(let i=explosions.length-1;i>=0;i--){
+          if(!explosions[i].update(dt)){ explosions[i].dispose(); explosions.splice(i,1); }
+        }
+        camera.lookAt(0,0,0);
+        renderer.render(scene,camera);
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      function resize(){
+        width=innerWidth; height=innerHeight;
+        renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT));
+        renderer.setSize(width,height,false);
+        camera.aspect=width/height; camera.updateProjectionMatrix();
+      }
+      addEventListener('resize', resize, {passive:true});
+    })();
+  </script>
+</body>
+</html>
