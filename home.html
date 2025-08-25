@@ -10,11 +10,10 @@
   <style>
     :root{
       --ink:#eaeaea; --muted:#b8b8b8;
-      --gold:#ffd700; --cyan:#47f5ff; --pink:#ff4c6a;
+      --gold:#ffd700;
       --safe-top:max(10px, env(safe-area-inset-top));
       --safe-bottom:max(14px, env(safe-area-inset-bottom));
       --side-pad:clamp(12px,4vw,44px);
-      --glass:rgba(255,255,255,.06);
       --bg-grad:
         radial-gradient(900px 600px at 25% 15%, rgba(255,215,0,.06), transparent 60%),
         radial-gradient(800px 600px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
@@ -26,7 +25,6 @@
       font-family:'Orbitron',sans-serif; -webkit-tap-highlight-color:transparent;
       touch-action:manipulation; overscroll-behavior:none; overflow-x:hidden;
     }
-    /* hide scrollbars but keep scrolling */
     *::-webkit-scrollbar{ width:0; height:0; display:none }
     *{ scrollbar-width:none }
 
@@ -46,13 +44,12 @@
       padding: var(--safe-top) var(--side-pad) calc(var(--safe-bottom) + 90px);
     }
 
-    /* Header (glass, no borders) */
+    /* Header — transparent (no background glass) */
     .header{
       position:sticky; top:0; z-index:5;
       margin:0 calc(var(--side-pad)*-1);
-      background: linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35));
-      backdrop-filter: blur(12px);
       padding:12px var(--side-pad) 14px;
+      /* removed background + backdrop blur on purpose */
     }
     .topline{
       display:flex; align-items:center; gap:12px; justify-content:space-between;
@@ -84,9 +81,7 @@
       box-shadow:0 0 8px rgba(0,0,0,.6);
     }
 
-    .nameblock{
-      display:flex; flex-direction:column; gap:4px;
-    }
+    .nameblock{ display:flex; flex-direction:column; gap:4px; }
     .display{
       font-weight:800; letter-spacing:.3px; text-transform:uppercase; font-size:18px;
       background:
@@ -123,11 +118,10 @@
       color:#bfefff; background:rgba(255,255,255,.08);
     }
 
-    /* Stats bar (trimmed: Votes, Wins, Losses) */
+    /* Stats bar (Votes, Wins, Losses) */
     .stats{
       display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:12px;
     }
-    @media (max-width:640px){ .stats{ grid-template-columns: repeat(3, 1fr) } }
     .stat{
       background:rgba(255,255,255,.06); border-radius:14px; padding:10px 8px;
       display:grid; gap:2px; justify-items:center;
@@ -152,7 +146,7 @@
     .panel{ display:none; margin-top:14px }
     .panel.active{ display:block }
 
-    /* Battles list (glass cards) */
+    /* Battles */
     .battles{ display:grid; gap:14px; }
     .battle{
       background:rgba(20,20,24,.35);
@@ -167,14 +161,11 @@
     .bt-time{ font-size:11px; color:#cfefff }
     .bt-title{ font-size:13px; font-weight:800 }
 
-    .bt-panels{
-      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
-    }
+    .bt-panels{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
     @media (max-width:760px){ .bt-panels{ grid-template-columns:1fr; } }
     .panelVid{
       position:relative; aspect-ratio: 16/9; border-radius:14px; overflow:hidden;
-      background:#000;
-      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      background:#000; box-shadow:0 10px 28px rgba(0,0,0,.35);
     }
     .panelVid video{ width:100%; height:100%; object-fit:cover }
     .overlay-min{
@@ -255,7 +246,7 @@
             <input type="file" id="avatarInput" accept="image/*" style="display:none"/>
           </div>
           <div class="nameblock">
-            <div id="display" class="display" title="Tap to edit username">@player</div>
+            <div id="display" class="display" title="Tap to edit username">player</div>
             <input id="usernameInput" class="username-input" style="display:none" maxlength="20"/>
             <div id="usernameError" class="error-text" style="display:none"></div>
             <div class="handle" id="handle">@player</div>
@@ -303,7 +294,7 @@
     </section>
   </div>
 
-  <!-- LEFT side (circle over square) -->
+  <!-- LEFT side -->
   <nav class="side left" aria-label="Left sidebar">
     <button class="shape" data-link="home.html" title="Home" aria-label="Home">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
@@ -313,7 +304,7 @@
     </button>
   </nav>
 
-  <!-- RIGHT side (diamond over X) -->
+  <!-- RIGHT side -->
   <nav class="side right" aria-label="Right sidebar">
     <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
       <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
@@ -389,7 +380,6 @@
 
     function setFlag(country){
       if(!country){ flagImg.style.display='none'; return; }
-      // SUPER simple example mapping — replace with your own flags
       const map = {
         "United States":"flag_us.png",
         "Canada":"flag_ca.png",
@@ -404,8 +394,8 @@
     async function loadUserProfile(uid){
       const snap = await getDoc(doc(db,"users",uid));
       const p = snap.exists() ? snap.data() : {};
-      // Username fallback: created in create flow `username`, or derive from email
       const uname = (p.username || '').toString() || (p.email ? p.email.split('@')[0] : 'player');
+
       displayEl.textContent = uname;
       handleEl.textContent = '@' + uname;
 
@@ -419,17 +409,15 @@
       statWins.textContent  = p.wins  || 0;
       statLoss.textContent  = p.losses|| 0;
 
-      // About + Media demo fallbacks
-      const bioEl = $('#bio');
-      bioEl.textContent = p.bio || "Welcome to BattleBillions!";
+      // About + Media
+      $('#bio').textContent = p.bio || "Welcome to BattleBillions!";
       const media = Array.isArray(p.media) ? p.media : [];
       const mediaGrid = $('#mediaGrid');
-      mediaGrid.innerHTML = media.map(src=>`<div class="thumb"><img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover"/></div>`).join('');
-      if(!media.length){
-        mediaGrid.innerHTML = `<div class="thumb"></div><div class="thumb"></div><div class="thumb"></div>`;
-      }
+      mediaGrid.innerHTML = media.length
+        ? media.map(src=>`<div class="thumb"><img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover"/></div>`).join('')
+        : `<div class="thumb"></div><div class="thumb"></div><div class="thumb"></div>`;
 
-      // Battles demo (replace with real later)
+      // Battles demo (replace with real)
       const battlesList = $('#battlesList');
       const demoBattles = [
         { id:"b1", title:"Arena Trials", ago:"5m ago", me:{tag:"You", video:"clip_nova.mp4"}, op:{tag:"Opponent", video:"clip_ari.mp4"}, timer:"Round 1 • 00:27" }
@@ -479,20 +467,24 @@
       });
     }
 
-    async function usernameAvailable(newName){
+    // Check username availability. Allows keeping your current username.
+    async function usernameAvailable(newName, selfUid){
       const uname = newName.trim().toLowerCase();
       if(!uname || !/^[a-z0-9_]{3,20}$/.test(uname)) return { ok:false, reason:'Username must be 3–20 letters, numbers, or _' };
       const q = query(collection(db, "users"), where("username","==", uname));
       const snap = await getDocs(q);
-      if(!snap.empty) return { ok:false, reason:'That username is taken' };
+      if(snap.empty) return { ok:true };
+      // If any doc is not me, it's taken
+      for (const d of snap.docs){ if (d.id !== selfUid) return { ok:false, reason:'That username is taken' }; }
       return { ok:true };
     }
 
     async function saveUsername(uid, newName){
-      const a = await usernameAvailable(newName);
+      const a = await usernameAvailable(newName, uid);
       if(!a.ok) throw a.reason;
-      await setDoc(doc(db,"users",uid), { username: newName.trim().toLowerCase() }, { merge:true });
-      return newName.trim().toLowerCase();
+      const cleaned = newName.trim().toLowerCase();
+      await setDoc(doc(db,"users",uid), { username: cleaned }, { merge:true });
+      return cleaned;
     }
 
     async function saveAvatar(uid, file){
@@ -504,13 +496,18 @@
       return url;
     }
 
-    // Avatar button
+    // Avatar: click to upload. Show preview immediately, then upload+persist.
     avatarBtn.addEventListener('click', ()=> avatarInput.click());
     avatarInput.addEventListener('change', async (e)=>{
       try{
         const f = e.target.files?.[0]; if(!f || !currentUID) return;
+        // instant local preview
+        const localURL = URL.createObjectURL(f);
+        setAvatar(localURL, displayEl.textContent);
+        // upload in background, then swap to CDN URL
         const url = await saveAvatar(currentUID, f);
         setAvatar(url, displayEl.textContent);
+        URL.revokeObjectURL(localURL);
       }catch(err){
         alert(typeof err === 'string' ? err : 'Could not upload avatar.');
       }finally{
@@ -539,8 +536,8 @@
       const newName = usernameInput.value;
       try{
         const saved = await saveUsername(currentUID, newName);
-        displayEl.textContent = saved;
-        handleEl.textContent = '@' + saved;
+        displayEl.textContent = saved;          // replace name
+        handleEl.textContent = '@' + saved;     // replace handle
         usernameError.style.display = 'none';
       }catch(reason){
         usernameError.textContent = reason || 'Could not update username';
@@ -558,7 +555,7 @@
     document.querySelectorAll(".shape[data-link]").forEach(btn=>{
       btn.addEventListener("click", ()=>{ window.location.href = btn.dataset.link; });
     });
-    $('#logoutBtn').addEventListener('click', async ()=>{
+    document.getElementById('logoutBtn').addEventListener('click', async ()=>{
       try{ await signOut(auth); }catch{}
       window.location.href = 'index.html#/auth/login';
     });
@@ -590,12 +587,9 @@
     });
   </script>
 
-  <!-- Three.js -->
+  <!-- Three.js (background) -->
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script>
-    /********************
-     * Background explosions (lightweight)
-     ********************/
     (function(){
       const canvas = document.getElementById('bg3d');
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -621,7 +615,6 @@
       const dir  = new THREE.DirectionalLight(0xffe7a4,0.7); dir.position.set(60,80,120);
       scene.add(hemi,dir);
 
-      // Sprite
       function sprite(){
         const s=128, c=document.createElement('canvas'); c.width=c.height=s;
         const g=c.getContext('2d'), grd=g.createRadialGradient(s/2,s/2,0, s/2,s/2,s/2);
@@ -637,7 +630,6 @@
         blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true
       });
 
-      // Ambient embers
       (function(){
         const COUNT = prefersReduced? 250:500;
         const g=new THREE.BufferGeometry();
@@ -654,7 +646,6 @@
         const m=new THREE.PointsMaterial({ size:prefersReduced?1.6:2.4, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
         const p=new THREE.Points(g,m); p.frustumCulled=false; p.userData={t:0};
         scene.add(p);
-        // gentle drift
         const tick = ()=>{
           p.userData.t += 0.0015;
           p.position.y = Math.sin(p.userData.t*8)*1.4;
@@ -664,7 +655,6 @@
         tick();
       })();
 
-      // Points pool
       const pool=[];
       function getPoints(n){
         for(let i=pool.length-1;i>=0;i--){
