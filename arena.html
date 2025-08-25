@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Arena — Battle</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
   <style>
@@ -11,10 +11,10 @@
       --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
       --pad:clamp(10px, 3vw, 24px);
       --accent:#6ee7ff;
-      --safe-bottom:max(12px, env(safe-area-inset-bottom));
+      --header-h:64px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; -webkit-tap-highlight-color:transparent}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 
     /* Header */
     .header{
@@ -28,13 +28,12 @@
     .h-left{display:flex; align-items:center; gap:10px}
     .btn{
       border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
-      border-radius:12px; padding:12px 14px; font-weight:700; cursor:pointer;
+      border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer;
       transition:transform .12s ease, border-color .12s ease, background .12s ease;
-      touch-action:manipulation;
     }
-    .btn.small{padding:10px 12px; border-radius:10px; font-size:12px}
-    .btn.ghost{background:transparent}
     .btn:active{transform:translateY(1px)}
+    .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
+    .btn.ghost{background:transparent}
     .crumb{font-size:13px; color:var(--muted)}
     .crumb b{color:var(--ink)}
     .statusDot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
@@ -42,29 +41,19 @@
     .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
     .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 
-    /* Arena: always two panels side-by-side. On phones, horizontal scroll with snap. */
+    /* Arena split */
     .arena{
-      padding:10px var(--pad) calc(var(--pad) + 80px);
-      display:grid;
-      grid-auto-flow: column;
-      grid-auto-columns: min(90vw, 440px);
-      gap:12px;
-      overflow-x:auto;
-      scroll-snap-type:x mandatory;
-      -webkit-overflow-scrolling:touch;
+      padding:10px var(--pad) calc(var(--pad) + 72px);
+      display:grid; grid-template-columns: 1fr 1fr; gap:12px;
     }
-    @media (min-width:900px){
-      .arena{
-        grid-auto-flow: initial;
-        grid-template-columns: 1fr 1fr;
-        grid-auto-columns: initial;
-      }
+    @media (max-width: 880px){
+      .arena{ grid-template-columns: 1fr; }
     }
+
     .side{
-      scroll-snap-align:start;
       background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       border:1px solid var(--edge); border-radius:16px; overflow:hidden;
-      display:grid; grid-template-rows: auto 1fr auto; min-height: 56vh;
+      display:grid; grid-template-rows: auto 1fr auto; min-height: 58vh;
     }
     .side header{
       display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -75,32 +64,25 @@
     .tag{font-size:12px; color:#9adfff; background:rgba(154,223,255,.12); border:1px solid rgba(154,223,255,.25); padding:4px 8px; border-radius:999px}
     .liveTag{font-size:11px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); padding:4px 8px; border-radius:999px; font-weight:800}
 
-    /* Vertical (portrait) screens */
+    /* Vertical screens (portrait), side-by-side on desktop */
     .videoWrap{
       position:relative; background:#000; display:grid; place-items:center; overflow:hidden;
-      aspect-ratio: 9 / 16;
-      width: min(96%, 440px);
-      max-height: 72vh;
-      margin: 10px auto;
-      border-radius: 16px;
-      box-shadow: 0 12px 38px rgba(0,0,0,.45);
-      border: 1px solid #171717;
-      touch-action:manipulation;
+      aspect-ratio: 9/16;
+      width:100%;
     }
-    .videoWrap video, .videoWrap .ph{ width:100%; height:100%; object-fit:cover; }
+    .videoWrap video, .videoWrap .ph{
+      width:100%; height:100%; object-fit:cover;
+    }
     .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
-
     .overlay{
       position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:8px; pointer-events:none;
     }
     .bottomOverlay{
       position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
       padding:8px; pointer-events:none;
-      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.45));
     }
-
     .meter{
-      height:8px; width:110px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
+      height:6px; width:100px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
       box-shadow:inset 0 0 0 1px #0a0a0a;
     }
     .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
@@ -110,7 +92,7 @@
       background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.5));
     }
     .pill{
-      border:none; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:700; font-size:12px;
+      border:none; cursor:pointer; padding:8px 12px; border-radius:10px; font-weight:700; font-size:12px;
       background:#121214; color:#e8f3ff; border:1px solid #2a2a2a;
     }
     .pill.primary{ background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; border-color:transparent }
@@ -118,16 +100,10 @@
     .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
     .spacer{flex:1}
 
-    /* HUD (center top) */
+    /* Battle HUD (below header, never overlapping buttons) */
     .hud{
-      position:fixed; left:50%; top:58px; transform:translateX(-50%);
-      z-index:9; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      padding:0 8px;
-    }
-    .hudRow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
-    .badge{
-      font-size:12px; font-weight:800; padding:8px 10px; border-radius:10px;
-      background:rgba(0,0,0,.6); border:1px solid #1f1f1f); backdrop-filter: blur(6px);
+      position:sticky; top:calc(var(--header-h) + 8px);
+      z-index:9; display:flex; align-items:center; justify-content:center; gap:10px; padding:6px var(--pad);
     }
     .timer{
       display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px;
@@ -135,7 +111,7 @@
       font-weight:800;
     }
     .timeNum{font-variant-numeric:tabular-nums}
-    .bar{position:relative; width:220px; height:10px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
+    .bar{position:relative; width:220px; height:8px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
     .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a)}
     .pulse{width:14px;height:14px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
     @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
@@ -144,12 +120,12 @@
     .dock{
       position:fixed; left:0; right:0; bottom:0; z-index:9;
       display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
-      padding:10px var(--pad) calc(10px + var(--safe-bottom));
+      padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));
       background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
     }
     .dock .btn{min-width:140px}
 
-    /* Picker overlay */
+    /* Category picker overlay */
     .overlayWrap{
       position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20;
     }
@@ -183,8 +159,8 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <div class="header">
+  <!-- Header: Back • Breadcrumb • Room/Latency + Start -->
+  <div class="header" id="header">
     <div class="h-left">
       <button id="backBtn" class="btn small">← Back</button>
       <div class="crumb" id="crumb"><b>Select Category</b></div>
@@ -192,27 +168,24 @@
     <div class="controlsHeader">
       <span class="latency"><span class="statusDot" id="netDot"></span><span id="latVal">22ms</span></span>
       <span class="room" id="roomCode">Room: 4X9-QQA</span>
-      <button class="btn small" id="startBtn" disabled>Start</button>
+      <button class="btn small" id="startBtn" disabled>Start Battle</button>
       <button class="btn small ghost" id="pauseBtn" disabled>Pause</button>
       <button class="btn small ghost" id="resetBtn" disabled>Reset</button>
     </div>
   </div>
 
-  <!-- HUD (timer + rounds) -->
+  <!-- Battle HUD (sticks under header, never overlapping buttons) -->
   <div class="hud">
-    <div class="hudRow">
-      <div class="badge" id="roundBadge">Round <b id="roundNow">1</b>/<span id="roundTotal">3</span></div>
-      <div class="timer">
-        <span class="pulse" id="beatDot" title="Beat pulse"></span>
-        <span id="timeLeft" class="timeNum">01:00</span>
-        <div class="bar"><span id="barFill"></span></div>
-      </div>
+    <div class="timer">
+      <span class="pulse" id="beatDot" title="Beat pulse"></span>
+      <span id="timeLeft" class="timeNum">01:00</span>
+      <div class="bar"><span id="barFill"></span></div>
     </div>
   </div>
 
-  <!-- Split Arena (always two columns; scroll on mobile) -->
+  <!-- Split Arena -->
   <main class="arena" id="arena">
-    <!-- Side A -->
+    <!-- Competitor A -->
     <section class="side" id="sideA">
       <header>
         <div class="who">
@@ -221,11 +194,8 @@
         </div>
         <span class="liveTag" id="aState">Idle</span>
       </header>
-
       <div class="videoWrap" id="aVideoWrap">
-        <div class="ph" id="aPlaceholder">Camera off — tap “Camera”</div>
-        <video id="aVideo" playsinline autoplay muted style="display:none"></video>
-
+        <div class="ph">Camera off — tap “Camera”</div>
         <div class="overlay">
           <div></div>
           <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
@@ -235,20 +205,18 @@
           <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="aFullscreen">Fullscreen</button></div>
         </div>
       </div>
-
       <div class="controls">
         <button class="pill" id="aCamera">Camera</button>
         <button class="pill" id="aMic">Mic</button>
         <button class="pill" id="aSwitch">Switch</button>
-        <label for="aUploadInput" class="pill" style="cursor:pointer">Upload</label>
-        <input id="aUploadInput" type="file" accept="video/*" style="display:none"/>
+        <button class="pill" id="aUpload">Upload</button>
         <div class="spacer"></div>
         <button class="pill primary" id="aReady">Ready</button>
         <button class="pill red" id="aConcede">Concede</button>
       </div>
     </section>
 
-    <!-- Side B -->
+    <!-- Competitor B -->
     <section class="side" id="sideB">
       <header>
         <div class="who">
@@ -257,11 +225,8 @@
         </div>
         <span class="liveTag" id="bState">Idle</span>
       </header>
-
       <div class="videoWrap" id="bVideoWrap">
-        <div class="ph" id="bPlaceholder">Waiting for opponent…</div>
-        <video id="bVideo" playsinline autoplay controls style="display:none"></video>
-
+        <div class="ph">Waiting for opponent…</div>
         <div class="overlay">
           <div></div>
           <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
@@ -271,7 +236,6 @@
           <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="bFullscreen">Fullscreen</button></div>
         </div>
       </div>
-
       <div class="controls">
         <button class="pill" id="bMute">Mute</button>
         <button class="pill" id="bSwap">Swap Sides</button>
@@ -282,13 +246,13 @@
     </section>
   </main>
 
-  <!-- Dock -->
+  <!-- Bottom Dock -->
   <div class="dock">
     <button class="btn" id="catsDock">Choose Category</button>
     <button class="btn ghost" id="inviteBtn">Invite Opponent</button>
   </div>
 
-  <!-- Picker -->
+  <!-- Category Picker (overlay) -->
   <div class="overlayWrap" id="picker">
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
       <header>
@@ -299,7 +263,7 @@
         </div>
       </header>
 
-      <!-- Step 1 -->
+      <!-- Step 1: Categories -->
       <section id="stepCats">
         <div class="list">
           <article class="card"><h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p><button class="btn small" data-cat="Rap">Select</button></article>
@@ -311,7 +275,7 @@
         </div>
       </section>
 
-      <!-- Step 2 -->
+      <!-- Step 2: Subcategories -->
       <section id="stepSubs" style="display:none">
         <div class="row" style="justify-content:space-between; align-items:center">
           <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
@@ -320,10 +284,10 @@
         <div id="subsList" class="list"></div>
       </section>
 
-      <!-- Step 3 (Rap) -->
+      <!-- Step 3 (Rap example): Setup -->
       <section id="stepRapSetup" style="display:none">
         <h4 style="margin:8px 0">Rap Battle Setup</h4>
-        <p class="help" style="margin:0 0 8px">Use this pattern for other categories.</p>
+        <p class="help" style="margin:0 0 8px">Rap has unique settings. Use this as the pattern for other categories.</p>
         <div class="card">
           <div class="row">
             <label style="font-size:12px; color:var(--muted)">Style</label>
@@ -335,6 +299,7 @@
             </select>
           </div>
           <div class="divider"></div>
+
           <div class="row">
             <div style="flex:1">
               <label style="font-size:12px; color:var(--muted)">Round Length</label>
@@ -348,7 +313,9 @@
               <select id="rapRounds" class="input"><option>1</option><option selected>3</option><option>5</option></select>
             </div>
           </div>
+
           <div class="divider"></div>
+
           <div class="row">
             <div style="flex:1">
               <label style="font-size:12px; color:var(--muted)">Beat</label>
@@ -364,7 +331,9 @@
               <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
             </div>
           </div>
+
           <div class="divider"></div>
+
           <div class="row">
             <div style="flex:1">
               <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
@@ -383,7 +352,9 @@
               </select>
             </div>
           </div>
+
           <div class="divider"></div>
+
           <div class="row" style="justify-content:flex-end">
             <button class="btn small ghost" id="rapSetupBack">← Subcategories</button>
             <button class="btn small" id="rapApply">Apply & Use</button>
@@ -391,10 +362,10 @@
         </div>
       </section>
 
-      <!-- Generic setup -->
+      <!-- Placeholder for other categories -->
       <section id="stepOtherSetup" style="display:none">
         <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
-        <p class="help">Add unique controls here for this category.</p>
+        <p class="help">Add unique controls here for this category (e.g., canvas size for Art, tempo for Dance). For now it just confirms selection.</p>
         <div class="row" style="justify-content:flex-end">
           <button class="btn small ghost" id="otherSetupBack">← Subcategories</button>
           <button class="btn small" id="otherApply">Apply & Use</button>
@@ -403,359 +374,14 @@
     </div>
   </div>
 
+  <!-- Auto-size header var -->
   <script>
-    /*********** State ***********/
-    const state = {
-      room: (localStorage.getItem("bb_room") || "4X9-QQA"),
-      category: null,
-      subcategory: null,
-      rap: { style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null },
-      readyA:false, readyB:false,
-      running:false, timeLeft:60, total:60, tick:null,
-      currentRound:1, totalRounds:3,
-      // media
-      aStream:null, aFacing:"user", aMicOn:true, aCamOn:false,
-      aAudioCtx:null, aAnalyser:null, aData:null, aLevelRAF:null,
-      bMuted:false
-    };
-
-    /*********** Header + crumbs ***********/
-    document.getElementById("roomCode").textContent = "Room: " + state.room;
-    const crumbEl = document.getElementById("crumb");
-    const roundNowEl = document.getElementById("roundNow");
-    const roundTotalEl = document.getElementById("roundTotal");
-    function setCrumb(){
-      if(!state.category) crumbEl.innerHTML = "<b>Select Category</b>";
-      else if(!state.subcategory) crumbEl.innerHTML = `<b>${state.category}</b> • choose subcategory`;
-      else crumbEl.innerHTML = `<b>${state.category}</b> → ${state.subcategory}`;
-    }
-    function setRoundsUI(){
-      roundNowEl.textContent = state.currentRound;
-      roundTotalEl.textContent = state.totalRounds;
-    }
-    setCrumb(); setRoundsUI();
-    document.getElementById("backBtn").addEventListener("click", ()=> openPicker("cats"));
-    const latVal = document.getElementById("latVal");
-    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
-
-    /*********** Timer with auto-round advance ***********/
-    const startBtn = document.getElementById("startBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const timeLeftEl = document.getElementById("timeLeft");
-    const barFill = document.getElementById("barFill");
-    const beatDot = document.getElementById("beatDot");
-
-    function fmt(s){ const m=Math.floor(s/60), r=s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`; }
-    function setTimer(seconds){ state.total=seconds; state.timeLeft=seconds; timeLeftEl.textContent=fmt(seconds); barFill.style.width='0%'; }
-    setTimer(state.rap.length);
-
-    function maybeEnableStart(){ startBtn.disabled = !(state.readyA && state.readyB); pauseBtn.disabled = true; resetBtn.disabled = true; }
-    function disableStart(){ startBtn.disabled = true; pauseBtn.disabled = true; resetBtn.disabled = true; }
-    // Opponent sim "ready"
-    setTimeout(()=>{ state.readyB = true; document.getElementById("bState").textContent = "Ready"; maybeEnableStart(); }, 900);
-
-    function tick(){
-      if(!state.running) return;
-      state.timeLeft = Math.max(0, state.timeLeft - 1);
-      timeLeftEl.textContent = fmt(state.timeLeft);
-      const pct = 100 - Math.round((state.timeLeft/state.total)*100);
-      barFill.style.width = pct + '%';
-
-      if(state.timeLeft<=0){
-        // Next round or end
-        if(state.currentRound < state.totalRounds){
-          state.currentRound += 1;
-          setRoundsUI();
-          setTimer(state.rap.length);
-        }else{
-          stopBattle(true);
-        }
-      }
-    }
-    function startBattle(){
-      if(startBtn.disabled) return;
-      state.running = true; startBtn.disabled=true; pauseBtn.disabled=false; resetBtn.disabled=false;
-      clearInterval(state.tick); state.tick=setInterval(tick, 1000);
-      // beat pulse tempo
-      const tempos = { acapella:0, trap_92:92, boom_88:88, drill_140:140 };
-      const bpm = tempos[state.rap.beat]||0; beatDot.style.animationDuration = (bpm? Math.max(300, Math.round(60000/bpm))/1000 : 1.2)+'s';
-    }
-    function pauseBattle(){ if(!state.running) return; state.running=false; pauseBtn.disabled=true; startBtn.disabled=false; clearInterval(state.tick); }
-    function stopBattle(ended=false){
-      state.running=false; clearInterval(state.tick);
-      startBtn.disabled=!(state.readyA && state.readyB);
-      pauseBtn.disabled=true; resetBtn.disabled=false;
-      if(ended) alert('Battle complete!');
-    }
-    function resetBattle(){
-      stopBattle(false);
-      state.currentRound = 1; setRoundsUI();
-      setTimer(state.rap.length);
-      resetBtn.disabled=true;
-    }
-    startBtn.addEventListener("click", startBattle);
-    pauseBtn.addEventListener("click", pauseBattle);
-    resetBtn.addEventListener("click", resetBattle);
-
-    /*********** Side A controls (camera/mic/upload) ***********/
-    const aVideo = document.getElementById("aVideo");
-    const aPlaceholder = document.getElementById("aPlaceholder");
-    const aStateEl = document.getElementById("aState");
-    const aMicBar = document.getElementById("aMicLevel");
-
-    async function startACamera(){
-      try{
-        const constraints = {
-          audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true },
-          video: { facingMode: state.aFacing, width:{ideal:1080}, height:{ideal:1920}, aspectRatio:9/16 }
-        };
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        stopAStream();
-        state.aStream = stream;
-        aVideo.srcObject = stream;
-        aVideo.muted = true;
-        aVideo.style.display = 'block';
-        aPlaceholder.style.display = 'none';
-        state.aCamOn = true; aStateEl.textContent = "Camera On";
-        setupAudioMeter(stream);
-      }catch(err){
-        console.warn("getUserMedia failed", err);
-        alert("Could not start camera/mic: " + (err.message||err));
-      }
-    }
-    function stopAStream(){
-      if(state.aStream){ state.aStream.getTracks().forEach(t=>t.stop()); state.aStream=null; }
-      teardownMeter();
-      aVideo.srcObject = null; aVideo.pause();
-      aVideo.style.display = 'none'; aPlaceholder.style.display = 'grid';
-      state.aCamOn = false; aStateEl.textContent = "Idle";
-    }
-    function setupAudioMeter(stream){
-      try{
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        state.aAudioCtx = new AudioCtx();
-        const src = state.aAudioCtx.createMediaStreamSource(stream);
-        state.aAnalyser = state.aAudioCtx.createAnalyser();
-        state.aAnalyser.fftSize = 256;
-        state.aData = new Uint8Array(state.aAnalyser.frequencyBinCount);
-        src.connect(state.aAnalyser);
-        const loop = ()=>{
-          if(!state.aAnalyser){ aMicBar.style.width = '0%'; return; }
-          state.aAnalyser.getByteTimeDomainData(state.aData);
-          let sum=0; for(let i=0;i<state.aData.length;i++){ const v=(state.aData[i]-128)/128; sum+=v*v; }
-          const rms = Math.sqrt(sum/state.aData.length);
-          const pct = Math.min(100, Math.max(6, Math.round(rms*160)));
-          aMicBar.style.width = pct + '%';
-          state.aLevelRAF = requestAnimationFrame(loop);
-        };
-        cancelAnimationFrame(state.aLevelRAF); loop();
-      }catch(e){
-        console.warn("Audio meter unavailable", e);
-        teardownMeter();
-        state.aLevelRAF = requestAnimationFrame(function fake(){
-          aMicBar.style.width = (Math.random()*95|0)+'%';
-          state.aLevelRAF = requestAnimationFrame(fake);
-        });
-      }
-    }
-    function teardownMeter(){
-      cancelAnimationFrame(state.aLevelRAF); state.aLevelRAF=null;
-      if(state.aAudioCtx){ try{ state.aAudioCtx.close(); }catch{} state.aAudioCtx=null; }
-      state.aAnalyser=null; state.aData=null; aMicBar.style.width='0%';
-    }
-
-    // Buttons A
-    document.getElementById("aCamera").addEventListener("click", async ()=>{
-      if(state.aCamOn){ stopAStream(); } else {
-        if(aVideo.src && !aVideo.srcObject){ aVideo.removeAttribute('src'); aVideo.load(); }
-        await startACamera();
-      }
-    });
-    document.getElementById("aMic").addEventListener("click", ()=>{
-      const track = state.aStream?.getAudioTracks?.()[0];
-      if(track){
-        track.enabled = !track.enabled;
-        state.aMicOn = track.enabled;
-        document.getElementById("aMic").textContent = track.enabled ? "Mic" : "Mic (Muted)";
-      }
-    });
-    document.getElementById("aSwitch").addEventListener("click", async ()=>{
-      state.aFacing = (state.aFacing === "user") ? "environment" : "user";
-      if(state.aCamOn){ await startACamera(); }
-    });
-    document.getElementById("aUploadInput").addEventListener("change", (e)=>{
-      const file = e.target.files?.[0]; if(!file) return;
-      stopAStream();
-      const url = URL.createObjectURL(file);
-      aVideo.srcObject = null; aVideo.src = url; aVideo.controls = true; aVideo.muted=false;
-      aVideo.style.display='block'; aPlaceholder.style.display='none';
-      aVideo.play().catch(()=>{});
-      aStateEl.textContent = "Playing Upload";
-    });
-    function fs(el){ if(el.requestFullscreen) el.requestFullscreen(); }
-    document.getElementById("aFullscreen").addEventListener("click", ()=> fs(document.getElementById("aVideoWrap")));
-    document.getElementById("aReady").addEventListener("click", ()=>{
-      state.readyA = !state.readyA;
-      aStateEl.textContent = state.readyA ? "Ready" : (state.aCamOn ? "Camera On" : "Idle");
-      maybeEnableStart();
-    });
-    document.getElementById("aConcede").addEventListener("click", ()=>{
-      state.readyA=false; aStateEl.textContent="Conceded"; disableStart();
-    });
-
-    /*********** Side B controls ***********/
-    const bVideo = document.getElementById("bVideo");
-    const bPlaceholder = document.getElementById("bPlaceholder");
-    document.getElementById("bMute").addEventListener("click", ()=>{
-      state.bMuted = !state.bMuted;
-      bVideo.muted = state.bMuted;
-      document.getElementById("bMute").textContent = state.bMuted ? "Unmute" : "Mute";
-    });
-    document.getElementById("bSwap").addEventListener("click", ()=>{
-      // swap labels
-      const aName = document.getElementById("aName");
-      const bName = document.getElementById("bName");
-      [aName.textContent, bName.textContent] = [bName.textContent, aName.textContent];
-      // swap the cards visually
-      const arena = document.getElementById("arena");
-      const aCard = document.getElementById("sideA");
-      const bCard = document.getElementById("sideB");
-      arena.insertBefore(bCard, aCard);
-      arena.appendChild(aCard);
-    });
-    document.getElementById("bFullscreen").addEventListener("click", ()=> fs(document.getElementById("bVideoWrap")));
-
-    // Optional: preload a sample opponent video (set your file URL)
-    (function demoOpponent(){
-      const sample = ""; // e.g. "opponent_vertical.mp4"
-      if(sample){
-        bVideo.src = sample; bVideo.style.display='block'; bPlaceholder.style.display='none';
-        bVideo.play().catch(()=>{});
-        document.getElementById("bState").textContent = "Connected";
-      }
-    })();
-
-    /*********** Picker logic ***********/
-    const picker = document.getElementById("picker");
-    const stepCats = document.getElementById("stepCats");
-    const stepSubs = document.getElementById("stepSubs");
-    const stepRap = document.getElementById("stepRapSetup");
-    const stepOther = document.getElementById("stepOtherSetup");
-    const pickCrumb = document.getElementById("pickCrumb");
-    const subsTitle = document.getElementById("subsTitle");
-    const subsList = document.getElementById("subsList");
-    const CAT_SUBS = {
-      "Rap": ["Freestyle","Written","Cypher","Wordplay"],
-      "Art": ["Sketch","Digital","Graffiti","Speed-paint"],
-      "Instruments": ["Guitar","Piano/Keys","Drums","Strings"],
-      "Comedy": ["Roast","Improv","Skits","One-liners"],
-      "Dance": ["Freestyle","Choreo","Break","Duo"],
-      "Fashion": ["Styled Fit","Runway","Custom Piece"]
-    };
-    function openPicker(step="cats"){ picker.classList.add("show"); showStep(step); updatePickCrumb(); }
-    function closePicker(){ picker.classList.remove("show"); showStep("cats"); }
-    function showStep(which){
-      stepCats.style.display = (which==="cats") ? "block" : "none";
-      stepSubs.style.display = (which==="subs") ? "block" : "none";
-      stepRap.style.display  = (which==="rap")  ? "block" : "none";
-      stepOther.style.display= (which==="other")? "block" : "none";
-    }
-    function updatePickCrumb(){
-      if(stepRap.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> → ${state.subcategory} • Setup`; }
-      else if(stepSubs.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> • Subcategories`; }
-      else{ pickCrumb.innerHTML = `<b>Categories</b>`; }
-    }
-    document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
-    document.getElementById("catsDock").addEventListener("click", ()=>openPicker("cats"));
-    document.getElementById("inviteBtn").addEventListener("click", async ()=>{
-      const url = location.origin + location.pathname + "?room=" + encodeURIComponent(state.room);
-      try{
-        if(navigator.share){ await navigator.share({ title:"Join my Battle Room", url }); }
-        else{ await navigator.clipboard?.writeText(url); alert("Invite link copied:\n"+url); }
-      }catch{}
-    });
-    document.getElementById("pickClose").addEventListener("click", closePicker);
-    document.getElementById("pickBack").addEventListener("click", ()=>{
-      if(stepSubs.style.display==="block" || stepRap.style.display==="block" || stepOther.style.display==="block"){ showStep("cats"); updatePickCrumb(); }
-      else closePicker();
-    });
-    document.getElementById("subsBack").addEventListener("click", ()=>{ showStep("cats"); updatePickCrumb(); });
-    document.getElementById("rapSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
-    document.getElementById("otherSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
-
-    stepCats.querySelectorAll("button[data-cat]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        state.category = btn.dataset.cat; state.subcategory = null; setCrumb();
-        subsTitle.textContent = `${state.category} — Subcategories`;
-        const items = CAT_SUBS[state.category] || [];
-        subsList.innerHTML = items.map(name=>`
-          <article class="card">
-            <h4>${name}</h4>
-            <p>Tap to use</p>
-            <button class="btn small" data-sub="${name}">Select</button>
-          </article>
-        `).join("");
-        subsList.querySelectorAll("button[data-sub]").forEach(b=>{
-          b.addEventListener("click", ()=>{
-            state.subcategory = b.dataset.sub; setCrumb();
-            if(state.category==="Rap"){ showStep("rap"); updatePickCrumb(); }
-            else{ document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`; showStep("other"); updatePickCrumb(); }
-          });
-        });
-        showStep("subs"); updatePickCrumb();
-      });
-    });
-
-    const rapLen = document.getElementById("rapLen");
-    const rapLenVal = document.getElementById("rapLenVal");
-    rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
-
-    document.getElementById("rapApply").addEventListener("click", ()=>{
-      state.rap.style  = document.getElementById("rapStyle").value;
-      state.rap.length = parseInt(document.getElementById("rapLen").value,10);
-      state.rap.rounds = parseInt(document.getElementById("rapRounds").value,10);
-      state.rap.beat   = document.getElementById("rapBeat").value;
-      state.rap.word   = document.getElementById("rapWord").value;
-      state.rap.filter = document.getElementById("rapFilter").value;
-      const file = document.getElementById("rapBeatFile").files?.[0] || null;
-      state.rap.beatFile = file ? file.name : null;
-
-      // Apply selection to hints
-      applySelection();
-
-      // Set rounds + timer from rap setup
-      state.totalRounds = state.rap.rounds;
-      state.currentRound = 1;
-      setRoundsUI();
-      setTimer(state.rap.length);
-
-      closePicker();
-    });
-
-    document.getElementById("otherApply").addEventListener("click", ()=>{
-      applySelection(); closePicker();
-    });
-
-    function applySelection(){
-      const aHint = document.getElementById("aHint");
-      const bHint = document.getElementById("bHint");
-      let details = `${state.category||'—'} • ${state.subcategory||''}`;
-      if(state.category==="Rap"){
-        details += ` • ${state.rap.style} • ${state.rap.rounds}R/${state.rap.length}s • Beat: ${state.rap.beat}${state.rap.beatFile?` (${state.rap.beatFile})`:''}`;
-      }
-      aHint.textContent = details;
-      bHint.textContent = "Opponent sees: " + details;
-    }
-
-    // Open picker initially for quick setup on mobile
-    openPicker("cats");
-
-    // Keyboard shortcuts (desktop): Space = Start/Pause, R = Reset
-    document.addEventListener('keydown', (e)=>{
-      if(e.code==='Space'){ e.preventDefault(); if(state.running) pauseBattle(); else startBattle(); }
-      if(e.key?.toLowerCase?.()==='r'){ resetBattle(); }
-    });
+    const H = document.getElementById('header');
+    const setHeadVar = ()=> document.documentElement.style.setProperty('--header-h', H.offsetHeight+'px');
+    setHeadVar(); addEventListener('resize', setHeadVar, {passive:true});
   </script>
+
+  <!-- All wiring, timer, media, categories -->
+  <script type="module" src="arena-webrtc.js"></script>
 </body>
 </html>
