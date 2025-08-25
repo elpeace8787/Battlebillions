@@ -1,706 +1,689 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Arena — Battle Stage</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
-<style>
-  :root{
-    --ink:#eaeaea; --muted:#b8b8b8;
-    --gold:#ffd700; --cyan:#47f5ff; --pink:#ff4c6a;
-    --bg:#000; --glass:rgba(255,255,255,.08);
-    --accent:#ffd700;
-    --safe-top:max(10px, env(safe-area-inset-top));
-    --safe-bottom:max(14px, env(safe-area-inset-bottom));
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:#000;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  *::-webkit-scrollbar{width:0;height:0;display:none}
-  *{scrollbar-width:none}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Arena — Battle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#f2f2f2; --muted:#bfc7cf; --gold:#ffd700; --glass:rgba(255,255,255,.06);
+      --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
+      --pad:clamp(10px, 3vw, 24px);
+      --accent:#6ee7ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 
-  /* Background */
-  body::before{
-    content:""; position:fixed; inset:-10%; z-index:0; pointer-events:none;
-    background:
-      radial-gradient(1200px 900px at 25% 10%, rgba(255,215,0,.05), transparent 60%),
-      radial-gradient(900px 700px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
-      radial-gradient(1200px 1000px at 50% 90%, rgba(159,123,255,.05), transparent 70%);
-    filter:blur(2px);
-  }
-  #bg3d{position:fixed; inset:0; width:100%; height:100%; display:block; z-index:0; pointer-events:none; background:radial-gradient(1200px 900px at 20% 10%, #0b0b0d 0%, #000 70%);}
+    /* Header */
+    .header{
+      position:sticky; top:0; z-index:10;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:10px var(--pad);
+      background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.4));
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--edge);
+    }
+    .h-left{display:flex; align-items:center; gap:10px}
+    .btn{
+      border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
+      border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer;
+      transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
+    .btn.ghost{background:transparent}
+    .crumb{font-size:13px; color:var(--muted)}
+    .crumb b{color:var(--ink)}
+    .statusDot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
+    .latency{font-size:12px;color:var(--muted)}
+    .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
+    .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 
-  .page{position:relative; z-index:1; min-height:100dvh; padding:
-    calc(var(--safe-top) + 8px) clamp(12px,4vw,28px) calc(var(--safe-bottom) + 14px);}
+    /* Arena split */
+    .arena{
+      padding:10px var(--pad) calc(var(--pad) + 72px);
+      display:grid; grid-template-columns: 1fr 1fr; gap:12px;
+    }
+    @media (max-width: 920px){
+      .arena{ grid-template-columns: 1fr; }
+    }
 
-  /* Header: left Back, center match info, right status */
-  .header{
-    display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
-    margin-bottom:10px;
-  }
-  .iconbtn{
-    border:none; background:rgba(255,255,255,.08); color:var(--ink);
-    border-radius:12px; padding:10px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
-  }
-  .iconbtn:active{transform:translateY(1px)}
-  .iconbtn svg{width:18px;height:18px}
-  .match{
-    display:flex; flex-direction:column; gap:2px; text-align:center;
-    font-family:'Orbitron',sans-serif;
-  }
-  .match .row1{ font-weight:800; letter-spacing:.4px; text-transform:uppercase; font-size:14px;
-    background:
-      linear-gradient(120deg, rgba(255,255,255,.18), rgba(255,255,255,0) 20% 80%, rgba(255,255,255,.18)),
-      linear-gradient(180deg, #f2f2f2 0%, #c7c7c7 38%, #9d9d9d 56%, #f0f0f0 86%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    text-shadow:0 4px 24px rgba(255,215,0,.12);
-  }
-  .match .row2{ font-size:12px; color:#cfefff }
+    .side{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--edge); border-radius:16px; overflow:hidden;
+      display:grid; grid-template-rows: auto 1fr auto; min-height: 52vh;
+    }
+    .side header{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:10px; border-bottom:1px solid var(--edge);
+      background:linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.2));
+    }
+    .who{display:flex; align-items:center; gap:10px}
+    .tag{font-size:12px; color:#9adfff; background:rgba(154,223,255,.12); border:1px solid rgba(154,223,255,.25); padding:4px 8px; border-radius:999px}
+    .liveTag{font-size:11px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); padding:4px 8px; border-radius:999px; font-weight:800}
 
-  .statusRow{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;}
-  .pill{
-    display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px;
-    background:rgba(255,255,255,.08); font-size:12px; color:#d6fffd;
-  }
-  .dot{width:8px;height:8px;border-radius:50%}
-  .dot.green{ background:#49f58b } .dot.yellow{ background:#ffe36b } .dot.red{ background:#ff6b6b }
+    /* ===== Vertical (portrait) screens ===== */
+    .videoWrap{
+      position:relative; background:#000; display:grid; place-items:center; overflow:hidden;
+      aspect-ratio: 9 / 16; /* switch to portrait */
+      width: min(92%, 420px);       /* keep a nice column width on desktop */
+      max-height: 72vh;             /* never taller than viewport */
+      margin: 10px auto;            /* center within side */
+      border-radius: 16px;
+      box-shadow: 0 12px 38px rgba(0,0,0,.45);
+      border: 1px solid #171717;
+    }
+    /* On small screens, allow full width */
+    @media (max-width: 920px){
+      .videoWrap{ width: 100%; max-height: 70vh; }
+    }
 
-  /* Category button */
-  .topbar{
-    display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:6px 0 2px;
-  }
-  .btn{
-    border:none; cursor:pointer; border-radius:12px; padding:10px 14px; font-weight:800;
-    color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); box-shadow:0 8px 22px rgba(255,215,0,.2);
-  }
-  .btn.ghost{color:#bfefff; background:rgba(255,255,255,.08)}
+    .videoWrap video, .videoWrap .ph{
+      width:100%; height:100%; object-fit:cover;
+    }
+    .ph{
+      display:grid; place-items:center; color:#8a8a8a; font-size:12px;
+      background:linear-gradient(180deg,#060606,#0b0b0c)
+    }
 
-  /* Stage: oblique side-by-side */
-  .stage{
-    margin-top:8px;
-    display:grid; grid-template-columns:1fr 1fr; gap:14px;
-  }
-  @media(max-width:980px){ .stage{ grid-template-columns:1fr } }
+    .overlay{
+      position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:8px; pointer-events:none;
+    }
+    .bottomOverlay{
+      position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:8px; pointer-events:none;
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.45));
+    }
 
-  .videoOuter{
-    position:relative;
-    padding:16px;
-    perspective:2000px;
-    transform-style:preserve-3d;
-    background:rgba(255,255,255,.05);
-    border-radius:18px;
-    box-shadow:0 14px 44px rgba(0,0,0,.35);
-  }
-  .videoWrap{
-    position:relative;
-    background:#000;
-    display:grid; place-items:center;
-    overflow:hidden;
-    aspect-ratio:16/9; width:100%;
-    border-radius:16px;
-    box-shadow:0 0 40px rgba(0,0,0,.6), inset 0 0 40px rgba(255,215,0,.1);
-    transform-style:preserve-3d;
-  }
-  .oblique-left .videoWrap{  transform: rotateY(-18deg) translateZ(40px) scale(.96); }
-  .oblique-right .videoWrap{ transform: rotateY(18deg)  translateZ(40px) scale(.96); }
-  @media(max-width:980px){
-    .oblique-left .videoWrap{  transform: rotateY(-12deg) translateZ(20px) scale(.98); }
-    .oblique-right .videoWrap{ transform: rotateY(12deg)  translateZ(20px) scale(.98); }
-  }
-  @media(max-width:560px){
-    .oblique-left .videoWrap{  transform: rotateY(-8deg) translateZ(10px) }
-    .oblique-right .videoWrap{ transform: rotateY(8deg)  translateZ(10px) }
-  }
+    /* Slimmer meters for portrait */
+    .meter{
+      height:6px; width:72px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
+      box-shadow:inset 0 0 0 1px #0a0a0a;
+    }
+    .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
 
-  video{width:100%;height:100%;object-fit:cover;transform:translateZ(0)}
-  .nameTag{
-    position:absolute; left:10px; top:10px; z-index:2;
-    font-family:'Orbitron',sans-serif; font-weight:800; font-size:12px; letter-spacing:.4px;
-    background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; padding:6px 10px; border-radius:999px;
-    box-shadow:0 8px 22px rgba(255,215,0,.2);
-  }
-  .meter{
-    position:absolute; right:10px; top:10px; display:flex; gap:3px; z-index:2;
-  }
-  .bar{width:3px; height:18px; background:rgba(255,255,255,.18); border-radius:2px; overflow:hidden}
-  .bar>span{display:block; width:100%; height:0%; background:linear-gradient(180deg,#7cff8b,#00d46b)}
-  .controls{
-    margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;
-  }
-  .select{
-    width:100%; background:rgba(255,255,255,.07); color:var(--ink);
-    border:0; border-radius:12px; padding:10px 12px;
-  }
-  .rowBtns{ display:flex; gap:8px; flex-wrap:wrap }
-  .chip{
-    border:none; cursor:pointer; border-radius:999px; padding:8px 12px; font-weight:700; font-size:12px;
-    color:#111; background:linear-gradient(180deg,#dff9ff,#7ff3ff); box-shadow:0 8px 22px rgba(127,243,255,.2);
-  }
-  .chip.ghost{ color:#bfefff; background:rgba(255,255,255,.08) }
-  .chip.danger{ color:#fff; background:linear-gradient(180deg,#ff9aa9,#ff4c6a) }
+    .controls{
+      display:flex; gap:8px; flex-wrap:wrap; padding:10px; border-top:1px solid var(--edge);
+      background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.5));
+    }
+    .pill{
+      border:none; cursor:pointer; padding:8px 12px; border-radius:10px; font-weight:700; font-size:12px;
+      background:#121214; color:#e8f3ff; border:1px solid #2a2a2a;
+    }
+    .pill.primary{ background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; border-color:transparent }
+    .pill.warn{ background:#241306; color:#ffd699; border-color:#3b260e }
+    .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
+    .spacer{flex:1}
 
-  /* Global control row */
-  .roundRow{
-    margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center;
-  }
-  .timer{
-    min-width:120px; text-align:center; font-family:'Orbitron',sans-serif; font-weight:800; font-size:22px;
-    letter-spacing:.6px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
-    padding:10px 14px; border-radius:12px; box-shadow:0 8px 22px rgba(255,215,0,.2);
-  }
-  .inputNum{
-    width:90px; text-align:center; padding:10px 12px; border-radius:12px; border:0; background:rgba(255,255,255,.08); color:var(--ink);
-  }
+    /* Battle HUD (centered) */
+    .hud{
+      position:fixed; left:50%; top:58px; transform:translateX(-50%);
+      z-index:9; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .timer{
+      display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px;
+      background:rgba(0,0,0,.6); border:1px solid #1f1f1f; backdrop-filter: blur(6px);
+      font-weight:800;
+    }
+    .timeNum{font-variant-numeric:tabular-nums}
+    .bar{position:relative; width:220px; height:8px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
+    .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a)}
+    .pulse{width:14px;height:14px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
+    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
 
-  /* Category picker (overlay) */
-  .sheet{
-    position:fixed; inset:0; background:rgba(0,0,0,.65); display:none; align-items:flex-end; justify-content:center; z-index:30;
-  }
-  .sheet.visible{ display:flex }
-  .panelSheet{
-    width:min(100%, 720px); max-height:78vh; overflow:auto;
-    background:rgba(18,18,22,.9); backdrop-filter: blur(14px);
-    border-radius:16px 16px 0 0; padding:16px;
-    box-shadow:0 -20px 50px rgba(0,0,0,.4);
-  }
-  .sheetHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px }
-  .sheetTitle{ font-family:'Orbitron',sans-serif; font-weight:800; letter-spacing:.4px }
-  .gridCats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px }
-  @media(max-width:700px){ .gridCats{ grid-template-columns:repeat(2,1fr) } }
-  .cardCat{
-    background:rgba(255,255,255,.06); border-radius:14px; padding:12px; cursor:pointer; text-align:center; user-select:none;
-  }
-  .cardCat:hover{ filter:brightness(1.05) }
-  .subList{ display:grid; gap:8px; }
-  .backRow{ display:flex; gap:8px; margin-bottom:10px }
-</style>
+    /* Footer dock */
+    .dock{
+      position:fixed; left:0; right:0; bottom:0; z-index:9;
+      display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+      padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));
+      background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
+    }
+    .dock .btn{min-width:140px}
+
+    /* Category picker overlay */
+    .overlayWrap{
+      position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20;
+    }
+    .overlayWrap.show{display:flex}
+    .sheet{
+      width:min(880px, 92vw); max-height:86vh; overflow:auto;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--edge); border-radius:18px; padding:14px;
+      box-shadow:0 0 60px rgba(0,0,0,.5);
+    }
+    .sheet header{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 4px 12px; border-bottom:1px solid var(--edge) }
+    .list{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:12px }
+    @media (max-width:760px){ .list{ grid-template-columns: 1fr 1fr } }
+    @media (max-width:480px){ .list{ grid-template-columns: 1fr } }
+    .card{
+      padding:12px; border-radius:14px; background:var(--glass); border:1px solid var(--edge);
+      display:grid; gap:6px;
+    }
+    .card h4{margin:0; font-size:14px}
+    .card p{margin:0; font-size:12px; color:var(--muted)}
+    .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .input, select{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
+    }
+    .rangeRow{display:flex; align-items:center; gap:8px}
+    .rangeRow input[type="range"]{flex:1}
+    .help{font-size:12px; color:var(--muted)}
+    .crumbbar{font-size:12px; color:var(--muted)}
+    .crumbbar b{color:#e7f7ff}
+    .divider{height:1px; background:#222; margin:8px 0}
+  </style>
 </head>
 <body>
-<canvas id="bg3d"></canvas>
-
-<div class="page">
-  <!-- Header -->
+  <!-- Header: Back • Breadcrumb • Room/Latency + Start -->
   <div class="header">
-    <button id="backBtn" class="iconbtn" title="Back">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 19.5 8 12l7.5-7.5 1.5 1.5L11 12l6 6z"/></svg>
-      Back
-    </button>
-
-    <div class="match">
-      <div id="matchTitle" class="row1">Select Category</div>
-      <div id="matchSubtitle" class="row2">No sub-category selected</div>
+    <div class="h-left">
+      <button id="backBtn" class="btn small">← Back</button>
+      <div class="crumb" id="crumb"><b>Select Category</b></div>
     </div>
-
-    <div class="statusRow">
-      <span class="pill" id="connPill"><span class="dot green" id="connDot"></span><span id="connTxt">Good</span></span>
-      <span class="pill"><svg viewBox="0 0 24 24" style="width:14px;height:14px"><path fill="currentColor" d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg> Round 1</span>
+    <div class="controlsHeader">
+      <span class="latency"><span class="statusDot" id="netDot"></span><span id="latVal">22ms</span></span>
+      <span class="room" id="roomCode">Room: 4X9-QQA</span>
+      <button class="btn small" id="startBtn" disabled>Start Battle</button>
+      <button class="btn small ghost" id="pauseBtn" disabled>Pause</button>
+      <button class="btn small ghost" id="resetBtn" disabled>Reset</button>
     </div>
   </div>
 
-  <!-- Topbar -->
-  <div class="topbar">
-    <button class="btn" id="pickCategoryBtn">Choose Category</button>
-    <button class="btn ghost" id="swapBtn">Swap Sides</button>
+  <!-- Battle HUD -->
+  <div class="hud">
+    <div class="timer">
+      <span class="pulse" id="beatDot" title="Beat pulse"></span>
+      <span id="timeLeft" class="timeNum">01:00</span>
+      <div class="bar"><span id="barFill"></span></div>
+    </div>
   </div>
 
-  <!-- Stage: two slanted screens -->
-  <div class="stage">
-    <!-- LEFT Competitor -->
-    <section id="left" class="videoOuter oblique-left">
-      <div class="videoWrap">
-        <span class="nameTag" id="nameL">You</span>
-        <div class="meter" aria-hidden="true">
-          <div class="bar"><span id="lvlL1"></span></div>
-          <div class="bar"><span id="lvlL2"></span></div>
-          <div class="bar"><span id="lvlL3"></span></div>
-          <div class="bar"><span id="lvlL4"></span></div>
-          <div class="bar"><span id="lvlL5"></span></div>
+  <!-- Split Arena -->
+  <main class="arena" id="arena">
+    <!-- Competitor A -->
+    <section class="side" id="sideA">
+      <header>
+        <div class="who">
+          <span class="tag">Competitor A</span>
+          <span id="aName" class="help">@you</span>
         </div>
-        <video id="videoL" playsinline autoplay muted></video>
+        <span class="liveTag" id="aState">Idle</span>
+      </header>
+      <div class="videoWrap" id="aVideoWrap">
+        <div class="ph">Camera off — tap “Camera”</div>
+        <div class="overlay">
+          <div></div>
+          <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
+        </div>
+        <div class="bottomOverlay">
+          <div class="meter"><span id="aMicLevel"></span></div>
+          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="aFullscreen">Fullscreen</button></div>
+        </div>
       </div>
-
       <div class="controls">
-        <select id="camSelectL" class="select" title="Camera (Left)"></select>
-        <select id="micSelectL" class="select" title="Microphone (Left)"></select>
-        <div class="rowBtns">
-          <button class="chip" id="mirrorL">Mirror</button>
-          <button class="chip" id="fsL">Fullscreen</button>
-          <button class="chip ghost" id="muteL">Mute</button>
-        </div>
+        <button class="pill" id="aCamera">Camera</button>
+        <button class="pill" id="aMic">Mic</button>
+        <button class="pill" id="aSwitch">Switch</button>
+        <button class="pill" id="aUpload">Upload</button>
+        <div class="spacer"></div>
+        <button class="pill primary" id="aReady">Ready</button>
+        <button class="pill red" id="aConcede">Concede</button>
       </div>
     </section>
 
-    <!-- RIGHT Competitor -->
-    <section id="right" class="videoOuter oblique-right">
-      <div class="videoWrap">
-        <span class="nameTag" id="nameR">Opponent</span>
-        <div class="meter" aria-hidden="true">
-          <div class="bar"><span id="lvlR1"></span></div>
-          <div class="bar"><span id="lvlR2"></span></div>
-          <div class="bar"><span id="lvlR3"></span></div>
-          <div class="bar"><span id="lvlR4"></span></div>
-          <div class="bar"><span id="lvlR5"></span></div>
+    <!-- Competitor B -->
+    <section class="side" id="sideB">
+      <header>
+        <div class="who">
+          <span class="tag">Competitor B</span>
+          <span id="bName" class="help">@opponent</span>
         </div>
-        <video id="videoR" playsinline autoplay muted></video>
+        <span class="liveTag" id="bState">Idle</span>
+      </header>
+      <div class="videoWrap" id="bVideoWrap">
+        <div class="ph">Waiting for opponent…</div>
+        <div class="overlay">
+          <div></div>
+          <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
+        </div>
+        <div class="bottomOverlay">
+          <div class="meter"><span id="bMicLevel"></span></div>
+          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="bFullscreen">Fullscreen</button></div>
+        </div>
       </div>
-
       <div class="controls">
-        <select id="camSelectR" class="select" title="Camera (Right)"></select>
-        <select id="micSelectR" class="select" title="Microphone (Right)"></select>
-        <div class="rowBtns">
-          <button class="chip" id="mirrorR">Mirror</button>
-          <button class="chip" id="fsR">Fullscreen</button>
-          <button class="chip ghost" id="muteR">Mute</button>
-        </div>
+        <button class="pill" id="bMute">Mute</button>
+        <button class="pill" id="bSwap">Swap Sides</button>
+        <div class="spacer"></div>
+        <button class="pill warn" id="rulesBtn">Rules</button>
+        <button class="pill" id="catsBtn">Categories</button>
       </div>
     </section>
+  </main>
+
+  <!-- Bottom Dock -->
+  <div class="dock">
+    <button class="btn" id="catsDock">Choose Category</button>
+    <button class="btn ghost" id="inviteBtn">Invite Opponent</button>
+    <!-- “Copy Room” removed -->
   </div>
 
-  <!-- Round controller -->
-  <div class="roundRow">
-    <div class="timer" id="timer">00:00</div>
-    <input id="roundMins" class="inputNum" type="number" min="0" value="2" title="Minutes"/>
-    <input id="roundSecs" class="inputNum" type="number" min="0" max="59" value="0" title="Seconds"/>
-    <button class="btn" id="countdownBtn">Countdown 3</button>
-    <button class="btn" id="startBtn">Start</button>
-    <button class="btn ghost" id="pauseBtn">Pause</button>
-    <button class="btn ghost" id="resumeBtn">Resume</button>
-    <button class="btn danger" id="resetBtn">Reset</button>
-  </div>
-</div>
+  <!-- Category Picker (overlay) -->
+  <div class="overlayWrap" id="picker">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+      <header>
+        <div class="crumbbar" id="pickCrumb"><b>Categories</b></div>
+        <div class="row">
+          <button class="btn small ghost" id="pickBack">← Back</button>
+          <button class="btn small" id="pickClose">Close</button>
+        </div>
+      </header>
 
-<!-- Category Sheet -->
-<div id="sheet" class="sheet" aria-modal="true" role="dialog" aria-hidden="true">
-  <div class="panelSheet">
-    <div class="sheetHead">
-      <div class="backRow">
-        <button class="iconbtn" id="sheetBack" style="display:none">
-          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 19.5 8 12l7.5-7.5 1.5 1.5L11 12l6 6z"/></svg>
-          Back
-        </button>
-      </div>
-      <div class="sheetTitle" id="sheetTitle">Select Category</div>
-      <button class="iconbtn" id="sheetClose">Close</button>
+      <!-- Step 1: Categories -->
+      <section id="stepCats">
+        <div class="list">
+          <article class="card"><h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p><button class="btn small" data-cat="Rap">Select</button></article>
+          <article class="card"><h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p><button class="btn small" data-cat="Art">Select</button></article>
+          <article class="card"><h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p><button class="btn small" data-cat="Instruments">Select</button></article>
+          <article class="card"><h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p><button class="btn small" data-cat="Comedy">Select</button></article>
+          <article class="card"><h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p><button class="btn small" data-cat="Dance">Select</button></article>
+          <article class="card"><h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p><button class="btn small" data-cat="Fashion">Select</button></article>
+        </div>
+      </section>
+
+      <!-- Step 2: Subcategories -->
+      <section id="stepSubs" style="display:none">
+        <div class="row" style="justify-content:space-between; align-items:center">
+          <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
+          <button class="btn small ghost" id="subsBack">← Categories</button>
+        </div>
+        <div id="subsList" class="list"></div>
+      </section>
+
+      <!-- Step 3 (Rap example): Setup -->
+      <section id="stepRapSetup" style="display:none">
+        <h4 style="margin:8px 0">Rap Battle Setup</h4>
+        <p class="help" style="margin:0 0 8px">Rap has unique settings. Use this as the pattern for other categories.</p>
+        <div class="card">
+          <div class="row">
+            <label style="font-size:12px; color:var(--muted)">Style</label>
+            <select id="rapStyle" class="input">
+              <option value="freestyle">Freestyle</option>
+              <option value="written">Written</option>
+              <option value="cypher">Cypher</option>
+              <option value="wordplay">Wordplay</option>
+            </select>
+          </div>
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Round Length</label>
+              <div class="rangeRow">
+                <input id="rapLen" type="range" min="30" max="180" step="15" value="60"/>
+                <span id="rapLenVal" class="help">60s</span>
+              </div>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Rounds</label>
+              <select id="rapRounds" class="input"><option>1</option><option selected>3</option><option>5</option></select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Beat</label>
+              <select id="rapBeat" class="input">
+                <option value="acapella">Acapella</option>
+                <option value="trap_92">Trap 92bpm</option>
+                <option value="boom_88">Boom-bap 88bpm</option>
+                <option value="drill_140">Drill 140bpm</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Upload Beat (optional)</label>
+              <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
+              <select id="rapWord" class="input">
+                <option value="none">None</option>
+                <option value="must_use_3">Must use 3 prompts</option>
+                <option value="random_topic">Random topic</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Profanity Filter</label>
+              <select id="rapFilter" class="input">
+                <option value="off">Off</option>
+                <option value="light">Light</option>
+                <option value="strict">Strict</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn small ghost" id="rapSetupBack">← Subcategories</button>
+            <button class="btn small" id="rapApply">Apply & Use</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Placeholder for other categories -->
+      <section id="stepOtherSetup" style="display:none">
+        <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
+        <p class="help">Add unique controls here for this category (e.g., canvas size for Art, tempo for Dance). For now it just confirms selection.</p>
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn small ghost" id="otherSetupBack">← Subcategories</button>
+          <button class="btn small" id="otherApply">Apply & Use</button>
+        </div>
+      </section>
     </div>
-
-    <!-- Level 1: categories -->
-    <div id="catLevel" class="gridCats">
-      <!-- 6 categories -->
-      <div class="cardCat" data-cat="Rap">Rap</div>
-      <div class="cardCat" data-cat="Art">Art</div>
-      <div class="cardCat" data-cat="Instruments">Instruments</div>
-      <div class="cardCat" data-cat="Comedy">Comedy</div>
-      <div class="cardCat" data-cat="Dance">Dance</div>
-      <div class="cardCat" data-cat="Fashion">Fashion</div>
-    </div>
-
-    <!-- Level 2: subcategories (dynamic) -->
-    <div id="subLevel" class="subList" style="display:none"></div>
   </div>
-</div>
 
-<!-- Three.js (background embellishment) -->
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-<script>
-/* ========= Simple ambient embers (perf-light) ========= */
-(function(){
-  const canvas=document.createElement('canvas');
-  canvas.id='bg3d'; document.body.prepend(canvas);
-  let ok=false; try{ ok=!!(canvas.getContext('webgl')||canvas.getContext('experimental-webgl')); }catch(e){ ok=false; }
-  if(!ok) return;
-  const DPR_LIMIT=1.75, reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:false,powerPreference:'high-performance'});
-  renderer.setClearColor(0x000000,0);
-  const scene=new THREE.Scene();
-  let width=innerWidth, height=innerHeight;
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT)); renderer.setSize(width,height,false);
-  const camera=new THREE.PerspectiveCamera(55,width/height,0.1,3000); camera.position.set(0,0,140);
-  const hemi=new THREE.HemisphereLight(0x888888,0x080808,0.9);
-  const dir =new THREE.DirectionalLight(0xffe7a4,0.7); dir.position.set(60,80,120); scene.add(hemi,dir);
+  <script>
+    /***** Simple state *****/
+    const state = {
+      room: (localStorage.getItem("bb_room") || "4X9-QQA"),
+      category: null,
+      subcategory: null,
+      rap: { style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null },
+      readyA:false, readyB:false,
+      running:false, timeLeft:60, total:60, tick:null
+    };
 
-  function sprite(){ const s=128,c=document.createElement('canvas'); c.width=c.height=s; const g=c.getContext('2d'), grd=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2); grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.35,'rgba(255,255,255,0.35)'); grd.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=grd; g.fillRect(0,0,s,s); const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; return tex;}
-  const tex=sprite();
-  const COUNT=reduced?250:500;
-  const g=new THREE.BufferGeometry();
-  const pos=new Float32Array(COUNT*3), col=new Float32Array(COUNT*3);
-  for(let i=0;i<COUNT;i++){
-    pos[i*3+0]=(Math.random()-0.5)*460;
-    pos[i*3+1]=(Math.random()-0.5)*280;
-    pos[i*3+2]=-60 - Math.random()*180;
-    const t=Math.random()*0.5+0.35;
-    col[i*3+0]=t; col[i*3+1]=t*0.9; col[i*3+2]=t*0.85;
-  }
-  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  g.setAttribute('color',new THREE.BufferAttribute(col,3));
-  const m=new THREE.PointsMaterial({ size:reduced?1.6:2.4, map:tex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
-  const p=new THREE.Points(g,m); p.frustumCulled=false; p.userData={t:0};
-  scene.add(p);
+    /***** Header wires *****/
+    document.getElementById("roomCode").textContent = "Room: " + state.room;
+    const crumbEl = document.getElementById("crumb");
+    function setCrumb(){
+      if(!state.category) crumbEl.innerHTML = "<b>Select Category</b>";
+      else if(!state.subcategory) crumbEl.innerHTML = `<b>${state.category}</b> • choose subcategory`;
+      else crumbEl.innerHTML = `<b>${state.category}</b> → ${state.subcategory}`;
+    }
+    setCrumb();
 
-  function loop(now){
-    p.userData.t += 0.0015;
-    p.position.y = Math.sin(p.userData.t*8)*1.4;
-    p.rotation.z += 0.0008;
-    camera.lookAt(0,0,0);
-    renderer.render(scene,camera);
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-  addEventListener('resize', ()=>{ width=innerWidth;height=innerHeight; renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT)); renderer.setSize(width,height,false); camera.aspect=width/height; camera.updateProjectionMatrix(); }, {passive:true});
-})();
-</script>
+    // Back button: from Arena goes to categories
+    document.getElementById("backBtn").addEventListener("click", ()=> openPicker("cats"));
 
-<script>
-/* ============================================================
-   CATEGORY & SUBCATEGORY PICKER
-   (Rap has an extra setup step style that you can mirror per cat)
-============================================================ */
-const CATEGORIES = {
-  Rap: [
-    "Freestyle — Acapella",
-    "Freestyle — Beat",
-    "Written — Acapella",
-    "Written — Beat",
-    "Word Challenge",
-    "Topic Prompt"
-  ],
-  Art: [
-    "Sketch Speedrun",
-    "Digital Live Paint",
-    "3D Speed Model",
-    "Graffiti Board",
-    "Charcoal Portrait",
-    "Abstract Theme"
-  ],
-  Instruments: [
-    "Guitar Riff Duel",
-    "Piano Improv",
-    "Drum Rudiments",
-    "Violin Piece",
-    "Bass Groove",
-    "Sax Solo"
-  ],
-  Comedy: [
-    "One-Liners",
-    "Story Set",
-    "Roast Exchange",
-    "Impressions",
-    "Crowd Work",
-    "Sketch Scene"
-  ],
-  Dance: [
-    "Choreography",
-    "Freestyle",
-    "Locking/Popping",
-    "Breaking",
-    "Krump",
-    "House"
-  ],
-  Fashion: [
-    "Style Build (3 fits)",
-    "Thrift Flip",
-    "Theme Runway",
-    "Streetwear Mix",
-    "Formal Remix",
-    "Avant-Garde"
-  ]
-};
+    // Latency pulse (fake)
+    const latVal = document.getElementById("latVal");
+    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
 
-const sheet = document.getElementById('sheet');
-const catLevel = document.getElementById('catLevel');
-const subLevel = document.getElementById('subLevel');
-const sheetTitle = document.getElementById('sheetTitle');
-const sheetBack = document.getElementById('sheetBack');
-const sheetClose = document.getElementById('sheetClose');
-const pickCategoryBtn = document.getElementById('pickCategoryBtn');
-const matchTitle = document.getElementById('matchTitle');
-const matchSubtitle = document.getElementById('matchSubtitle');
+    /***** Arena controls (stubs) *****/
+    const aState = document.getElementById("aState");
+    const bState = document.getElementById("bState");
 
-let currentCategory = null;
-let currentSub = null;
+    document.getElementById("aReady").addEventListener("click", ()=>{
+      state.readyA = !state.readyA;
+      aState.textContent = state.readyA ? "Ready" : "Idle";
+      maybeEnableStart();
+    });
+    document.getElementById("aConcede").addEventListener("click", ()=>{
+      state.readyA=false; aState.textContent="Conceded"; disableStart();
+    });
+    document.getElementById("bSwap").addEventListener("click", ()=>{
+      const aName = document.getElementById("aName");
+      const bName = document.getElementById("bName");
+      [aName.textContent, bName.textContent] = [bName.textContent, aName.textContent];
+    });
+    document.getElementById("rulesBtn").addEventListener("click", ()=>{
+      alert(`Rules for ${state.category||"—"} ${state.subcategory?("• "+state.subcategory):""}\n\n• No outside help\n• Stay within time\n• Follow platform conduct`);
+    });
 
-pickCategoryBtn.addEventListener('click', () => {
-  openSheet();
-});
-sheetClose.addEventListener('click', closeSheet);
-sheet.addEventListener('click', (e)=>{ if(e.target===sheet) closeSheet(); });
+    // Fullscreen buttons
+    function fs(el){ if(el.requestFullscreen) el.requestFullscreen(); }
+    document.getElementById("aFullscreen").addEventListener("click", ()=> fs(document.getElementById("aVideoWrap")));
+    document.getElementById("bFullscreen").addEventListener("click", ()=> fs(document.getElementById("bVideoWrap")));
 
-function openSheet(){
-  sheet.classList.add('visible');
-  sheet.setAttribute('aria-hidden','false');
-  sheetBack.style.display = 'none';
-  subLevel.style.display = 'none';
-  catLevel.style.display = 'grid';
-  sheetTitle.textContent = 'Select Category';
-}
-function closeSheet(){
-  sheet.classList.remove('visible');
-  sheet.setAttribute('aria-hidden','true');
-}
-sheetBack.addEventListener('click', ()=>{ // back to category grid
-  openSheet();
-});
+    // Mic level (visual only)
+    const aMicBar = document.getElementById("aMicLevel");
+    const bMicBar = document.getElementById("bMicLevel");
+    setInterval(()=>{
+      aMicBar.style.width = (Math.random()*95).toFixed(0)+'%';
+      bMicBar.style.width = (Math.random()*95).toFixed(0)+'%';
+    }, 120);
 
-catLevel.querySelectorAll('.cardCat').forEach(card=>{
-  card.addEventListener('click', ()=>{
-    const cat = card.dataset.cat;
-    currentCategory = cat;
-    // Build sub list
-    const subs = CATEGORIES[cat] || [];
-    subLevel.innerHTML = subs.map(s=>`<button class="btn" data-sub="${s}">${s}</button>`).join('');
-    // Unique per-category UX (example: Rap adds beat/bpm/word prompt setup inline)
-    sheetTitle.textContent = `${cat} — Subcategory`;
-    sheetBack.style.display = 'inline-flex';
-    catLevel.style.display = 'none';
-    subLevel.style.display = 'grid';
+    /***** Battle timer *****/
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const timeLeftEl = document.getElementById("timeLeft");
+    const barFill = document.getElementById("barFill");
+    const beatDot = document.getElementById("beatDot");
 
-    // Attach handlers for sub picks
-    subLevel.querySelectorAll('button').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        currentSub = btn.dataset.sub;
-        applyCategorySelection();
+    function fmt(s){ const m = Math.floor(s/60); const r = s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`; }
+    function setTimer(seconds){
+      state.total = seconds; state.timeLeft = seconds; timeLeftEl.textContent = fmt(seconds); barFill.style.width = '0%';
+    }
+    setTimer(state.rap.length);
 
-        // RAP special: show quick setup toast overlay
-        if(currentCategory === 'Rap'){
-          rapQuickSetup(currentSub);
+    function maybeEnableStart(){
+      startBtn.disabled = !(state.readyA && state.readyB);
+      pauseBtn.disabled = true; resetBtn.disabled = true;
+    }
+    function disableStart(){
+      startBtn.disabled = true; pauseBtn.disabled = true; resetBtn.disabled = true;
+    }
+
+    // Opponent ready (simulate)
+    setTimeout(()=>{ state.readyB = true; bState.textContent = "Ready"; maybeEnableStart(); }, 1200);
+
+    function tick(){
+      if(!state.running) return;
+      state.timeLeft = Math.max(0, state.timeLeft - 1);
+      timeLeftEl.textContent = fmt(state.timeLeft);
+      const pct = 100 - Math.round((state.timeLeft/state.total)*100);
+      barFill.style.width = pct + '%';
+      if(state.timeLeft<=0){ stopBattle(true); }
+    }
+    function startBattle(){
+      if(startBtn.disabled) return;
+      state.running = true; startBtn.disabled = true; pauseBtn.disabled = false; resetBtn.disabled = false;
+      clearInterval(state.tick);
+      state.tick = setInterval(tick, 1000);
+      // beat pulse tempo (rough based on selection)
+      const tempos = { acapella:0, trap_92:92, boom_88:88, drill_140:140 };
+      const sel = state.rap.beat || 'acapella';
+      const bpm = tempos[sel] || 0;
+      if(bpm>0){
+        const ms = Math.max(300, Math.round(60000/bpm));
+        beatDot.style.animationDuration = (ms/1000)+'s';
+      }else{
+        beatDot.style.animationDuration = '1.2s';
+      }
+    }
+    function pauseBattle(){
+      if(!state.running) return;
+      state.running = false; pauseBtn.disabled = true; startBtn.disabled = false;
+      clearInterval(state.tick);
+    }
+    function stopBattle(ended=false){
+      state.running = false; clearInterval(state.tick);
+      startBtn.disabled = ! (state.readyA && state.readyB);
+      pauseBtn.disabled = true; resetBtn.disabled = false;
+      if(ended) alert('Round complete!');
+    }
+    function resetBattle(){
+      stopBattle(false);
+      setTimer(state.rap.length);
+      resetBtn.disabled = true;
+    }
+
+    startBtn.addEventListener("click", startBattle);
+    pauseBtn.addEventListener("click", pauseBattle);
+    resetBtn.addEventListener("click", resetBattle);
+
+    /***** Picker logic *****/
+    const picker = document.getElementById("picker");
+    const stepCats = document.getElementById("stepCats");
+    const stepSubs = document.getElementById("stepSubs");
+    const stepRap = document.getElementById("stepRapSetup");
+    const stepOther = document.getElementById("stepOtherSetup");
+    const pickCrumb = document.getElementById("pickCrumb");
+    const subsTitle = document.getElementById("subsTitle");
+    const subsList = document.getElementById("subsList");
+
+    const CAT_SUBS = {
+      "Rap": ["Freestyle","Written","Cypher","Wordplay"],
+      "Art": ["Sketch","Digital","Graffiti","Speed-paint"],
+      "Instruments": ["Guitar","Piano/Keys","Drums","Strings"],
+      "Comedy": ["Roast","Improv","Skits","One-liners"],
+      "Dance": ["Freestyle","Choreo","Break","Duo"],
+      "Fashion": ["Styled Fit","Runway","Custom Piece"]
+    };
+
+    function openPicker(step="cats"){
+      picker.classList.add("show");
+      showStep(step);
+      updatePickCrumb();
+    }
+    function closePicker(){
+      picker.classList.remove("show");
+      showStep("cats");
+    }
+    function showStep(which){
+      stepCats.style.display = (which==="cats") ? "block" : "none";
+      stepSubs.style.display = (which==="subs") ? "block" : "none";
+      stepRap.style.display  = (which==="rap")  ? "block" : "none";
+      stepOther.style.display= (which==="other")? "block" : "none";
+    }
+    function updatePickCrumb(){
+      if(stepRap.style.display==="block"){
+        pickCrumb.innerHTML = `<b>${state.category}</b> → ${state.subcategory} • Setup`;
+      }else if(stepSubs.style.display==="block"){
+        pickCrumb.innerHTML = `<b>${state.category}</b> • Subcategories`;
+      }else{
+        pickCrumb.innerHTML = `<b>Categories</b>`;
+      }
+    }
+
+    // Openers
+    document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
+    document.getElementById("catsDock").addEventListener("click", ()=>openPicker("cats"));
+
+    // Invite (share link)
+    document.getElementById("inviteBtn").addEventListener("click", async ()=>{
+      const url = location.origin + location.pathname + "?room=" + encodeURIComponent(state.room);
+      try{
+        if(navigator.share){
+          await navigator.share({ title:"Join my Battle Room", url });
+        }else{
+          await navigator.clipboard?.writeText(url);
+          alert("Invite link copied:\n"+url);
         }
+      }catch{}
+    });
 
-        closeSheet();
+    // Close/Back in sheet
+    document.getElementById("pickClose").addEventListener("click", closePicker);
+    document.getElementById("pickBack").addEventListener("click", ()=>{
+      if(stepSubs.style.display==="block" || stepRap.style.display==="block" || stepOther.style.display==="block"){
+        showStep("cats"); updatePickCrumb();
+      }else{
+        closePicker();
+      }
+    });
+    document.getElementById("subsBack").addEventListener("click", ()=>{ showStep("cats"); updatePickCrumb(); });
+    document.getElementById("rapSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
+    document.getElementById("otherSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
+
+    // Category select buttons (Step 1)
+    stepCats.querySelectorAll("button[data-cat]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        state.category = btn.dataset.cat;
+        state.subcategory = null;
+        setCrumb();
+        buildSubs();
+        showStep("subs");
+        updatePickCrumb();
       });
     });
-  });
-});
 
-function applyCategorySelection(){
-  matchTitle.textContent = `${currentCategory} • Arena`;
-  matchSubtitle.textContent = currentSub || '—';
-}
+    // Build Step 2 list
+    function buildSubs(){
+      subsTitle.textContent = `${state.category} — Subcategories`;
+      const items = CAT_SUBS[state.category] || [];
+      subsList.innerHTML = items.map(name=>`
+        <article class="card">
+          <h4>${name}</h4>
+          <p>Tap to use</p>
+          <button class="btn small" data-sub="${name}">Select</button>
+        </article>
+      `).join("");
+      subsList.querySelectorAll("button[data-sub]").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          state.subcategory = b.dataset.sub;
+          setCrumb();
+          if(state.category==="Rap"){
+            showStep("rap"); updatePickCrumb();
+          }else{
+            document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`;
+            showStep("other"); updatePickCrumb();
+          }
+        });
+      });
+    }
 
-/* ========= RAP quick setup example (extend similarly for others) ========= */
-function rapQuickSetup(sub){
-  // Small inline guidance: when beat mode, allow BPM tapper, when word challenge, inject a quick word.
-  if(/Beat/i.test(sub)){
-    // show a beat BPM tap area for 6 seconds as a subtle hint (non-blocking)
-    toast(`Tip: Set a BPM. Tap the timer to mark tempo.`);
-  }else if(/Word Challenge/i.test(sub) || /Topic/i.test(sub)){
-    const words = ["Gravity","Neon","Legacy","Pulse","Cipher","Orbit","Cascade","Voltage"];
-    const w = words[(Math.random()*words.length)|0];
-    toast(`Prompt word: <b>${w}</b>`);
-  }
-}
-function toast(html){
-  const box = document.createElement('div');
-  box.innerHTML = html;
-  Object.assign(box.style,{
-    position:'fixed', left:'50%', top:'18px', transform:'translateX(-50%)',
-    background:'rgba(18,18,22,.92)', color:'#eaeaea', padding:'10px 14px',
-    borderRadius:'12px', zIndex:50, border:'1px solid rgba(255,255,255,.12)',
-    fontSize:'13px', boxShadow:'0 10px 28px rgba(0,0,0,.35)', maxWidth:'90vw'
-  });
-  document.body.appendChild(box);
-  setTimeout(()=>{ box.style.opacity='0'; box.style.transition='opacity .25s'; setTimeout(()=>box.remove(),280); }, 1800);
-}
+    // Rap setup bindings
+    const rapLen = document.getElementById("rapLen");
+    const rapLenVal = document.getElementById("rapLenVal");
+    rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
+    document.getElementById("rapApply").addEventListener("click", ()=>{
+      state.rap.style  = document.getElementById("rapStyle").value;
+      state.rap.length = parseInt(document.getElementById("rapLen").value,10);
+      state.rap.rounds = parseInt(document.getElementById("rapRounds").value,10);
+      state.rap.beat   = document.getElementById("rapBeat").value;
+      state.rap.word   = document.getElementById("rapWord").value;
+      state.rap.filter = document.getElementById("rapFilter").value;
+      const file = document.getElementById("rapBeatFile").files?.[0] || null;
+      state.rap.beatFile = file ? file.name : null;
 
-/* ============================================================
-   BACK BUTTON
-============================================================ */
-document.getElementById('backBtn').addEventListener('click', ()=>{
-  if(history.length>1) history.back(); else window.location.href='home.html';
-});
+      applySelection();
+      // Update timer to chosen round length
+      setTimer(state.rap.length);
+      closePicker();
+    });
 
-/* ============================================================
-   TIMER / ROUND CONTROL
-============================================================ */
-const timerEl = document.getElementById('timer');
-const startBtn = document.getElementById('startBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const resumeBtn = document.getElementById('resumeBtn');
-const resetBtn = document.getElementById('resetBtn');
-const countdownBtn = document.getElementById('countdownBtn');
-const minsEl = document.getElementById('roundMins');
-const secsEl = document.getElementById('roundSecs');
+    // Generic apply for other categories
+    document.getElementById("otherApply").addEventListener("click", ()=>{
+      applySelection();
+      closePicker();
+    });
 
-let countdownId=null, roundId=null, remain=0, paused=false;
+    function applySelection(){
+      const aHint = document.getElementById("aHint");
+      const bHint = document.getElementById("bHint");
+      let details = `${state.category} • ${state.subcategory}`;
+      if(state.category==="Rap"){
+        details += ` • ${state.rap.style} • ${state.rap.rounds}R/${state.rap.length}s • Beat: ${state.rap.beat}${state.rap.beatFile?` (${state.rap.beatFile})`:''}`;
+      }
+      aHint.textContent = details;
+      bHint.textContent = "Opponent sees: " + details;
+    }
 
-function fmt(t){ const m=Math.floor(t/60), s=t%60; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
-function setTimerDisplay(t){ timerEl.textContent = fmt(t); }
-setTimerDisplay(0);
+    // Open picker early so choice is obvious
+    openPicker("cats");
 
-countdownBtn.addEventListener('click', async ()=>{
-  await vib(40);
-  let t=3;
-  const id=setInterval(()=>{
-    timerEl.textContent = t>0 ? `00:0${t}` : "GO!";
-    t--;
-    if(t<0){ clearInterval(id); setTimerDisplay(Number(minsEl.value||0)*60 + Number(secsEl.value||0)); startRound(); }
-  }, 650);
-});
+    // Faux opponent ready after invite
+    document.getElementById("inviteBtn").addEventListener("click", ()=>{
+      setTimeout(()=>{ state.readyB = true; bState.textContent="Ready"; maybeEnableStart(); }, 1500);
+    });
 
-startBtn.addEventListener('click', ()=>{ startRound(); });
-pauseBtn.addEventListener('click', ()=>{ paused=true; });
-resumeBtn.addEventListener('click', ()=>{ paused=false; });
-resetBtn.addEventListener('click', ()=>{
-  clearInterval(roundId);
-  paused=false; roundId=null;
-  setTimerDisplay(0);
-});
-
-function startRound(){
-  clearInterval(roundId);
-  paused=false;
-  remain = Number(minsEl.value||0)*60 + Number(secsEl.value||0);
-  setTimerDisplay(remain);
-  roundId=setInterval(()=>{
-    if(paused) return;
-    remain--; setTimerDisplay(Math.max(0,remain));
-    if(remain<=0){ clearInterval(roundId); vib([60,40,60]); timerEl.textContent="ROUND END"; }
-  }, 1000);
-}
-async function vib(p){ try{ await navigator.vibrate?.(p); }catch{} }
-
-/* ============================================================
-   CAMERA / MIC — ADVANCED LOCAL SETUP (BOTH SIDES)
-   (In prod, swap Right stream with remote WebRTC feed)
-============================================================ */
-const videoL = document.getElementById('videoL');
-const videoR = document.getElementById('videoR');
-const camSelectL = document.getElementById('camSelectL');
-const camSelectR = document.getElementById('camSelectR');
-const micSelectL = document.getElementById('micSelectL');
-const micSelectR = document.getElementById('micSelectR');
-const muteL = document.getElementById('muteL');
-const muteR = document.getElementById('muteR');
-const mirrorL = document.getElementById('mirrorL');
-const mirrorR = document.getElementById('mirrorR');
-const fsL = document.getElementById('fsL');
-const fsR = document.getElementById('fsR');
-const swapBtn = document.getElementById('swapBtn');
-
-let streamL=null, streamR=null, audioCtx=null, anL=null, anR=null, gainNodeL=null, gainNodeR=null, mutedL=false, mutedR=false;
-
-async function listDevices(){
-  const devs = await navigator.mediaDevices.enumerateDevices();
-  const cams = devs.filter(d=>d.kind==='videoinput');
-  const mics = devs.filter(d=>d.kind==='audioinput');
-
-  function fill(sel, items){
-    const v = sel.value;
-    sel.innerHTML = items.map(i=>`<option value="${i.deviceId}">${i.label||i.kind}</option>`).join('');
-    if (items.some(i=>i.deviceId===v)) sel.value=v;
-  }
-  fill(camSelectL, cams); fill(camSelectR, cams);
-  fill(micSelectL, mics); fill(micSelectR, mics);
-}
-
-async function getStream(deviceIdVideo, deviceIdAudio){
-  return await navigator.mediaDevices.getUserMedia({
-    video: deviceIdVideo ? { deviceId: { exact: deviceIdVideo }, width:{ideal:1280}, height:{ideal:720} } : true,
-    audio: deviceIdAudio ? { deviceId: { exact: deviceIdAudio }, echoCancellation:true, noiseSuppression:true } : { echoCancellation:true, noiseSuppression:true }
-  });
-}
-
-function attachAudioMeter(stream, side){
-  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  const src = audioCtx.createMediaStreamSource(stream);
-  const analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
-  const buffer = new Uint8Array(analyser.frequencyBinCount);
-  const gain = audioCtx.createGain(); gain.gain.value = 1.0;
-  src.connect(gain).connect(analyser).connect(audioCtx.destination);
-
-  const ids = side==='L' ? ['lvlL1','lvlL2','lvlL3','lvlL4','lvlL5'] : ['lvlR1','lvlR2','lvlR3','lvlR4','lvlR5'];
-  const els = ids.map(id=>document.getElementById(id));
-
-  function tick(){
-    analyser.getByteFrequencyData(buffer);
-    // quick RMS-ish level
-    let sum=0; for(let i=0;i<buffer.length;i++) sum+=buffer[i]*buffer[i];
-    const rms = Math.sqrt(sum/buffer.length)/255; // 0..1
-    const lvl = Math.min(1, Math.max(0, rms*1.8));
-    const bars = Math.round(lvl*5);
-
-    els.forEach((el,i)=> el.style.height = (i<bars ? (20+ i*16) : 0) + '%');
-    requestAnimationFrame(tick);
-  }
-  tick();
-
-  if(side==='L'){ anL=analyser; gainNodeL=gain; } else { anR=analyser; gainNodeR=gain; }
-}
-
-async function startLeft(){
-  try{
-    if(streamL) streamL.getTracks().forEach(t=>t.stop());
-    streamL = await getStream(camSelectL.value||undefined, micSelectL.value||undefined);
-    videoL.srcObject = streamL;
-    attachAudioMeter(streamL,'L');
-  }catch(e){ console.warn('Left stream error', e); }
-}
-async function startRight(){
-  try{
-    if(streamR) streamR.getTracks().forEach(t=>t.stop());
-    // Demo: also local camera. In prod: use remote stream.
-    streamR = await getStream(camSelectR.value||undefined, micSelectR.value||undefined);
-    videoR.srcObject = streamR;
-    attachAudioMeter(streamR,'R');
-  }catch(e){ console.warn('Right stream error', e); }
-}
-
-async function initMedia(){
-  try{
-    await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-    await listDevices();
-    await startLeft();
-    await startRight();
-  }catch(e){
-    alert('Please allow camera & microphone to use the Arena.');
-  }
-}
-initMedia();
-navigator.mediaDevices.addEventListener?.('devicechange', async ()=>{ await listDevices(); });
-
-camSelectL.addEventListener('change', startLeft);
-micSelectL.addEventListener('change', startLeft);
-camSelectR.addEventListener('change', startRight);
-micSelectR.addEventListener('change', startRight);
-
-mirrorL.addEventListener('click', ()=>{ videoL.style.transform = videoL.style.transform.includes('scaleX(-1)') ? 'translateZ(0)' : 'scaleX(-1)'; });
-mirrorR.addEventListener('click', ()=>{ videoR.style.transform = videoR.style.transform.includes('scaleX(-1)') ? 'translateZ(0)' : 'scaleX(-1)'; });
-
-fsL.addEventListener('click', ()=> videoL.requestFullscreen?.());
-fsR.addEventListener('click', ()=> videoR.requestFullscreen?.());
-
-muteL.addEventListener('click', ()=>{
-  mutedL = !mutedL;
-  streamL?.getAudioTracks().forEach(t=> t.enabled = !mutedL);
-  muteL.textContent = mutedL ? 'Unmute' : 'Mute';
-});
-muteR.addEventListener('click', ()=>{
-  mutedR = !mutedR;
-  streamR?.getAudioTracks().forEach(t=> t.enabled = !mutedR);
-  muteR.textContent = mutedR ? 'Unmute' : 'Mute';
-});
-
-swapBtn.addEventListener('click', ()=>{
-  // Swap labels and videos visually (simple DOM swap)
-  const left = document.getElementById('left');
-  const right = document.getElementById('right');
-  left.parentNode.insertBefore(right, left);
-  // Toggle oblique classes so angles remain correct
-  left.classList.toggle('oblique-left'); left.classList.toggle('oblique-right');
-  right.classList.toggle('oblique-left'); right.classList.toggle('oblique-right');
-});
-
-/* ============================================================
-   CONNECTION PILL — simple simulated ping (local)
-============================================================ */
-const connDot = document.getElementById('connDot');
-const connTxt = document.getElementById('connTxt');
-setInterval(()=>{
-  // Simulate random network condition; replace with real RTT later
-  const r = Math.random();
-  if(r>0.85){ connDot.className='dot red'; connTxt.textContent='Poor'; }
-  else if(r>0.55){ connDot.className='dot yellow'; connTxt.textContent='Fair'; }
-  else { connDot.className='dot green'; connTxt.textContent='Good'; }
-}, 2000);
-</script>
+    // Keyboard shortcuts: Space = Start/Pause, R = Reset
+    document.addEventListener('keydown', (e)=>{
+      if(e.code==='Space'){ e.preventDefault(); if(state.running) pauseBattle(); else startBattle(); }
+      if(e.key.toLowerCase()==='r'){ resetBattle(); }
+    });
+  </script>
 </body>
 </html>
