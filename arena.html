@@ -1,387 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>Arena — Battle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
-  <style>
-    :root{
-      --ink:#f2f2f2; --muted:#bfc7cf; --gold:#ffd700; --glass:rgba(255,255,255,.06);
-      --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
-      --pad:clamp(10px, 3vw, 24px);
-      --accent:#6ee7ff;
-      --header-h:64px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-
-    /* Header */
-    .header{
-      position:sticky; top:0; z-index:10;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:10px var(--pad);
-      background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.4));
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--edge);
-    }
-    .h-left{display:flex; align-items:center; gap:10px}
-    .btn{
-      border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
-      border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer;
-      transition:transform .12s ease, border-color .12s ease, background .12s ease;
-    }
-    .btn:active{transform:translateY(1px)}
-    .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
-    .btn.ghost{background:transparent}
-    .crumb{font-size:13px; color:var(--muted)}
-    .crumb b{color:var(--ink)}
-    .statusDot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
-    .latency{font-size:12px;color:var(--muted)}
-    .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
-    .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-
-    /* Arena split */
-    .arena{
-      padding:10px var(--pad) calc(var(--pad) + 72px);
-      display:grid; grid-template-columns: 1fr 1fr; gap:12px;
-    }
-    @media (max-width: 880px){
-      .arena{ grid-template-columns: 1fr; }
-    }
-
-    .side{
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--edge); border-radius:16px; overflow:hidden;
-      display:grid; grid-template-rows: auto 1fr auto; min-height: 58vh;
-    }
-    .side header{
-      display:flex; align-items:center; justify-content:space-between; gap:8px;
-      padding:10px; border-bottom:1px solid var(--edge);
-      background:linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.2));
-    }
-    .who{display:flex; align-items:center; gap:10px}
-    .tag{font-size:12px; color:#9adfff; background:rgba(154,223,255,.12); border:1px solid rgba(154,223,255,.25); padding:4px 8px; border-radius:999px}
-    .liveTag{font-size:11px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); padding:4px 8px; border-radius:999px; font-weight:800}
-
-    /* Vertical screens (portrait), side-by-side on desktop */
-    .videoWrap{
-      position:relative; background:#000; display:grid; place-items:center; overflow:hidden;
-      aspect-ratio: 9/16;
-      width:100%;
-    }
-    .videoWrap video, .videoWrap .ph{
-      width:100%; height:100%; object-fit:cover;
-    }
-    .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
-    .overlay{
-      position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:8px; pointer-events:none;
-    }
-    .bottomOverlay{
-      position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
-      padding:8px; pointer-events:none;
-    }
-    .meter{
-      height:6px; width:100px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
-      box-shadow:inset 0 0 0 1px #0a0a0a;
-    }
-    .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
-
-    .controls{
-      display:flex; gap:8px; flex-wrap:wrap; padding:10px; border-top:1px solid var(--edge);
-      background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.5));
-    }
-    .pill{
-      border:none; cursor:pointer; padding:8px 12px; border-radius:10px; font-weight:700; font-size:12px;
-      background:#121214; color:#e8f3ff; border:1px solid #2a2a2a;
-    }
-    .pill.primary{ background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; border-color:transparent }
-    .pill.warn{ background:#241306; color:#ffd699; border-color:#3b260e }
-    .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
-    .spacer{flex:1}
-
-    /* Battle HUD (below header, never overlapping buttons) */
-    .hud{
-      position:sticky; top:calc(var(--header-h) + 8px);
-      z-index:9; display:flex; align-items:center; justify-content:center; gap:10px; padding:6px var(--pad);
-    }
-    .timer{
-      display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px;
-      background:rgba(0,0,0,.6); border:1px solid #1f1f1f; backdrop-filter: blur(6px);
-      font-weight:800;
-    }
-    .timeNum{font-variant-numeric:tabular-nums}
-    .bar{position:relative; width:220px; height:8px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
-    .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a)}
-    .pulse{width:14px;height:14px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
-    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
-
-    /* Footer dock */
-    .dock{
-      position:fixed; left:0; right:0; bottom:0; z-index:9;
-      display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
-      padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));
-      background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
-    }
-    .dock .btn{min-width:140px}
-
-    /* Category picker overlay */
-    .overlayWrap{
-      position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20;
-    }
-    .overlayWrap.show{display:flex}
-    .sheet{
-      width:min(880px, 92vw); max-height:86vh; overflow:auto;
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      border:1px solid var(--edge); border-radius:18px; padding:14px;
-      box-shadow:0 0 60px rgba(0,0,0,.5);
-    }
-    .sheet header{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 4px 12px; border-bottom:1px solid var(--edge) }
-    .list{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:12px }
-    @media (max-width:760px){ .list{ grid-template-columns: 1fr 1fr } }
-    @media (max-width:480px){ .list{ grid-template-columns: 1fr } }
-    .card{
-      padding:12px; border-radius:14px; background:var(--glass); border:1px solid var(--edge);
-      display:grid; gap:6px;
-    }
-    .card h4{margin:0; font-size:14px}
-    .card p{margin:0; font-size:12px; color:var(--muted)}
-    .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-    .input, select{
-      width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
-    }
-    .rangeRow{display:flex; align-items:center; gap:8px}
-    .rangeRow input[type="range"]{flex:1}
-    .help{font-size:12px; color:var(--muted)}
-    .crumbbar{font-size:12px; color:var(--muted)}
-    .crumbbar b{color:#e7f7ff}
-    .divider{height:1px; background:#222; margin:8px 0}
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BattleBillions — Arena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Header: Back • Breadcrumb • Room/Latency + Start -->
-  <div class="header" id="header">
-    <div class="h-left">
-      <button id="backBtn" class="btn small">← Back</button>
-      <div class="crumb" id="crumb"><b>Select Category</b></div>
-    </div>
-    <div class="controlsHeader">
-      <span class="latency"><span class="statusDot" id="netDot"></span><span id="latVal">22ms</span></span>
-      <span class="room" id="roomCode">Room: 4X9-QQA</span>
-      <button class="btn small" id="startBtn" disabled>Start Battle</button>
-      <button class="btn small ghost" id="pauseBtn" disabled>Pause</button>
-      <button class="btn small ghost" id="resetBtn" disabled>Reset</button>
-    </div>
-  </div>
+  <div id="app" class="app">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="icon-btn" id="navBack" title="Back" aria-label="Back">⟵</button>
+      <h1 class="brand">ARENA</h1>
+      <a class="icon-btn" id="logoutIcon" href="#/logout" title="Logout" aria-label="Logout">✕</a>
+    </header>
 
-  <!-- Battle HUD (sticks under header, never overlapping buttons) -->
-  <div class="hud">
-    <div class="timer">
-      <span class="pulse" id="beatDot" title="Beat pulse"></span>
-      <span id="timeLeft" class="timeNum">01:00</span>
-      <div class="bar"><span id="barFill"></span></div>
-    </div>
-  </div>
-
-  <!-- Split Arena -->
-  <main class="arena" id="arena">
-    <!-- Competitor A -->
-    <section class="side" id="sideA">
-      <header>
-        <div class="who">
-          <span class="tag">Competitor A</span>
-          <span id="aName" class="help">@you</span>
+    <!-- Main Battle View -->
+    <main id="view" class="view">
+      <div class="battle-wrap">
+        <div class="streams">
+          <div class="stream" id="streamA">
+            <video id="videoA" autoplay playsinline muted></video>
+            <div class="dim" id="dimA"></div>
+          </div>
+          <div class="stream" id="streamB">
+            <video id="videoB" autoplay playsinline muted></video>
+            <div class="dim" id="dimB"></div>
+          </div>
         </div>
-        <span class="liveTag" id="aState">Idle</span>
-      </header>
-      <div class="videoWrap" id="aVideoWrap">
-        <div class="ph">Camera off — tap “Camera”</div>
-        <div class="overlay">
-          <div></div>
-          <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
-        </div>
-        <div class="bottomOverlay">
-          <div class="meter"><span id="aMicLevel"></span></div>
-          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="aFullscreen">Fullscreen</button></div>
+        <!-- Overlay Controls -->
+        <div class="overlay-controls" id="controls">
+          <span class="pill">Round <b id="roundNow">1</b>/3</span>
+          <span class="pill">Turn: <b id="whoseTurn">A</b></span>
+          <span class="pill timer">⏱ <b id="timeLeft">30</b>s</span>
+          <button class="pill" id="btnStart">Start</button>
+          <button class="pill" id="btnSwitch">Switch</button>
+          <button class="pill" id="btnNextRound">Next Round</button>
         </div>
       </div>
-      <div class="controls">
-        <button class="pill" id="aCamera">Camera</button>
-        <button class="pill" id="aMic">Mic</button>
-        <button class="pill" id="aSwitch">Switch</button>
-        <button class="pill" id="aUpload">Upload</button>
-        <div class="spacer"></div>
-        <button class="pill primary" id="aReady">Ready</button>
-        <button class="pill red" id="aConcede">Concede</button>
-      </div>
-    </section>
+    </main>
 
-    <!-- Competitor B -->
-    <section class="side" id="sideB">
-      <header>
-        <div class="who">
-          <span class="tag">Competitor B</span>
-          <span id="bName" class="help">@opponent</span>
-        </div>
-        <span class="liveTag" id="bState">Idle</span>
-      </header>
-      <div class="videoWrap" id="bVideoWrap">
-        <div class="ph">Waiting for opponent…</div>
-        <div class="overlay">
-          <div></div>
-          <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
-        </div>
-        <div class="bottomOverlay">
-          <div class="meter"><span id="bMicLevel"></span></div>
-          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="bFullscreen">Fullscreen</button></div>
-        </div>
-      </div>
-      <div class="controls">
-        <button class="pill" id="bMute">Mute</button>
-        <button class="pill" id="bSwap">Swap Sides</button>
-        <div class="spacer"></div>
-        <button class="pill warn" id="rulesBtn">Rules</button>
-        <button class="pill" id="catsBtn">Categories</button>
-      </div>
-    </section>
-  </main>
-
-  <!-- Bottom Dock -->
-  <div class="dock">
-    <button class="btn" id="catsDock">Choose Category</button>
-    <button class="btn ghost" id="inviteBtn">Invite Opponent</button>
+    <!-- Bottom Nav -->
+    <nav class="bnav">
+      <a href="#/home" class="bnav-link">Home</a>
+      <a href="#/discover" class="bnav-link">Discover</a>
+      <a href="#/opponent" class="bnav-link">Opponent</a>
+      <a href="#/battle" class="bnav-link active">Arena</a>
+      <a href="#/leaderboard" class="bnav-link">Ranks</a>
+      <a href="#/profile" class="bnav-link">Profile</a>
+      <a href="#/settings" class="bnav-link">Settings</a>
+    </nav>
   </div>
 
-  <!-- Category Picker (overlay) -->
-  <div class="overlayWrap" id="picker">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
-      <header>
-        <div class="crumbbar" id="pickCrumb"><b>Categories</b></div>
-        <div class="row">
-          <button class="btn small ghost" id="pickBack">← Back</button>
-          <button class="btn small" id="pickClose">Close</button>
-        </div>
-      </header>
-
-      <!-- Step 1: Categories -->
-      <section id="stepCats">
-        <div class="list">
-          <article class="card"><h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p><button class="btn small" data-cat="Rap">Select</button></article>
-          <article class="card"><h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p><button class="btn small" data-cat="Art">Select</button></article>
-          <article class="card"><h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p><button class="btn small" data-cat="Instruments">Select</button></article>
-          <article class="card"><h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p><button class="btn small" data-cat="Comedy">Select</button></article>
-          <article class="card"><h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p><button class="btn small" data-cat="Dance">Select</button></article>
-          <article class="card"><h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p><button class="btn small" data-cat="Fashion">Select</button></article>
-        </div>
-      </section>
-
-      <!-- Step 2: Subcategories -->
-      <section id="stepSubs" style="display:none">
-        <div class="row" style="justify-content:space-between; align-items:center">
-          <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
-          <button class="btn small ghost" id="subsBack">← Categories</button>
-        </div>
-        <div id="subsList" class="list"></div>
-      </section>
-
-      <!-- Step 3 (Rap example): Setup -->
-      <section id="stepRapSetup" style="display:none">
-        <h4 style="margin:8px 0">Rap Battle Setup</h4>
-        <p class="help" style="margin:0 0 8px">Rap has unique settings. Use this as the pattern for other categories.</p>
-        <div class="card">
-          <div class="row">
-            <label style="font-size:12px; color:var(--muted)">Style</label>
-            <select id="rapStyle" class="input">
-              <option value="freestyle">Freestyle</option>
-              <option value="written">Written</option>
-              <option value="cypher">Cypher</option>
-              <option value="wordplay">Wordplay</option>
-            </select>
-          </div>
-          <div class="divider"></div>
-
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Round Length</label>
-              <div class="rangeRow">
-                <input id="rapLen" type="range" min="30" max="180" step="15" value="60"/>
-                <span id="rapLenVal" class="help">60s</span>
-              </div>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Rounds</label>
-              <select id="rapRounds" class="input"><option>1</option><option selected>3</option><option>5</option></select>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Beat</label>
-              <select id="rapBeat" class="input">
-                <option value="acapella">Acapella</option>
-                <option value="trap_92">Trap 92bpm</option>
-                <option value="boom_88">Boom-bap 88bpm</option>
-                <option value="drill_140">Drill 140bpm</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Upload Beat (optional)</label>
-              <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
-              <select id="rapWord" class="input">
-                <option value="none">None</option>
-                <option value="must_use_3">Must use 3 prompts</option>
-                <option value="random_topic">Random topic</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Profanity Filter</label>
-              <select id="rapFilter" class="input">
-                <option value="off">Off</option>
-                <option value="light">Light</option>
-                <option value="strict">Strict</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row" style="justify-content:flex-end">
-            <button class="btn small ghost" id="rapSetupBack">← Subcategories</button>
-            <button class="btn small" id="rapApply">Apply & Use</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Placeholder for other categories -->
-      <section id="stepOtherSetup" style="display:none">
-        <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
-        <p class="help">Add unique controls here for this category (e.g., canvas size for Art, tempo for Dance). For now it just confirms selection.</p>
-        <div class="row" style="justify-content:flex-end">
-          <button class="btn small ghost" id="otherSetupBack">← Subcategories</button>
-          <button class="btn small" id="otherApply">Apply & Use</button>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <!-- Auto-size header var -->
-  <script>
-    const H = document.getElementById('header');
-    const setHeadVar = ()=> document.documentElement.style.setProperty('--header-h', H.offsetHeight+'px');
-    setHeadVar(); addEventListener('resize', setHeadVar, {passive:true});
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="battle.js"></script>
+  <script type="module">
+    import { mountBattle } from './battle.js';
+    document.getElementById('navBack').onclick = ()=> history.back();
+    mountBattle();
   </script>
-
-  <!-- All wiring, timer, media, categories -->
-  <script type="module" src="arena-webrtc.js"></script>
 </body>
 </html>
