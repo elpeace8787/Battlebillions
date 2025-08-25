@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"/>
   <title>Arena — Battle</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
   <style>
@@ -11,9 +11,10 @@
       --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
       --pad:clamp(10px, 3vw, 24px);
       --accent:#6ee7ff;
+      --safe-bottom:max(12px, env(safe-area-inset-bottom));
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; -webkit-tap-highlight-color:transparent}
 
     /* Header */
     .header{
@@ -27,12 +28,13 @@
     .h-left{display:flex; align-items:center; gap:10px}
     .btn{
       border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
-      border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer;
+      border-radius:12px; padding:12px 14px; font-weight:700; cursor:pointer;
       transition:transform .12s ease, border-color .12s ease, background .12s ease;
+      touch-action:manipulation;
     }
-    .btn:active{transform:translateY(1px)}
-    .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
+    .btn.small{padding:10px 12px; border-radius:10px; font-size:12px}
     .btn.ghost{background:transparent}
+    .btn:active{transform:translateY(1px)}
     .crumb{font-size:13px; color:var(--muted)}
     .crumb b{color:var(--ink)}
     .statusDot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
@@ -40,22 +42,29 @@
     .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
     .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 
-    /* Arena split (always two columns; on very small screens allow x-scroll) */
+    /* Arena: always two panels side-by-side. On phones, horizontal scroll with snap. */
     .arena{
-      padding:10px var(--pad) calc(var(--pad) + 72px);
-      display:grid; grid-template-columns: 1fr 1fr; gap:12px;
+      padding:10px var(--pad) calc(var(--pad) + 80px);
+      display:grid;
+      grid-auto-flow: column;
+      grid-auto-columns: min(90vw, 440px);
+      gap:12px;
       overflow-x:auto;
       scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+    }
+    @media (min-width:900px){
+      .arena{
+        grid-auto-flow: initial;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-columns: initial;
+      }
     }
     .side{
       scroll-snap-align:start;
       background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       border:1px solid var(--edge); border-radius:16px; overflow:hidden;
-      display:grid; grid-template-rows: auto 1fr auto; min-height: 52vh;
-      min-width: 360px; /* ensures side-by-side on small screens (scrollable) */
-    }
-    @media (min-width:900px){
-      .side{ min-width: auto; }
+      display:grid; grid-template-rows: auto 1fr auto; min-height: 56vh;
     }
     .side header{
       display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -66,19 +75,17 @@
     .tag{font-size:12px; color:#9adfff; background:rgba(154,223,255,.12); border:1px solid rgba(154,223,255,.25); padding:4px 8px; border-radius:999px}
     .liveTag{font-size:11px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); padding:4px 8px; border-radius:999px; font-weight:800}
 
-    /* Vertical screens */
+    /* Vertical (portrait) screens */
     .videoWrap{
       position:relative; background:#000; display:grid; place-items:center; overflow:hidden;
       aspect-ratio: 9 / 16;
-      width: min(92%, 420px);
+      width: min(96%, 440px);
       max-height: 72vh;
       margin: 10px auto;
       border-radius: 16px;
       box-shadow: 0 12px 38px rgba(0,0,0,.45);
       border: 1px solid #171717;
-    }
-    @media (max-width: 920px){
-      .videoWrap{ width: 100%; max-height: 70vh; }
+      touch-action:manipulation;
     }
     .videoWrap video, .videoWrap .ph{ width:100%; height:100%; object-fit:cover; }
     .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
@@ -93,7 +100,7 @@
     }
 
     .meter{
-      height:6px; width:88px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
+      height:8px; width:110px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
       box-shadow:inset 0 0 0 1px #0a0a0a;
     }
     .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
@@ -103,7 +110,7 @@
       background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.5));
     }
     .pill{
-      border:none; cursor:pointer; padding:8px 12px; border-radius:10px; font-weight:700; font-size:12px;
+      border:none; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:700; font-size:12px;
       background:#121214; color:#e8f3ff; border:1px solid #2a2a2a;
     }
     .pill.primary{ background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; border-color:transparent }
@@ -111,10 +118,16 @@
     .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
     .spacer{flex:1}
 
-    /* Battle HUD */
+    /* HUD (center top) */
     .hud{
       position:fixed; left:50%; top:58px; transform:translateX(-50%);
       z-index:9; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      padding:0 8px;
+    }
+    .hudRow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+    .badge{
+      font-size:12px; font-weight:800; padding:8px 10px; border-radius:10px;
+      background:rgba(0,0,0,.6); border:1px solid #1f1f1f); backdrop-filter: blur(6px);
     }
     .timer{
       display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px;
@@ -122,7 +135,7 @@
       font-weight:800;
     }
     .timeNum{font-variant-numeric:tabular-nums}
-    .bar{position:relative; width:220px; height:8px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
+    .bar{position:relative; width:220px; height:10px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
     .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a)}
     .pulse{width:14px;height:14px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
     @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
@@ -131,7 +144,7 @@
     .dock{
       position:fixed; left:0; right:0; bottom:0; z-index:9;
       display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
-      padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));
+      padding:10px var(--pad) calc(10px + var(--safe-bottom));
       background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
     }
     .dock .btn{min-width:140px}
@@ -179,22 +192,25 @@
     <div class="controlsHeader">
       <span class="latency"><span class="statusDot" id="netDot"></span><span id="latVal">22ms</span></span>
       <span class="room" id="roomCode">Room: 4X9-QQA</span>
-      <button class="btn small" id="startBtn" disabled>Start Battle</button>
+      <button class="btn small" id="startBtn" disabled>Start</button>
       <button class="btn small ghost" id="pauseBtn" disabled>Pause</button>
       <button class="btn small ghost" id="resetBtn" disabled>Reset</button>
     </div>
   </div>
 
-  <!-- HUD -->
+  <!-- HUD (timer + rounds) -->
   <div class="hud">
-    <div class="timer">
-      <span class="pulse" id="beatDot" title="Beat pulse"></span>
-      <span id="timeLeft" class="timeNum">01:00</span>
-      <div class="bar"><span id="barFill"></span></div>
+    <div class="hudRow">
+      <div class="badge" id="roundBadge">Round <b id="roundNow">1</b>/<span id="roundTotal">3</span></div>
+      <div class="timer">
+        <span class="pulse" id="beatDot" title="Beat pulse"></span>
+        <span id="timeLeft" class="timeNum">01:00</span>
+        <div class="bar"><span id="barFill"></span></div>
+      </div>
     </div>
   </div>
 
-  <!-- Split Arena (always two columns) -->
+  <!-- Split Arena (always two columns; scroll on mobile) -->
   <main class="arena" id="arena">
     <!-- Side A -->
     <section class="side" id="sideA">
@@ -396,6 +412,7 @@
       rap: { style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null },
       readyA:false, readyB:false,
       running:false, timeLeft:60, total:60, tick:null,
+      currentRound:1, totalRounds:3,
       // media
       aStream:null, aFacing:"user", aMicOn:true, aCamOn:false,
       aAudioCtx:null, aAnalyser:null, aData:null, aLevelRAF:null,
@@ -405,17 +422,23 @@
     /*********** Header + crumbs ***********/
     document.getElementById("roomCode").textContent = "Room: " + state.room;
     const crumbEl = document.getElementById("crumb");
+    const roundNowEl = document.getElementById("roundNow");
+    const roundTotalEl = document.getElementById("roundTotal");
     function setCrumb(){
       if(!state.category) crumbEl.innerHTML = "<b>Select Category</b>";
       else if(!state.subcategory) crumbEl.innerHTML = `<b>${state.category}</b> • choose subcategory`;
       else crumbEl.innerHTML = `<b>${state.category}</b> → ${state.subcategory}`;
     }
-    setCrumb();
+    function setRoundsUI(){
+      roundNowEl.textContent = state.currentRound;
+      roundTotalEl.textContent = state.totalRounds;
+    }
+    setCrumb(); setRoundsUI();
     document.getElementById("backBtn").addEventListener("click", ()=> openPicker("cats"));
     const latVal = document.getElementById("latVal");
     setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
 
-    /*********** Timer ***********/
+    /*********** Timer with auto-round advance ***********/
     const startBtn = document.getElementById("startBtn");
     const pauseBtn = document.getElementById("pauseBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -426,25 +449,56 @@
     function fmt(s){ const m=Math.floor(s/60), r=s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`; }
     function setTimer(seconds){ state.total=seconds; state.timeLeft=seconds; timeLeftEl.textContent=fmt(seconds); barFill.style.width='0%'; }
     setTimer(state.rap.length);
+
     function maybeEnableStart(){ startBtn.disabled = !(state.readyA && state.readyB); pauseBtn.disabled = true; resetBtn.disabled = true; }
     function disableStart(){ startBtn.disabled = true; pauseBtn.disabled = true; resetBtn.disabled = true; }
-    setTimeout(()=>{ state.readyB = true; document.getElementById("bState").textContent = "Ready"; maybeEnableStart(); }, 1200);
-    function tick(){ if(!state.running) return; state.timeLeft=Math.max(0,state.timeLeft-1); timeLeftEl.textContent=fmt(state.timeLeft); barFill.style.width=(100 - Math.round((state.timeLeft/state.total)*100))+'%'; if(state.timeLeft<=0){ stopBattle(true); } }
+    // Opponent sim "ready"
+    setTimeout(()=>{ state.readyB = true; document.getElementById("bState").textContent = "Ready"; maybeEnableStart(); }, 900);
+
+    function tick(){
+      if(!state.running) return;
+      state.timeLeft = Math.max(0, state.timeLeft - 1);
+      timeLeftEl.textContent = fmt(state.timeLeft);
+      const pct = 100 - Math.round((state.timeLeft/state.total)*100);
+      barFill.style.width = pct + '%';
+
+      if(state.timeLeft<=0){
+        // Next round or end
+        if(state.currentRound < state.totalRounds){
+          state.currentRound += 1;
+          setRoundsUI();
+          setTimer(state.rap.length);
+        }else{
+          stopBattle(true);
+        }
+      }
+    }
     function startBattle(){
       if(startBtn.disabled) return;
       state.running = true; startBtn.disabled=true; pauseBtn.disabled=false; resetBtn.disabled=false;
       clearInterval(state.tick); state.tick=setInterval(tick, 1000);
+      // beat pulse tempo
       const tempos = { acapella:0, trap_92:92, boom_88:88, drill_140:140 };
       const bpm = tempos[state.rap.beat]||0; beatDot.style.animationDuration = (bpm? Math.max(300, Math.round(60000/bpm))/1000 : 1.2)+'s';
     }
     function pauseBattle(){ if(!state.running) return; state.running=false; pauseBtn.disabled=true; startBtn.disabled=false; clearInterval(state.tick); }
-    function stopBattle(ended=false){ state.running=false; clearInterval(state.tick); startBtn.disabled=!(state.readyA && state.readyB); pauseBtn.disabled=true; resetBtn.disabled=false; if(ended) alert('Round complete!'); }
-    function resetBattle(){ stopBattle(false); setTimer(state.rap.length); resetBtn.disabled=true; }
+    function stopBattle(ended=false){
+      state.running=false; clearInterval(state.tick);
+      startBtn.disabled=!(state.readyA && state.readyB);
+      pauseBtn.disabled=true; resetBtn.disabled=false;
+      if(ended) alert('Battle complete!');
+    }
+    function resetBattle(){
+      stopBattle(false);
+      state.currentRound = 1; setRoundsUI();
+      setTimer(state.rap.length);
+      resetBtn.disabled=true;
+    }
     startBtn.addEventListener("click", startBattle);
     pauseBtn.addEventListener("click", pauseBattle);
     resetBtn.addEventListener("click", resetBattle);
 
-    /*********** Side A controls (real camera/mic/upload) ***********/
+    /*********** Side A controls (camera/mic/upload) ***********/
     const aVideo = document.getElementById("aVideo");
     const aPlaceholder = document.getElementById("aPlaceholder");
     const aStateEl = document.getElementById("aState");
@@ -454,20 +508,16 @@
       try{
         const constraints = {
           audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true },
-          video: {
-            facingMode: state.aFacing, width: {ideal:1080}, height:{ideal:1920},
-            aspectRatio: 9/16
-          }
+          video: { facingMode: state.aFacing, width:{ideal:1080}, height:{ideal:1920}, aspectRatio:9/16 }
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        stopAStream(); // stop old tracks if any
+        stopAStream();
         state.aStream = stream;
         aVideo.srcObject = stream;
-        aVideo.muted = true; // local loopback
+        aVideo.muted = true;
         aVideo.style.display = 'block';
         aPlaceholder.style.display = 'none';
         state.aCamOn = true; aStateEl.textContent = "Camera On";
-        // audio meter
         setupAudioMeter(stream);
       }catch(err){
         console.warn("getUserMedia failed", err);
@@ -475,15 +525,10 @@
       }
     }
     function stopAStream(){
-      if(state.aStream){
-        state.aStream.getTracks().forEach(t=>t.stop());
-        state.aStream = null;
-      }
+      if(state.aStream){ state.aStream.getTracks().forEach(t=>t.stop()); state.aStream=null; }
       teardownMeter();
-      aVideo.srcObject = null;
-      aVideo.pause();
-      aVideo.style.display = 'none';
-      aPlaceholder.style.display = 'grid';
+      aVideo.srcObject = null; aVideo.pause();
+      aVideo.style.display = 'none'; aPlaceholder.style.display = 'grid';
       state.aCamOn = false; aStateEl.textContent = "Idle";
     }
     function setupAudioMeter(stream){
@@ -498,20 +543,14 @@
         const loop = ()=>{
           if(!state.aAnalyser){ aMicBar.style.width = '0%'; return; }
           state.aAnalyser.getByteTimeDomainData(state.aData);
-          // compute RMS-ish level
-          let sum=0;
-          for(let i=0;i<state.aData.length;i++){
-            const v = (state.aData[i]-128)/128; sum += v*v;
-          }
-          const rms = Math.sqrt(sum/state.aData.length); // 0..1
-          const pct = Math.min(100, Math.max(4, Math.round(rms*160)));
+          let sum=0; for(let i=0;i<state.aData.length;i++){ const v=(state.aData[i]-128)/128; sum+=v*v; }
+          const rms = Math.sqrt(sum/state.aData.length);
+          const pct = Math.min(100, Math.max(6, Math.round(rms*160)));
           aMicBar.style.width = pct + '%';
           state.aLevelRAF = requestAnimationFrame(loop);
         };
-        cancelAnimationFrame(state.aLevelRAF);
-        loop();
+        cancelAnimationFrame(state.aLevelRAF); loop();
       }catch(e){
-        // fallback: fake meter
         console.warn("Audio meter unavailable", e);
         teardownMeter();
         state.aLevelRAF = requestAnimationFrame(function fake(){
@@ -521,21 +560,14 @@
       }
     }
     function teardownMeter(){
-      cancelAnimationFrame(state.aLevelRAF);
-      state.aLevelRAF = null;
-      if(state.aAudioCtx){
-        try{ state.aAudioCtx.close(); }catch{}
-        state.aAudioCtx = null; state.aAnalyser=null; state.aData=null;
-      }
-      aMicBar.style.width = '0%';
+      cancelAnimationFrame(state.aLevelRAF); state.aLevelRAF=null;
+      if(state.aAudioCtx){ try{ state.aAudioCtx.close(); }catch{} state.aAudioCtx=null; }
+      state.aAnalyser=null; state.aData=null; aMicBar.style.width='0%';
     }
 
     // Buttons A
     document.getElementById("aCamera").addEventListener("click", async ()=>{
-      if(state.aCamOn){
-        stopAStream();
-      }else{
-        // If a file was playing, clear it
+      if(state.aCamOn){ stopAStream(); } else {
         if(aVideo.src && !aVideo.srcObject){ aVideo.removeAttribute('src'); aVideo.load(); }
         await startACamera();
       }
@@ -553,30 +585,24 @@
       if(state.aCamOn){ await startACamera(); }
     });
     document.getElementById("aUploadInput").addEventListener("change", (e)=>{
-      const file = e.target.files?.[0];
-      if(!file) return;
-      // stop camera if on
+      const file = e.target.files?.[0]; if(!file) return;
       stopAStream();
       const url = URL.createObjectURL(file);
-      aVideo.srcObject = null;
-      aVideo.src = url;
-      aVideo.controls = true;
-      aVideo.muted = false; // let them hear their file
-      aVideo.style.display = 'block';
-      aPlaceholder.style.display = 'none';
+      aVideo.srcObject = null; aVideo.src = url; aVideo.controls = true; aVideo.muted=false;
+      aVideo.style.display='block'; aPlaceholder.style.display='none';
       aVideo.play().catch(()=>{});
-      document.getElementById("aState").textContent = "Playing Upload";
-    });
-    document.getElementById("aReady").addEventListener("click", ()=>{
-      state.readyA = !state.readyA;
-      document.getElementById("aState").textContent = state.readyA ? "Ready" : (state.aCamOn ? "Camera On" : "Idle");
-      maybeEnableStart();
-    });
-    document.getElementById("aConcede").addEventListener("click", ()=>{
-      state.readyA=false; document.getElementById("aState").textContent="Conceded"; disableStart();
+      aStateEl.textContent = "Playing Upload";
     });
     function fs(el){ if(el.requestFullscreen) el.requestFullscreen(); }
     document.getElementById("aFullscreen").addEventListener("click", ()=> fs(document.getElementById("aVideoWrap")));
+    document.getElementById("aReady").addEventListener("click", ()=>{
+      state.readyA = !state.readyA;
+      aStateEl.textContent = state.readyA ? "Ready" : (state.aCamOn ? "Camera On" : "Idle");
+      maybeEnableStart();
+    });
+    document.getElementById("aConcede").addEventListener("click", ()=>{
+      state.readyA=false; aStateEl.textContent="Conceded"; disableStart();
+    });
 
     /*********** Side B controls ***********/
     const bVideo = document.getElementById("bVideo");
@@ -591,20 +617,17 @@
       const aName = document.getElementById("aName");
       const bName = document.getElementById("bName");
       [aName.textContent, bName.textContent] = [bName.textContent, aName.textContent];
-
-      // swap video DOM (streams or sources)
-      const aWrap = document.getElementById("aVideoWrap");
-      const bWrap = document.getElementById("bVideoWrap");
-      const aNext = bWrap.nextSibling;
-      bWrap.replaceWith(aWrap);
-      if(aNext) aNext.parentNode.insertBefore(bWrap, aNext); else document.getElementById("arena").appendChild(bWrap);
+      // swap the cards visually
+      const arena = document.getElementById("arena");
+      const aCard = document.getElementById("sideA");
+      const bCard = document.getElementById("sideB");
+      arena.insertBefore(bCard, aCard);
+      arena.appendChild(aCard);
     });
     document.getElementById("bFullscreen").addEventListener("click", ()=> fs(document.getElementById("bVideoWrap")));
 
-    // Simulate opponent stream (optional demo)
-    // You can remove this block; it just shows a sample clip if present on your server.
+    // Optional: preload a sample opponent video (set your file URL)
     (function demoOpponent(){
-      // If you have a sample vertical video, set its URL here:
       const sample = ""; // e.g. "opponent_vertical.mp4"
       if(sample){
         bVideo.src = sample; bVideo.style.display='block'; bPlaceholder.style.display='none';
@@ -687,6 +710,7 @@
     const rapLen = document.getElementById("rapLen");
     const rapLenVal = document.getElementById("rapLenVal");
     rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
+
     document.getElementById("rapApply").addEventListener("click", ()=>{
       state.rap.style  = document.getElementById("rapStyle").value;
       state.rap.length = parseInt(document.getElementById("rapLen").value,10);
@@ -696,9 +720,23 @@
       state.rap.filter = document.getElementById("rapFilter").value;
       const file = document.getElementById("rapBeatFile").files?.[0] || null;
       state.rap.beatFile = file ? file.name : null;
-      applySelection(); setTimer(state.rap.length); closePicker();
+
+      // Apply selection to hints
+      applySelection();
+
+      // Set rounds + timer from rap setup
+      state.totalRounds = state.rap.rounds;
+      state.currentRound = 1;
+      setRoundsUI();
+      setTimer(state.rap.length);
+
+      closePicker();
     });
-    document.getElementById("otherApply").addEventListener("click", ()=>{ applySelection(); closePicker(); });
+
+    document.getElementById("otherApply").addEventListener("click", ()=>{
+      applySelection(); closePicker();
+    });
+
     function applySelection(){
       const aHint = document.getElementById("aHint");
       const bHint = document.getElementById("bHint");
@@ -710,13 +748,13 @@
       bHint.textContent = "Opponent sees: " + details;
     }
 
-    // Open picker initially
+    // Open picker initially for quick setup on mobile
     openPicker("cats");
 
-    // Keyboard shortcuts
+    // Keyboard shortcuts (desktop): Space = Start/Pause, R = Reset
     document.addEventListener('keydown', (e)=>{
       if(e.code==='Space'){ e.preventDefault(); if(state.running) pauseBattle(); else startBattle(); }
-      if(e.key.toLowerCase()==='r'){ resetBattle(); }
+      if(e.key?.toLowerCase?.()==='r'){ resetBattle(); }
     });
   </script>
 </body>
