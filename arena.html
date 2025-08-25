@@ -12,62 +12,30 @@
       --pad:clamp(10px, 3vw, 24px);
       --accent:#6ee7ff;
       --safe-bottom:max(12px, env(safe-area-inset-bottom));
-      --header-h:64px;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; -webkit-tap-highlight-color:transparent; overflow:hidden}
 
-    /* ===== Header (hidden in battle) ===== */
-    .header{
-      position:sticky; top:0; z-index:20;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:10px var(--pad);
-      background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.4));
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--edge);
-    }
-    .h-left{display:flex; align-items:center; gap:10px}
-    .btn{
-      border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
-      border-radius:12px; padding:12px 14px; font-weight:700; cursor:pointer;
-      transition:transform .12s ease, border-color .12s ease, background .12s ease;
-      touch-action:manipulation;
-    }
-    .btn.small{padding:10px 12px; border-radius:10px; font-size:12px}
-    .btn.ghost{background:transparent}
-    .btn:active{transform:translateY(1px)}
-    .crumb{font-size:13px; color:var(--muted)}
-    .crumb b{color:var(--ink)}
-    .latency{font-size:12px;color:var(--muted)}
-    .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
-    .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-
     /* ===== ARENA: exact-fit grid (NO SCROLL) ===== */
     .arena{
       position:fixed; inset:0; z-index:1;
-      display:grid; grid-template-columns: 1fr 1fr; gap:0;
-      background:#000;
+      display:grid; grid-template-columns: 1fr 1fr; gap:0; background:#000;
     }
-    .side{
-      position:relative; height:100%; overflow:hidden; border-left:1px solid var(--edge);
-    }
+    .side{ position:relative; height:100%; overflow:hidden; border-left:1px solid var(--edge) }
     .side:first-child{border-left:none}
 
     /* Full-bleed video surface */
-    .videoWrap{
-      position:absolute; inset:0; display:grid; place-items:center; overflow:hidden;
-      background:#000;
-    }
+    .videoWrap{ position:absolute; inset:0; display:grid; place-items:center; overflow:hidden; background:#000 }
     video, .ph{width:100%; height:100%; object-fit:cover}
     .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
 
-    /* Per-side HUD (bottom strip) */
+    /* Per-side bottom control strip */
     .strip{
       position:absolute; left:0; right:0; bottom:0; z-index:5;
-      display:flex; align-items:center; gap:10px; padding:10px;
+      display:flex; align-items:center; gap:10px; padding:10px var(--pad);
       background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55));
       border-top:1px solid rgba(255,255,255,.06);
-      pointer-events:none; /* children re-enable */
+      pointer-events:none;
     }
     .strip .row{display:flex; align-items:center; gap:10px; pointer-events:auto}
     .pill{border:none; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:700; font-size:12px; background:#121214; color:#e8f3ff; border:1px solid #2a2a2a}
@@ -80,7 +48,7 @@
     .meter{height:8px; width:110px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden; box-shadow:inset 0 0 0 1px #0a0a0a}
     .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
 
-    /* Instagram-style music meter (shows after upload) */
+    /* Instagram-style music meter (shows after beat upload/play) */
     .igMusic{position:absolute; left:50%; transform:translateX(-50%); bottom:56px; z-index:6; display:none}
     .igMeter{
       display:flex; align-items:flex-end; gap:3px;
@@ -90,49 +58,74 @@
     }
     .igMeter i{display:block; width:3px; height:6px; border-radius:2px; background:linear-gradient(180deg,#6ee7ff,#20e3b2); opacity:.95; transform-origin:bottom}
 
-    /* Global HUD (rounds + timer) top-center */
+    /* ===== Redesigned HUD (rounds + timer) ===== */
     .hud{
-      position:fixed; left:50%; top:8px; transform:translateX(-50%); z-index:10;
-      display:flex; align-items:center; gap:10px; padding:6px 8px;
-      background:rgba(0,0,0,.55); border:1px solid #1f1f1f; border-radius:12px; backdrop-filter:blur(6px)
+      position:fixed; left:50%; top:10px; transform:translateX(-50%); z-index:10;
+      display:flex; align-items:center; gap:12px;
+      padding:10px 12px;
+      border:1px solid #1f1f1f; border-radius:14px;
+      background:rgba(0,0,0,.6);
+      backdrop-filter: blur(8px);
+      box-shadow:0 8px 26px rgba(0,0,0,.35);
     }
-    .badge{font-size:12px; font-weight:800; padding:6px 10px; border-radius:10px; background:rgba(0,0,0,.3); border:1px solid #1f1f1f}
-    .timer{display:flex; align-items:center; gap:10px; font-weight:800}
-    .bar{position:relative; width:180px; height:10px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
-    .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a)}
-    .timeNum{font-variant-numeric:tabular-nums}
-    .pulse{width:12px;height:12px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
+    .hud .badge{
+      display:flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:10px;
+      font-weight:800; font-size:13px;
+      background:rgba(0,0,0,.35); border:1px solid #232323;
+    }
+    .hud .badge .dot{width:10px; height:10px; border-radius:50%; background:var(--gold); box-shadow:0 0 12px rgba(255,215,0,.55)}
+    .hud .timer{ display:flex; align-items:center; gap:10px; font-weight:800 }
+    .hud .timeNum{ font-variant-numeric:tabular-nums; font-size:18px; letter-spacing:.02em }
+    .hud .bar{ width:190px; height:10px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden }
+    .hud .bar > span{ display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a) }
+    .hud .pulse{ width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite }
     @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
 
-    /* Hide header/dock in battle to maximize camera area */
+    /* ===== Picker Overlay (Categories/Subs/Setup) ===== */
+    .overlayWrap{ position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20 }
+    .overlayWrap.show{display:flex}
+    .sheet{
+      width:min(880px, 92vw); max-height:86vh; overflow:auto;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--edge); border-radius:18px; padding:14px;
+      box-shadow:0 0 60px rgba(0,0,0,.5);
+    }
+    .sheet header{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 4px 12px; border-bottom:1px solid var(--edge) }
+    .list{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:12px }
+    @media (max-width:760px){ .list{ grid-template-columns: 1fr 1fr } }
+    @media (max-width:480px){ .list{ grid-template-columns: 1fr } }
+    .card{ padding:12px; border-radius:14px; background:var(--glass); border:1px solid var(--edge); display:grid; gap:6px }
+    .card h4{margin:0; font-size:14px}
+    .card p{margin:0; font-size:12px; color:var(--muted)}
+    .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .input, select{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink) }
+    .rangeRow{display:flex; align-items:center; gap:8px}
+    .rangeRow input[type="range"]{flex:1}
+    .help{font-size:12px; color:var(--muted)}
+    .crumbbar{font-size:12px; color:var(--muted)}
+    .crumbbar b{color:#e7f7ff}
+    .divider{height:1px; background:#222; margin:8px 0}
+
+    /* Utility */
     .hidden{display:none !important}
-    .dock{display:none}
   </style>
 </head>
 <body>
 
-  <!-- Header (auto-hidden when battle starts) -->
-  <div class="header" id="headerEl">
-    <div class="h-left">
-      <button id="backBtn" class="btn small">← Back</button>
-      <div class="crumb" id="crumb"><b>Select Category</b></div>
-    </div>
-    <div class="controlsHeader">
-      <span class="latency"><span style="width:10px;height:10px;border-radius:50%;background:#20e3b2;display:inline-block;margin-right:6px;vertical-align:middle"></span><span id="latVal">22ms</span></span>
-      <span class="room" id="roomCode">Room: 4X9-QQA</span>
-      <button class="btn small" id="startBtn" disabled>Start</button>
-      <button class="btn small ghost" id="pauseBtn" disabled>Pause</button>
-      <button class="btn small ghost" id="resetBtn" disabled>Reset</button>
-    </div>
-  </div>
-
-  <!-- Global HUD -->
+  <!-- HUD (top center, improved look) -->
   <div class="hud" id="hud">
-    <div class="badge">Round <b id="roundNow">1</b>/<span id="roundTotal">3</span></div>
+    <div class="badge"><span class="dot"></span> Round <b id="roundNow">1</b>/<span id="roundTotal">3</span></div>
     <div class="timer">
       <span class="pulse" id="beatDot"></span>
       <span id="timeLeft" class="timeNum">01:00</span>
       <div class="bar"><span id="barFill"></span></div>
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="pill" id="startBtn" disabled>Start</button>
+      <button class="pill ghost" id="pauseBtn" disabled>Pause</button>
+      <button class="pill ghost" id="resetBtn" disabled>Reset</button>
+      <button class="pill warn" id="catsBtn">Categories</button>
     </div>
   </div>
 
@@ -144,7 +137,6 @@
         <div class="ph" id="aPlaceholder">Camera off — tap “Camera”</div>
         <video id="aVideo" playsinline autoplay muted style="display:none"></video>
       </div>
-
       <div class="strip">
         <div class="row">
           <div class="meter"><span id="aMicLevel"></span></div>
@@ -167,7 +159,6 @@
         <div class="ph" id="bPlaceholder">Waiting for opponent…</div>
         <video id="bVideo" playsinline autoplay controls style="display:none"></video>
       </div>
-
       <div class="strip">
         <div class="row">
           <div class="meter"><span id="bMicLevel"></span></div>
@@ -176,7 +167,6 @@
         <div class="row">
           <button class="pill" id="bMute">Mute</button>
           <button class="pill" id="bSwap">Swap</button>
-          <button class="pill warn" id="catsBtn">Categories</button>
         </div>
       </div>
     </section>
@@ -185,8 +175,10 @@
     <div class="igMusic" id="igMusic">
       <div class="igMeter" id="igMeter">
         <!-- 24 bars -->
-        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i>
       </div>
     </div>
   </main>
@@ -194,22 +186,148 @@
   <!-- Hidden audio element for beat -->
   <audio id="beatAudio" preload="auto"></audio>
 
+  <!-- Picker (Categories/Subs/Setup) -->
+  <div class="overlayWrap" id="picker">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+      <header>
+        <div class="crumbbar" id="pickCrumb"><b>Categories</b></div>
+        <div class="row">
+          <button class="pill" id="pickBack">← Back</button>
+          <button class="pill" id="pickClose">Close</button>
+        </div>
+      </header>
+
+      <!-- Step 1 -->
+      <section id="stepCats">
+        <div class="list">
+          <article class="card"><h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p><button class="pill" data-cat="Rap">Select</button></article>
+          <article class="card"><h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p><button class="pill" data-cat="Art">Select</button></article>
+          <article class="card"><h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p><button class="pill" data-cat="Instruments">Select</button></article>
+          <article class="card"><h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p><button class="pill" data-cat="Comedy">Select</button></article>
+          <article class="card"><h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p><button class="pill" data-cat="Dance">Select</button></article>
+          <article class="card"><h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p><button class="pill" data-cat="Fashion">Select</button></article>
+        </div>
+      </section>
+
+      <!-- Step 2 -->
+      <section id="stepSubs" style="display:none">
+        <div class="row" style="justify-content:space-between; align-items:center">
+          <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
+          <button class="pill" id="subsBack">← Categories</button>
+        </div>
+        <div id="subsList" class="list"></div>
+      </section>
+
+      <!-- Step 3 (Rap setup) -->
+      <section id="stepRapSetup" style="display:none">
+        <h4 style="margin:8px 0">Rap Battle Setup</h4>
+        <p class="help" style="margin:0 0 8px">Beat upload will enable the Instagram-style music meter.</p>
+        <div class="card">
+          <div class="row">
+            <label style="font-size:12px; color:var(--muted)">Style</label>
+            <select id="rapStyle" class="input">
+              <option value="freestyle">Freestyle</option>
+              <option value="written">Written</option>
+              <option value="cypher">Cypher</option>
+              <option value="wordplay">Wordplay</option>
+            </select>
+          </div>
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Round Length</label>
+              <div class="rangeRow">
+                <input id="rapLen" type="range" min="30" max="180" step="15" value="60"/>
+                <span id="rapLenVal" class="help">60s</span>
+              </div>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Rounds</label>
+              <select id="rapRounds" class="input">
+                <option>1</option><option selected>3</option><option>5</option>
+              </select>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Beat</label>
+              <select id="rapBeat" class="input">
+                <option value="acapella">Acapella</option>
+                <option value="trap_92">Trap 92 BPM</option>
+                <option value="boom_88">Boom-bap 88 BPM</option>
+                <option value="drill_140">Drill 140 BPM</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Upload Beat (optional)</label>
+              <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
+              <select id="rapWord" class="input">
+                <option value="none">None</option>
+                <option value="must_use_3">Must use 3 prompts</option>
+                <option value="random_topic">Random topic</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Profanity Filter</label>
+              <select id="rapFilter" class="input">
+                <option value="off">Off</option>
+                <option value="light">Light</option>
+                <option value="strict">Strict</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="pill" id="rapSetupBack">← Subcategories</button>
+            <button class="pill primary" id="rapApply">Apply & Use</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Generic setup -->
+      <section id="stepOtherSetup" style="display:none">
+        <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
+        <p class="help">Add unique controls here for this category.</p>
+        <div class="row" style="justify-content:flex-end">
+          <button class="pill" id="otherSetupBack">← Subcategories</button>
+          <button class="pill primary" id="otherApply">Apply & Use</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
   <script>
-    /*********** Simple state ***********/
+    /*********** App State ***********/
     const state = {
+      // battle
       readyA:false, readyB:true, // simulate opponent ready
       running:false, timeLeft:60, total:60, tick:null,
       currentRound:1, totalRounds:3,
-      aStream:null, aFacing:"user", aMicOn:true, aCamOn:false,
+
+      // camera/mic
+      aStream:null, aFacing:"user", aCamOn:false,
       aAudioCtx:null, aAnalyser:null, aData:null, aLevelRAF:null,
-      beatCtx:null, beatSrc:null, beatAnalyser:null, beatData:null, beatRAF:null
+
+      // picker
+      category:null, subcategory:null,
+      rap:{ style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null },
+
+      // beat meter
+      beatCtx:null, beatAnalyser:null, beatData:null, beatRAF:null
     };
 
-    // Make cameras fill the whole screen (no header/dock)
-    function enterBattleMode(){ document.getElementById('headerEl').classList.add('hidden'); }
-    enterBattleMode();
-
-    /*********** HUD timer ***********/
+    /*********** HUD (timer/rounds) ***********/
     const startBtn = document.getElementById("startBtn");
     const pauseBtn = document.getElementById("pauseBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -221,6 +339,7 @@
     function fmt(s){ const m=Math.floor(s/60), r=s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`; }
     function setTimer(seconds){ state.total=seconds; state.timeLeft=seconds; timeLeftEl.textContent=fmt(seconds); barFill.style.width='0%'; }
     function maybeEnableStart(){ startBtn.disabled = !(state.readyA && state.readyB); pauseBtn.disabled = true; resetBtn.disabled = true; }
+
     function tick(){
       if(!state.running) return;
       state.timeLeft = Math.max(0, state.timeLeft - 1);
@@ -229,7 +348,7 @@
       barFill.style.width = pct + '%';
       if(state.timeLeft<=0){
         if(state.currentRound < state.totalRounds){
-          state.currentRound += 1; roundNowEl.textContent = state.currentRound; setTimer(state.total);
+          state.currentRound += 1; roundNowEl.textContent = state.currentRound; setTimer(state.rap.length);
         }else{ stopBattle(true); }
       }
     }
@@ -240,13 +359,13 @@
     }
     function pauseBattle(){ if(!state.running) return; state.running=false; pauseBtn.disabled=true; startBtn.disabled=false; clearInterval(state.tick); }
     function stopBattle(){ state.running=false; clearInterval(state.tick); startBtn.disabled=!(state.readyA&&state.readyB); pauseBtn.disabled=true; resetBtn.disabled=false; }
-    function resetBattle(){ stopBattle(); state.currentRound=1; roundNowEl.textContent=1; setTimer(state.total); resetBtn.disabled=true; }
-    setTimer(60);
+    function resetBattle(){ stopBattle(); state.currentRound=1; roundNowEl.textContent=1; setTimer(state.rap.length); resetBtn.disabled=true; }
+    setTimer(state.rap.length);
     startBtn.addEventListener("click", startBattle);
     pauseBtn.addEventListener("click", pauseBattle);
     resetBtn.addEventListener("click", resetBattle);
 
-    /*********** Side A: camera/mic/upload ***********/
+    /*********** Cameras (Side A) ***********/
     const aVideo = document.getElementById("aVideo");
     const aPlaceholder = document.getElementById("aPlaceholder");
     const aMicBar = document.getElementById("aMicLevel");
@@ -262,8 +381,7 @@
         state.aStream = stream;
         aVideo.srcObject = stream; aVideo.muted = true;
         aVideo.style.display = 'block'; aPlaceholder.style.display = 'none';
-        state.aCamOn = true;
-        setupAudioMeter(stream);
+        state.aCamOn = true; setupAudioMeter(stream);
         state.readyA = true; maybeEnableStart();
       }catch(err){ alert("Camera/mic error: " + (err.message||err)); }
     }
@@ -299,7 +417,7 @@
       state.aAnalyser=null; state.aData=null; aMicBar.style.width='0%';
     }
 
-    // Buttons
+    // Buttons A
     document.getElementById("aCamera").addEventListener("click", ()=> state.aCamOn ? stopAStream() : startACamera());
     document.getElementById("aMic").addEventListener("click", ()=>{
       const track = state.aStream?.getAudioTracks?.()[0];
@@ -316,7 +434,7 @@
     });
     document.getElementById("aReady").addEventListener("click", ()=>{ state.readyA = !state.readyA; maybeEnableStart(); });
 
-    /*********** Side B (basic demo) ***********/
+    /*********** Side B (basic) ***********/
     document.getElementById("bMute").addEventListener("click", ()=>{
       const b = document.getElementById("bVideo"); b.muted = !b.muted; document.getElementById("bMute").textContent = b.muted ? "Unmute" : "Mute";
     });
@@ -325,11 +443,103 @@
       arena.insertBefore(arena.lastElementChild.previousElementSibling, arena.firstElementChild);
     });
 
-    /*********** Instagram-style music meter (after beat upload) ***********/
+    /*********** Picker logic ***********/
+    const picker = document.getElementById("picker");
+    const stepCats = document.getElementById("stepCats");
+    const stepSubs = document.getElementById("stepSubs");
+    const stepRap = document.getElementById("stepRapSetup");
+    const stepOther = document.getElementById("stepOtherSetup");
+    const subsTitle = document.getElementById("subsTitle");
+    const subsList = document.getElementById("subsList");
+    const pickCrumb = document.getElementById("pickCrumb");
+    const rapLen = document.getElementById("rapLen");
+    const rapLenVal = document.getElementById("rapLenVal");
+
+    const CAT_SUBS = {
+      "Rap": ["Freestyle","Written","Cypher","Wordplay"],
+      "Art": ["Sketch","Digital","Graffiti","Speed-paint"],
+      "Instruments": ["Guitar","Piano/Keys","Drums","Strings"],
+      "Comedy": ["Roast","Improv","Skits","One-liners"],
+      "Dance": ["Freestyle","Choreo","Break","Duo"],
+      "Fashion": ["Styled Fit","Runway","Custom Piece"]
+    };
+
+    function openPicker(step="cats"){ picker.classList.add("show"); showStep(step); updatePickCrumb(); }
+    function closePicker(){ picker.classList.remove("show"); showStep("cats"); }
+    function showStep(which){
+      stepCats.style.display = (which==="cats") ? "block" : "none";
+      stepSubs.style.display = (which==="subs") ? "block" : "none";
+      stepRap.style.display  = (which==="rap")  ? "block" : "none";
+      stepOther.style.display= (which==="other")? "block" : "none";
+    }
+    function updatePickCrumb(){
+      if(stepRap.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> → ${state.subcategory} • Setup`; }
+      else if(stepSubs.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> • Subcategories`; }
+      else{ pickCrumb.innerHTML = `<b>Categories</b>`; }
+    }
+
+    document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
+    document.getElementById("pickClose").addEventListener("click", closePicker);
+    document.getElementById("pickBack").addEventListener("click", ()=>{
+      if(stepSubs.style.display==="block" || stepRap.style.display==="block" || stepOther.style.display==="block"){ showStep("cats"); updatePickCrumb(); }
+      else closePicker();
+    });
+    document.getElementById("subsBack").addEventListener("click", ()=>{ showStep("cats"); updatePickCrumb(); });
+    document.getElementById("rapSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
+    document.getElementById("otherSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
+
+    stepCats.querySelectorAll("button[data-cat]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        state.category = btn.dataset.cat; state.subcategory = null;
+        subsTitle.textContent = `${state.category} — Subcategories`;
+        const items = CAT_SUBS[state.category] || [];
+        subsList.innerHTML = items.map(name=>`
+          <article class="card">
+            <h4>${name}</h4>
+            <p>Tap to use</p>
+            <button class="pill" data-sub="${name}">Select</button>
+          </article>
+        `).join("");
+        subsList.querySelectorAll("button[data-sub]").forEach(b=>{
+          b.addEventListener("click", ()=>{
+            state.subcategory = b.dataset.sub;
+            if(state.category==="Rap"){ showStep("rap"); updatePickCrumb(); }
+            else{ document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`; showStep("other"); updatePickCrumb(); }
+          });
+        });
+        showStep("subs"); updatePickCrumb();
+      });
+    });
+
+    rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
+
+    document.getElementById("rapApply").addEventListener("click", async ()=>{
+      state.rap.style  = document.getElementById("rapStyle").value;
+      state.rap.length = parseInt(document.getElementById("rapLen").value,10);
+      state.rap.rounds = parseInt(document.getElementById("rapRounds").value,10);
+      state.rap.beat   = document.getElementById("rapBeat").value;
+      state.rap.word   = document.getElementById("rapWord").value;
+      state.rap.filter = document.getElementById("rapFilter").value;
+      const file = document.getElementById("rapBeatFile").files?.[0] || null;
+      state.rap.beatFile = file;
+
+      // Apply timer + rounds from setup
+      state.currentRound = 1; state.totalRounds = state.rap.rounds;
+      roundNowEl.textContent = 1; document.getElementById("roundTotal").textContent = state.totalRounds;
+      setTimer(state.rap.length);
+
+      // If beat file picked, start IG meter
+      if(file){ await useBeatFile(file); }
+      // If preset beat chosen (no file), you can map to URLs here if you have them.
+      closePicker();
+    });
+
+    document.getElementById("otherApply").addEventListener("click", ()=>{ closePicker(); });
+
+    /*********** IG Music Meter ***********/
     const beatAudio = document.getElementById("beatAudio");
     const igMusic = document.getElementById("igMusic");
-    const igMeter = document.getElementById("igMeter");
-    const igBars = Array.from(igMeter.querySelectorAll('i'));
+    const igBars = Array.from(document.getElementById("igMeter").querySelectorAll('i'));
 
     async function useBeatFile(file){
       if(!file) return;
@@ -366,22 +576,24 @@
         };
         cancelAnimationFrame(state.beatRAF); loop();
       }catch(e){
+        // fallback wiggle
         cancelAnimationFrame(state.beatRAF);
         const wiggle=()=>{ igBars.forEach((b,i)=> b.style.height=(6 + (Math.sin((Date.now()/160)+(i*.5))*8 + Math.random()*6)|0)+'px'); state.beatRAF=requestAnimationFrame(wiggle); };
         state.beatRAF=requestAnimationFrame(wiggle);
       }
     }
 
-    // Quick hook to choose a beat: uses a temporary file picker
-    document.getElementById("catsBtn").addEventListener("click", async ()=>{
-      const picker = document.createElement('input');
-      picker.type = 'file'; picker.accept = 'audio/*';
-      picker.addEventListener('change', ()=> useBeatFile(picker.files?.[0]));
-      picker.click();
+    /*********** Quick helpers ***********/
+    // Open picker on first load so you can set rounds/beat immediately (optional)
+    // openPicker("cats");
+
+    // Wire category button on HUD to choose a beat quickly if you just want meter fast
+    document.getElementById("catsBtn").addEventListener("click", ()=>{
+      // If you want a quick beat without full picker:
+      // const input=document.createElement('input'); input.type='file'; input.accept='audio/*';
+      // input.onchange=()=> useBeatFile(input.files?.[0]); input.click();
     });
 
-    /*********** Init ***********/
-    setInterval(()=>{ document.getElementById("latVal").textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
   </script>
 </body>
 </html>
