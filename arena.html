@@ -12,14 +12,14 @@
       --pad:clamp(10px, 3vw, 24px);
       --accent:#6ee7ff;
       --safe-bottom:max(12px, env(safe-area-inset-bottom));
-      --header-h:64px; /* set precisely in JS after render */
+      --header-h:64px;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; -webkit-tap-highlight-color:transparent; overflow:hidden}
 
-    /* Header */
+    /* ===== Header (hidden in battle) ===== */
     .header{
-      position:sticky; top:0; z-index:10;
+      position:sticky; top:0; z-index:20;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:10px var(--pad);
       background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.4));
@@ -38,152 +38,87 @@
     .btn:active{transform:translateY(1px)}
     .crumb{font-size:13px; color:var(--muted)}
     .crumb b{color:var(--ink)}
-    .statusDot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
     .latency{font-size:12px;color:var(--muted)}
     .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
     .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 
-    /* ARENA: fixed, full viewport under header — NO SCROLL */
+    /* ===== ARENA: exact-fit grid (NO SCROLL) ===== */
     .arena{
-      position:fixed; left:0; right:0; top:var(--header-h); bottom:0; z-index:1;
+      position:fixed; inset:0; z-index:1;
       display:grid; grid-template-columns: 1fr 1fr; gap:0;
-      padding:0; overflow:hidden;
+      background:#000;
     }
     .side{
-      position:relative; height:100%; overflow:hidden;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border-left:1px solid var(--edge);
+      position:relative; height:100%; overflow:hidden; border-left:1px solid var(--edge);
     }
     .side:first-child{border-left:none}
 
-    /* Make side headers/controls overlay so video stays full */
-    .side > header{
-      position:absolute; inset:auto 0 auto 0; top:0; z-index:3;
-      display:flex; align-items:center; justify-content:space-between; gap:8px;
-      padding:10px; border-bottom:1px solid var(--edge);
-      background:linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.2));
-    }
-
-    /* Full-bleed video area (no aspect ratio boxing) */
+    /* Full-bleed video surface */
     .videoWrap{
       position:absolute; inset:0; display:grid; place-items:center; overflow:hidden;
-      margin:0; border-radius:0; background:#000;
+      background:#000;
     }
-    .videoWrap video, .videoWrap .ph{ width:100%; height:100%; object-fit:cover; }
+    video, .ph{width:100%; height:100%; object-fit:cover}
     .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
 
-    .overlay{ position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:8px; pointer-events:none; }
-    .bottomOverlay{
-      position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
-      padding:8px; pointer-events:none;
-      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.45));
+    /* Per-side HUD (bottom strip) */
+    .strip{
+      position:absolute; left:0; right:0; bottom:0; z-index:5;
+      display:flex; align-items:center; gap:10px; padding:10px;
+      background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55));
+      border-top:1px solid rgba(255,255,255,.06);
+      pointer-events:none; /* children re-enable */
     }
-
-    /* Classic level meter */
-    .meter{
-      height:8px; width:110px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
-      box-shadow:inset 0 0 0 1px #0a0a0a;
-    }
-    .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
-
-    /* Instagram-style music meter (stacked bars) */
-    .igMeter{
-      display:flex; align-items:flex-end; gap:3px;
-      height:18px; padding:4px 6px; border-radius:8px;
-      background:rgba(0,0,0,.35); border:1px solid #1f1f1f;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
-    }
-    .igMeter i{
-      display:block; width:3px; height:6px; border-radius:2px;
-      background:linear-gradient(180deg,#6ee7ff,#20e3b2);
-      opacity:.95; transform-origin:bottom; transition:height .08s linear;
-    }
-
-    /* Controls dock per side (overlay) */
-    .controls{
-      position:absolute; left:0; right:0; bottom:0; z-index:3;
-      display:flex; gap:8px; flex-wrap:wrap; padding:10px; border-top:1px solid var(--edge);
-      background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.5));
-    }
-    .pill{
-      border:none; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:700; font-size:12px;
-      background:#121214; color:#e8f3ff; border:1px solid #2a2a2a;
-    }
+    .strip .row{display:flex; align-items:center; gap:10px; pointer-events:auto}
+    .pill{border:none; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:700; font-size:12px; background:#121214; color:#e8f3ff; border:1px solid #2a2a2a}
     .pill.primary{ background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; border-color:transparent }
     .pill.warn{ background:#241306; color:#ffd699; border-color:#3b260e }
     .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
     .spacer{flex:1}
 
-    /* HUD (timer + rounds) — top center, below header */
+    /* Classic meter */
+    .meter{height:8px; width:110px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden; box-shadow:inset 0 0 0 1px #0a0a0a}
+    .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
+
+    /* Instagram-style music meter (shows after upload) */
+    .igMusic{position:absolute; left:50%; transform:translateX(-50%); bottom:56px; z-index:6; display:none}
+    .igMeter{
+      display:flex; align-items:flex-end; gap:3px;
+      height:22px; padding:4px 6px; border-radius:8px;
+      background:rgba(0,0,0,.45); border:1px solid #1f1f1f;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .igMeter i{display:block; width:3px; height:6px; border-radius:2px; background:linear-gradient(180deg,#6ee7ff,#20e3b2); opacity:.95; transform-origin:bottom}
+
+    /* Global HUD (rounds + timer) top-center */
     .hud{
-      position:fixed; left:50%; top:calc(var(--header-h) + 8px); transform:translateX(-50%);
-      z-index:9; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:0 8px;
+      position:fixed; left:50%; top:8px; transform:translateX(-50%); z-index:10;
+      display:flex; align-items:center; gap:10px; padding:6px 8px;
+      background:rgba(0,0,0,.55); border:1px solid #1f1f1f; border-radius:12px; backdrop-filter:blur(6px)
     }
-    .hudRow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
-    .badge{
-      font-size:12px; font-weight:800; padding:8px 10px; border-radius:10px;
-      background:rgba(0,0,0,.6); border:1px solid #1f1f1f; backdrop-filter: blur(6px);
-    }
-    .timer{
-      display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px;
-      background:rgba(0,0,0,.6); border:1px solid #1f1f1f; backdrop-filter: blur(6px);
-      font-weight:800;
-    }
-    .timeNum{font-variant-numeric:tabular-nums}
-    .bar{position:relative; width:220px; height:10px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
+    .badge{font-size:12px; font-weight:800; padding:6px 10px; border-radius:10px; background:rgba(0,0,0,.3); border:1px solid #1f1f1f}
+    .timer{display:flex; align-items:center; gap:10px; font-weight:800}
+    .bar{position:relative; width:180px; height:10px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
     .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a)}
-    .pulse{width:14px;height:14px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
-    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 12px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
+    .timeNum{font-variant-numeric:tabular-nums}
+    .pulse{width:12px;height:12px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
+    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
 
-    /* Bottom global dock (optional) */
-    .dock{
-      position:fixed; left:0; right:0; bottom:0; z-index:8;
-      display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
-      padding:10px var(--pad) calc(10px + var(--safe-bottom));
-      background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
-    }
-    .dock .btn{min-width:140px}
-
-    /* Picker overlay */
-    .overlayWrap{
-      position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20;
-    }
-    .overlayWrap.show{display:flex}
-    .sheet{
-      width:min(880px, 92vw); max-height:86vh; overflow:auto;
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      border:1px solid var(--edge); border-radius:18px; padding:14px;
-      box-shadow:0 0 60px rgba(0,0,0,.5);
-    }
-    .sheet header{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 4px 12px; border-bottom:1px solid var(--edge) }
-    .list{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:12px }
-    @media (max-width:760px){ .list{ grid-template-columns: 1fr 1fr } }
-    @media (max-width:480px){ .list{ grid-template-columns: 1fr } }
-    .card{
-      padding:12px; border-radius:14px; background:var(--glass); border:1px solid var(--edge);
-      display:grid; gap:6px;
-    }
-    .card h4{margin:0; font-size:14px}
-    .card p{margin:0; font-size:12px; color:var(--muted)}
-    .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-    .input, select{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink); }
-    .rangeRow{display:flex; align-items:center; gap:8px}
-    .rangeRow input[type="range"]{flex:1}
-    .help{font-size:12px; color:var(--muted)}
-    .crumbbar{font-size:12px; color:var(--muted)}
-    .crumbbar b{color:#e7f7ff}
-    .divider{height:1px; background:#222; margin:8px 0}
+    /* Hide header/dock in battle to maximize camera area */
+    .hidden{display:none !important}
+    .dock{display:none}
   </style>
 </head>
 <body>
-  <!-- Header -->
+
+  <!-- Header (auto-hidden when battle starts) -->
   <div class="header" id="headerEl">
     <div class="h-left">
       <button id="backBtn" class="btn small">← Back</button>
       <div class="crumb" id="crumb"><b>Select Category</b></div>
     </div>
     <div class="controlsHeader">
-      <span class="latency"><span class="statusDot" id="netDot"></span><span id="latVal">22ms</span></span>
+      <span class="latency"><span style="width:10px;height:10px;border-radius:50%;background:#20e3b2;display:inline-block;margin-right:6px;vertical-align:middle"></span><span id="latVal">22ms</span></span>
       <span class="room" id="roomCode">Room: 4X9-QQA</span>
       <button class="btn small" id="startBtn" disabled>Start</button>
       <button class="btn small ghost" id="pauseBtn" disabled>Pause</button>
@@ -191,332 +126,130 @@
     </div>
   </div>
 
-  <!-- HUD (timer + rounds) -->
-  <div class="hud">
-    <div class="hudRow">
-      <div class="badge" id="roundBadge">Round <b id="roundNow">1</b>/<span id="roundTotal">3</span></div>
-      <div class="timer">
-        <span class="pulse" id="beatDot" title="Beat pulse"></span>
-        <span id="timeLeft" class="timeNum">01:00</span>
-        <div class="bar"><span id="barFill"></span></div>
-      </div>
+  <!-- Global HUD -->
+  <div class="hud" id="hud">
+    <div class="badge">Round <b id="roundNow">1</b>/<span id="roundTotal">3</span></div>
+    <div class="timer">
+      <span class="pulse" id="beatDot"></span>
+      <span id="timeLeft" class="timeNum">01:00</span>
+      <div class="bar"><span id="barFill"></span></div>
     </div>
   </div>
 
-  <!-- Split Arena (fixed, side-by-side, full height) -->
+  <!-- Exact-fit two-up cameras -->
   <main class="arena" id="arena">
     <!-- Side A -->
     <section class="side" id="sideA">
-      <header>
-        <div class="who">
-          <span class="tag">Competitor A</span>
-          <span id="aName" class="help">@you</span>
-        </div>
-        <span class="liveTag" id="aState">Idle</span>
-      </header>
-
       <div class="videoWrap" id="aVideoWrap">
         <div class="ph" id="aPlaceholder">Camera off — tap “Camera”</div>
         <video id="aVideo" playsinline autoplay muted style="display:none"></video>
-
-        <div class="overlay">
-          <div></div>
-          <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
-        </div>
-        <div class="bottomOverlay">
-          <div class="row" style="gap:10px; align-items:center; pointer-events:auto">
-            <div class="meter"><span id="aMicLevel"></span></div>
-            <div class="igMeter" id="aIgMeter">
-              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-              <i></i><i></i><i></i><i></i><i></i>
-            </div>
-          </div>
-          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="aFullscreen">Fullscreen</button></div>
-        </div>
       </div>
 
-      <div class="controls">
-        <button class="pill" id="aCamera">Camera</button>
-        <button class="pill" id="aMic">Mic</button>
-        <button class="pill" id="aSwitch">Switch</button>
-        <label for="aUploadInput" class="pill" style="cursor:pointer">Upload</label>
-        <input id="aUploadInput" type="file" accept="video/*" style="display:none"/>
+      <div class="strip">
+        <div class="row">
+          <div class="meter"><span id="aMicLevel"></span></div>
+        </div>
         <div class="spacer"></div>
-        <button class="pill primary" id="aReady">Ready</button>
-        <button class="pill red" id="aConcede">Concede</button>
+        <div class="row">
+          <button class="pill" id="aCamera">Camera</button>
+          <button class="pill" id="aMic">Mic</button>
+          <button class="pill" id="aSwitch">Switch</button>
+          <label for="aUploadInput" class="pill" style="cursor:pointer">Upload</label>
+          <input id="aUploadInput" type="file" accept="video/*" style="display:none"/>
+          <button class="pill primary" id="aReady">Ready</button>
+        </div>
       </div>
     </section>
 
     <!-- Side B -->
     <section class="side" id="sideB">
-      <header>
-        <div class="who">
-          <span class="tag">Competitor B</span>
-          <span id="bName" class="help">@opponent</span>
-        </div>
-        <span class="liveTag" id="bState">Idle</span>
-      </header>
-
       <div class="videoWrap" id="bVideoWrap">
         <div class="ph" id="bPlaceholder">Waiting for opponent…</div>
         <video id="bVideo" playsinline autoplay controls style="display:none"></video>
-
-        <div class="overlay">
-          <div></div>
-          <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
-        </div>
-        <div class="bottomOverlay">
-          <div class="row" style="gap:10px; align-items:center; pointer-events:auto">
-            <div class="meter"><span id="bMicLevel"></span></div>
-            <div class="igMeter" id="bIgMeter">
-              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-              <i></i><i></i><i></i><i></i><i></i>
-            </div>
-          </div>
-          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="bFullscreen">Fullscreen</button></div>
-        </div>
       </div>
 
-      <div class="controls">
-        <button class="pill" id="bMute">Mute</button>
-        <button class="pill" id="bSwap">Swap Sides</button>
+      <div class="strip">
+        <div class="row">
+          <div class="meter"><span id="bMicLevel"></span></div>
+        </div>
         <div class="spacer"></div>
-        <button class="pill warn" id="rulesBtn">Rules</button>
-        <button class="pill" id="catsBtn">Categories</button>
+        <div class="row">
+          <button class="pill" id="bMute">Mute</button>
+          <button class="pill" id="bSwap">Swap</button>
+          <button class="pill warn" id="catsBtn">Categories</button>
+        </div>
       </div>
     </section>
+
+    <!-- Music Meter (appears only after beat upload/play) -->
+    <div class="igMusic" id="igMusic">
+      <div class="igMeter" id="igMeter">
+        <!-- 24 bars -->
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
   </main>
 
-  <!-- Dock (optional quick actions, does not cause scroll) -->
-  <div class="dock">
-    <button class="btn" id="catsDock">Choose Category</button>
-    <button class="btn ghost" id="inviteBtn">Invite Opponent</button>
-  </div>
-
-  <!-- Picker -->
-  <div class="overlayWrap" id="picker">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
-      <header>
-        <div class="crumbbar" id="pickCrumb"><b>Categories</b></div>
-        <div class="row">
-          <button class="btn small ghost" id="pickBack">← Back</button>
-          <button class="btn small" id="pickClose">Close</button>
-        </div>
-      </header>
-
-      <!-- Step 1 -->
-      <section id="stepCats">
-        <div class="list">
-          <article class="card"><h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p><button class="btn small" data-cat="Rap">Select</button></article>
-          <article class="card"><h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p><button class="btn small" data-cat="Art">Select</button></article>
-          <article class="card"><h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p><button class="btn small" data-cat="Instruments">Select</button></article>
-          <article class="card"><h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p><button class="btn small" data-cat="Comedy">Select</button></article>
-          <article class="card"><h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p><button class="btn small" data-cat="Dance">Select</button></article>
-          <article class="card"><h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p><button class="btn small" data-cat="Fashion">Select</button></article>
-        </div>
-      </section>
-
-      <!-- Step 2 -->
-      <section id="stepSubs" style="display:none">
-        <div class="row" style="justify-content:space-between; align-items:center">
-          <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
-          <button class="btn small ghost" id="subsBack">← Categories</button>
-        </div>
-        <div id="subsList" class="list"></div>
-      </section>
-
-      <!-- Step 3 (Rap) -->
-      <section id="stepRapSetup" style="display:none">
-        <h4 style="margin:8px 0">Rap Battle Setup</h4>
-        <p class="help" style="margin:0 0 8px">Use this pattern for other categories.</p>
-        <div class="card">
-          <div class="row">
-            <label style="font-size:12px; color:var(--muted)">Style</label>
-            <select id="rapStyle" class="input">
-              <option value="freestyle">Freestyle</option>
-              <option value="written">Written</option>
-              <option value="cypher">Cypher</option>
-              <option value="wordplay">Wordplay</option>
-            </select>
-          </div>
-          <div class="divider"></div>
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Round Length</label>
-              <div class="rangeRow">
-                <input id="rapLen" type="range" min="30" max="180" step="15" value="60"/>
-                <span id="rapLenVal" class="help">60s</span>
-              </div>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Rounds</label>
-              <select id="rapRounds" class="input"><option>1</option><option selected>3</option><option>5</option></select>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Beat</label>
-              <select id="rapBeat" class="input">
-                <option value="acapella">Acapella</option>
-                <option value="trap_92">Trap 92bpm</option>
-                <option value="boom_88">Boom-bap 88bpm</option>
-                <option value="drill_140">Drill 140bpm</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Upload Beat (optional)</label>
-              <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
-              <select id="rapWord" class="input">
-                <option value="none">None</option>
-                <option value="must_use_3">Must use 3 prompts</option>
-                <option value="random_topic">Random topic</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Profanity Filter</label>
-              <select id="rapFilter" class="input">
-                <option value="off">Off</option>
-                <option value="light">Light</option>
-                <option value="strict">Strict</option>
-              </select>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div class="row" style="justify-content:flex-end">
-            <button class="btn small ghost" id="rapSetupBack">← Subcategories</button>
-            <button class="btn small" id="rapApply">Apply & Use</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Generic setup -->
-      <section id="stepOtherSetup" style="display:none">
-        <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
-        <p class="help">Add unique controls here for this category.</p>
-        <div class="row" style="justify-content:flex-end">
-          <button class="btn small ghost" id="otherSetupBack">← Subcategories</button>
-          <button class="btn small" id="otherApply">Apply & Use</button>
-        </div>
-      </section>
-    </div>
-  </div>
+  <!-- Hidden audio element for beat -->
+  <audio id="beatAudio" preload="auto"></audio>
 
   <script>
-    /*********** Layout sizing (no scroll) ***********/
-    (function setHeaderH(){
-      const h = document.getElementById('headerEl')?.offsetHeight || 64;
-      document.documentElement.style.setProperty('--header-h', h + 'px');
-      window.addEventListener('resize', ()=> {
-        const h2 = document.getElementById('headerEl')?.offsetHeight || 64;
-        document.documentElement.style.setProperty('--header-h', h2 + 'px');
-      });
-    })();
-
-    /*********** State ***********/
+    /*********** Simple state ***********/
     const state = {
-      room: (localStorage.getItem("bb_room") || "4X9-QQA"),
-      category: null,
-      subcategory: null,
-      rap: { style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null },
-      readyA:false, readyB:false,
+      readyA:false, readyB:true, // simulate opponent ready
       running:false, timeLeft:60, total:60, tick:null,
       currentRound:1, totalRounds:3,
-      // media
       aStream:null, aFacing:"user", aMicOn:true, aCamOn:false,
       aAudioCtx:null, aAnalyser:null, aData:null, aLevelRAF:null,
-      bMuted:false, aIgRAF:null, bIgRAF:null
+      beatCtx:null, beatSrc:null, beatAnalyser:null, beatData:null, beatRAF:null
     };
 
-    /*********** Header + crumbs ***********/
-    document.getElementById("roomCode").textContent = "Room: " + state.room;
-    const crumbEl = document.getElementById("crumb");
-    const roundNowEl = document.getElementById("roundNow");
-    const roundTotalEl = document.getElementById("roundTotal");
-    function setCrumb(){
-      if(!state.category) crumbEl.innerHTML = "<b>Select Category</b>";
-      else if(!state.subcategory) crumbEl.innerHTML = `<b>${state.category}</b> • choose subcategory`;
-      else crumbEl.innerHTML = `<b>${state.category}</b> → ${state.subcategory}`;
-    }
-    function setRoundsUI(){
-      roundNowEl.textContent = state.currentRound;
-      roundTotalEl.textContent = state.totalRounds;
-    }
-    setCrumb(); setRoundsUI();
-    document.getElementById("backBtn").addEventListener("click", ()=> openPicker("cats"));
-    const latVal = document.getElementById("latVal");
-    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
+    // Make cameras fill the whole screen (no header/dock)
+    function enterBattleMode(){ document.getElementById('headerEl').classList.add('hidden'); }
+    enterBattleMode();
 
-    /*********** Timer with auto-round advance ***********/
+    /*********** HUD timer ***********/
     const startBtn = document.getElementById("startBtn");
     const pauseBtn = document.getElementById("pauseBtn");
     const resetBtn = document.getElementById("resetBtn");
     const timeLeftEl = document.getElementById("timeLeft");
     const barFill = document.getElementById("barFill");
-    const beatDot = document.getElementById("beatDot");
+    const roundNowEl = document.getElementById("roundNow");
+    const roundTotalEl = document.getElementById("roundTotal"); roundTotalEl.textContent = state.totalRounds;
 
     function fmt(s){ const m=Math.floor(s/60), r=s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`; }
     function setTimer(seconds){ state.total=seconds; state.timeLeft=seconds; timeLeftEl.textContent=fmt(seconds); barFill.style.width='0%'; }
-    setTimer(state.rap.length);
-
     function maybeEnableStart(){ startBtn.disabled = !(state.readyA && state.readyB); pauseBtn.disabled = true; resetBtn.disabled = true; }
-    function disableStart(){ startBtn.disabled = true; pauseBtn.disabled = true; resetBtn.disabled = true; }
-    // Opponent sim "ready"
-    setTimeout(()=>{ state.readyB = true; document.getElementById("bState").textContent = "Ready"; maybeEnableStart(); }, 900);
-
     function tick(){
       if(!state.running) return;
       state.timeLeft = Math.max(0, state.timeLeft - 1);
       timeLeftEl.textContent = fmt(state.timeLeft);
       const pct = 100 - Math.round((state.timeLeft/state.total)*100);
       barFill.style.width = pct + '%';
-
       if(state.timeLeft<=0){
         if(state.currentRound < state.totalRounds){
-          state.currentRound += 1;
-          setRoundsUI();
-          setTimer(state.rap.length);
-        }else{
-          stopBattle(true);
-        }
+          state.currentRound += 1; roundNowEl.textContent = state.currentRound; setTimer(state.total);
+        }else{ stopBattle(true); }
       }
     }
     function startBattle(){
       if(startBtn.disabled) return;
       state.running = true; startBtn.disabled=true; pauseBtn.disabled=false; resetBtn.disabled=false;
       clearInterval(state.tick); state.tick=setInterval(tick, 1000);
-      const tempos = { acapella:0, trap_92:92, boom_88:88, drill_140:140 };
-      const bpm = tempos[state.rap.beat]||0; beatDot.style.animationDuration = (bpm? Math.max(300, Math.round(60000/bpm))/1000 : 1.2)+'s';
     }
     function pauseBattle(){ if(!state.running) return; state.running=false; pauseBtn.disabled=true; startBtn.disabled=false; clearInterval(state.tick); }
-    function stopBattle(ended=false){
-      state.running=false; clearInterval(state.tick);
-      startBtn.disabled=!(state.readyA && state.readyB);
-      pauseBtn.disabled=true; resetBtn.disabled=false;
-      if(ended) alert('Battle complete!');
-    }
-    function resetBattle(){
-      stopBattle(false);
-      state.currentRound = 1; setRoundsUI();
-      setTimer(state.rap.length);
-      resetBtn.disabled=true;
-    }
+    function stopBattle(){ state.running=false; clearInterval(state.tick); startBtn.disabled=!(state.readyA&&state.readyB); pauseBtn.disabled=true; resetBtn.disabled=false; }
+    function resetBattle(){ stopBattle(); state.currentRound=1; roundNowEl.textContent=1; setTimer(state.total); resetBtn.disabled=true; }
+    setTimer(60);
     startBtn.addEventListener("click", startBattle);
     pauseBtn.addEventListener("click", pauseBattle);
     resetBtn.addEventListener("click", resetBattle);
 
-    /*********** Side A controls (camera/mic/upload + meters) ***********/
+    /*********** Side A: camera/mic/upload ***********/
     const aVideo = document.getElementById("aVideo");
     const aPlaceholder = document.getElementById("aPlaceholder");
-    const aStateEl = document.getElementById("aState");
     const aMicBar = document.getElementById("aMicLevel");
-    const aIg = document.getElementById("aIgMeter");
 
     async function startACamera(){
       try{
@@ -527,23 +260,18 @@
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         stopAStream();
         state.aStream = stream;
-        aVideo.srcObject = stream;
-        aVideo.muted = true;
-        aVideo.style.display = 'block';
-        aPlaceholder.style.display = 'none';
-        state.aCamOn = true; aStateEl.textContent = "Camera On";
+        aVideo.srcObject = stream; aVideo.muted = true;
+        aVideo.style.display = 'block'; aPlaceholder.style.display = 'none';
+        state.aCamOn = true;
         setupAudioMeter(stream);
-      }catch(err){
-        console.warn("getUserMedia failed", err);
-        alert("Could not start camera/mic: " + (err.message||err));
-      }
+        state.readyA = true; maybeEnableStart();
+      }catch(err){ alert("Camera/mic error: " + (err.message||err)); }
     }
     function stopAStream(){
       if(state.aStream){ state.aStream.getTracks().forEach(t=>t.stop()); state.aStream=null; }
-      teardownMeter();
-      aVideo.srcObject = null; aVideo.pause();
-      aVideo.style.display = 'none'; aPlaceholder.style.display = 'grid';
-      state.aCamOn = false; aStateEl.textContent = "Idle";
+      teardownMicMeter();
+      aVideo.srcObject = null; aVideo.pause(); aVideo.style.display='none'; aPlaceholder.style.display='grid';
+      state.aCamOn = false; state.readyA = false; maybeEnableStart();
     }
     function setupAudioMeter(stream){
       try{
@@ -554,66 +282,30 @@
         state.aAnalyser.fftSize = 256;
         state.aData = new Uint8Array(state.aAnalyser.frequencyBinCount);
         src.connect(state.aAnalyser);
-
-        const bars = Array.from(aIg.querySelectorAll('i'));
-        const updateBars = (rms)=>{
-          // spread one RMS into a wavy bar pattern
-          for(let i=0;i<bars.length;i++){
-            const t = (i/bars.length);
-            const wiggle = Math.sin((performance.now()/120)+(t*6))*0.15 + 0.85;
-            const h = Math.max(4, Math.min(18, Math.round((rms*110) * wiggle)));
-            bars[i].style.height = h + 'px';
-          }
-        };
-
         const loop = ()=>{
           if(!state.aAnalyser){ aMicBar.style.width = '0%'; return; }
           state.aAnalyser.getByteTimeDomainData(state.aData);
           let sum=0; for(let i=0;i<state.aData.length;i++){ const v=(state.aData[i]-128)/128; sum+=v*v; }
           const rms = Math.sqrt(sum/state.aData.length);
-          const pct = Math.min(100, Math.max(6, Math.round(rms*160)));
-          aMicBar.style.width = pct + '%';
-          updateBars(rms);
+          aMicBar.style.width = Math.min(100, Math.max(6, Math.round(rms*160))) + '%';
           state.aLevelRAF = requestAnimationFrame(loop);
         };
         cancelAnimationFrame(state.aLevelRAF); loop();
-      }catch(e){
-        console.warn("Audio meter unavailable", e);
-        teardownMeter();
-        // graceful fallback: animate IG meter lightly
-        const bars = Array.from(aIg.querySelectorAll('i'));
-        cancelAnimationFrame(state.aIgRAF);
-        const fake=()=>{ bars.forEach((b,i)=> b.style.height = (6 + (Math.sin((Date.now()/180)+(i*0.7))*6 + Math.random()*6)|0)+'px'); state.aIgRAF=requestAnimationFrame(fake); };
-        state.aIgRAF=requestAnimationFrame(fake);
-      }
+      }catch(e){ teardownMicMeter(); }
     }
-    function teardownMeter(){
+    function teardownMicMeter(){
       cancelAnimationFrame(state.aLevelRAF); state.aLevelRAF=null;
-      cancelAnimationFrame(state.aIgRAF); state.aIgRAF=null;
       if(state.aAudioCtx){ try{ state.aAudioCtx.close(); }catch{} state.aAudioCtx=null; }
       state.aAnalyser=null; state.aData=null; aMicBar.style.width='0%';
-      document.querySelectorAll('#aIgMeter i').forEach(el=> el.style.height='6px');
     }
 
-    // Buttons A
-    document.getElementById("aCamera").addEventListener("click", async ()=>{
-      if(state.aCamOn){ stopAStream(); } else {
-        if(aVideo.src && !aVideo.srcObject){ aVideo.removeAttribute('src'); aVideo.load(); }
-        await startACamera();
-      }
-    });
+    // Buttons
+    document.getElementById("aCamera").addEventListener("click", ()=> state.aCamOn ? stopAStream() : startACamera());
     document.getElementById("aMic").addEventListener("click", ()=>{
       const track = state.aStream?.getAudioTracks?.()[0];
-      if(track){
-        track.enabled = !track.enabled;
-        state.aMicOn = track.enabled;
-        document.getElementById("aMic").textContent = track.enabled ? "Mic" : "Mic (Muted)";
-      }
+      if(track){ track.enabled = !track.enabled; document.getElementById("aMic").textContent = track.enabled ? "Mic" : "Mic (Muted)"; }
     });
-    document.getElementById("aSwitch").addEventListener("click", async ()=>{
-      state.aFacing = (state.aFacing === "user") ? "environment" : "user";
-      if(state.aCamOn){ await startACamera(); }
-    });
+    document.getElementById("aSwitch").addEventListener("click", async ()=>{ state.aFacing = (state.aFacing==="user")?"environment":"user"; if(state.aCamOn) await startACamera(); });
     document.getElementById("aUploadInput").addEventListener("change", (e)=>{
       const file = e.target.files?.[0]; if(!file) return;
       stopAStream();
@@ -621,174 +313,75 @@
       aVideo.srcObject = null; aVideo.src = url; aVideo.controls = true; aVideo.muted=false;
       aVideo.style.display='block'; aPlaceholder.style.display='none';
       aVideo.play().catch(()=>{});
-      aStateEl.textContent = "Playing Upload";
     });
-    function fs(el){ if(el.requestFullscreen) el.requestFullscreen(); }
-    document.getElementById("aFullscreen").addEventListener("click", ()=> fs(document.getElementById("aVideoWrap")));
-    document.getElementById("aReady").addEventListener("click", ()=>{
-      state.readyA = !state.readyA;
-      aStateEl.textContent = state.readyA ? "Ready" : (state.aCamOn ? "Camera On" : "Idle");
-      maybeEnableStart();
-    });
-    document.getElementById("aConcede").addEventListener("click", ()=>{
-      state.readyA=false; aStateEl.textContent="Conceded"; disableStart();
-    });
+    document.getElementById("aReady").addEventListener("click", ()=>{ state.readyA = !state.readyA; maybeEnableStart(); });
 
-    /*********** Side B controls ***********/
-    const bVideo = document.getElementById("bVideo");
-    const bPlaceholder = document.getElementById("bPlaceholder");
-    const bIg = document.getElementById("bIgMeter");
+    /*********** Side B (basic demo) ***********/
     document.getElementById("bMute").addEventListener("click", ()=>{
-      state.bMuted = !state.bMuted;
-      bVideo.muted = state.bMuted;
-      document.getElementById("bMute").textContent = state.bMuted ? "Unmute" : "Mute";
+      const b = document.getElementById("bVideo"); b.muted = !b.muted; document.getElementById("bMute").textContent = b.muted ? "Unmute" : "Mute";
     });
     document.getElementById("bSwap").addEventListener("click", ()=>{
-      // swap labels
-      const aName = document.getElementById("aName");
-      const bName = document.getElementById("bName");
-      [aName.textContent, bName.textContent] = [bName.textContent, aName.textContent];
-      // swap the cards visually
       const arena = document.getElementById("arena");
-      const aCard = document.getElementById("sideA");
-      const bCard = document.getElementById("sideB");
-      arena.insertBefore(bCard, aCard);
-      arena.appendChild(aCard);
+      arena.insertBefore(arena.lastElementChild.previousElementSibling, arena.firstElementChild);
     });
-    document.getElementById("bFullscreen").addEventListener("click", ()=> fs(document.getElementById("bVideoWrap")));
 
-    // Optional: preload a sample opponent video (set your file URL)
-    (function demoOpponent(){
-      const sample = ""; // e.g. "opponent_vertical.mp4"
-      if(sample){
-        bVideo.src = sample; bVideo.style.display='block'; bPlaceholder.style.display='none';
-        bVideo.play().catch(()=>{});
-        document.getElementById("bState").textContent = "Connected";
-        // simple fake IG meter on B
-        const bars = Array.from(bIg.querySelectorAll('i'));
-        const step=()=>{ bars.forEach((bar,i)=> bar.style.height=(6+Math.random()*12|0)+'px'); state.bIgRAF=requestAnimationFrame(step); };
-        cancelAnimationFrame(state.bIgRAF); state.bIgRAF=requestAnimationFrame(step);
-      }
-    })();
+    /*********** Instagram-style music meter (after beat upload) ***********/
+    const beatAudio = document.getElementById("beatAudio");
+    const igMusic = document.getElementById("igMusic");
+    const igMeter = document.getElementById("igMeter");
+    const igBars = Array.from(igMeter.querySelectorAll('i'));
 
-    /*********** Picker logic ***********/
-    const picker = document.getElementById("picker");
-    const stepCats = document.getElementById("stepCats");
-    const stepSubs = document.getElementById("stepSubs");
-    const stepRap = document.getElementById("stepRapSetup");
-    const stepOther = document.getElementById("stepOtherSetup");
-    const pickCrumb = document.getElementById("pickCrumb");
-    const subsTitle = document.getElementById("subsTitle");
-    const subsList = document.getElementById("subsList");
-    const CAT_SUBS = {
-      "Rap": ["Freestyle","Written","Cypher","Wordplay"],
-      "Art": ["Sketch","Digital","Graffiti","Speed-paint"],
-      "Instruments": ["Guitar","Piano/Keys","Drums","Strings"],
-      "Comedy": ["Roast","Improv","Skits","One-liners"],
-      "Dance": ["Freestyle","Choreo","Break","Duo"],
-      "Fashion": ["Styled Fit","Runway","Custom Piece"]
-    };
-    function openPicker(step="cats"){ picker.classList.add("show"); showStep(step); updatePickCrumb(); }
-    function closePicker(){ picker.classList.remove("show"); showStep("cats"); }
-    function showStep(which){
-      stepCats.style.display = (which==="cats") ? "block" : "none";
-      stepSubs.style.display = (which==="subs") ? "block" : "none";
-      stepRap.style.display  = (which==="rap")  ? "block" : "none";
-      stepOther.style.display= (which==="other")? "block" : "none";
-    }
-    function updatePickCrumb(){
-      if(stepRap.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> → ${state.subcategory} • Setup`; }
-      else if(stepSubs.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> • Subcategories`; }
-      else{ pickCrumb.innerHTML = `<b>Categories</b>`; }
-    }
-    document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
-    document.getElementById("catsDock").addEventListener("click", ()=>openPicker("cats"));
-    document.getElementById("inviteBtn").addEventListener("click", async ()=>{
-      const url = location.origin + location.pathname + "?room=" + encodeURIComponent(state.room);
+    async function useBeatFile(file){
+      if(!file) return;
       try{
-        if(navigator.share){ await navigator.share({ title:"Join my Battle Room", url }); }
-        else{ await navigator.clipboard?.writeText(url); alert("Invite link copied:\n"+url); }
-      }catch{}
-    });
-    document.getElementById("pickClose").addEventListener("click", closePicker);
-    document.getElementById("pickBack").addEventListener("click", ()=>{
-      if(stepSubs.style.display==="block" || stepRap.style.display==="block" || stepOther.style.display==="block"){ showStep("cats"); updatePickCrumb(); }
-      else closePicker();
-    });
-    document.getElementById("subsBack").addEventListener("click", ()=>{ showStep("cats"); updatePickCrumb(); });
-    document.getElementById("rapSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
-    document.getElementById("otherSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
-
-    stepCats.querySelectorAll("button[data-cat]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        state.category = btn.dataset.cat; state.subcategory = null; setCrumb();
-        subsTitle.textContent = `${state.category} — Subcategories`;
-        const items = CAT_SUBS[state.category] || [];
-        subsList.innerHTML = items.map(name=>`
-          <article class="card">
-            <h4>${name}</h4>
-            <p>Tap to use</p>
-            <button class="btn small" data-sub="${name}">Select</button>
-          </article>
-        `).join("");
-        subsList.querySelectorAll("button[data-sub]").forEach(b=>{
-          b.addEventListener("click", ()=>{
-            state.subcategory = b.dataset.sub; setCrumb();
-            if(state.category==="Rap"){ showStep("rap"); updatePickCrumb(); }
-            else{ document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`; showStep("other"); updatePickCrumb(); }
-          });
-        });
-        showStep("subs"); updatePickCrumb();
-      });
-    });
-
-    const rapLen = document.getElementById("rapLen");
-    const rapLenVal = document.getElementById("rapLenVal");
-    rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
-
-    document.getElementById("rapApply").addEventListener("click", ()=>{
-      state.rap.style  = document.getElementById("rapStyle").value;
-      state.rap.length = parseInt(document.getElementById("rapLen").value,10);
-      state.rap.rounds = parseInt(document.getElementById("rapRounds").value,10);
-      state.rap.beat   = document.getElementById("rapBeat").value;
-      state.rap.word   = document.getElementById("rapWord").value;
-      state.rap.filter = document.getElementById("rapFilter").value;
-      const file = document.getElementById("rapBeatFile").files?.[0] || null;
-      state.rap.beatFile = file ? file.name : null;
-
-      applySelection();
-
-      state.totalRounds = state.rap.rounds;
-      state.currentRound = 1;
-      setRoundsUI();
-      setTimer(state.rap.length);
-
-      closePicker();
-    });
-
-    document.getElementById("otherApply").addEventListener("click", ()=>{
-      applySelection(); closePicker();
-    });
-
-    function applySelection(){
-      const aHint = document.getElementById("aHint");
-      const bHint = document.getElementById("bHint");
-      let details = `${state.category||'—'} • ${state.subcategory||''}`;
-      if(state.category==="Rap"){
-        details += ` • ${state.rap.style} • ${state.rap.rounds}R/${state.rap.length}s • Beat: ${state.rap.beat}${state.rap.beatFile?` (${state.rap.beatFile})`:''}`;
-      }
-      aHint.textContent = details;
-      bHint.textContent = "Opponent sees: " + details;
+        beatAudio.src = URL.createObjectURL(file);
+        await beatAudio.play().catch(()=>beatAudio.play());
+        igMusic.style.display = 'block';
+        startBeatVisualizer();
+      }catch(e){ console.warn('Beat play failed', e); }
     }
 
-    // Open picker initially for quick setup on mobile
-    openPicker("cats");
+    function startBeatVisualizer(){
+      try{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        state.beatCtx = state.beatCtx || new AC();
+        const srcNode = state.beatCtx.createMediaElementSource(beatAudio);
+        state.beatAnalyser = state.beatCtx.createAnalyser();
+        state.beatAnalyser.fftSize = 256;
+        state.beatData = new Uint8Array(state.beatAnalyser.frequencyBinCount);
+        srcNode.connect(state.beatAnalyser);
+        state.beatAnalyser.connect(state.beatCtx.destination);
 
-    // Keyboard shortcuts (desktop): Space = Start/Pause, R = Reset
-    document.addEventListener('keydown', (e)=>{
-      if(e.code==='Space'){ e.preventDefault(); if(state.running) pauseBattle(); else startBattle(); }
-      if(e.key?.toLowerCase?.()==='r'){ resetBattle(); }
+        const loop = ()=>{
+          state.beatAnalyser.getByteFrequencyData(state.beatData);
+          const step = Math.floor(state.beatData.length / igBars.length) || 1;
+          igBars.forEach((bar,i)=>{
+            const start = i*step;
+            let sum=0; for(let j=0;j<step;j++) sum += state.beatData[start+j]||0;
+            const avg = sum / step;
+            const h = Math.max(6, Math.min(22, Math.round((avg/255)*22)));
+            bar.style.height = h+'px';
+          });
+          state.beatRAF = requestAnimationFrame(loop);
+        };
+        cancelAnimationFrame(state.beatRAF); loop();
+      }catch(e){
+        cancelAnimationFrame(state.beatRAF);
+        const wiggle=()=>{ igBars.forEach((b,i)=> b.style.height=(6 + (Math.sin((Date.now()/160)+(i*.5))*8 + Math.random()*6)|0)+'px'); state.beatRAF=requestAnimationFrame(wiggle); };
+        state.beatRAF=requestAnimationFrame(wiggle);
+      }
+    }
+
+    // Quick hook to choose a beat: uses a temporary file picker
+    document.getElementById("catsBtn").addEventListener("click", async ()=>{
+      const picker = document.createElement('input');
+      picker.type = 'file'; picker.accept = 'audio/*';
+      picker.addEventListener('change', ()=> useBeatFile(picker.files?.[0]));
+      picker.click();
     });
+
+    /*********** Init ***********/
+    setInterval(()=>{ document.getElementById("latVal").textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
   </script>
 </body>
 </html>
