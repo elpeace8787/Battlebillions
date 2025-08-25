@@ -9,8 +9,8 @@
     :root{
       --ink:#f2f2f2; --muted:#bfc7cf; --gold:#ffd700; --glass:rgba(255,255,255,.06);
       --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
-      --pad:clamp(10px, 3vw, 24px);
-      --accent:#6ee7ff;
+      --pad:clamp(10px, 3vw, 24px); --accent:#6ee7ff;
+      --rim: 0 20px 60px rgba(255,215,0,.14), inset 0 0 60px rgba(255,255,255,.04);
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
@@ -20,7 +20,7 @@
       position:sticky; top:0; z-index:10;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:10px var(--pad);
-      background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.4));
+      background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.35));
       backdrop-filter: blur(10px);
       border-bottom:1px solid var(--edge);
     }
@@ -41,8 +41,8 @@
     .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 
     /* Arena split */
-    .arena{padding:10px var(--pad) calc(var(--pad) + 72px); display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
-    @media (max-width: 920px){ .arena{ grid-template-columns: 1fr; } }
+    .arena{padding:10px var(--pad) calc(var(--pad) + 72px); display:grid; grid-template-columns: 1fr 1fr; gap:14px;}
+    @media (max-width: 980px){ .arena{ grid-template-columns: 1fr; } }
 
     .side{
       background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
@@ -58,22 +58,49 @@
     .tag{font-size:12px; color:#9adfff; background:rgba(154,223,255,.12); border:1px solid rgba(154,223,255,.25); padding:4px 8px; border-radius:999px}
     .liveTag{font-size:11px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); padding:4px 8px; border-radius:999px; font-weight:800}
 
-    /* Horizontal (landscape) screens */
+    /* Video panes (oblique look) */
+    .videoOuter{
+      position:relative; padding:18px; perspective:1200px;
+    }
     .videoWrap{
       position:relative; background:#000; display:grid; place-items:center; overflow:hidden;
-      aspect-ratio: 16/9;   /* forces horizontal layout */
-      width:100%;
+      aspect-ratio: 16/9; width:100%;
+      border-radius:16px; box-shadow: var(--rim);
+      transform-style:preserve-3d;
     }
+    .oblique-left  .videoWrap{ transform: rotateY(-14deg) skewY(-1.2deg); }
+    .oblique-right .videoWrap{ transform: rotateY( 14deg) skewY( 1.2deg); }
+    /* soften angle on narrow screens */
+    @media (max-width:980px){
+      .oblique-left  .videoWrap{ transform: rotateY(-9deg)  skewY(-0.8deg); }
+      .oblique-right .videoWrap{ transform: rotateY( 9deg)  skewY( 0.8deg); }
+    }
+    @media (max-width:560px){
+      .videoOuter{ padding:12px; }
+      .oblique-left  .videoWrap{ transform: rotateY(-6deg)  skewY(-0.6deg); }
+      .oblique-right .videoWrap{ transform: rotateY( 6deg)  skewY( 0.6deg); }
+    }
+
     .videoWrap video, .videoWrap .ph{
-      width:100%; height:100%; object-fit:cover;
+      width:115%; height:115%; object-fit:cover; /* slight overscan to hide borders while skewed */
+      transform: translateZ(30px); /* lift the surface */
+      border-radius:14px;
     }
     .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
+    .glassPad{
+      position:absolute; inset:10px; border-radius:14px; pointer-events:none;
+      background: radial-gradient(500px 220px at 20% 10%, rgba(255,255,255,.06), transparent 55%),
+                  radial-gradient(600px 280px at 85% 90%, rgba(255,215,0,.05), transparent 60%);
+      mix-blend-mode:screen; opacity:.6;
+      transform: translateZ(60px);
+    }
     .overlay{
       position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:8px; pointer-events:none;
+      transform: translateZ(80px);
     }
     .bottomOverlay{
       position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
-      padding:8px; pointer-events:none;
+      padding:8px; pointer-events:none; transform: translateZ(80px);
     }
     .meter{
       height:6px; width:100px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
@@ -119,7 +146,7 @@
     }
     .dock .btn{min-width:140px}
 
-    /* Category picker overlay (same as before) */
+    /* Category picker overlay */
     .overlayWrap{
       position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20;
     }
@@ -153,7 +180,7 @@
   </style>
 </head>
 <body>
-  <!-- Header: Back • Breadcrumb • Room/Latency + Start -->
+  <!-- Header -->
   <div class="header">
     <div class="h-left">
       <button id="backBtn" class="btn small">← Back</button>
@@ -168,7 +195,7 @@
     </div>
   </div>
 
-  <!-- Battle HUD -->
+  <!-- HUD -->
   <div class="hud">
     <div class="timer">
       <span class="pulse" id="beatDot" title="Beat pulse"></span>
@@ -188,22 +215,28 @@
         </div>
         <span class="liveTag" id="aState">Idle</span>
       </header>
-      <div class="videoWrap" id="aVideoWrap">
-        <div class="ph">Camera off — tap “Camera”</div>
-        <div class="overlay">
-          <div></div>
-          <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
-        </div>
-        <div class="bottomOverlay">
-          <div class="meter"><span id="aMicLevel"></span></div>
-          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="aFullscreen">Fullscreen</button></div>
+
+      <div class="videoOuter oblique-left">
+        <div class="videoWrap" id="aVideoWrap">
+          <video id="aVideo" playsinline muted></video>
+          <div class="ph" id="aPlaceholder">Camera off — tap “Camera”</div>
+          <div class="glassPad" aria-hidden="true"></div>
+          <div class="overlay">
+            <div></div>
+            <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
+          </div>
+          <div class="bottomOverlay">
+            <div class="meter"><span id="aMicLevel"></span></div>
+            <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="aFullscreen">Fullscreen</button></div>
+          </div>
         </div>
       </div>
+
       <div class="controls">
         <button class="pill" id="aCamera">Camera</button>
         <button class="pill" id="aMic">Mic</button>
         <button class="pill" id="aSwitch">Switch</button>
-        <button class="pill" id="aUpload">Upload</button>
+        <label class="pill" for="aUpload">Upload<input id="aUpload" type="file" accept="video/*" style="display:none"/></label>
         <div class="spacer"></div>
         <button class="pill primary" id="aReady">Ready</button>
         <button class="pill red" id="aConcede">Concede</button>
@@ -219,20 +252,28 @@
         </div>
         <span class="liveTag" id="bState">Idle</span>
       </header>
-      <div class="videoWrap" id="bVideoWrap">
-        <div class="ph">Waiting for opponent…</div>
-        <div class="overlay">
-          <div></div>
-          <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
-        </div>
-        <div class="bottomOverlay">
-          <div class="meter"><span id="bMicLevel"></span></div>
-          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="bFullscreen">Fullscreen</button></div>
+
+      <div class="videoOuter oblique-right">
+        <div class="videoWrap" id="bVideoWrap">
+          <video id="bVideo" playsinline muted></video>
+          <div class="ph" id="bPlaceholder">Waiting for opponent… or use “Camera/Upload”</div>
+          <div class="glassPad" aria-hidden="true"></div>
+          <div class="overlay">
+            <div></div>
+            <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
+          </div>
+          <div class="bottomOverlay">
+            <div class="meter"><span id="bMicLevel"></span></div>
+            <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="bFullscreen">Fullscreen</button></div>
+          </div>
         </div>
       </div>
+
       <div class="controls">
-        <button class="pill" id="bMute">Mute</button>
-        <button class="pill" id="bSwap">Swap Sides</button>
+        <button class="pill" id="bCamera">Camera</button>
+        <button class="pill" id="bMic">Mic</button>
+        <button class="pill" id="bSwitch">Switch</button>
+        <label class="pill" for="bUpload">Upload<input id="bUpload" type="file" accept="video/*" style="display:none"/></label>
         <div class="spacer"></div>
         <button class="pill warn" id="rulesBtn">Rules</button>
         <button class="pill" id="catsBtn">Categories</button>
@@ -244,7 +285,6 @@
   <div class="dock">
     <button class="btn" id="catsDock">Choose Category</button>
     <button class="btn ghost" id="inviteBtn">Invite Opponent</button>
-    <!-- “Copy Room” removed as requested -->
   </div>
 
   <!-- Category Picker (overlay) -->
@@ -266,7 +306,7 @@
           <article class="card"><h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p><button class="btn small" data-cat="Instruments">Select</button></article>
           <article class="card"><h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p><button class="btn small" data-cat="Comedy">Select</button></article>
           <article class="card"><h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p><button class="btn small" data-cat="Dance">Select</button></article>
-          <article class="card"><h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p><button class="btn small" data-cat="Fashion">Select</button></article>
+          <article class="card"><h4>Fashion</h4><p>Styled Fit • Runway • Custom Piece</p><button class="btn small" data-cat="Fashion">Select</button></article>
         </div>
       </section>
 
@@ -294,7 +334,6 @@
             </select>
           </div>
           <div class="divider"></div>
-
           <div class="row">
             <div style="flex:1">
               <label style="font-size:12px; color:var(--muted)">Round Length</label>
@@ -308,9 +347,7 @@
               <select id="rapRounds" class="input"><option>1</option><option selected>3</option><option>5</option></select>
             </div>
           </div>
-
           <div class="divider"></div>
-
           <div class="row">
             <div style="flex:1">
               <label style="font-size:12px; color:var(--muted)">Beat</label>
@@ -326,9 +363,7 @@
               <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
             </div>
           </div>
-
           <div class="divider"></div>
-
           <div class="row">
             <div style="flex:1">
               <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
@@ -347,9 +382,7 @@
               </select>
             </div>
           </div>
-
           <div class="divider"></div>
-
           <div class="row" style="justify-content:flex-end">
             <button class="btn small ghost" id="rapSetupBack">← Subcategories</button>
             <button class="btn small" id="rapApply">Apply & Use</button>
@@ -360,7 +393,7 @@
       <!-- Placeholder for other categories -->
       <section id="stepOtherSetup" style="display:none">
         <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
-        <p class="help">Add unique controls here for this category (e.g., canvas size for Art, tempo for Dance). For now it just confirms selection.</p>
+        <p class="help">Add unique controls here for this category. For now it just confirms selection.</p>
         <div class="row" style="justify-content:flex-end">
           <button class="btn small ghost" id="otherSetupBack">← Subcategories</button>
           <button class="btn small" id="otherApply">Apply & Use</button>
@@ -370,7 +403,9 @@
   </div>
 
   <script>
-    /***** Simple state *****/
+    /***********************
+     * Minimal state
+     ***********************/
     const state = {
       room: (localStorage.getItem("bb_room") || "4X9-QQA"),
       category: null,
@@ -380,9 +415,14 @@
       running:false, timeLeft:60, total:60, tick:null
     };
 
-    /***** Header wires *****/
-    document.getElementById("roomCode").textContent = "Room: " + state.room;
+    // UI refs
     const crumbEl = document.getElementById("crumb");
+    document.getElementById("roomCode").textContent = "Room: " + state.room;
+    const latVal = document.getElementById("latVal");
+    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
+
+    document.getElementById("backBtn").addEventListener("click", ()=> openPicker("cats"));
+
     function setCrumb(){
       if(!state.category) crumbEl.innerHTML = "<b>Select Category</b>";
       else if(!state.subcategory) crumbEl.innerHTML = `<b>${state.category}</b> • choose subcategory`;
@@ -390,40 +430,97 @@
     }
     setCrumb();
 
-    // Back button: from Arena goes to categories
-    document.getElementById("backBtn").addEventListener("click", ()=> openPicker("cats"));
+    /***********************
+     * Camera / Mic control
+     ***********************/
+    const supportsFacing = "mediaDevices" in navigator;
+    const streams = { A:null, B:null };
+    const facing = { A:"user", B:"user" }; // 'user' | 'environment'
+    const audMuted = { A:false, B:false };
 
-    // Latency pulse (fake)
-    const latVal = document.getElementById("latVal");
-    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
+    const aVideo = document.getElementById("aVideo");
+    const bVideo = document.getElementById("bVideo");
+    const aPh = document.getElementById("aPlaceholder");
+    const bPh = document.getElementById("bPlaceholder");
 
-    /***** Arena controls (stubs) *****/
-    const aState = document.getElementById("aState");
-    const bState = document.getElementById("bState");
+    async function startCam(side){
+      try{
+        const useFacing = facing[side];
+        const constraints = {
+          audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true },
+          video: {
+            facingMode: { ideal: useFacing }, width:{ ideal:1280 }, height:{ ideal:720 }
+          }
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        stopCam(side); // stop old if any
+        streams[side] = stream;
+        const v = side==="A" ? aVideo : bVideo;
+        v.srcObject = stream;
+        await v.play().catch(()=>{});
+        (side==="A"?aPh:bPh).style.display = "none";
+        updateMicState(side, !audMuted[side]);
+      }catch(err){
+        alert("Camera error: " + (err?.message || err));
+      }
+    }
+    function stopCam(side){
+      if(streams[side]){
+        streams[side].getTracks().forEach(t=>t.stop());
+        streams[side] = null;
+      }
+      const v = side==="A" ? aVideo : bVideo;
+      v.removeAttribute("srcObject"); v.pause();
+      (side==="A"?aPh:bPh).style.display = "";
+    }
+    function toggleMic(side){
+      audMuted[side] = !audMuted[side];
+      updateMicState(side, !audMuted[side]);
+    }
+    function updateMicState(side, on){
+      const s = streams[side];
+      if(s){
+        s.getAudioTracks().forEach(t=> t.enabled = on);
+      }
+    }
+    async function switchFacing(side){
+      facing[side] = (facing[side]==="user" ? "environment" : "user");
+      if(streams[side]) await startCam(side);
+    }
+    function loadUpload(side, file){
+      const v = side==="A" ? aVideo : bVideo;
+      stopCam(side);
+      const url = URL.createObjectURL(file);
+      v.srcObject = null;
+      v.src = url;
+      v.loop = true;
+      v.play().catch(()=>{});
+      (side==="A"?aPh:bPh).style.display = "none";
+    }
 
-    document.getElementById("aReady").addEventListener("click", ()=>{
-      state.readyA = !state.readyA;
-      aState.textContent = state.readyA ? "Ready" : "Idle";
-      maybeEnableStart();
+    // Bind buttons A
+    document.getElementById("aCamera").addEventListener("click", async ()=>{
+      if(streams.A){ stopCam("A"); } else { await startCam("A"); }
     });
-    document.getElementById("aConcede").addEventListener("click", ()=>{
-      state.readyA=false; aState.textContent="Conceded"; disableStart();
-    });
-    document.getElementById("bSwap").addEventListener("click", ()=>{
-      const aName = document.getElementById("aName");
-      const bName = document.getElementById("bName");
-      [aName.textContent, bName.textContent] = [bName.textContent, aName.textContent];
-    });
-    document.getElementById("rulesBtn").addEventListener("click", ()=>{
-      alert(`Rules for ${state.category||"—"} ${state.subcategory?("• "+state.subcategory):""}\n\n• No outside help\n• Stay within time\n• Follow platform conduct`);
+    document.getElementById("aMic").addEventListener("click", ()=> toggleMic("A"));
+    document.getElementById("aSwitch").addEventListener("click", ()=> switchFacing("A"));
+    document.getElementById("aUpload").addEventListener("change", (e)=>{ const f=e.target.files?.[0]; if(f) loadUpload("A", f); });
+    document.getElementById("aFullscreen").addEventListener("click", ()=>{
+      document.getElementById("aVideoWrap").requestFullscreen?.();
     });
 
-    // Fullscreen buttons
-    function fs(el){ if(el.requestFullscreen) el.requestFullscreen(); }
-    document.getElementById("aFullscreen").addEventListener("click", ()=> fs(document.getElementById("aVideoWrap")));
-    document.getElementById("bFullscreen").addEventListener("click", ()=> fs(document.getElementById("bVideoWrap")));
+    // Bind buttons B
+    document.getElementById("bCamera").addEventListener("click", async ()=>{
+      if(streams.B){ stopCam("B"); } else { await startCam("B"); }
+    });
+    document.getElementById("bMic").addEventListener("click", ()=> toggleMic("B"));
+    document.getElementById("bSwitch").addEventListener("click", ()=> switchFacing("B"));
+    document.getElementById("bUpload").addEventListener("change", (e)=>{ const f=e.target.files?.[0]; if(f) loadUpload("B", f); });
+    document.getElementById("bFullscreen").addEventListener("click", ()=>{
+      document.getElementById("bVideoWrap").requestFullscreen?.();
+    });
 
-    // Mic level (visual only)
+    // Mic level visual (mock)
     const aMicBar = document.getElementById("aMicLevel");
     const bMicBar = document.getElementById("bMicLevel");
     setInterval(()=>{
@@ -431,7 +528,9 @@
       bMicBar.style.width = (Math.random()*95).toFixed(0)+'%';
     }, 120);
 
-    /***** Battle timer *****/
+    /***********************
+     * Battle timer + HUD
+     ***********************/
     const startBtn = document.getElementById("startBtn");
     const pauseBtn = document.getElementById("pauseBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -449,11 +548,20 @@
       startBtn.disabled = !(state.readyA && state.readyB);
       pauseBtn.disabled = true; resetBtn.disabled = true;
     }
-    function disableStart(){
-      startBtn.disabled = true; pauseBtn.disabled = true; resetBtn.disabled = true;
-    }
+    function disableStart(){ startBtn.disabled = true; pauseBtn.disabled = true; resetBtn.disabled = true; }
 
-    // Opponent ready (simulate)
+    const aState = document.getElementById("aState");
+    const bState = document.getElementById("bState");
+    document.getElementById("aReady").addEventListener("click", ()=>{
+      state.readyA = !state.readyA;
+      aState.textContent = state.readyA ? "Ready" : "Idle";
+      maybeEnableStart();
+    });
+    document.getElementById("aConcede").addEventListener("click", ()=>{
+      state.readyA=false; aState.textContent="Conceded"; disableStart();
+    });
+
+    // Simulate opponent ready after invite
     setTimeout(()=>{ state.readyB = true; bState.textContent = "Ready"; maybeEnableStart(); }, 1200);
 
     function tick(){
@@ -496,12 +604,13 @@
       setTimer(state.rap.length);
       resetBtn.disabled = true;
     }
-
     startBtn.addEventListener("click", startBattle);
     pauseBtn.addEventListener("click", pauseBattle);
     resetBtn.addEventListener("click", resetBattle);
 
-    /***** Picker logic *****/
+    /***********************
+     * Categories
+     ***********************/
     const picker = document.getElementById("picker");
     const stepCats = document.getElementById("stepCats");
     const stepSubs = document.getElementById("stepSubs");
@@ -520,15 +629,8 @@
       "Fashion": ["Styled Fit","Runway","Custom Piece"]
     };
 
-    function openPicker(step="cats"){
-      picker.classList.add("show");
-      showStep(step);
-      updatePickCrumb();
-    }
-    function closePicker(){
-      picker.classList.remove("show");
-      showStep("cats");
-    }
+    function openPicker(step="cats"){ picker.classList.add("show"); showStep(step); updatePickCrumb(); }
+    function closePicker(){ picker.classList.remove("show"); showStep("cats"); }
     function showStep(which){
       stepCats.style.display = (which==="cats") ? "block" : "none";
       stepSubs.style.display = (which==="subs") ? "block" : "none";
@@ -545,24 +647,9 @@
       }
     }
 
-    // Openers
     document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
     document.getElementById("catsDock").addEventListener("click", ()=>openPicker("cats"));
 
-    // Invite (share link)
-    document.getElementById("inviteBtn").addEventListener("click", async ()=>{
-      const url = location.origin + location.pathname + "?room=" + encodeURIComponent(state.room);
-      try{
-        if(navigator.share){
-          await navigator.share({ title:"Join my Battle Room", url });
-        }else{
-          await navigator.clipboard?.writeText(url);
-          alert("Invite link copied:\n"+url);
-        }
-      }catch{}
-    });
-
-    // Close/Back in sheet
     document.getElementById("pickClose").addEventListener("click", closePicker);
     document.getElementById("pickBack").addEventListener("click", ()=>{
       if(stepSubs.style.display==="block" || stepRap.style.display==="block" || stepOther.style.display==="block"){
@@ -575,19 +662,13 @@
     document.getElementById("rapSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
     document.getElementById("otherSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
 
-    // Category select buttons (Step 1)
     stepCats.querySelectorAll("button[data-cat]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
-        state.category = btn.dataset.cat;
-        state.subcategory = null;
-        setCrumb();
-        buildSubs();
-        showStep("subs");
-        updatePickCrumb();
+        state.category = btn.dataset.cat; state.subcategory = null; setCrumb();
+        buildSubs(); showStep("subs"); updatePickCrumb();
       });
     });
 
-    // Build Step 2 list
     function buildSubs(){
       subsTitle.textContent = `${state.category} — Subcategories`;
       const items = CAT_SUBS[state.category] || [];
@@ -600,19 +681,14 @@
       `).join("");
       subsList.querySelectorAll("button[data-sub]").forEach(b=>{
         b.addEventListener("click", ()=>{
-          state.subcategory = b.dataset.sub;
-          setCrumb();
-          if(state.category==="Rap"){
-            showStep("rap"); updatePickCrumb();
-          }else{
-            document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`;
-            showStep("other"); updatePickCrumb();
-          }
+          state.subcategory = b.dataset.sub; setCrumb();
+          if(state.category==="Rap"){ showStep("rap"); updatePickCrumb(); }
+          else { document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`; showStep("other"); updatePickCrumb(); }
         });
       });
     }
 
-    // Rap setup bindings
+    // Rap setup
     const rapLen = document.getElementById("rapLen");
     const rapLenVal = document.getElementById("rapLenVal");
     rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
@@ -627,33 +703,27 @@
       state.rap.beatFile = file ? file.name : null;
 
       applySelection();
-      // Update timer to chosen round length
       setTimer(state.rap.length);
       closePicker();
     });
-
-    // Generic apply for other categories
-    document.getElementById("otherApply").addEventListener("click", ()=>{
-      applySelection();
-      closePicker();
-    });
+    document.getElementById("otherApply").addEventListener("click", ()=>{ applySelection(); closePicker(); });
 
     function applySelection(){
-      const aHint = document.getElementById("aHint");
-      const bHint = document.getElementById("bHint");
-      let details = `${state.category} • ${state.subcategory}`;
+      document.getElementById("aHint").textContent = detailText();
+      document.getElementById("bHint").textContent = "Opponent sees: " + detailText();
+    }
+    function detailText(){
+      let details = `${state.category||'—'} • ${state.subcategory||'—'}`;
       if(state.category==="Rap"){
         details += ` • ${state.rap.style} • ${state.rap.rounds}R/${state.rap.length}s • Beat: ${state.rap.beat}${state.rap.beatFile?` (${state.rap.beatFile})`:''}`;
       }
-      aHint.textContent = details;
-      bHint.textContent = "Opponent sees: " + details;
+      return details;
     }
 
-    // Open picker early so choice is obvious
     openPicker("cats");
-
-    // Faux opponent ready after invite
     document.getElementById("inviteBtn").addEventListener("click", ()=>{
+      const url = location.origin + location.pathname + "?room=" + encodeURIComponent(state.room);
+      navigator.share?.({ title:"Join my Battle Room", url }) || navigator.clipboard?.writeText(url).then(()=> alert("Invite link copied:\n"+url));
       setTimeout(()=>{ state.readyB = true; bState.textContent="Ready"; maybeEnableStart(); }, 1500);
     });
 
