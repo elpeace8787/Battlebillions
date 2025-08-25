@@ -87,17 +87,7 @@
       text-shadow: 0 4px 24px rgba(255,215,0,.12);
     }
     .handle{ font-size:12px; color:var(--muted) }
-    .top9{
-      display:flex; align-items:center; gap:6px; margin-top:2px;
-    }
-    .rank-badge{
-      min-width:20px; height:20px; border-radius:999px; display:grid; place-items:center;
-      font-size:11px; font-weight:800; color:#000;
-      background:linear-gradient(180deg,#fff1a8,#ffd700);
-      box-shadow:0 0 10px rgba(255,215,0,.35);
-    }
 
-    /* Followers row under name/handle */
     .social-row{
       display:flex; gap:12px; margin-top:6px; align-items:center; flex-wrap:wrap;
     }
@@ -109,24 +99,23 @@
       font-size:12px; color:#d6fffd; font-weight:800;
     }
 
-    /* Global Rank pill (replaces Follow) */
+    .actions{ display:flex; gap:10px; }
+    .btn.ghost{
+      color:#bfefff; background:rgba(255,255,255,.08);
+      border:none; cursor:pointer; font-weight:800; border-radius:12px; padding:10px 14px;
+    }
     .rank-pill{
       border:none; cursor:pointer; font-weight:800; border-radius:12px; padding:10px 14px;
       color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700);
       box-shadow:0 8px 22px rgba(255,215,0,.2);
       min-width:120px; text-align:center;
     }
-    .btn.ghost{
-      color:#bfefff; background:rgba(255,255,255,.08);
-      border:none; cursor:pointer; font-weight:800; border-radius:12px; padding:10px 14px;
-    }
-    .actions{ display:flex; gap:10px; }
 
-    /* Stats (removed Win Rate & Streak) */
+    /* Stats (removed Global Rank tile) */
     .stats{
-      display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:12px;
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:12px;
     }
-    @media (max-width:640px){ .stats{ grid-template-columns: repeat(2, 1fr) } }
+    @media (max-width:640px){ .stats{ grid-template-columns: repeat(3, 1fr) } }
     .stat{
       background:rgba(255,255,255,.06); border-radius:14px; padding:10px 8px;
       display:grid; gap:2px; justify-items:center;
@@ -231,7 +220,7 @@
       opacity:0; pointer-events:none; transform:translateY(6px);
     }
 
-    /* Rank Modal */
+    /* Rank Modal (for rank pill tap) */
     .modal{
       position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:20;
       background:var(--modal-bg); backdrop-filter: blur(8px) saturate(120%);
@@ -285,27 +274,21 @@
               <span class="soc-chip" id="followersChip">Followers: 0</span>
               <span class="soc-chip" id="followingChip">Following: 0</span>
             </div>
-
-            <div class="top9" id="top9Wrap" style="display:none">
-              <div class="rank-badge" id="rankBadge">1</div>
-              <div class="handle" style="color:#d6fffd">Top 9 Honor</div>
-            </div>
           </div>
         </div>
         <div class="actions">
-          <!-- Global Rank pill -->
+          <!-- Rank pill opens modal with multi-leaderboard ranks -->
           <button class="rank-pill" id="rankPill" title="View leaderboard ranks">#—</button>
-          <!-- Settings (replaces Report/Share) -->
-          <button class="btn ghost" id="settingsBtn" title="Settings">Settings</button>
+          <!-- Settings -->
+          <button class="btn.ghost btn ghost" id="settingsBtn" title="Settings">Settings</button>
         </div>
       </div>
 
-      <!-- Stats: Votes, Wins, Losses, Global Rank -->
+      <!-- Stats: Votes, Wins, Losses (Global Rank tile removed) -->
       <section class="stats" id="stats">
         <div class="stat"><div class="num" id="statVotes">0</div><div class="lab">Votes</div></div>
         <div class="stat"><div class="num" id="statWins">0</div><div class="lab">Wins</div></div>
         <div class="stat"><div class="num" id="statLoss">0</div><div class="lab">Losses</div></div>
-        <div class="stat"><div class="num" id="statRank">—</div><div class="lab">Global Rank</div></div>
       </section>
 
       <nav class="tabs" role="tablist">
@@ -373,14 +356,14 @@
     </div>
   </div>
 
-  <!-- Firebase-driven profile fill -->
+  <!-- Firebase-driven profile fill (with stronger fallbacks + helpful logs) -->
   <script type="module">
     let fb = {};
-    try { fb = await import("./firebase.js"); } catch(e){ console.error("firebase.js failed:", e); }
+    try { fb = await import("./firebase.js"); } catch(e){ console.error("[home] Failed to import firebase.js:", e); }
 
     const need = ["auth","db","onAuthStateChanged","signOut","doc","getDoc"];
     const missing = need.filter(k => !fb[k]);
-    if (missing.length) console.error("firebase.js missing:", missing.join(", "));
+    if (missing.length) console.warn("[home] firebase.js missing exports:", missing.join(", "));
 
     const { auth, db, onAuthStateChanged, signOut, doc, getDoc } = fb;
 
@@ -390,13 +373,10 @@
     const flagImg   = $('#flag');
     const displayEl = $('#display');
     const handleEl  = $('#handle');
-    const rankBadge = $('#rankBadge');
-    const top9Wrap  = $('#top9Wrap');
 
     const statVotes = $('#statVotes');
     const statWins  = $('#statWins');
     const statLoss  = $('#statLoss');
-    const statRank  = $('#statRank');
 
     const followersChip = $('#followersChip');
     const followingChip = $('#followingChip');
@@ -413,21 +393,27 @@
     const settingsBtn = document.getElementById('settingsBtn');
     const logoutBtn   = document.getElementById('logoutBtn');
 
+    const nz = (n)=> Number.isFinite(n) ? n : 0;
+
     function initialsFrom(name, handle){
       const s = (name || handle || "BB").toString().replace("@","");
       const parts = s.split(/[^\w]+/).filter(Boolean);
-      return (parts[0]?.[0] || "B").toUpperCase() + (parts[1]?.[0] || parts[0]?.[1] || "B").toUpperCase();
+      const a = (parts[0]?.[0] || "B").toUpperCase();
+      const b = (parts[1]?.[0] || parts[0]?.[1] || "B").toUpperCase();
+      return a + b;
     }
     function setAvatar(url, name, handle){
       const init = initialsFrom(name, handle);
       avatarInitials.textContent = init;
-      if (url){
+      if (url && url !== "null" && url !== "undefined"){
         avatarImg.src = url;
         avatarImg.style.display = "block";
-        avatarImg.onerror = () => { avatarImg.style.display="none"; };
+        avatarImg.onload = ()=>{ avatarInitials.style.display="none"; };
+        avatarImg.onerror = ()=>{ avatarImg.style.display="none"; avatarInitials.style.display="grid"; };
       } else {
         avatarImg.removeAttribute("src");
         avatarImg.style.display = "none";
+        avatarInitials.style.display="grid";
       }
     }
     function flagFromCountry(country){
@@ -438,9 +424,9 @@
       };
       return map[country||""] || "";
     }
-    const nz = (n)=> Number.isFinite(n) ? n : 0;
 
-    function fillFromAuth(u){
+    function quickFillFromAuth(u){
+      // Always show *something* even before Firestore returns
       const base = (u.displayName || (u.email?.split("@")[0]) || "player");
       const username = (base||"player").toString();
       const handle = "@"+username.toLowerCase();
@@ -448,56 +434,51 @@
       handleEl.textContent  = handle;
       setAvatar(u.photoURL || "", username, handle);
 
-      flagImg.style.display = "none";
-      top9Wrap.style.display = "none";
-
       statVotes.textContent  = "0";
       statWins.textContent   = "0";
       statLoss.textContent   = "0";
-      statRank.textContent   = "—";
+      followersChip.textContent = "Followers: 0";
+      followingChip.textContent = "Following: 0";
       rankPill.textContent   = "#—";
+      rankList.innerHTML     = '<div class="rank-row"><div class="rank-name">Global</div><div class="rank-num">#—</div></div>';
+
       bioEl.textContent      = "Let's battle. ⚡";
       mediaGrid.innerHTML    = '';
       battlesList.innerHTML  = '';
-      followersChip.textContent = "Followers: 0";
-      followingChip.textContent = "Following: 0";
-      rankList.innerHTML     = '<div class="rank-row"><div class="rank-name">Global</div><div class="rank-num">#—</div></div>';
     }
 
     function fillFromProfile(u, p){
+      // username priority: Firestore.username → auth.displayName → email local
       const username = (p.username || u.displayName || (u.email?.split("@")[0]) || "player").toString();
       const handle   = "@"+username.toLowerCase();
 
       displayEl.textContent = username;
       handleEl.textContent  = handle;
+
+      // avatar priority: Firestore.avatarURL → auth.photoURL → initials
       setAvatar(p.avatarURL || u.photoURL || "", username, handle);
 
       const flagSrc = flagFromCountry(p.country);
       if(flagSrc){ flagImg.src=flagSrc; flagImg.style.display=""; } else { flagImg.style.display="none"; }
 
-      if (p.top9Rank){ rankBadge.textContent=p.top9Rank; top9Wrap.style.display=""; } else { top9Wrap.style.display="none"; }
-
-      const wins = nz(p.wins); const losses = nz(p.losses);
+      const wins   = nz(p.wins);
+      const losses = nz(p.losses);
       statVotes.textContent  = (nz(p.votes)||0).toLocaleString();
       statWins.textContent   = wins;
       statLoss.textContent   = losses;
 
-      const globalRank = (p.rank ?? "—");
-      statRank.textContent   = globalRank;
-      rankPill.textContent   = "#"+(globalRank === "—" ? "—" : globalRank);
-
-      const followers = nz(p.followersCount || p.followers || 0);
-      const following = nz(p.followingCount || p.following || 0);
-      followersChip.textContent = `Followers: ${followers.toLocaleString()}`;
-      followingChip.textContent = `Following: ${following.toLocaleString()}`;
+      followersChip.textContent = `Followers: ${nz(p.followersCount || p.followers || 0).toLocaleString()}`;
+      followingChip.textContent = `Following: ${nz(p.followingCount || p.following || 0).toLocaleString()}`;
 
       bioEl.textContent = p.bio || "Let's battle. ⚡";
 
+      // media
       const media = Array.isArray(p.media) ? p.media : [];
       mediaGrid.innerHTML = media.length
         ? media.map(src=>`<div class="thumb"><img src="${src}" alt="" style="width:100%;height:100%;object-fit:cover"/></div>`).join("")
         : '<div class="muted">No media yet.</div>';
 
+      // battles
       const battles = Array.isArray(p.battles) ? p.battles : [];
       battlesList.innerHTML = battles.length ? battles.map(b => `
         <article class="battle" data-id="${b.id || ''}">
@@ -535,13 +516,17 @@
         v.addEventListener('canplay', ()=> v.play().catch(()=>{}));
       });
 
-      // Rank list for modal
-      const ranks = p.ranks && typeof p.ranks === 'object' ? p.ranks : { Global: p.rank ?? "—" };
+      // Rank pill modal content
+      const ranks = p.ranks && typeof p.ranks === 'object' ? p.ranks : { Global: (p.rank ?? "—") };
       const rows = Object.entries(ranks).map(([name, val])=>{
         const num = (val ?? "—");
         return `<div class="rank-row"><div class="rank-name">${name}</div><div class="rank-num">#${num}</div></div>`;
       }).join("");
       rankList.innerHTML = rows || '<div class="muted">No ranks yet.</div>';
+
+      // Pill label (use best guess from ranks)
+      const firstRank = Object.values(ranks)[0] ?? "—";
+      rankPill.textContent = "#"+(firstRank === undefined ? "—" : firstRank);
     }
 
     // Tabs
@@ -569,28 +554,37 @@
     rankClose.addEventListener('click', ()=> rankModal.classList.remove('open'));
     rankModal.addEventListener('click', (e)=>{ if(e.target === rankModal) rankModal.classList.remove('open'); });
 
-    // Auto-hide side nav on scroll
-    let navHideTimer=null;
-    window.addEventListener('scroll', ()=>{
-      document.body.classList.add('nav-hidden');
-      if(navHideTimer) clearTimeout(navHideTimer);
-      navHideTimer = setTimeout(()=> document.body.classList.remove('nav-hidden'), 350);
-    }, {passive:true});
-
-    // Auth → Firestore → UI
+    // Auth → Firestore (with two path attempts) → UI
     if (!onAuthStateChanged || !auth) {
-      console.error("Auth not available. Ensure firebase.js initializes Firebase and exports { auth, onAuthStateChanged }.");
+      console.error("[home] Auth not available. Ensure firebase.js initializes Firebase and exports { auth, onAuthStateChanged }.");
     } else {
       onAuthStateChanged(auth, async (user)=>{
         if(!user){ location.href='index.html#/auth/login'; return; }
-        fillFromAuth(user); // quick fill
-        try{
-          if(!db || !doc || !getDoc){ console.warn("Firestore not available; showing auth-only."); return; }
-          const snap = await getDoc(doc(db, "users", user.uid));
-          if(snap.exists()){ fillFromProfile(user, snap.data() || {}); }
-          else { console.warn("User profile doc not found; showing auth-only."); }
-        }catch(err){
-          console.warn("Failed to read profile:", err);
+        console.log("[home] Signed in as:", user.uid, user.email || user.displayName || user.photoURL);
+        quickFillFromAuth(user); // instant UI
+
+        // Try both 'users' and 'Users' collections just in case the backend used a different casing.
+        const tryPaths = [];
+        if (db && doc && getDoc) {
+          tryPaths.push(doc(db, "users", user.uid));
+          tryPaths.push(doc(db, "Users", user.uid));
+        }
+        let filled = false;
+        for (const ref of tryPaths){
+          try{
+            const snap = await getDoc(ref);
+            if(snap.exists()){
+              console.log("[home] Loaded profile from", ref.path);
+              fillFromProfile(user, snap.data() || {});
+              filled = true;
+              break;
+            }
+          }catch(err){
+            console.warn("[home] Profile read failed for", ref?.path, err);
+          }
+        }
+        if(!filled){
+          console.warn("[home] Profile doc not found. If you just created the account, confirm your create flow saved to Firestore at 'users/{uid}'.");
         }
       });
     }
