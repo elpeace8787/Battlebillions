@@ -10,16 +10,19 @@
       --ink:#f2f2f2; --muted:#bfc7cf; --gold:#ffd700; --glass:rgba(255,255,255,.06);
       --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
       --pad:clamp(10px, 3vw, 24px);
+      --accent:#6ee7ff;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+
     /* Header */
     .header{
       position:sticky; top:0; z-index:10;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:10px var(--pad);
       background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.4));
       backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--edge);
     }
     .h-left{display:flex; align-items:center; gap:10px}
     .btn{
@@ -35,9 +38,12 @@
     .statusDot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
     .latency{font-size:12px;color:var(--muted)}
     .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
+    .controlsHeader{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+
     /* Arena split */
-    .arena{padding:10px var(--pad) var(--pad); display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
-    @media (max-width: 860px){ .arena{ grid-template-columns: 1fr; } }
+    .arena{padding:10px var(--pad) calc(var(--pad) + 72px); display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
+    @media (max-width: 920px){ .arena{ grid-template-columns: 1fr; } }
+
     .side{
       background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
       border:1px solid var(--edge); border-radius:16px; overflow:hidden;
@@ -51,17 +57,30 @@
     .who{display:flex; align-items:center; gap:10px}
     .tag{font-size:12px; color:#9adfff; background:rgba(154,223,255,.12); border:1px solid rgba(154,223,255,.25); padding:4px 8px; border-radius:999px}
     .liveTag{font-size:11px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); padding:4px 8px; border-radius:999px; font-weight:800}
+
+    /* Horizontal (landscape) screens */
     .videoWrap{
       position:relative; background:#000; display:grid; place-items:center; overflow:hidden;
-      aspect-ratio: 16/9;
+      aspect-ratio: 16/9;   /* forces horizontal layout */
+      width:100%;
     }
     .videoWrap video, .videoWrap .ph{
       width:100%; height:100%; object-fit:cover;
     }
-    .ph{display:grid; place-items:center; color:#777; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
+    .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
     .overlay{
       position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:8px; pointer-events:none;
     }
+    .bottomOverlay{
+      position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:8px; pointer-events:none;
+    }
+    .meter{
+      height:6px; width:100px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden;
+      box-shadow:inset 0 0 0 1px #0a0a0a;
+    }
+    .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
+
     .controls{
       display:flex; gap:8px; flex-wrap:wrap; padding:10px; border-top:1px solid var(--edge);
       background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.5));
@@ -74,6 +93,23 @@
     .pill.warn{ background:#241306; color:#ffd699; border-color:#3b260e }
     .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
     .spacer{flex:1}
+
+    /* Battle HUD (centered) */
+    .hud{
+      position:fixed; left:50%; top:58px; transform:translateX(-50%);
+      z-index:9; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .timer{
+      display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px;
+      background:rgba(0,0,0,.6); border:1px solid #1f1f1f; backdrop-filter: blur(6px);
+      font-weight:800;
+    }
+    .timeNum{font-variant-numeric:tabular-nums}
+    .bar{position:relative; width:220px; height:8px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden}
+    .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a)}
+    .pulse{width:14px;height:14px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite}
+    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
+
     /* Footer dock */
     .dock{
       position:fixed; left:0; right:0; bottom:0; z-index:9;
@@ -81,8 +117,9 @@
       padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));
       background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
     }
-    .dock .btn{min-width:120px}
-    /* Category picker overlay */
+    .dock .btn{min-width:140px}
+
+    /* Category picker overlay (same as before) */
     .overlayWrap{
       position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20;
     }
@@ -116,15 +153,27 @@
   </style>
 </head>
 <body>
-  <!-- Header: Back • Breadcrumb • Room/Latency -->
+  <!-- Header: Back • Breadcrumb • Room/Latency + Start -->
   <div class="header">
     <div class="h-left">
       <button id="backBtn" class="btn small">← Back</button>
       <div class="crumb" id="crumb"><b>Select Category</b></div>
     </div>
-    <div class="h-right row">
+    <div class="controlsHeader">
       <span class="latency"><span class="statusDot" id="netDot"></span><span id="latVal">22ms</span></span>
       <span class="room" id="roomCode">Room: 4X9-QQA</span>
+      <button class="btn small" id="startBtn" disabled>Start Battle</button>
+      <button class="btn small ghost" id="pauseBtn" disabled>Pause</button>
+      <button class="btn small ghost" id="resetBtn" disabled>Reset</button>
+    </div>
+  </div>
+
+  <!-- Battle HUD -->
+  <div class="hud">
+    <div class="timer">
+      <span class="pulse" id="beatDot" title="Beat pulse"></span>
+      <span id="timeLeft" class="timeNum">01:00</span>
+      <div class="bar"><span id="barFill"></span></div>
     </div>
   </div>
 
@@ -144,6 +193,10 @@
         <div class="overlay">
           <div></div>
           <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
+        </div>
+        <div class="bottomOverlay">
+          <div class="meter"><span id="aMicLevel"></span></div>
+          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="aFullscreen">Fullscreen</button></div>
         </div>
       </div>
       <div class="controls">
@@ -172,6 +225,10 @@
           <div></div>
           <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
         </div>
+        <div class="bottomOverlay">
+          <div class="meter"><span id="bMicLevel"></span></div>
+          <div class="help" style="pointer-events:auto"><button class="btn small ghost" id="bFullscreen">Fullscreen</button></div>
+        </div>
       </div>
       <div class="controls">
         <button class="pill" id="bMute">Mute</button>
@@ -187,7 +244,7 @@
   <div class="dock">
     <button class="btn" id="catsDock">Choose Category</button>
     <button class="btn ghost" id="inviteBtn">Invite Opponent</button>
-    <button class="btn ghost" id="copyRoom">Copy Room</button>
+    <!-- “Copy Room” removed as requested -->
   </div>
 
   <!-- Category Picker (overlay) -->
@@ -204,34 +261,16 @@
       <!-- Step 1: Categories -->
       <section id="stepCats">
         <div class="list">
-          <article class="card">
-            <h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p>
-            <button class="btn small" data-cat="Rap">Select</button>
-          </article>
-          <article class="card">
-            <h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p>
-            <button class="btn small" data-cat="Art">Select</button>
-          </article>
-          <article class="card">
-            <h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p>
-            <button class="btn small" data-cat="Instruments">Select</button>
-          </article>
-          <article class="card">
-            <h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p>
-            <button class="btn small" data-cat="Comedy">Select</button>
-          </article>
-          <article class="card">
-            <h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p>
-            <button class="btn small" data-cat="Dance">Select</button>
-          </article>
-          <article class="card">
-            <h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p>
-            <button class="btn small" data-cat="Fashion">Select</button>
-          </article>
+          <article class="card"><h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p><button class="btn small" data-cat="Rap">Select</button></article>
+          <article class="card"><h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p><button class="btn small" data-cat="Art">Select</button></article>
+          <article class="card"><h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p><button class="btn small" data-cat="Instruments">Select</button></article>
+          <article class="card"><h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p><button class="btn small" data-cat="Comedy">Select</button></article>
+          <article class="card"><h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p><button class="btn small" data-cat="Dance">Select</button></article>
+          <article class="card"><h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p><button class="btn small" data-cat="Fashion">Select</button></article>
         </div>
       </section>
 
-      <!-- Step 2: Subcategories (dynamic) -->
+      <!-- Step 2: Subcategories -->
       <section id="stepSubs" style="display:none">
         <div class="row" style="justify-content:space-between; align-items:center">
           <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
@@ -240,11 +279,10 @@
         <div id="subsList" class="list"></div>
       </section>
 
-      <!-- Step 3 (Rap example): Rules/Setup after subcategory -->
+      <!-- Step 3 (Rap example): Setup -->
       <section id="stepRapSetup" style="display:none">
         <h4 style="margin:8px 0">Rap Battle Setup</h4>
-        <p class="help" style="margin:0 0 8px">These options load after choosing a Rap subcategory. Use this as the pattern for other categories with their own unique settings.</p>
-
+        <p class="help" style="margin:0 0 8px">Rap has unique settings. Use this as the pattern for other categories.</p>
         <div class="card">
           <div class="row">
             <label style="font-size:12px; color:var(--muted)">Style</label>
@@ -267,9 +305,7 @@
             </div>
             <div style="flex:1">
               <label style="font-size:12px; color:var(--muted)">Rounds</label>
-              <select id="rapRounds" class="input">
-                <option>1</option><option selected>3</option><option>5</option>
-              </select>
+              <select id="rapRounds" class="input"><option>1</option><option selected>3</option><option>5</option></select>
             </div>
           </div>
 
@@ -321,10 +357,10 @@
         </div>
       </section>
 
-      <!-- Placeholder for other categories unique setup (you can clone rap section) -->
+      <!-- Placeholder for other categories -->
       <section id="stepOtherSetup" style="display:none">
         <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
-        <p class="help">Add unique controls here for this category (e.g., canvas size for Art, tempo for Dance, etc.). For now it just confirms selection.</p>
+        <p class="help">Add unique controls here for this category (e.g., canvas size for Art, tempo for Dance). For now it just confirms selection.</p>
         <div class="row" style="justify-content:flex-end">
           <button class="btn small ghost" id="otherSetupBack">← Subcategories</button>
           <button class="btn small" id="otherApply">Apply & Use</button>
@@ -339,7 +375,9 @@
       room: (localStorage.getItem("bb_room") || "4X9-QQA"),
       category: null,
       subcategory: null,
-      rap: { style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null }
+      rap: { style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null },
+      readyA:false, readyB:false,
+      running:false, timeLeft:60, total:60, tick:null
     };
 
     /***** Header wires *****/
@@ -353,21 +391,25 @@
     setCrumb();
 
     // Back button: from Arena goes to categories
-    document.getElementById("backBtn").addEventListener("click", ()=>{
-      openPicker("cats");
-    });
+    document.getElementById("backBtn").addEventListener("click", ()=> openPicker("cats"));
 
-    // Fake latency pulse
+    // Latency pulse (fake)
     const latVal = document.getElementById("latVal");
-    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 2000);
+    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 1800);
 
-    /***** Arena controls (stubbed) *****/
+    /***** Arena controls (stubs) *****/
     const aState = document.getElementById("aState");
     const bState = document.getElementById("bState");
-    document.getElementById("aReady").addEventListener("click", ()=> aState.textContent = "Ready");
-    document.getElementById("aConcede").addEventListener("click", ()=> aState.textContent = "Conceded");
+
+    document.getElementById("aReady").addEventListener("click", ()=>{
+      state.readyA = !state.readyA;
+      aState.textContent = state.readyA ? "Ready" : "Idle";
+      maybeEnableStart();
+    });
+    document.getElementById("aConcede").addEventListener("click", ()=>{
+      state.readyA=false; aState.textContent="Conceded"; disableStart();
+    });
     document.getElementById("bSwap").addEventListener("click", ()=>{
-      // Swap labels only (visual stub)
       const aName = document.getElementById("aName");
       const bName = document.getElementById("bName");
       [aName.textContent, bName.textContent] = [bName.textContent, aName.textContent];
@@ -375,6 +417,89 @@
     document.getElementById("rulesBtn").addEventListener("click", ()=>{
       alert(`Rules for ${state.category||"—"} ${state.subcategory?("• "+state.subcategory):""}\n\n• No outside help\n• Stay within time\n• Follow platform conduct`);
     });
+
+    // Fullscreen buttons
+    function fs(el){ if(el.requestFullscreen) el.requestFullscreen(); }
+    document.getElementById("aFullscreen").addEventListener("click", ()=> fs(document.getElementById("aVideoWrap")));
+    document.getElementById("bFullscreen").addEventListener("click", ()=> fs(document.getElementById("bVideoWrap")));
+
+    // Mic level (visual only)
+    const aMicBar = document.getElementById("aMicLevel");
+    const bMicBar = document.getElementById("bMicLevel");
+    setInterval(()=>{
+      aMicBar.style.width = (Math.random()*95).toFixed(0)+'%';
+      bMicBar.style.width = (Math.random()*95).toFixed(0)+'%';
+    }, 120);
+
+    /***** Battle timer *****/
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const timeLeftEl = document.getElementById("timeLeft");
+    const barFill = document.getElementById("barFill");
+    const beatDot = document.getElementById("beatDot");
+
+    function fmt(s){ const m = Math.floor(s/60); const r = s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`; }
+    function setTimer(seconds){
+      state.total = seconds; state.timeLeft = seconds; timeLeftEl.textContent = fmt(seconds); barFill.style.width = '0%';
+    }
+    setTimer(state.rap.length);
+
+    function maybeEnableStart(){
+      startBtn.disabled = !(state.readyA && state.readyB);
+      pauseBtn.disabled = true; resetBtn.disabled = true;
+    }
+    function disableStart(){
+      startBtn.disabled = true; pauseBtn.disabled = true; resetBtn.disabled = true;
+    }
+
+    // Opponent ready (simulate)
+    setTimeout(()=>{ state.readyB = true; bState.textContent = "Ready"; maybeEnableStart(); }, 1200);
+
+    function tick(){
+      if(!state.running) return;
+      state.timeLeft = Math.max(0, state.timeLeft - 1);
+      timeLeftEl.textContent = fmt(state.timeLeft);
+      const pct = 100 - Math.round((state.timeLeft/state.total)*100);
+      barFill.style.width = pct + '%';
+      if(state.timeLeft<=0){ stopBattle(true); }
+    }
+    function startBattle(){
+      if(startBtn.disabled) return;
+      state.running = true; startBtn.disabled = true; pauseBtn.disabled = false; resetBtn.disabled = false;
+      clearInterval(state.tick);
+      state.tick = setInterval(tick, 1000);
+      // beat pulse tempo (rough based on selection)
+      const tempos = { acapella:0, trap_92:92, boom_88:88, drill_140:140 };
+      const sel = state.rap.beat || 'acapella';
+      const bpm = tempos[sel] || 0;
+      if(bpm>0){
+        const ms = Math.max(300, Math.round(60000/bpm));
+        beatDot.style.animationDuration = (ms/1000)+'s';
+      }else{
+        beatDot.style.animationDuration = '1.2s';
+      }
+    }
+    function pauseBattle(){
+      if(!state.running) return;
+      state.running = false; pauseBtn.disabled = true; startBtn.disabled = false;
+      clearInterval(state.tick);
+    }
+    function stopBattle(ended=false){
+      state.running = false; clearInterval(state.tick);
+      startBtn.disabled = ! (state.readyA && state.readyB);
+      pauseBtn.disabled = true; resetBtn.disabled = false;
+      if(ended) alert('Round complete!');
+    }
+    function resetBattle(){
+      stopBattle(false);
+      setTimer(state.rap.length);
+      resetBtn.disabled = true;
+    }
+
+    startBtn.addEventListener("click", startBattle);
+    pauseBtn.addEventListener("click", pauseBattle);
+    resetBtn.addEventListener("click", resetBattle);
 
     /***** Picker logic *****/
     const picker = document.getElementById("picker");
@@ -402,7 +527,6 @@
     }
     function closePicker(){
       picker.classList.remove("show");
-      // Ensure only cats visible next time
       showStep("cats");
     }
     function showStep(which){
@@ -424,13 +548,18 @@
     // Openers
     document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
     document.getElementById("catsDock").addEventListener("click", ()=>openPicker("cats"));
-    // Invite & room copy (stubs)
-    document.getElementById("inviteBtn").addEventListener("click", ()=>{
+
+    // Invite (share link)
+    document.getElementById("inviteBtn").addEventListener("click", async ()=>{
       const url = location.origin + location.pathname + "?room=" + encodeURIComponent(state.room);
-      navigator.clipboard?.writeText(url); alert("Invite link copied:\n"+url);
-    });
-    document.getElementById("copyRoom").addEventListener("click", ()=>{
-      navigator.clipboard?.writeText(state.room); alert("Room code copied.");
+      try{
+        if(navigator.share){
+          await navigator.share({ title:"Join my Battle Room", url });
+        }else{
+          await navigator.clipboard?.writeText(url);
+          alert("Invite link copied:\n"+url);
+        }
+      }catch{}
     });
 
     // Close/Back in sheet
@@ -474,10 +603,8 @@
           state.subcategory = b.dataset.sub;
           setCrumb();
           if(state.category==="Rap"){
-            // Go to Rap setup (Step 3 for Rap)
             showStep("rap"); updatePickCrumb();
           }else{
-            // Go to generic setup placeholder (Step 3 for others)
             document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`;
             showStep("other"); updatePickCrumb();
           }
@@ -485,11 +612,10 @@
       });
     }
 
-    // Rap setup live bindings
+    // Rap setup bindings
     const rapLen = document.getElementById("rapLen");
     const rapLenVal = document.getElementById("rapLenVal");
     rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
-
     document.getElementById("rapApply").addEventListener("click", ()=>{
       state.rap.style  = document.getElementById("rapStyle").value;
       state.rap.length = parseInt(document.getElementById("rapLen").value,10);
@@ -501,6 +627,8 @@
       state.rap.beatFile = file ? file.name : null;
 
       applySelection();
+      // Update timer to chosen round length
+      setTimer(state.rap.length);
       closePicker();
     });
 
@@ -511,7 +639,6 @@
     });
 
     function applySelection(){
-      // Reflect choices in the arena UI hints
       const aHint = document.getElementById("aHint");
       const bHint = document.getElementById("bHint");
       let details = `${state.category} • ${state.subcategory}`;
@@ -522,15 +649,19 @@
       bHint.textContent = "Opponent sees: " + details;
     }
 
-    // Also open picker on first load so category choice is obvious
+    // Open picker early so choice is obvious
     openPicker("cats");
 
-    // Support ?room= in URL
-    (function(){
-      const params = new URLSearchParams(location.search);
-      const r = params.get("room");
-      if(r){ state.room = r; document.getElementById("roomCode").textContent = "Room: " + r; }
-    })();
+    // Faux opponent ready after invite
+    document.getElementById("inviteBtn").addEventListener("click", ()=>{
+      setTimeout(()=>{ state.readyB = true; bState.textContent="Ready"; maybeEnableStart(); }, 1500);
+    });
+
+    // Keyboard shortcuts: Space = Start/Pause, R = Reset
+    document.addEventListener('keydown', (e)=>{
+      if(e.code==='Space'){ e.preventDefault(); if(state.running) pauseBattle(); else startBattle(); }
+      if(e.key.toLowerCase()==='r'){ resetBattle(); }
+    });
   </script>
 </body>
 </html>
