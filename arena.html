@@ -1,645 +1,535 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"/>
-  <title>BattleBillions — Arena (Competitors Only)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Arena — Battle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
   <style>
     :root{
-      --ink:#f5f7fb; --ink-2:#d0d6de; --muted:#9aa3ad;
-      --gold:#ffd700;
-      --glass:rgba(255,255,255,.06);
-      --bg:#000;
-      --panel:rgba(20,20,24,.35);
-      --ok:#36d399; --warn:#ffb020;
-      --safe-top:max(8px, env(safe-area-inset-top)); --safe-bottom:max(12px, env(safe-area-inset-bottom));
-      --divider:#24262d;
+      --ink:#f2f2f2; --muted:#bfc7cf; --gold:#ffd700; --glass:rgba(255,255,255,.06);
+      --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
+      --pad:clamp(10px, 3vw, 24px);
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overscroll-behavior:none}
-    *::-webkit-scrollbar{width:0;height:0;display:none} *{scrollbar-width:none}
-
-    /* Ambient */
-    body::before{
-      content:""; position:fixed; inset:-10%; z-index:0; pointer-events:none;
-      background:
-        radial-gradient(900px 700px at 20% 10%, rgba(255,215,0,.06), transparent 60%),
-        radial-gradient(900px 700px at 80% 20%, rgba(71,245,255,.05), transparent 60%),
-        radial-gradient(1200px 1000px at 50% 80%, rgba(159,123,255,.05), transparent 70%);
-      filter:blur(2px);
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    /* Header */
+    .header{
+      position:sticky; top:0; z-index:10;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px var(--pad);
+      background:linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.4));
+      backdrop-filter: blur(10px);
     }
-    #bg3d{position:fixed; inset:0; z-index:0; width:100%; height:100%; display:block; pointer-events:none; background:radial-gradient(1200px 900px at 25% 10%, #0b0b0d 0%, #000 70%)}
-
-    /* Page shell */
-    .page{position:relative; z-index:1; min-height:100dvh; display:grid; grid-template-rows:auto 1fr auto; gap:10px; padding:var(--safe-top) 10px calc(var(--safe-bottom) + 10px)}
-
-    /* Top row */
-    .topbar{
-      display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;
-      backdrop-filter: blur(8px);
+    .h-left{display:flex; align-items:center; gap:10px}
+    .btn{
+      border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
+      border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer;
+      transition:transform .12s ease, border-color .12s ease, background .12s ease;
     }
-    .brand{
-      justify-self:start; text-transform:uppercase; letter-spacing:.6px; font-weight:800; font-family:'Orbitron',sans-serif;
-      background:
-        linear-gradient(120deg, rgba(255,255,255,.18), rgba(255,255,255,0) 22% 78%, rgba(255,255,255,.18)),
-        linear-gradient(180deg, #f2f2f2 0%, #c7c7c7 38%, #9d9d9d 56%, #f0f0f0 86%);
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-      text-shadow: 0 4px 24px rgba(255,215,0,.12);
-      font-size:14px;
+    .btn:active{transform:translateY(1px)}
+    .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
+    .btn.ghost{background:transparent}
+    .crumb{font-size:13px; color:var(--muted)}
+    .crumb b{color:var(--ink)}
+    .statusDot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;vertical-align:middle}
+    .latency{font-size:12px;color:var(--muted)}
+    .room{font-size:12px; color:#d7f9ff; background:#0b1720; border:1px solid #123041; padding:6px 10px; border-radius:10px}
+    /* Arena split */
+    .arena{padding:10px var(--pad) var(--pad); display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
+    @media (max-width: 860px){ .arena{ grid-template-columns: 1fr; } }
+    .side{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--edge); border-radius:16px; overflow:hidden;
+      display:grid; grid-template-rows: auto 1fr auto; min-height: 52vh;
     }
-    .battle-head{ justify-self:center; display:flex; align-items:center; gap:8px; flex-wrap:wrap; text-align:center }
-    .tag{font-size:11px; color:#cfefff; padding:6px 10px; border-radius:999px; background:var(--glass)}
-    .title{font-weight:800; letter-spacing:.3px; font-size:14px}
+    .side header{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:10px; border-bottom:1px solid var(--edge);
+      background:linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.2));
+    }
+    .who{display:flex; align-items:center; gap:10px}
+    .tag{font-size:12px; color:#9adfff; background:rgba(154,223,255,.12); border:1px solid rgba(154,223,255,.25); padding:4px 8px; border-radius:999px}
+    .liveTag{font-size:11px; color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); padding:4px 8px; border-radius:999px; font-weight:800}
+    .videoWrap{
+      position:relative; background:#000; display:grid; place-items:center; overflow:hidden;
+      aspect-ratio: 16/9;
+    }
+    .videoWrap video, .videoWrap .ph{
+      width:100%; height:100%; object-fit:cover;
+    }
+    .ph{display:grid; place-items:center; color:#777; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
+    .overlay{
+      position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:space-between; padding:8px; pointer-events:none;
+    }
+    .controls{
+      display:flex; gap:8px; flex-wrap:wrap; padding:10px; border-top:1px solid var(--edge);
+      background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.5));
+    }
     .pill{
-      display:inline-flex; align-items:center; gap:8px; border:0; border-radius:999px; padding:8px 12px; font-weight:800; cursor:pointer;
-      color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); box-shadow:0 8px 22px rgba(255,215,0,.2);
+      border:none; cursor:pointer; padding:8px 12px; border-radius:10px; font-weight:700; font-size:12px;
+      background:#121214; color:#e8f3ff; border:1px solid #2a2a2a;
     }
-    .pill.secondary{ color:#bfefff; background:rgba(255,255,255,.08); box-shadow:none }
-    .pill:active{ transform:translateY(1px) }
-    .rightbar{ justify-self:end; display:flex; align-items:center; gap:8px; flex-wrap:wrap }
-
-    /* ALWAYS SPLIT SCREEN (two columns) */
-    .stage{
-      position:relative;
-      display:grid; grid-template-columns:1fr 6px 1fr; gap:0; align-items:stretch; min-height:62dvh;
+    .pill.primary{ background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; border-color:transparent }
+    .pill.warn{ background:#241306; color:#ffd699; border-color:#3b260e }
+    .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
+    .spacer{flex:1}
+    /* Footer dock */
+    .dock{
+      position:fixed; left:0; right:0; bottom:0; z-index:9;
+      display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+      padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom));
+      background:linear-gradient(0deg, rgba(0,0,0,.85), rgba(0,0,0,0));
     }
-    .player{
-      position:relative; border-radius:18px; overflow:hidden;
-      background:var(--panel); backdrop-filter: blur(10px) saturate(130%);
-      box-shadow:0 12px 40px rgba(0,0,0,.35);
-      display:grid; grid-template-rows:auto 1fr auto;
-      min-height:38dvh;
+    .dock .btn{min-width:120px}
+    /* Category picker overlay */
+    .overlayWrap{
+      position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20;
     }
-    .divider{
-      background:var(--divider);
-      cursor:col-resize;
-      position:relative;
-      touch-action:none;
+    .overlayWrap.show{display:flex}
+    .sheet{
+      width:min(880px, 92vw); max-height:86vh; overflow:auto;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--edge); border-radius:18px; padding:14px;
+      box-shadow:0 0 60px rgba(0,0,0,.5);
     }
-    .divider::after{
-      content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      width:3px; height:42px; border-radius:3px; background:#353842;
+    .sheet header{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 4px 12px; border-bottom:1px solid var(--edge) }
+    .list{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:12px }
+    @media (max-width:760px){ .list{ grid-template-columns: 1fr 1fr } }
+    @media (max-width:480px){ .list{ grid-template-columns: 1fr } }
+    .card{
+      padding:12px; border-radius:14px; background:var(--glass); border:1px solid var(--edge);
+      display:grid; gap:6px;
     }
-
-    .p-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px }
-    .p-id{ display:flex; align-items:center; gap:10px }
-    .avatar{ width:44px; height:44px; border-radius:50%; background:#111; overflow:hidden; flex:0 0 auto; box-shadow:0 0 10px rgba(255,255,255,.08) }
-    .avatar img{ width:100%; height:100%; object-fit:cover }
-    .p-name{ font-weight:800; letter-spacing:.2px; font-size:14px }
-    .p-sub{ font-size:11px; color:#cfefff }
-
-    .p-ctrls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap }
-    .ctrl{
-      border:0; border-radius:10px; padding:8px 10px; font-weight:700; cursor:pointer; color:#111;
-      background:linear-gradient(180deg,#dff9ff,#7ff3ff);
+    .card h4{margin:0; font-size:14px}
+    .card p{margin:0; font-size:12px; color:var(--muted)}
+    .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .input, select{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink);
     }
-    .ctrl.ghost{ color:#bfefff; background:rgba(255,255,255,.08) }
-    .ctrl.danger{ color:#fff; background:#ff4c4c }
-    .ctrl:active{ transform:translateY(1px) }
-
-    .p-video{ position:relative; background:#000; width:100%; aspect-ratio:16/9 }
-    @media (min-height:780px){ .p-video{ aspect-ratio:auto; min-height:42vh } }
-    video{ width:100%; height:100%; object-fit:cover; background:#000 }
-    .turn-glow{ position:absolute; inset:0; pointer-events:none; box-shadow:inset 0 0 0 2px rgba(255,215,0,.6), 0 0 60px rgba(255,215,0,.25); opacity:0; transition:opacity .15s ease }
-    .player.active .turn-glow{ opacity:1 }
-
-    .p-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px }
-    .mini{ font-size:11px; color:#cfefff }
-    .ok{ color:var(--ok) } .warn{ color:var(--warn) }
-
-    /* Bottom controls */
-    .bottombar{
-      display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:8px; margin-top:6px;
-      backdrop-filter: blur(8px);
-    }
-    .left-tools,.right-tools{ display:flex; align-items:center; gap:8px; flex-wrap:wrap }
-    .center-tools{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center }
-    .btn{ border:0; border-radius:12px; padding:10px 14px; font-weight:800; cursor:pointer }
-    .btn.primary{ color:#111; background:linear-gradient(180deg,#fff3bd,#ffd700); box-shadow:0 8px 22px rgba(255,215,0,.2) }
-    .btn.ghost{ color:#bfefff; background:rgba(255,255,255,.08) }
-    .btn:active{ transform:translateY(1px) }
-    .round{ font-family:'Orbitron',sans-serif; font-weight:800; padding:8px 12px; border-radius:12px; background:rgba(255,255,255,.08) }
-    .timer{ font-family:'Orbitron',sans-serif; font-weight:800; font-size:18px; letter-spacing:.5px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,.08) }
-    .note{ font-size:12px; color:var(--muted) }
-    .hintbar{ text-align:center; font-size:12px; color:#cfefff; margin-top:6px }
+    .rangeRow{display:flex; align-items:center; gap:8px}
+    .rangeRow input[type="range"]{flex:1}
+    .help{font-size:12px; color:var(--muted)}
+    .crumbbar{font-size:12px; color:var(--muted)}
+    .crumbbar b{color:#e7f7ff}
+    .divider{height:1px; background:#222; margin:8px 0}
   </style>
 </head>
 <body>
-  <canvas id="bg3d"></canvas>
-
-  <div class="page">
-    <!-- Top row -->
-    <div class="topbar">
-      <div class="brand">3ATTLE33ILLIONS</div>
-
-      <div class="battle-head" id="battleHead">
-        <span class="tag" id="roomTag">Private Room</span>
-        <span class="title" id="battleTitle">Select Category</span>
-        <button id="pickCategoryBtn" class="pill">Choose Category</button>
-      </div>
-
-      <div class="rightbar">
-        <button id="helpBtn" class="pill secondary">Help</button>
-        <button id="leaveBtn" class="pill" title="Leave arena">Leave</button>
-      </div>
+  <!-- Header: Back • Breadcrumb • Room/Latency -->
+  <div class="header">
+    <div class="h-left">
+      <button id="backBtn" class="btn small">← Back</button>
+      <div class="crumb" id="crumb"><b>Select Category</b></div>
     </div>
+    <div class="h-right row">
+      <span class="latency"><span class="statusDot" id="netDot"></span><span id="latVal">22ms</span></span>
+      <span class="room" id="roomCode">Room: 4X9-QQA</span>
+    </div>
+  </div>
 
-    <!-- ALWAYS SPLIT STAGE -->
-    <section class="stage" id="stage">
-      <!-- YOU -->
-      <article class="player" id="mePanel">
-        <div class="p-head">
-          <div class="p-id">
-            <div class="avatar"><img id="meAvatar" alt=""/></div>
-            <div>
-              <div class="p-name" id="meName">You</div>
-              <div class="p-sub">Ready: <span id="meReadyState" class="warn">No</span></div>
-            </div>
-          </div>
-          <div class="p-ctrls">
-            <button class="ctrl" id="meCamBtn">Start Camera</button>
-            <button class="ctrl ghost" id="meMicBtn" aria-pressed="false">Mic On</button>
-            <button class="ctrl ghost" id="meFlipBtn">Flip</button>
-          </div>
+  <!-- Split Arena -->
+  <main class="arena" id="arena">
+    <!-- Competitor A -->
+    <section class="side" id="sideA">
+      <header>
+        <div class="who">
+          <span class="tag">Competitor A</span>
+          <span id="aName" class="help">@you</span>
         </div>
-
-        <div class="p-video">
-          <video id="meVideo" playsinline muted></video>
-          <div class="turn-glow"></div>
+        <span class="liveTag" id="aState">Idle</span>
+      </header>
+      <div class="videoWrap" id="aVideoWrap">
+        <div class="ph">Camera off — tap “Camera”</div>
+        <div class="overlay">
+          <div></div>
+          <div class="help" id="aHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Ready when you are</div>
         </div>
-
-        <div class="p-foot">
-          <div class="mini" id="meInfo">Camera: off • Mic: on</div>
-          <button class="ctrl" id="meReadyBtn">I’m Ready</button>
-        </div>
-      </article>
-
-      <!-- Draggable divider -->
-      <div class="divider" id="divider" role="separator" aria-orientation="vertical" aria-label="Resize panels"></div>
-
-      <!-- OPPONENT -->
-      <article class="player" id="opPanel">
-        <div class="p-head">
-          <div class="p-id">
-            <div class="avatar"><img id="opAvatar" alt=""/></div>
-            <div>
-              <div class="p-name" id="opName">Opponent</div>
-              <div class="p-sub">Ready: <span id="opReadyState" class="warn">No</span></div>
-            </div>
-          </div>
-          <div class="p-ctrls">
-            <button class="ctrl ghost" disabled>Cam</button>
-            <button class="ctrl ghost" disabled>Mic</button>
-            <button class="ctrl ghost" disabled>Flip</button>
-          </div>
-        </div>
-
-        <div class="p-video">
-          <video id="opVideo" playsinline muted></video>
-          <div class="turn-glow"></div>
-        </div>
-
-        <div class="p-foot">
-          <div class="mini" id="opInfo">Waiting for opponent…</div>
-          <span class="mini note">Competitors only view</span>
-        </div>
-      </article>
+      </div>
+      <div class="controls">
+        <button class="pill" id="aCamera">Camera</button>
+        <button class="pill" id="aMic">Mic</button>
+        <button class="pill" id="aSwitch">Switch</button>
+        <button class="pill" id="aUpload">Upload</button>
+        <div class="spacer"></div>
+        <button class="pill primary" id="aReady">Ready</button>
+        <button class="pill red" id="aConcede">Concede</button>
+      </div>
     </section>
 
-    <!-- Bottom controls -->
-    <div class="bottombar">
-      <div class="left-tools">
-        <button class="btn ghost" id="swapSidesBtn">Swap Sides</button>
-        <span class="note" id="catNote">Category: —</span>
+    <!-- Competitor B -->
+    <section class="side" id="sideB">
+      <header>
+        <div class="who">
+          <span class="tag">Competitor B</span>
+          <span id="bName" class="help">@opponent</span>
+        </div>
+        <span class="liveTag" id="bState">Idle</span>
+      </header>
+      <div class="videoWrap" id="bVideoWrap">
+        <div class="ph">Waiting for opponent…</div>
+        <div class="overlay">
+          <div></div>
+          <div class="help" id="bHint" style="padding:6px 10px;background:rgba(0,0,0,.45);border-radius:8px;">Invite your opponent</div>
+        </div>
       </div>
-
-      <div class="center-tools">
-        <span class="round" id="roundBadge">Round 1 / 3</span>
-        <span class="timer" id="timer">01:00</span>
-        <button class="btn primary" id="startRoundBtn">Start Round</button>
-        <button class="btn ghost" id="endTurnBtn" disabled>End Turn</button>
-        <button class="btn ghost" id="nextRoundBtn" disabled>Next Round</button>
+      <div class="controls">
+        <button class="pill" id="bMute">Mute</button>
+        <button class="pill" id="bSwap">Swap Sides</button>
+        <div class="spacer"></div>
+        <button class="pill warn" id="rulesBtn">Rules</button>
+        <button class="pill" id="catsBtn">Categories</button>
       </div>
+    </section>
+  </main>
 
-      <div class="right-tools">
-        <button class="btn ghost" id="muteAllBtn">Mute All</button>
-        <button class="btn ghost" id="resetBtn">Reset</button>
-      </div>
-    </div>
-
-    <div class="hintbar">Arena = competitors only. Audience controls exist on Live / Discover / Profile.</div>
+  <!-- Bottom Dock -->
+  <div class="dock">
+    <button class="btn" id="catsDock">Choose Category</button>
+    <button class="btn ghost" id="inviteBtn">Invite Opponent</button>
+    <button class="btn ghost" id="copyRoom">Copy Room</button>
   </div>
 
-  <!-- Category Picker -->
-  <div id="categoryModal" class="modal" aria-hidden="true" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10; background:rgba(0,0,0,.55)">
-    <div class="sheet" style="width:min(96vw,940px); max-height:86vh; overflow:auto; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; box-shadow:0 40px 120px rgba(0,0,0,.5), inset 0 0 60px rgba(255,215,0,.06)">
-      <h3 style="margin:0 0 8px; font-family:'Orbitron',sans-serif; letter-spacing:.4px">Select Category & Subcategory</h3>
-      <p class="note" style="margin-bottom:8px">Launch set: Rap, Art, Instruments, Comedy, Dance, Fashion</p>
-      <div class="grid cols-2" id="categoryGrid" style="display:grid; gap:10px"></div>
-      <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px">
-        <button class="btn ghost" id="closeModalBtn">Cancel</button>
-        <button class="btn primary" id="applyCategoryBtn" disabled>Apply</button>
-      </div>
+  <!-- Category Picker (overlay) -->
+  <div class="overlayWrap" id="picker">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+      <header>
+        <div class="crumbbar" id="pickCrumb"><b>Categories</b></div>
+        <div class="row">
+          <button class="btn small ghost" id="pickBack">← Back</button>
+          <button class="btn small" id="pickClose">Close</button>
+        </div>
+      </header>
+
+      <!-- Step 1: Categories -->
+      <section id="stepCats">
+        <div class="list">
+          <article class="card">
+            <h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p>
+            <button class="btn small" data-cat="Rap">Select</button>
+          </article>
+          <article class="card">
+            <h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p>
+            <button class="btn small" data-cat="Art">Select</button>
+          </article>
+          <article class="card">
+            <h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p>
+            <button class="btn small" data-cat="Instruments">Select</button>
+          </article>
+          <article class="card">
+            <h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p>
+            <button class="btn small" data-cat="Comedy">Select</button>
+          </article>
+          <article class="card">
+            <h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p>
+            <button class="btn small" data-cat="Dance">Select</button>
+          </article>
+          <article class="card">
+            <h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p>
+            <button class="btn small" data-cat="Fashion">Select</button>
+          </article>
+        </div>
+      </section>
+
+      <!-- Step 2: Subcategories (dynamic) -->
+      <section id="stepSubs" style="display:none">
+        <div class="row" style="justify-content:space-between; align-items:center">
+          <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
+          <button class="btn small ghost" id="subsBack">← Categories</button>
+        </div>
+        <div id="subsList" class="list"></div>
+      </section>
+
+      <!-- Step 3 (Rap example): Rules/Setup after subcategory -->
+      <section id="stepRapSetup" style="display:none">
+        <h4 style="margin:8px 0">Rap Battle Setup</h4>
+        <p class="help" style="margin:0 0 8px">These options load after choosing a Rap subcategory. Use this as the pattern for other categories with their own unique settings.</p>
+
+        <div class="card">
+          <div class="row">
+            <label style="font-size:12px; color:var(--muted)">Style</label>
+            <select id="rapStyle" class="input">
+              <option value="freestyle">Freestyle</option>
+              <option value="written">Written</option>
+              <option value="cypher">Cypher</option>
+              <option value="wordplay">Wordplay</option>
+            </select>
+          </div>
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Round Length</label>
+              <div class="rangeRow">
+                <input id="rapLen" type="range" min="30" max="180" step="15" value="60"/>
+                <span id="rapLenVal" class="help">60s</span>
+              </div>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Rounds</label>
+              <select id="rapRounds" class="input">
+                <option>1</option><option selected>3</option><option>5</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Beat</label>
+              <select id="rapBeat" class="input">
+                <option value="acapella">Acapella</option>
+                <option value="trap_92">Trap 92bpm</option>
+                <option value="boom_88">Boom-bap 88bpm</option>
+                <option value="drill_140">Drill 140bpm</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Upload Beat (optional)</label>
+              <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
+              <select id="rapWord" class="input">
+                <option value="none">None</option>
+                <option value="must_use_3">Must use 3 prompts</option>
+                <option value="random_topic">Random topic</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:12px; color:var(--muted)">Profanity Filter</label>
+              <select id="rapFilter" class="input">
+                <option value="off">Off</option>
+                <option value="light">Light</option>
+                <option value="strict">Strict</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn small ghost" id="rapSetupBack">← Subcategories</button>
+            <button class="btn small" id="rapApply">Apply & Use</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Placeholder for other categories unique setup (you can clone rap section) -->
+      <section id="stepOtherSetup" style="display:none">
+        <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
+        <p class="help">Add unique controls here for this category (e.g., canvas size for Art, tempo for Dance, etc.). For now it just confirms selection.</p>
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn small ghost" id="otherSetupBack">← Subcategories</button>
+          <button class="btn small" id="otherApply">Apply & Use</button>
+        </div>
+      </section>
     </div>
   </div>
-
-  <!-- Three.js (ambient) -->
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
   <script>
-    /***********************
-     * CATEGORY CONFIG
-     ***********************/
-    const CATEGORIES = [
-      { key:'rap', name:'Rap', subs:['Freestyle','Written','Acapella','On Beat','Roast / Diss'], rounds:3, seconds:60, notes:'Mic priority, timed rounds.' },
-      { key:'art', name:'Art', subs:['Drawing','Painting','Digital','Graffiti','Sculpture'], rounds:1, seconds:180, notes:'Timelapse or live; reveal at end.' },
-      { key:'instruments', name:'Instruments', subs:['Guitar','Piano / Keys','Drums / Percussion','Strings','Wind / Brass'], rounds:2, seconds:90, notes:'Dual audio focus.' },
-      { key:'comedy', name:'Comedy', subs:['Roast','Stand-Up','Skits','Impressions','Freestyle Comedy'], rounds:2, seconds:60, notes:'Turn indicator + mic.' },
-      { key:'dance', name:'Dance', subs:['Freestyle','Choreography','Hip-Hop / Street','Breakdance / Popping','Cultural'], rounds:2, seconds:60, notes:'Full-body frame.' },
-      { key:'fashion', name:'Fashion', subs:['Streetwear Fits','Runway Walks','Custom Designs','Cosplay / Costume','Thrift / Budget'], rounds:1, seconds:60, notes:'Runway + details.' }
-    ];
-
+    /***** Simple state *****/
     const state = {
-      cat: null, sub: null,
-      rounds: 3, seconds: 60, curRound: 1,
-      turn: 'me', timerRunning: false, timeLeft: 60,
-      streams: { me: null },
-      me: { name:'You', avatar:'' },
-      op: { name:'Opponent', avatar:'' },
-      meReady:false, opReady:false
+      room: (localStorage.getItem("bb_room") || "4X9-QQA"),
+      category: null,
+      subcategory: null,
+      rap: { style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null }
     };
 
-    const $ = s => document.querySelector(s);
-    function qsParam(k){ const u=new URL(location.href); return u.searchParams.get(k); }
-    function formatMMSS(s){ s=Math.max(0,Math.floor(s)); const m=Math.floor(s/60), ss=s%60; return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
+    /***** Header wires *****/
+    document.getElementById("roomCode").textContent = "Room: " + state.room;
+    const crumbEl = document.getElementById("crumb");
+    function setCrumb(){
+      if(!state.category) crumbEl.innerHTML = "<b>Select Category</b>";
+      else if(!state.subcategory) crumbEl.innerHTML = `<b>${state.category}</b> • choose subcategory`;
+      else crumbEl.innerHTML = `<b>${state.category}</b> → ${state.subcategory}`;
+    }
+    setCrumb();
 
-    /***********************
-     * USER LOAD (firebase if available; URL fallbacks)
-     ***********************/
-    (async function loadUser(){
-      // URL fallbacks
-      state.me.name = qsParam('meName') || state.me.name;
-      state.me.avatar = qsParam('meAvatar') || state.me.avatar;
-      state.op.name = qsParam('opName') || state.op.name;
-      state.op.avatar = qsParam('opAvatar') || state.op.avatar;
+    // Back button: from Arena goes to categories
+    document.getElementById("backBtn").addEventListener("click", ()=>{
+      openPicker("cats");
+    });
 
-      try{
-        const mod = await import('./firebase.js');
-        const { auth, db, onAuthStateChanged, doc, getDoc } = mod;
-        onAuthStateChanged(auth, async (user)=>{
-          if(!user) return renderIdentities();
-          try{
-            const ref = doc(db, 'users', user.uid);
-            const snap = await getDoc(ref);
-            if (snap.exists()){
-              const d = snap.data();
-              state.me.name = d.username || d.displayName || state.me.name;
-              state.me.avatar = d.avatarURL || state.me.avatar;
-            }
-          }catch{}
-          renderIdentities();
-        });
-      }catch{
-        renderIdentities();
+    // Fake latency pulse
+    const latVal = document.getElementById("latVal");
+    setInterval(()=>{ latVal.textContent = (15 + Math.round(Math.random()*20))+"ms"; }, 2000);
+
+    /***** Arena controls (stubbed) *****/
+    const aState = document.getElementById("aState");
+    const bState = document.getElementById("bState");
+    document.getElementById("aReady").addEventListener("click", ()=> aState.textContent = "Ready");
+    document.getElementById("aConcede").addEventListener("click", ()=> aState.textContent = "Conceded");
+    document.getElementById("bSwap").addEventListener("click", ()=>{
+      // Swap labels only (visual stub)
+      const aName = document.getElementById("aName");
+      const bName = document.getElementById("bName");
+      [aName.textContent, bName.textContent] = [bName.textContent, aName.textContent];
+    });
+    document.getElementById("rulesBtn").addEventListener("click", ()=>{
+      alert(`Rules for ${state.category||"—"} ${state.subcategory?("• "+state.subcategory):""}\n\n• No outside help\n• Stay within time\n• Follow platform conduct`);
+    });
+
+    /***** Picker logic *****/
+    const picker = document.getElementById("picker");
+    const stepCats = document.getElementById("stepCats");
+    const stepSubs = document.getElementById("stepSubs");
+    const stepRap = document.getElementById("stepRapSetup");
+    const stepOther = document.getElementById("stepOtherSetup");
+    const pickCrumb = document.getElementById("pickCrumb");
+    const subsTitle = document.getElementById("subsTitle");
+    const subsList = document.getElementById("subsList");
+
+    const CAT_SUBS = {
+      "Rap": ["Freestyle","Written","Cypher","Wordplay"],
+      "Art": ["Sketch","Digital","Graffiti","Speed-paint"],
+      "Instruments": ["Guitar","Piano/Keys","Drums","Strings"],
+      "Comedy": ["Roast","Improv","Skits","One-liners"],
+      "Dance": ["Freestyle","Choreo","Break","Duo"],
+      "Fashion": ["Styled Fit","Runway","Custom Piece"]
+    };
+
+    function openPicker(step="cats"){
+      picker.classList.add("show");
+      showStep(step);
+      updatePickCrumb();
+    }
+    function closePicker(){
+      picker.classList.remove("show");
+      // Ensure only cats visible next time
+      showStep("cats");
+    }
+    function showStep(which){
+      stepCats.style.display = (which==="cats") ? "block" : "none";
+      stepSubs.style.display = (which==="subs") ? "block" : "none";
+      stepRap.style.display  = (which==="rap")  ? "block" : "none";
+      stepOther.style.display= (which==="other")? "block" : "none";
+    }
+    function updatePickCrumb(){
+      if(stepRap.style.display==="block"){
+        pickCrumb.innerHTML = `<b>${state.category}</b> → ${state.subcategory} • Setup`;
+      }else if(stepSubs.style.display==="block"){
+        pickCrumb.innerHTML = `<b>${state.category}</b> • Subcategories`;
+      }else{
+        pickCrumb.innerHTML = `<b>Categories</b>`;
       }
-    })();
-
-    function renderIdentities(){
-      $('#meName').textContent = state.me.name || 'You';
-      $('#meAvatar').src = state.me.avatar || 'assets/default-avatar.png';
-      $('#opName').textContent = state.op.name || 'Opponent';
-      $('#opAvatar').src = state.op.avatar || 'assets/opponent-avatar.png';
     }
 
-    /***********************
-     * CATEGORY MODAL
-     ***********************/
-    const categoryModal = $('#categoryModal');
-    const categoryGrid = $('#categoryGrid');
-    const applyCategoryBtn = $('#applyCategoryBtn');
+    // Openers
+    document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
+    document.getElementById("catsDock").addEventListener("click", ()=>openPicker("cats"));
+    // Invite & room copy (stubs)
+    document.getElementById("inviteBtn").addEventListener("click", ()=>{
+      const url = location.origin + location.pathname + "?room=" + encodeURIComponent(state.room);
+      navigator.clipboard?.writeText(url); alert("Invite link copied:\n"+url);
+    });
+    document.getElementById("copyRoom").addEventListener("click", ()=>{
+      navigator.clipboard?.writeText(state.room); alert("Room code copied.");
+    });
 
-    function openCategoryModal(){
-      categoryGrid.innerHTML = '';
-      CATEGORIES.forEach(cat=>{
-        const el = document.createElement('div');
-        el.className = 'cat';
-        el.style.cssText = 'background:rgba(255,255,255,.06);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;border:1px solid rgba(255,255,255,.08)';
-        el.dataset.key = cat.key;
-        el.innerHTML = `
-          <div>
-            <div style="font-weight:800">${cat.name}</div>
-            <div class="subchips" data-subwrap="${cat.key}" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
-              ${cat.subs.map(s=>`<span class="chip" data-chip="${cat.key}:${s}" style="font-size:12px;padding:6px 10px;border-radius:999px;background:#101217;color:#dfe7ee">${s}</span>`).join('')}
-            </div>
-            <div class="note" style="margin-top:6px">${cat.notes}</div>
-          </div>
-          <span class="chip" style="background:linear-gradient(180deg,#dff9ff,#7ff3ff);color:#111;font-weight:800;padding:6px 10px;border-radius:999px">Select</span>
-        `;
-        categoryGrid.appendChild(el);
+    // Close/Back in sheet
+    document.getElementById("pickClose").addEventListener("click", closePicker);
+    document.getElementById("pickBack").addEventListener("click", ()=>{
+      if(stepSubs.style.display==="block" || stepRap.style.display==="block" || stepOther.style.display==="block"){
+        showStep("cats"); updatePickCrumb();
+      }else{
+        closePicker();
+      }
+    });
+    document.getElementById("subsBack").addEventListener("click", ()=>{ showStep("cats"); updatePickCrumb(); });
+    document.getElementById("rapSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
+    document.getElementById("otherSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
+
+    // Category select buttons (Step 1)
+    stepCats.querySelectorAll("button[data-cat]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        state.category = btn.dataset.cat;
+        state.subcategory = null;
+        setCrumb();
+        buildSubs();
+        showStep("subs");
+        updatePickCrumb();
       });
-      categoryGrid.addEventListener('click', onCategoryClick);
-      categoryModal.style.display = 'flex';
-      categoryModal.setAttribute('aria-hidden','false');
-      applyCategoryBtn.disabled = !(state.cat && state.sub);
-    }
-    function closeCategoryModal(){
-      categoryGrid.removeEventListener('click', onCategoryClick);
-      categoryModal.style.display = 'none';
-      categoryModal.setAttribute('aria-hidden','true');
-    }
-    function onCategoryClick(e){
-      const chip = e.target.closest('[data-chip]');
-      if(!chip) return;
-      const [key, sub] = chip.dataset.chip.split(':');
-      const wrap = document.querySelector(`[data-subwrap="${key}"]`);
-      wrap.querySelectorAll('.chip').forEach(c=> c.style.background='#101217');
-      chip.style.background = 'linear-gradient(180deg,#fff3bd,#ffd700)';
-      chip.style.color = '#111';
-      state.cat = key; state.sub = sub;
-      const cfg = CATEGORIES.find(c=>c.key===key);
-      state.rounds = cfg.rounds; state.seconds = cfg.seconds; state.timeLeft = cfg.seconds; state.curRound=1; state.turn='me';
-      applyCategoryBtn.disabled = false;
-    }
-    function applySelectedCategory(){
-      closeCategoryModal();
-      updateBattleHeader();
-      updateRoundUI(true);
-      stopTimer();
-    }
-    function updateBattleHeader(){
-      if(!state.cat || !state.sub){
-        $('#battleTitle').textContent = 'Select Category';
-        $('#catNote').textContent = 'Category: —';
-        return;
-      }
-      const catName = CATEGORIES.find(c=>c.key===state.cat)?.name || state.cat;
-      $('#battleTitle').textContent = `${catName} • ${state.sub}`;
-      $('#catNote').textContent = `Category: ${catName} / ${state.sub}`;
-    }
-
-    /***********************
-     * TIMER / ROUNDS / TURNS
-     ***********************/
-    let raf = null, lastTick = 0;
-    function startTimer(){
-      if(state.timerRunning) return;
-      if(!state.cat){ openCategoryModal(); return; }
-      state.timerRunning = true;
-      lastTick = performance.now();
-      $('#startRoundBtn').disabled = true;
-      $('#endTurnBtn').disabled = false;
-      $('#nextRoundBtn').disabled = true;
-      markActiveTurn();
-      loop();
-    }
-    function loop(now){
-      raf = requestAnimationFrame(loop);
-      const t = performance.now();
-      const dt = (t - lastTick)/1000; lastTick = t;
-      state.timeLeft -= dt;
-      if(state.timeLeft <= 0){
-        state.timeLeft = 0;
-        updateTimerUI();
-        endTurn();
-        return;
-      }
-      updateTimerUI();
-    }
-    function stopTimer(){
-      if(raf) cancelAnimationFrame(raf);
-      raf = null; state.timerRunning = false;
-      $('#startRoundBtn').disabled = false;
-      $('#endTurnBtn').disabled = true;
-      $('#nextRoundBtn').disabled = false;
-      clearActiveTurn();
-    }
-    function updateTimerUI(){ $('#timer').textContent = formatMMSS(state.timeLeft); }
-    function updateRoundUI(resetTime=false){
-      $('#roundBadge').textContent = `Round ${state.curRound} / ${state.rounds}`;
-      if(resetTime){ state.timeLeft = state.seconds; updateTimerUI(); }
-    }
-    function markActiveTurn(){
-      $('#mePanel').classList.toggle('active', state.turn==='me');
-      $('#opPanel').classList.toggle('active', state.turn==='op');
-      $('#roomTag').textContent = state.turn==='me' ? 'Your Turn' : `${state.op.name || 'Opponent'} Turn`;
-    }
-    function clearActiveTurn(){
-      $('#mePanel').classList.remove('active');
-      $('#opPanel').classList.remove('active');
-      $('#roomTag').textContent = 'Paused';
-    }
-    function endTurn(){
-      stopTimer();
-      state.turn = (state.turn === 'me') ? 'op' : 'me';
-      $('#nextRoundBtn').disabled = false;
-      markActiveTurn();
-    }
-    function nextRound(){
-      if(state.curRound >= state.rounds){
-        $('#roomTag').textContent = 'Battle Complete';
-        $('#startRoundBtn').disabled = true;
-        $('#endTurnBtn').disabled = true;
-        $('#nextRoundBtn').disabled = true;
-        clearActiveTurn();
-        return;
-      }
-      state.curRound += 1;
-      state.turn = 'me';
-      updateRoundUI(true);
-      $('#startRoundBtn').disabled = false;
-      $('#endTurnBtn').disabled = true;
-      $('#nextRoundBtn').disabled = true;
-      markActiveTurn();
-    }
-
-    /***********************
-     * READY STATE
-     ***********************/
-    $('#meReadyBtn').addEventListener('click', ()=>{
-      state.meReady = !state.meReady;
-      $('#meReadyState').textContent = state.meReady ? 'Yes' : 'No';
-      $('#meReadyState').className = state.meReady ? 'ok' : 'warn';
-      $('#meReadyBtn').textContent = state.meReady ? 'Not Ready' : 'I’m Ready';
     });
 
-    /***********************
-     * CAMERA / MIC / FLIP
-     ***********************/
-    let useRear = false;
-    async function startMyCamera(){
-      try{
-        const constraints = { audio:true, video:{ facingMode: useRear ? { exact:'environment' } : 'user' } };
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        state.streams.me = stream;
-        const vid = $('#meVideo'); vid.srcObject = stream; await vid.play().catch(()=>{});
-        $('#meInfo').textContent = 'Camera: on • Mic: on';
-        $('#meCamBtn').textContent = 'Stop Camera';
-      }catch(e){ alert('Camera/mic blocked: ' + (e?.message||e)); }
+    // Build Step 2 list
+    function buildSubs(){
+      subsTitle.textContent = `${state.category} — Subcategories`;
+      const items = CAT_SUBS[state.category] || [];
+      subsList.innerHTML = items.map(name=>`
+        <article class="card">
+          <h4>${name}</h4>
+          <p>Tap to use</p>
+          <button class="btn small" data-sub="${name}">Select</button>
+        </article>
+      `).join("");
+      subsList.querySelectorAll("button[data-sub]").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          state.subcategory = b.dataset.sub;
+          setCrumb();
+          if(state.category==="Rap"){
+            // Go to Rap setup (Step 3 for Rap)
+            showStep("rap"); updatePickCrumb();
+          }else{
+            // Go to generic setup placeholder (Step 3 for others)
+            document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`;
+            showStep("other"); updatePickCrumb();
+          }
+        });
+      });
     }
-    function stopMyCamera(){
-      if(state.streams.me){
-        state.streams.me.getTracks().forEach(t=>t.stop());
-        state.streams.me = null;
-        $('#meVideo').srcObject = null;
+
+    // Rap setup live bindings
+    const rapLen = document.getElementById("rapLen");
+    const rapLenVal = document.getElementById("rapLenVal");
+    rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
+
+    document.getElementById("rapApply").addEventListener("click", ()=>{
+      state.rap.style  = document.getElementById("rapStyle").value;
+      state.rap.length = parseInt(document.getElementById("rapLen").value,10);
+      state.rap.rounds = parseInt(document.getElementById("rapRounds").value,10);
+      state.rap.beat   = document.getElementById("rapBeat").value;
+      state.rap.word   = document.getElementById("rapWord").value;
+      state.rap.filter = document.getElementById("rapFilter").value;
+      const file = document.getElementById("rapBeatFile").files?.[0] || null;
+      state.rap.beatFile = file ? file.name : null;
+
+      applySelection();
+      closePicker();
+    });
+
+    // Generic apply for other categories
+    document.getElementById("otherApply").addEventListener("click", ()=>{
+      applySelection();
+      closePicker();
+    });
+
+    function applySelection(){
+      // Reflect choices in the arena UI hints
+      const aHint = document.getElementById("aHint");
+      const bHint = document.getElementById("bHint");
+      let details = `${state.category} • ${state.subcategory}`;
+      if(state.category==="Rap"){
+        details += ` • ${state.rap.style} • ${state.rap.rounds}R/${state.rap.length}s • Beat: ${state.rap.beat}${state.rap.beatFile?` (${state.rap.beatFile})`:''}`;
       }
-      $('#meInfo').textContent = 'Camera: off • Mic: on';
-      $('#meCamBtn').textContent = 'Start Camera';
+      aHint.textContent = details;
+      bHint.textContent = "Opponent sees: " + details;
     }
-    $('#meCamBtn').addEventListener('click', ()=>{ state.streams.me ? stopMyCamera() : startMyCamera(); });
-    $('#meMicBtn').addEventListener('click', (e)=>{
-      const pressed = e.currentTarget.getAttribute('aria-pressed') === 'true';
-      const next = !pressed;
-      e.currentTarget.setAttribute('aria-pressed', String(next));
-      e.currentTarget.textContent = next ? 'Mic Off' : 'Mic On';
-      if(state.streams.me){
-        state.streams.me.getAudioTracks().forEach(t=> t.enabled = !next);
-        const on = state.streams.me.getAudioTracks().some(t=>t.enabled);
-        $('#meInfo').textContent = `Camera: ${state.streams.me ? 'on' : 'off'} • Mic: ${on ? 'on' : 'off'}`;
-      }
-    });
-    $('#meFlipBtn').addEventListener('click', async ()=>{
-      useRear = !useRear;
-      if(state.streams.me){ stopMyCamera(); await startMyCamera(); }
-    });
 
-    /***********************
-     * WIRES
-     ***********************/
-    $('#pickCategoryBtn').addEventListener('click', openCategoryModal);
-    $('#closeModalBtn').addEventListener('click', closeCategoryModal);
-    $('#applyCategoryBtn').addEventListener('click', applySelectedCategory);
+    // Also open picker on first load so category choice is obvious
+    openPicker("cats");
 
-    $('#swapSidesBtn').addEventListener('click', ()=>{
-      // Swap visuals
-      const meName = $('#meName').textContent, meAv = $('#meAvatar').src;
-      const opName = $('#opName').textContent, opAv = $('#opAvatar').src;
-      $('#meName').textContent = opName; $('#meAvatar').src = opAv;
-      $('#opName').textContent = meName; $('#opAvatar').src = meAv;
-      // Swap state
-      [state.me, state.op] = [state.op, state.me];
-      markActiveTurn();
-    });
-    $('#startRoundBtn').addEventListener('click', startTimer);
-    $('#endTurnBtn').addEventListener('click', endTurn);
-    $('#nextRoundBtn').addEventListener('click', nextRound);
-
-    $('#muteAllBtn').addEventListener('click', ()=>{
-      if(state.streams.me){ state.streams.me.getAudioTracks().forEach(t=> t.enabled = false); }
-      $('#meMicBtn').setAttribute('aria-pressed','true'); $('#meMicBtn').textContent='Mic Off';
-      $('#meInfo').textContent = `Camera: ${state.streams.me ? 'on' : 'off'} • Mic: off`;
-    });
-
-    $('#resetBtn').addEventListener('click', ()=>{
-      stopTimer();
-      state.curRound = 1; state.turn='me'; state.timeLeft = state.seconds;
-      updateRoundUI(true); markActiveTurn();
-    });
-
-    $('#helpBtn').addEventListener('click', ()=>{
-      alert('Arena = competitors only.\n1) Choose category.\n2) Ready up.\n3) Start Round.\nUse End Turn / Next Round to progress. No audience controls here.');
-    });
-
-    $('#leaveBtn').addEventListener('click', ()=>{
-      const back = qsParam('back') || 'home.html';
-      window.location.href = back;
-    });
-
-    // Preselect category via URL
-    (function initFromQuery(){
-      const catQ = qsParam('cat'); const subQ = qsParam('sub');
-      if(catQ && subQ){
-        const cfg = CATEGORIES.find(c=>c.key===catQ);
-        if(cfg){
-          state.cat = cfg.key; state.sub = subQ;
-          state.rounds = cfg.rounds; state.seconds = cfg.seconds; state.timeLeft = cfg.seconds;
-          updateBattleHeader(); updateRoundUI(true);
-        }
-      }
-      markActiveTurn();
-      renderIdentities();
-    })();
-
-    /***********************
-     * DRAGGABLE DIVIDER (always vertical; mobile-friendly)
-     ***********************/
-    (function divider(){
-      const stage = $('#stage'); const divider = $('#divider');
-      let dragging=false;
-
-      function onDown(e){ dragging=true; e.preventDefault(); }
-      function onUp(){ dragging=false; }
-      function onMove(e){
-        if(!dragging) return;
-        const rect = stage.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const x = clientX - rect.left;
-        const pct = Math.min(85, Math.max(15, (x/rect.width)*100));
-        stage.style.gridTemplateColumns = `${pct}% 6px ${100-pct}%`;
-      }
-      divider.addEventListener('mousedown', onDown);
-      addEventListener('mouseup', onUp);
-      addEventListener('mousemove', onMove);
-      divider.addEventListener('touchstart', onDown, {passive:false});
-      addEventListener('touchend', onUp, {passive:true});
-      addEventListener('touchmove', onMove, {passive:false});
-    })();
-
-    /***********************
-     * LIGHT AMBIENT SPARKS
-     ***********************/
-    ;(function(){
-      const canvas = document.getElementById('bg3d');
-      let glOK=false;
-      try{ glOK = !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl')); }catch{ glOK=false; }
-      if(!glOK) return;
-
-      const DPR_LIMIT=1.75;
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
-      renderer.setClearColor(0x000000,0);
-      let width=innerWidth, height=innerHeight;
-      renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT));
-      renderer.setSize(width,height,false);
-
-      const scene = new THREE.Scene();
-      const camera= new THREE.PerspectiveCamera(55, width/height, 0.1, 3000); camera.position.set(0,0,140);
-      scene.add(new THREE.HemisphereLight(0x888888,0x080808,0.9));
-      const dir  = new THREE.DirectionalLight(0xffe7a4,0.7); dir.position.set(60,80,120); scene.add(dir);
-
-      function sprite(){ const s=128,c=document.createElement('canvas'); c.width=c.height=s; const g=c.getContext('2d'); const grd=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2); grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.35,'rgba(255,255,255,0.35)'); grd.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=grd; g.fillRect(0,0,s,s); const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; return tex; }
-      const particleTex = sprite();
-
-      (function(){
-        const COUNT = 400;
-        const g=new THREE.BufferGeometry();
-        const pos=new Float32Array(COUNT*3), col=new Float32Array(COUNT*3);
-        for(let i=0;i<COUNT;i++){
-          pos[i*3+0]=(Math.random()-0.5)*460;
-          pos[i*3+1]=(Math.random()-0.5)*280;
-          pos[i*3+2]=-60 - Math.random()*180;
-          const t=Math.random()*0.5+0.35;
-          col[i*3+0]=t; col[i*3+1]=t*0.9; col[i*3+2]=t*0.85;
-        }
-        g.setAttribute('position', new THREE.BufferAttribute(pos,3));
-        g.setAttribute('color', new THREE.BufferAttribute(col,3));
-        const m=new THREE.PointsMaterial({ size:2.2, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
-        const p=new THREE.Points(g,m); p.frustumCulled=false; p.userData={t:0};
-        scene.add(p);
-        const tick = ()=>{ p.userData.t += 0.0015; p.position.y = Math.sin(p.userData.t*8)*1.2; p.rotation.z += 0.0007; requestAnimationFrame(tick); };
-        tick();
-      })();
-
-      function resize(){
-        width=innerWidth; height=innerHeight;
-        renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT));
-        renderer.setSize(width,height,false);
-        camera.aspect=width/height; camera.updateProjectionMatrix();
-      }
-      addEventListener('resize', resize, {passive:true});
-
-      const render = ()=>{ camera.lookAt(0,0,0); renderer.render(scene,camera); requestAnimationFrame(render); };
-      render();
+    // Support ?room= in URL
+    (function(){
+      const params = new URLSearchParams(location.search);
+      const r = params.get("room");
+      if(r){ state.room = r; document.getElementById("roomCode").textContent = "Room: " + r; }
     })();
   </script>
 </body>
