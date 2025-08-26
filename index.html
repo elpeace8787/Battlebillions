@@ -112,6 +112,11 @@
     .ca-success h3{margin:0 0 8px; color:var(--accent)}
     .ca-success p{margin:0; color:var(--ink-2); font-size:13px}
     @keyframes pop{from{transform:scale(.98); opacity:0} to{transform:scale(1); opacity:1}}
+
+    /* --- tiny styles for account-type chips / errors (NEW) --- */
+    #accountTypeChips .chip { background:#111; }
+    #accountTypeChips .chip.active { background:var(--accent); color:#000; font-weight:700; }
+    #companyFields .error, #err-ads-policy { margin-top:6px; }
   </style>
 </head>
 <body>
@@ -170,6 +175,14 @@
               <!-- Step 1: Basics -->
               <section class="ca-step" data-step="1">
                 <h2 class="title">Account Basics</h2>
+
+                <!-- Account type choice (NEW) -->
+                <div class="chipset" id="accountTypeChips" style="margin-bottom:10px">
+                  <div class="chip active" data-type="user">I’m a Creator / User</div>
+                  <div class="chip" data-type="company">I’m a Company / Brand</div>
+                </div>
+                <div class="hint" id="acctHint">You can create ad battles later if you’re a company.</div>
+
                 <div class="grid cols-2">
                   <div>
                     <label for="ca-handle">Username / Handle</label>
@@ -197,6 +210,32 @@
                     <input id="ca-password2" type="password" placeholder="Re-enter password" autocomplete="new-password"/>
                     <div class="error" id="err-password2">Passwords don’t match.</div>
                   </div>
+                </div>
+
+                <!-- Company-only fields (NEW) -->
+                <div id="companyFields" style="display:none; margin-top:8px">
+                  <div class="grid cols-2">
+                    <div>
+                      <label for="co-name">Company / Brand Name</label>
+                      <input id="co-name" type="text" placeholder="Brand Inc." />
+                      <div class="error" id="err-co-name">Please enter your company/brand name.</div>
+                    </div>
+                    <div>
+                      <label for="co-website">Website (optional)</label>
+                      <input id="co-website" type="url" placeholder="https://yourbrand.com" />
+                    </div>
+                    <div>
+                      <label for="co-contact-name">Primary Contact Name</label>
+                      <input id="co-contact-name" type="text" placeholder="Jane Doe" />
+                      <div class="error" id="err-co-contact">Please enter a contact name.</div>
+                    </div>
+                    <div>
+                      <label for="co-contact-email">Primary Contact Email</label>
+                      <input id="co-contact-email" type="email" placeholder="ads@yourbrand.com" />
+                      <div class="error" id="err-co-contact-email">Enter a valid contact email.</div>
+                    </div>
+                  </div>
+                  <div class="hint">Companies use this to run <b>Ad Battles</b> (sponsored placements).</div>
                 </div>
 
                 <div class="actions">
@@ -337,6 +376,13 @@
                   </div>
                   <div>
                     <label><input type="checkbox" id="ca-privacy"/> I agree to the Privacy Policy</label>
+                  </div>
+
+                  <!-- Ads policy consent (company only) (NEW) -->
+                  <div id="adsPolicyRow" style="display:none">
+                    <label><input type="checkbox" id="ads-policy" /> I agree to the Ads Policy</label>
+                    <div class="hint">Required for companies to run sponsored Ad Battles.</div>
+                    <div class="error" id="err-ads-policy" style="display:none">Please agree to the Ads Policy.</div>
                   </div>
                 </div>
 
@@ -582,6 +628,26 @@
       };
       const reHandle=/^[a-zA-Z0-9_]{3,20}$/; const reEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+      /* --- NEW: account type + company refs --- */
+      let accountType = "user"; // "user" | "company"
+      const acctChips = document.getElementById('accountTypeChips');
+      const companyFields = document.getElementById('companyFields');
+      const adsPolicyRow = document.getElementById('adsPolicyRow');
+
+      const co = {
+        name: document.getElementById('co-name'),
+        website: document.getElementById('co-website'),
+        contactName: document.getElementById('co-contact-name'),
+        contactEmail: document.getElementById('co-contact-email'),
+        adsPolicy: document.getElementById('ads-policy')
+      };
+      const errCo = {
+        name: document.getElementById('err-co-name'),
+        contact: document.getElementById('err-co-contact'),
+        contactEmail: document.getElementById('err-co-contact-email'),
+        adsPolicy: document.getElementById('err-ads-policy')
+      };
+
       // Months/Years
       const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
       f.m.innerHTML = '<option value="">Month</option>' + months.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
@@ -609,6 +675,19 @@
       }
       function ageFromParts(y,m,d){ if(!y||!m||!d) return 0; const t=new Date(), dob=new Date(y,m-1,d); let a=t.getFullYear()-dob.getFullYear(); const mm=t.getMonth()-dob.getMonth(); if(mm<0||(mm===0&&t.getDate()<dob.getDate())) a--; return a; }
 
+      // Toggle account type chips (NEW)
+      acctChips.addEventListener('click', (e)=>{
+        const chip = e.target.closest('.chip');
+        if(!chip) return;
+        [...acctChips.children].forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+        accountType = chip.dataset.type || 'user';
+        const isCo = accountType === 'company';
+        companyFields.style.display = isCo ? 'block' : 'none';
+        adsPolicyRow.style.display = isCo ? 'block' : 'none';
+      });
+
+      // Nav buttons
       get('ca-cancel-1').onclick=()=>{ location.hash='/auth/login'; };
       get('ca-next-1').onclick=()=>{
         let ok=true;
@@ -617,6 +696,18 @@
         const pw=f.pw.value||'', pw2=f.pw2.value||''; const pwOk=pw.length>=8 && /[a-zA-Z]/.test(pw) && /[0-9]/.test(pw);
         if(!pwOk){ err.pw.style.display='block'; ok=false; } else err.pw.style.display='none';
         if(pw2!==pw){ err.pw2.style.display='block'; ok=false; } else err.pw2.style.display='none';
+
+        // company-only validation (NEW)
+        if(accountType === 'company'){
+          const nameOk = (co.name.value||'').trim().length >= 2;
+          const contactOk = (co.contactName.value||'').trim().length >= 2;
+          const contactEmailOk = reEmail.test((co.contactEmail.value||'').trim());
+          errCo.name.style.display = nameOk ? 'none' : 'block';
+          errCo.contact.style.display = contactOk ? 'none' : 'block';
+          errCo.contactEmail.style.display = contactEmailOk ? 'none' : 'block';
+          ok = ok && nameOk && contactOk && contactEmailOk;
+        }
+
         if(ok) showStep(2);
       };
       get('ca-back-2').onclick=()=> showStep(1);
@@ -662,6 +753,16 @@
         if(age<13) return void(st.textContent="You must be at least 13.");
         if(!(document.getElementById('ca-terms').checked && document.getElementById('ca-privacy').checked)) return void(st.textContent="Please accept Terms & Privacy.");
 
+        // If company, require Ads Policy consent (NEW)
+        if(accountType === 'company'){
+          if(!co.adsPolicy.checked){
+            errCo.adsPolicy.style.display = 'block';
+            return;
+          } else {
+            errCo.adsPolicy.style.display = 'none';
+          }
+        }
+
         st.textContent="Creating your account...";
         try{
           let user = auth ? (await createUserWithEmailAndPassword(auth, email, pw)).user : null;
@@ -671,19 +772,49 @@
             const ref = doc(db, "users", user.uid);
             const languages=[...document.getElementById('ca-lang').selectedOptions].map(o=>o.value);
             const categories=[...document.querySelectorAll('#catChips .chip.active')].map(c=>c.textContent.trim());
-            await setDoc(ref, {
+
+            // Base user payload (NEW: account_type)
+            const userPayload = {
               email, createdAt:serverTimestamp(), username:uname,
+              account_type: accountType,
               country:f.country.value||"", state:f.state.value||"", city:f.city.value||"", tz:f.tz.value||"",
               dob:dobISO, age, chineseZodiac:(f.zodiac.value||null),
               languages, ethnicity:document.getElementById('ca-ethnicity').value||"",
               education:{ hs:f.hs.value||"", college:f.college.value||"", role:f.role.value||"" },
               categories
-            }, { merge:true });
+            };
+
+            // If company, create companies/{cmp_uid} and link it (NEW)
+            if(accountType === 'company'){
+              const companyId = `cmp_${user.uid}`;
+              const cRef = doc(db, "companies", companyId);
+              await setDoc(cRef, {
+                company_id: companyId,
+                owner_uid: user.uid,
+                name_public: (co.name.value||'').trim(),
+                website: (co.website.value||'').trim() || null,
+                contact: {
+                  name: (co.contactName.value||'').trim(),
+                  email: (co.contactEmail.value||'').trim()
+                },
+                country: f.country.value||"",
+                status: "active",
+                created_at: serverTimestamp(),
+                updated_at: serverTimestamp()
+              }, { merge:true });
+
+              userPayload.company_id = companyId;
+            }
+
+            await setDoc(ref, userPayload, { merge:true });
           }
 
           // Success & route
           document.getElementById('success').style.display='flex';
-          setTimeout(()=>{ location.hash="/home"; }, 1000);
+          setTimeout(()=>{
+            if(accountType === 'company'){ location.href = "adsarena.html"; }
+            else { location.hash="/home"; }
+          }, 1000);
         }catch(err){
           st.textContent = err?.message || "Could not create your account.";
         }
