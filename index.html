@@ -265,22 +265,22 @@
                     <input id="ca-city" type="text" placeholder="City"/>
                   </div>
 
-                  <div class="pill-col">
+                  <div class="pill-col" id="dob-month-wrap">
                     <label for="ca-dob-month">Birth Month</label>
                     <select id="ca-dob-month" class="pill-select"></select>
                   </div>
-                  <div class="pill-col">
+                  <div class="pill-col" id="dob-day-wrap">
                     <label for="ca-dob-day">Birth Day</label>
                     <select id="ca-dob-day" class="pill-select"></select>
                   </div>
-                  <div class="pill-col">
+                  <div class="pill-col" id="dob-year-wrap">
                     <label for="ca-dob-year">Birth Year</label>
                     <select id="ca-dob-year" class="pill-select"></select>
                   </div>
-                  <div class="hint" style="grid-column:1/-1">Select Month • Day • Year</div>
+                  <div class="hint" id="dob-hint" style="grid-column:1/-1">Select Month • Day • Year</div>
                   <div class="error" id="err-dob" style="grid-column:1/-1">You must be 13+ to join.</div>
 
-                  <div>
+                  <div id="zodiac-wrap">
                     <label for="ca-zodiac">Chinese Zodiac</label>
                     <select id="ca-zodiac" class="pill-select">
                       <option value="">Auto (from year)</option>
@@ -563,6 +563,7 @@
       if(!snap.exists()){
         await setDoc(ref, {
           email:user.email||"", avatarURL:user.photoURL||"", createdAt:serverTimestamp(),
+          account_type:null,
           username:null, country:null,state:null,city:null,tz:null,
           dob:null, age:null, chineseZodiac:null, languages:[], ethnicity:null,
           education:{ hs:null, college:null, role:null }, categories:[]
@@ -571,7 +572,16 @@
       }
       return {existed:true, data:snap.data()};
     }
-    const needsCompletion = (d)=>!(d && d.username && d.dob && typeof d.age==="number");
+
+    // Different completion rules for user vs company (NEW)
+    const needsCompletion = (d)=>{
+      if(!d) return true;
+      if(d.account_type === 'company'){
+        // For companies, just require a handle at minimum (no DOB/age)
+        return !(d.username);
+      }
+      return !(d && d.username && d.dob && typeof d.age==="number");
+    };
 
     // Email Login
     document.getElementById("authForm").addEventListener("submit", async (e)=>{
@@ -594,9 +604,9 @@
         if(location.hash.startsWith("#/auth")){
           try{
             const { data } = await ensureUserDoc(u);
+            // If existing company, prefer brand view later; for now keep /home fallback.
             location.hash = needsCompletion(data) ? "/auth/create" : "/home";
           }catch{
-            // If Firestore not configured, still go home
             location.hash="/home";
           }
         }
@@ -607,6 +617,16 @@
     let _wizardReady = false;
     function initCreateWizardUI(){
       if(_wizardReady) return; _wizardReady=true;
+
+      // helper: get hash ?type=
+      function getHashParam(key){
+        try{
+          const raw = location.hash || "#/auth/create";
+          const q = raw.split("?")[1] || "";
+          const params = new URLSearchParams(q);
+          return params.get(key);
+        }catch{ return null; }
+      }
 
       const steps = Array.from(document.querySelectorAll('.ca-step'));
       const dots  = Array.from(document.querySelectorAll('[data-stepdot]'));
@@ -631,6 +651,7 @@
       /* --- NEW: account type + company refs --- */
       let accountType = "user"; // "user" | "company"
       const acctChips = document.getElementById('accountTypeChips');
+      const acctHint  = document.getElementById('acctHint');
       const companyFields = document.getElementById('companyFields');
       const adsPolicyRow = document.getElementById('adsPolicyRow');
 
@@ -647,6 +668,47 @@
         contactEmail: document.getElementById('err-co-contact-email'),
         adsPolicy: document.getElementById('err-ads-policy')
       };
+
+      // Elements we hide for companies (DOB + zodiac + step 3)
+      const dobWraps = [
+        document.getElementById('dob-month-wrap'),
+        document.getElementById('dob-day-wrap'),
+        document.getElementById('dob-year-wrap'),
+      ];
+      const dobHintEl = document.getElementById('dob-hint');
+      const zodiacWrap = document.getElementById('zodiac-wrap');
+      const step3 = document.querySelector('.ca-step[data-step="3"]');
+
+      function applyTypeVisibility(){
+        const isCo = accountType === 'company';
+        companyFields.style.display = isCo ? 'block' : 'none';
+        adsPolicyRow.style.display = isCo ? 'block' : 'none';
+        acctHint.textContent = isCo
+          ? "Company accounts can run Ad Battles and appear in Discover/Live feeds."
+          : "You can create ad battles later if you’re a company.";
+
+        // Hide DOB/zodiac for companies
+        dobWraps.forEach(el => { if(el) el.style.display = isCo ? 'none' : 'block'; });
+        if(dobHintEl) dobHintEl.style.display = isCo ? 'none' : 'block';
+        if(zodiacWrap) zodiacWrap.style.display = isCo ? 'none' : 'block';
+
+        // Hide entire Step 3 for companies (education/community)
+        if(step3){
+          // If currently active and switching to company, jump to step 4
+          if(isCo && step3.classList.contains('active')) showStep(4);
+          step3.style.display = isCo ? 'none' : '';
+        }
+      }
+
+      // Preselect type from URL hash
+      const typeFromHash = (getHashParam('type')||'').toLowerCase();
+      if(typeFromHash === 'company'){
+        accountType = 'company';
+        // set chip UI
+        [...acctChips.children].forEach(c=>{
+          c.classList.toggle('active', c.dataset.type === 'company');
+        });
+      }
 
       // Months/Years
       const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -682,9 +744,7 @@
         [...acctChips.children].forEach(c=>c.classList.remove('active'));
         chip.classList.add('active');
         accountType = chip.dataset.type || 'user';
-        const isCo = accountType === 'company';
-        companyFields.style.display = isCo ? 'block' : 'none';
-        adsPolicyRow.style.display = isCo ? 'block' : 'none';
+        applyTypeVisibility();
       });
 
       // Nav buttons
@@ -712,15 +772,18 @@
       };
       get('ca-back-2').onclick=()=> showStep(1);
       get('ca-next-2').onclick=()=>{
-        const y=parseInt(f.y.value,10), m=parseInt(f.m.value,10), d=parseInt(f.d.value,10);
-        const a=ageFromParts(y,m,d);
-        if(a<13 || !y || !m || !d){ err.dob.style.display='block'; return; } else err.dob.style.display='none';
+        if(accountType !== 'company'){
+          const y=parseInt(f.y.value,10), m=parseInt(f.m.value,10), d=parseInt(f.d.value,10);
+          const a=ageFromParts(y,m,d);
+          if(a<13 || !y || !m || !d){ err.dob.style.display='block'; return; } else err.dob.style.display='none';
+        }
         if(!f.tz.value){ try{ f.tz.value=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch{} }
-        showStep(3);
+        // Skip step 3 for companies
+        showStep(accountType==='company' ? 4 : 3);
       };
       get('ca-back-3').onclick=()=> showStep(2);
       get('ca-next-3').onclick=()=> showStep(4);
-      get('ca-back-4').onclick=()=> showStep(3);
+      get('ca-back-4').onclick=()=> showStep(accountType==='company' ? 2 : 3);
 
       // Avatar preview
       document.getElementById('ca-avatar').addEventListener('change', (e)=>{
@@ -744,13 +807,14 @@
         const pw=f.pw.value||'';
         const pw2=f.pw2.value||'';
         const y=parseInt(f.y.value||'0',10), m=parseInt(f.m.value||'0',10), d=parseInt(f.d.value||'0',10);
-        const dobISO = (y && m && d) ? `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}` : null;
-        const age=(function(){ if(!dobISO) return 0; const t=new Date(); const dd=new Date(y,m-1,d); let a=t.getFullYear()-dd.getFullYear(); const mm=t.getMonth()-dd.getMonth(); if(mm<0||(mm===0&&t.getDate()<dd.getDate())) a--; return a; })();
+        const dobISO = (accountType==='company') ? null : ((y && m && d) ? `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}` : null);
+        const age=(function(){ if(!dobISO) return null; const t=new Date(); const dd=new Date(y,m-1,d); let a=t.getFullYear()-dd.getFullYear(); const mm=t.getMonth()-dd.getMonth(); if(mm<0||(mm===0&&t.getDate()<dd.getDate())) a--; return a; })();
+
         if(!/^[a-z0-9_]{3,20}$/.test(uname)) return void(st.textContent="Invalid username.");
         if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return void(st.textContent="Enter a valid email.");
         if(!(pw.length>=8 && /[A-Za-z]/.test(pw) && /[0-9]/.test(pw))) return void(st.textContent="Password too weak.");
         if(pw2!==pw) return void(st.textContent="Passwords don’t match.");
-        if(age<13) return void(st.textContent="You must be at least 13.");
+        if(accountType!=='company' && (age===null || age<13)) return void(st.textContent="You must be at least 13.");
         if(!(document.getElementById('ca-terms').checked && document.getElementById('ca-privacy').checked)) return void(st.textContent="Please accept Terms & Privacy.");
 
         // If company, require Ads Policy consent (NEW)
@@ -778,9 +842,9 @@
               email, createdAt:serverTimestamp(), username:uname,
               account_type: accountType,
               country:f.country.value||"", state:f.state.value||"", city:f.city.value||"", tz:f.tz.value||"",
-              dob:dobISO, age, chineseZodiac:(f.zodiac.value||null),
+              dob:dobISO, age:(age===null?null:age), chineseZodiac:(accountType==='company'?null:(f.zodiac.value||null)),
               languages, ethnicity:document.getElementById('ca-ethnicity').value||"",
-              education:{ hs:f.hs.value||"", college:f.college.value||"", role:f.role.value||"" },
+              education:(accountType==='company'?{ hs:"", college:"", role:"" }:{ hs:f.hs.value||"", college:f.college.value||"", role:f.role.value||"" }),
               categories
             };
 
@@ -798,6 +862,7 @@
                   email: (co.contactEmail.value||'').trim()
                 },
                 country: f.country.value||"",
+                ads_policy_accepted: true,
                 status: "active",
                 created_at: serverTimestamp(),
                 updated_at: serverTimestamp()
@@ -822,6 +887,7 @@
 
       // Start
       showStep(1);
+      applyTypeVisibility();
     }
 
     // Expose to router init
