@@ -2,598 +2,1133 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"/>
-  <title>Arena — Battle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Dual Live Battle (Mobile-First)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --ink:#f2f2f2; --muted:#bfc7cf; --gold:#ffd700; --glass:rgba(255,255,255,.06);
-      --bg:#000; --edge:#1a1a1a; --ok:#20e3b2; --warn:#ffb020; --err:#ff6363;
-      --pad:clamp(10px, 3vw, 24px);
-      --accent:#6ee7ff;
-      --safe-bottom:max(12px, env(safe-area-inset-bottom));
+      --gold:#ffd700;
+      --gold-1:#ffe88a;
+      --gold-2:#ffcc3b;
+      --ink:#eaeaea;
+      --muted:#b8b8b8;
+      --beatGlow: 0;
+      --top-safe: max(14px, env(safe-area-inset-top));
+      --side-safe: max(14px, env(safe-area-inset-left));
+      --side-safe-r: max(14px, env(safe-area-inset-right));
+      --bottom-safe: max(16px, env(safe-area-inset-bottom));
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; -webkit-tap-highlight-color:transparent; overflow:hidden}
 
-    /* ===== ARENA: exact-fit grid (NO SCROLL) ===== */
-    .arena{
-      position:fixed; inset:0; z-index:1;
-      display:grid; grid-template-columns: 1fr 1fr; gap:0; background:#000;
+    *{margin:0;padding:0;box-sizing:border-box}
+    html, body{
+      height:100%;
+      width:100%;
+      overflow:hidden;
+      overscroll-behavior:none;
+      background:#000;
     }
-    .side{ position:relative; height:100%; overflow:hidden; border-left:1px solid var(--edge) }
-    .side:first-child{border-left:none}
+    *::-webkit-scrollbar{ display:none; width:0; height:0 }
 
-    /* Full-bleed video surface */
-    .videoWrap{ position:absolute; inset:0; display:grid; place-items:center; overflow:hidden; background:#000 }
-    video, .ph{width:100%; height:100%; object-fit:cover}
-    .ph{display:grid; place-items:center; color:#8a8a8a; font-size:12px; background:linear-gradient(180deg,#060606,#0b0b0c)}
-
-    /* Per-side bottom control strip */
-    .strip{
-      position:absolute; left:0; right:0; bottom:0; z-index:5;
-      display:flex; align-items:center; gap:10px; padding:10px var(--pad);
-      background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55));
-      border-top:1px solid rgba(255,255,255,.06);
-      pointer-events:none;
+    body{
+      font-family:'Orbitron',sans-serif;
+      color:var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .strip .row{display:flex; align-items:center; gap:10px; pointer-events:auto}
-    .pill{border:none; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:700; font-size:12px; background:#121214; color:#e8f3ff; border:1px solid #2a2a2a}
-    .pill.primary{ background:linear-gradient(180deg,#fff3bd,#ffd700); color:#111; border-color:transparent }
-    .pill.warn{ background:#241306; color:#ffd699; border-color:#3b260e }
-    .pill.red{ background:#241010; color:#ffb3b3; border-color:#3b1a1a }
-    .spacer{flex:1}
 
-    /* Classic meter */
-    .meter{height:8px; width:110px; background:#151515; border:1px solid #262626; border-radius:999px; overflow:hidden; box-shadow:inset 0 0 0 1px #0a0a0a}
-    .meter > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#2bff88,#25d4ff); transition:width .08s linear}
-
-    /* Instagram-style music meter (shows after beat upload/play) */
-    .igMusic{position:absolute; left:50%; transform:translateX(-50%); bottom:56px; z-index:6; display:none}
-    .igMeter{
-      display:flex; align-items:flex-end; gap:3px;
-      height:22px; padding:4px 6px; border-radius:8px;
-      background:rgba(0,0,0,.45); border:1px solid #1f1f1f;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    /* Subtle ambient depth */
+    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+    .layer-nebula{
+      position:absolute; inset:-15%;
+      background: conic-gradient(from 0deg at 50% 50%,
+        rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
+      filter: blur(90px) saturate(130%); opacity:.38; animation: nebula 40s linear infinite;
     }
-    .igMeter i{display:block; width:3px; height:6px; border-radius:2px; background:linear-gradient(180deg,#6ee7ff,#20e3b2); opacity:.95; transform-origin:bottom}
-
-    /* ===== Redesigned HUD (rounds + timer) ===== */
-    .hud{
-      position:fixed; left:50%; top:10px; transform:translateX(-50%); z-index:10;
-      display:flex; align-items:center; gap:12px;
-      padding:10px 12px;
-      border:1px solid #1f1f1f; border-radius:14px;
-      background:rgba(0,0,0,.6);
-      backdrop-filter: blur(8px);
-      box-shadow:0 8px 26px rgba(0,0,0,.35);
+    @keyframes nebula{ to{ transform: rotate(360deg) } }
+    .layer-stars{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.09), transparent 60%),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.07), transparent 60%),
+        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.06), transparent 60%);
+      animation: stars 14s ease-in-out infinite alternate;
     }
-    .hud .badge{
-      display:flex; align-items:center; gap:8px;
-      padding:6px 10px; border-radius:10px;
-      font-weight:800; font-size:13px;
-      background:rgba(0,0,0,.35); border:1px solid #232323;
-    }
-    .hud .badge .dot{width:10px; height:10px; border-radius:50%; background:var(--gold); box-shadow:0 0 12px rgba(255,215,0,.55)}
-    .hud .timer{ display:flex; align-items:center; gap:10px; font-weight:800 }
-    .hud .timeNum{ font-variant-numeric:tabular-nums; font-size:18px; letter-spacing:.02em }
-    .hud .bar{ width:190px; height:10px; border-radius:999px; background:#141414; border:1px solid #262626; overflow:hidden }
-    .hud .bar > span{ display:block; height:100%; width:0%; background:linear-gradient(90deg,#ffd700,#ff9f1a) }
-    .hud .pulse{ width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(110,231,255,.6); animation:pulse 1.2s infinite }
-    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(110,231,255,.6)} 70%{box-shadow:0 0 0 10px rgba(110,231,255,0)} 100%{box-shadow:0 0 0 0 rgba(110,231,255,0)} }
+    @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
 
-    /* ===== Picker Overlay (Categories/Subs/Setup) ===== */
-    .overlayWrap{ position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:20 }
-    .overlayWrap.show{display:flex}
-    .sheet{
-      width:min(880px, 92vw); max-height:86vh; overflow:auto;
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      border:1px solid var(--edge); border-radius:18px; padding:14px;
-      box-shadow:0 0 60px rgba(0,0,0,.5);
+    /* Split view */
+    .stream-container{
+      position:relative; z-index:1; display:flex;
+      height:100svh; width:100svw;
+      overflow:hidden;
+      contain:layout paint size;
     }
-    .sheet header{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 4px 12px; border-bottom:1px solid var(--edge) }
-    .list{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:12px }
-    @media (max-width:760px){ .list{ grid-template-columns: 1fr 1fr } }
-    @media (max-width:480px){ .list{ grid-template-columns: 1fr } }
-    .card{ padding:12px; border-radius:14px; background:var(--glass); border:1px solid var(--edge); display:grid; gap:6px }
-    .card h4{margin:0; font-size:14px}
-    .card p{margin:0; font-size:12px; color:var(--muted)}
-    .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-    .input, select{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#0c0c0d; color:var(--ink) }
-    .rangeRow{display:flex; align-items:center; gap:8px}
-    .rangeRow input[type="range"]{flex:1}
-    .help{font-size:12px; color:var(--muted)}
-    .crumbbar{font-size:12px; color:var(--muted)}
-    .crumbbar b{color:#e7f7ff}
-    .divider{height:1px; background:#222; margin:8px 0}
+    .pane{ flex:1; position:relative; overflow:hidden; min-width:0; }
+    video.video-stream{
+      display:block;
+      width:100%; height:100%;
+      object-fit:cover; background:#000;
+      filter: brightness(.96) contrast(1.08) saturate(1.06);
+      transition: filter .25s ease;
+      z-index:1;
+    }
+    #localVideo{ transform:scaleX(-1); }
 
-    /* Utility */
-    .hidden{display:none !important}
+    /* Dim/mute visuals for inactive pane */
+    .pane.inactive::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(2px);
+      z-index:2;
+    }
+    .pane.inactive video{ filter: brightness(.68) contrast(1.0) saturate(.85) }
+
+    /* Sheen */
+    .pane::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.05), transparent 20% 80%, rgba(255,255,255,.05)),
+        radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
+        radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
+      mix-blend-mode:screen; animation: paneSheen 6s ease-in-out infinite alternate;
+      z-index:2;
+    }
+    @keyframes paneSheen{ from{opacity:.3} to{opacity:.58} }
+
+    /* Camera fallback + enable gate */
+    .fallback{
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      flex-direction:column; gap:12px; text-align:center; padding:18px;
+      background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
+      font-weight:800; letter-spacing:.3px; z-index:3;
+    }
+    .fallback.hidden{ display:none; }
+    .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+    .btn-mini{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800;
+      padding:10px 14px; border-radius:10px; cursor:pointer; border:none; box-shadow:0 0 16px rgba(255,215,0,.35);
+    }
+
+    /* HUD */
+    .top-bar{
+      position:absolute; left:0; right:0;
+      top: calc(var(--top-safe) + 8px);
+      z-index:10; display:flex; justify-content:space-between; padding:0 clamp(12px, 2vw, 20px);
+      font-size:14px; pointer-events:none;
+    }
+    .hud-left{ pointer-events:auto; }
+    .hud-live{
+      appearance:none; border:none; cursor:pointer;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; padding:6px 14px; border-radius:999px; font-weight:800;
+      box-shadow:0 0 18px rgba(255,215,0,.45); text-shadow:0 1px 0 rgba(255,255,255,.4);
+    }
+
+    /* Viewer chip centered in opponent screen */
+    .viewer-center{
+      position:absolute; left:50%;
+      top: calc(var(--top-safe) + 8px);
+      transform: translateX(-50%);
+      z-index:12;
+      padding:8px 16px; border-radius:999px;
+      background:rgba(0,0,0,.55); backdrop-filter: blur(8px);
+      font-weight:800; white-space:nowrap;
+    }
+
+    /* Opponent display button under viewer count */
+    .opponent-btn{
+      position:absolute; left:50%;
+      top: calc(var(--top-safe) + 56px);
+      transform: translateX(-50%);
+      z-index:12; border:none; background:transparent; padding:0; cursor:pointer;
+      width:40px; height:40px; border-radius:50%;
+      box-shadow:0 0 14px rgba(255,215,0,.35);
+    }
+    .opponent-btn img{
+      width:100%; height:100%; border-radius:50%; object-fit:cover;
+      filter: saturate(1.05) contrast(1.05);
+    }
+
+    /* Timer + CTA */
+    .round-timer{
+      position:absolute; left:50%;
+      bottom: calc(var(--bottom-safe) + 120px);
+      transform:translateX(-50%); z-index:12;
+      font-weight:800; font-size:15px; padding:10px 18px; border-radius:999px;
+      background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
+      white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
+    }
+    .round-timer.animate{ animation:pulse 1.8s infinite; }
+    @keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.06)} }
+
+    .cta{
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:12; display:none;
+    }
+    .btn{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; font-weight:800; padding:14px 28px; border-radius:12px;
+      box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
+    }
+    .btn-ghost{
+      background:transparent; color:var(--ink); border:none; cursor:pointer; padding:10px 14px; border-radius:12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    /* Side shapes (no boxes) */
+    .side{
+      position:absolute;
+      bottom: calc(var(--bottom-safe) + 10vh);
+      display:flex; flex-direction:column; gap:12px; z-index:14; pointer-events:auto;
+    }
+    .side.left{ left: calc(var(--side-safe)); }
+    .side.right{ right: calc(var(--side-safe-r)); }
+    .shape{
+      appearance:none; background:transparent; border:none; padding:0;
+      width:24px; height:24px; display:grid; place-items:center; cursor:pointer;
+      transition: transform .18s ease, filter .18s ease;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
+      animation: floatY 3.6s ease-in-out infinite;
+    }
+    @keyframes floatY{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .side.left .shape:nth-child(1){ animation-delay:.15s }
+    .side.left .shape:nth-child(2){ animation-delay:1.05s }
+    .side.right .shape:nth-child(1){ animation-delay:.55s }
+    .side.right .shape:nth-child(2){ animation-delay:1.45s }
+    .shape:focus-visible{ filter: drop-shadow(0 0 16px rgba(255,215,0,.6)); transform:scale(1.12); }
+    .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
+    .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
+    .shape svg .strokeline{ stroke-dasharray:90; stroke-dashoffset:90; animation: dash1 2.6s ease-out infinite, hue 6s linear infinite; }
+    @keyframes dash1{ 0%{stroke-dashoffset:90;opacity:.85} 60%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:0;opacity:.85} }
+    @keyframes hue{ to{ filter:hue-rotate(20deg) } }
+    .shape.gold svg{ stroke:url(#goldStroke); }
+    .shape.logout svg{ stroke:#ff5a5a; }
+    .center-triangle{ position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 80px); transform:translateX(-50%); z-index:14; }
+    .center-triangle .shape{ width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
+      filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5)); }
+
+    /* Next Opponent PAD */
+    .opponent-pad{
+      position:absolute;
+      left:50%; top:50%; transform:translate(-50%,-50%);
+      z-index:16;
+      display:flex; flex-direction:column; align-items:center; gap:14px;
+      padding:14px 16px; border-radius:16px;
+      background: rgba(0,0,0,.45); backdrop-filter: blur(10px);
+      box-shadow: 0 10px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.10);
+      width: min(92%, 420px);
+    }
+    .pad-top{ display:flex; align-items:center; gap:12px; width:100%; }
+    .pad-avatar{
+      width:72px; height:72px; border-radius:12px; object-fit:cover;
+      box-shadow: 0 0 14px rgba(255,215,0,.35); flex:0 0 auto;
+    }
+    .pad-meta{ display:grid; gap:6px; min-width:0 }
+    .pad-title{ font-weight:800; font-size:16px; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .pad-sub{ color:var(--muted); font-size:12px; display:flex; align-items:center; gap:8px; white-space:nowrap }
+    .pad-sub img{ width:18px; height:12px; border-radius:2px; object-fit:cover; box-shadow:0 0 4px rgba(255,255,255,.15) }
+    .pad-actions{ display:flex; gap:10px; width:100%; justify-content:center; }
+    .btn-xs{ padding:10px 14px; font-size:13px; border-radius:12px; border:none; cursor:pointer; }
+    .btn-accept{ background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800; box-shadow:0 0 16px rgba(255,215,0,.35) }
+    .btn-next{ background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) }
+
+    /* Upload Beat Modal */
+    .modal{ position:fixed; inset:0; display:none; place-items:center; z-index:30;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
+    .dialog{
+      width:min(92vw, 420px);
+      background: rgba(10,10,14,.86);
+      border-radius:16px; padding:18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .dialog h3{ margin:0 0 12px 0; font-size:18px; letter-spacing:.3px }
+    .file-row{ display:grid; gap:10px }
+    .file-input{
+      width:100%; padding:12px; border-radius:12px; border:none; outline:none;
+      background:#0a0a0e; color:#eaeaea;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+      font-family:'Orbitron',sans-serif; font-size:14px;
+    }
+    .dialog small{ color:var(--muted) }
+
+    /* Beat window chooser + 33s measurer (Instagram-style) */
+    .beatbar{
+      position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 20px);
+      transform: translateX(-50%);
+      z-index:18;
+      display:none; /* shown after upload */
+      width:min(92vw, 620px);
+      background: rgba(0,0,0,.5);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 36px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
+    }
+    .beatbar-row{ display:grid; align-items:center; gap:10px; grid-template-columns: 1fr auto; }
+    .range-wrap{ position:relative; height:48px; display:flex; flex-direction:column; justify-content:center; }
+    #waveCanvas{ width:100%; height:32px; display:block; }
+    .range-track{
+      position:absolute; left:0; right:0; height:6px; border-radius:999px; background:rgba(255,255,255,.12);
+      top:50%; transform: translateY(-50%);
+    }
+    .range-window{
+      position:absolute; height:34px; top:7px; border-radius:12px;
+      background: linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.28));
+      box-shadow:0 0 18px rgba(255,215,0,.25), inset 0 0 0 2px rgba(255,215,0,.65);
+      cursor:grab; touch-action:none;
+    }
+    .range-window:active{ cursor:grabbing }
+    input[type="range"].beat-start{
+      -webkit-appearance:none; appearance:none;
+      position:absolute; left:0; right:0; top:0; bottom:0;
+      width:100%; background:transparent; height:48px;
+    }
+    input[type="range"].beat-start::-webkit-slider-thumb{
+      -webkit-appearance:none; appearance:none;
+      width:0; height:0; /* hidden thumb; drag the window instead */
+    }
+    input[type="range"].beat-start::-moz-range-thumb{
+      width:0; height:0;
+    }
+    .bar-actions{
+      display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-top:8px;
+    }
+    .btn-pill{
+      appearance:none; border:none; border-radius:999px; padding:8px 14px; font-weight:800; cursor:pointer;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; box-shadow:0 0 16px rgba(255,215,0,.35);
+    }
+    .btn-pill.ghost{
+      background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    .beatbar-meta{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:8px;
+      font-size:12px; color:var(--muted);
+    }
+    .seg-progress{
+      position:relative; width:100%; height:6px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden;
+    }
+    .seg-progress > span{
+      position:absolute; left:0; top:0; bottom:0; width:0%;
+      background:linear-gradient(90deg, #fff, var(--gold));
+      box-shadow:0 0 12px rgba(255,255,255,.5) inset;
+    }
+
+    /* Share CTA */
+    .share-cta{
+      position:absolute; inset:auto 0 calc(var(--bottom-safe) + 24px) 0; margin:auto;
+      display:none; z-index:20; text-align:center;
+    }
+    .share-cta .btn{ padding:12px 22px }
+
+    /* One-shot FX Canvas */
+    #fxCanvas{ position:fixed; inset:0; z-index:50; display:none; pointer-events:none; }
+
+    /* Mobile tweaks */
+    @media (max-width: 880px){
+      .viewer-center{ top: calc(var(--top-safe) + 6px); }
+      .top-bar{ top: calc(var(--top-safe) + 6px); }
+      .side{ bottom: calc(var(--bottom-safe) + 10vh); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 68px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 108px); font-size:14px; }
+      .shape{ width:22px; height:22px; }
+      .center-triangle .shape{ width:28px; height:28px; }
+      .pad-avatar{ width:64px; height:64px; }
+    }
   </style>
 </head>
 <body>
+  <!-- Gold stroke gradient for vector shapes -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#fff4b0"/>
+        <stop offset="60%" stop-color="#ffd700"/>
+        <stop offset="100%" stop-color="#ffbf2e"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
-  <!-- HUD (top center, improved look) -->
-  <div class="hud" id="hud">
-    <div class="badge"><span class="dot"></span> Round <b id="roundNow">1</b>/<span id="roundTotal">3</span></div>
-    <div class="timer">
-      <span class="pulse" id="beatDot"></span>
-      <span id="timeLeft" class="timeNum">01:00</span>
-      <div class="bar"><span id="barFill"></span></div>
+  <!-- Ambient layers -->
+  <div class="depth-stage" aria-hidden="true">
+    <div class="layer-nebula"></div>
+    <div class="layer-stars"></div>
+  </div>
+
+  <!-- Particle FX canvas (one-shot on start) -->
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="stream-container" role="application" aria-label="Live Battle Split">
+    <!-- LEFT PANE (You) -->
+    <div class="pane" id="leftPane">
+      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+
+      <!-- Enable camera gate -->
+      <div class="fallback" id="camGate">
+        <div style="font-size:15px">Tap to enable Camera & Mic</div>
+        <div class="cam-actions">
+          <button id="enableCamNow" class="btn-mini">Enable Camera</button>
+        </div>
+        <small>Use HTTPS and allow permissions. Switch camera anytime.</small>
+      </div>
+
+      <!-- Error / retry overlay -->
+      <div class="fallback hidden" id="camFallback">
+        <div style="font-size:15px">We couldn't access your camera.</div>
+        <div class="cam-actions">
+          <button id="retryCamBtn" class="btn-mini">Retry</button>
+          <button id="switchCamBtn" class="btn-mini">Switch Camera</button>
+        </div>
+        <small>Check permissions in your browser settings.</small>
+      </div>
+
+      <!-- Share CTA (appears after battle) -->
+      <div class="share-cta" id="shareCta">
+        <button class="btn" id="shareBtn">📤 Share Battle</button>
+      </div>
     </div>
-    <div class="row" style="gap:8px">
-      <button class="pill" id="startBtn" disabled>Start</button>
-      <button class="pill ghost" id="pauseBtn" disabled>Pause</button>
-      <button class="pill ghost" id="resetBtn" disabled>Reset</button>
-      <button class="pill warn" id="catsBtn">Categories</button>
+
+    <!-- RIGHT PANE (Opponent) -->
+    <div class="pane" id="rightPane">
+      <video class="video-stream" id="opponentVideo" autoplay muted loop playsinline src="user2.mp4"></video>
+
+      <!-- Viewer count centered in opponent screen -->
+      <div class="viewer-center" id="viewerChip">👁 1.3k viewers</div>
+
+      <!-- Opponent display button (pig) under the viewer count -->
+      <button id="opponentBtn" class="opponent-btn" title="Opponent Profile" aria-label="Opponent Profile">
+        <img src="pig.png" alt="Opponent icon"/>
+      </button>
+
+      <!-- CENTERED Next Opponent PAD -->
+      <div class="opponent-pad" id="opponentPad" style="display:none;">
+        <div class="pad-top">
+          <img id="padAvatar" class="pad-avatar" src="user3.jpg" alt="Next opponent"/>
+          <div class="pad-meta">
+            <div class="pad-title" id="padName">@NextOpponent</div>
+            <div class="pad-sub">
+              <img id="padFlag" src="flag_us.png" alt="Flag"/>
+              <span id="padCountry">United States</span>
+            </div>
+          </div>
+        </div>
+        <div class="pad-actions">
+          <button id="padAccept" class="btn-xs btn-accept">Accept</button>
+          <button id="padNext" class="btn-xs btn-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="top-bar">
+      <div class="hud-left">
+        <button class="hud-live" id="liveBtn" title="Live">LIVE</button>
+      </div>
+      <div style="pointer-events:none;"></div>
+    </div>
+
+    <!-- Timer + CTA -->
+    <div class="round-timer" id="roundTimer">Upload a beat to begin…</div>
+    <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
+
+    <!-- LEFT side (circle over square) -->
+    <nav class="side left" aria-label="Left sidebar">
+      <button class="shape" data-link="home.html" title="Home" aria-label="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
+      </button>
+    </nav>
+
+    <!-- RIGHT side (diamond over X) -->
+    <nav class="side right" aria-label="Right sidebar">
+      <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
+      </button>
+      <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+          <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+    </nav>
+
+    <!-- Bottom-center triangle -->
+    <div class="center-triangle">
+      <button class="shape gold" id="uploadBeatOpen" title="Upload Beat" aria-label="Upload Beat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
+      </button>
+    </div>
+
+    <!-- Upload Beat modal -->
+    <div class="modal" id="uploadModal" aria-modal="true" role="dialog" aria-labelledby="uploadTitle" style="display:grid;">
+      <div class="dialog">
+        <h3 id="uploadTitle">Upload Beat</h3>
+        <div class="file-row">
+          <input id="beatFile" class="file-input" type="file" accept="audio/*"/>
+          <small>Pick an audio file from your device. This will be used for both sides.</small>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <button class="btn" id="useBeatBtn">Use this Beat</button>
+          <button class="btn-ghost" id="useSampleBtn" title="Use sample beat">Use Sample</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beat window chooser (Instagram-like 33s trimmer) -->
+    <div class="beatbar" id="beatBar" aria-label="Beat window chooser">
+      <div class="beatbar-row">
+        <div class="range-wrap" id="rangeWrap">
+          <canvas id="waveCanvas"></canvas>
+          <div class="range-track"></div>
+          <div class="range-window" id="rangeWindow" title="Drag to choose 33s"></div>
+          <input id="beatStartRange" class="beat-start" type="range" min="0" max="0" step="0.1" value="0" aria-label="Beat start position (seconds)"/>
+        </div>
+        <div id="beatStartLabel" style="font-size:12px; color:#fff; min-width:100px; text-align:right">00:00 → 00:33</div>
+      </div>
+
+      <div class="bar-actions">
+        <button id="previewToggle" class="btn-pill">▶ Preview</button>
+        <button id="rewindBtn" class="btn-pill ghost">↺ Reset</button>
+        <button id="doneTrim" class="btn-pill">Done</button>
+      </div>
+
+      <div class="beatbar-meta">
+        <div class="seg-progress"><span id="segProgressInner"></span></div>
+        <div id="beatMeta" style="min-width:140px; text-align:right">Length: --:--</div>
+      </div>
     </div>
   </div>
 
-  <!-- Exact-fit two-up cameras -->
-  <main class="arena" id="arena">
-    <!-- Side A -->
-    <section class="side" id="sideA">
-      <div class="videoWrap" id="aVideoWrap">
-        <div class="ph" id="aPlaceholder">Camera off — tap “Camera”</div>
-        <video id="aVideo" playsinline autoplay muted style="display:none"></video>
-      </div>
-      <div class="strip">
-        <div class="row">
-          <div class="meter"><span id="aMicLevel"></span></div>
-        </div>
-        <div class="spacer"></div>
-        <div class="row">
-          <button class="pill" id="aCamera">Camera</button>
-          <button class="pill" id="aMic">Mic</button>
-          <button class="pill" id="aSwitch">Switch</button>
-          <label for="aUploadInput" class="pill" style="cursor:pointer">Upload</label>
-          <input id="aUploadInput" type="file" accept="video/*" style="display:none"/>
-          <button class="pill primary" id="aReady">Ready</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Side B -->
-    <section class="side" id="sideB">
-      <div class="videoWrap" id="bVideoWrap">
-        <div class="ph" id="bPlaceholder">Waiting for opponent…</div>
-        <video id="bVideo" playsinline autoplay controls style="display:none"></video>
-      </div>
-      <div class="strip">
-        <div class="row">
-          <div class="meter"><span id="bMicLevel"></span></div>
-        </div>
-        <div class="spacer"></div>
-        <div class="row">
-          <button class="pill" id="bMute">Mute</button>
-          <button class="pill" id="bSwap">Swap</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Music Meter (appears only after beat upload/play) -->
-    <div class="igMusic" id="igMusic">
-      <div class="igMeter" id="igMeter">
-        <!-- 24 bars -->
-        <i></i><i></i><i></i><i></i><i></i><i></i>
-        <i></i><i></i><i></i><i></i><i></i><i></i>
-        <i></i><i></i><i></i><i></i><i></i><i></i>
-        <i></i><i></i><i></i><i></i><i></i><i></i>
-      </div>
-    </div>
-  </main>
-
-  <!-- Hidden audio element for beat -->
-  <audio id="beatAudio" preload="auto"></audio>
-
-  <!-- Picker (Categories/Subs/Setup) -->
-  <div class="overlayWrap" id="picker">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
-      <header>
-        <div class="crumbbar" id="pickCrumb"><b>Categories</b></div>
-        <div class="row">
-          <button class="pill" id="pickBack">← Back</button>
-          <button class="pill" id="pickClose">Close</button>
-        </div>
-      </header>
-
-      <!-- Step 1 -->
-      <section id="stepCats">
-        <div class="list">
-          <article class="card"><h4>Rap</h4><p>Freestyle • Written • Cypher • Wordplay</p><button class="pill" data-cat="Rap">Select</button></article>
-          <article class="card"><h4>Art</h4><p>Sketch • Digital • Graffiti • Speed-paint</p><button class="pill" data-cat="Art">Select</button></article>
-          <article class="card"><h4>Instruments</h4><p>Guitar • Keys • Drums • Strings</p><button class="pill" data-cat="Instruments">Select</button></article>
-          <article class="card"><h4>Comedy</h4><p>Roast • Improv • Skits • One-liners</p><button class="pill" data-cat="Comedy">Select</button></article>
-          <article class="card"><h4>Dance</h4><p>Freestyle • Choreo • Break • Duo</p><button class="pill" data-cat="Dance">Select</button></article>
-          <article class="card"><h4>Fashion</h4><p>Styled fit • Runway • Custom piece</p><button class="pill" data-cat="Fashion">Select</button></article>
-        </div>
-      </section>
-
-      <!-- Step 2 -->
-      <section id="stepSubs" style="display:none">
-        <div class="row" style="justify-content:space-between; align-items:center">
-          <h4 id="subsTitle" style="margin:8px 0">Subcategories</h4>
-          <button class="pill" id="subsBack">← Categories</button>
-        </div>
-        <div id="subsList" class="list"></div>
-      </section>
-
-      <!-- Step 3 (Rap setup) -->
-      <section id="stepRapSetup" style="display:none">
-        <h4 style="margin:8px 0">Rap Battle Setup</h4>
-        <p class="help" style="margin:0 0 8px">Beat upload will enable the Instagram-style music meter.</p>
-        <div class="card">
-          <div class="row">
-            <label style="font-size:12px; color:var(--muted)">Style</label>
-            <select id="rapStyle" class="input">
-              <option value="freestyle">Freestyle</option>
-              <option value="written">Written</option>
-              <option value="cypher">Cypher</option>
-              <option value="wordplay">Wordplay</option>
-            </select>
-          </div>
-          <div class="divider"></div>
-
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Round Length</label>
-              <div class="rangeRow">
-                <input id="rapLen" type="range" min="30" max="180" step="15" value="60"/>
-                <span id="rapLenVal" class="help">60s</span>
-              </div>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Rounds</label>
-              <select id="rapRounds" class="input">
-                <option>1</option><option selected>3</option><option>5</option>
-              </select>
-            </div>
-          </div>
-          <div class="divider"></div>
-
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Beat</label>
-              <select id="rapBeat" class="input">
-                <option value="acapella">Acapella</option>
-                <option value="trap_92">Trap 92 BPM</option>
-                <option value="boom_88">Boom-bap 88 BPM</option>
-                <option value="drill_140">Drill 140 BPM</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Upload Beat (optional)</label>
-              <input id="rapBeatFile" type="file" accept="audio/*" class="input"/>
-            </div>
-          </div>
-          <div class="divider"></div>
-
-          <div class="row">
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Word Constraint</label>
-              <select id="rapWord" class="input">
-                <option value="none">None</option>
-                <option value="must_use_3">Must use 3 prompts</option>
-                <option value="random_topic">Random topic</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:12px; color:var(--muted)">Profanity Filter</label>
-              <select id="rapFilter" class="input">
-                <option value="off">Off</option>
-                <option value="light">Light</option>
-                <option value="strict">Strict</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-          <div class="row" style="justify-content:flex-end">
-            <button class="pill" id="rapSetupBack">← Subcategories</button>
-            <button class="pill primary" id="rapApply">Apply & Use</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Generic setup -->
-      <section id="stepOtherSetup" style="display:none">
-        <h4 id="otherSetupTitle" style="margin:8px 0">Category Setup</h4>
-        <p class="help">Add unique controls here for this category.</p>
-        <div class="row" style="justify-content:flex-end">
-          <button class="pill" id="otherSetupBack">← Subcategories</button>
-          <button class="pill primary" id="otherApply">Apply & Use</button>
-        </div>
-      </section>
-    </div>
-  </div>
+  <!-- Audio -->
+  <audio id="battleTrack" hidden></audio>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
 
   <script>
-    /*********** App State ***********/
-    const state = {
-      // battle
-      readyA:false, readyB:true, // simulate opponent ready
-      running:false, timeLeft:60, total:60, tick:null,
-      currentRound:1, totalRounds:3,
+    /* Elements */
+    const localVideo = document.getElementById('localVideo');
+    const camGate = document.getElementById('camGate');
+    const camFallback = document.getElementById('camFallback');
+    const enableCamNow = document.getElementById('enableCamNow');
+    const retryCamBtn = document.getElementById('retryCamBtn');
+    const switchCamBtn = document.getElementById('switchCamBtn');
 
-      // camera/mic
-      aStream:null, aFacing:"user", aCamOn:false,
-      aAudioCtx:null, aAnalyser:null, aData:null, aLevelRAF:null,
+    const leftPane = document.getElementById('leftPane');
+    const opponentVideo = document.getElementById('opponentVideo');
+    const rightPane = document.getElementById('rightPane');
 
-      // picker
-      category:null, subcategory:null,
-      rap:{ style:"freestyle", length:60, rounds:3, beat:"acapella", word:"none", filter:"off", beatFile:null },
+    const uploadModal = document.getElementById('uploadModal');
+    const beatFile = document.getElementById('beatFile');
+    const useBeatBtn = document.getElementById('useBeatBtn');
+    const useSampleBtn = document.getElementById('useSampleBtn');
+    const uploadBeatOpen = document.getElementById('uploadBeatOpen');
 
-      // beat meter
-      beatCtx:null, beatAnalyser:null, beatData:null, beatRAF:null
+    const startBtn = document.getElementById('startBattleBtn');
+    const startBtnWrap = document.querySelector('.cta');
+    const timerEl = document.getElementById('roundTimer');
+
+    const battleTrack = document.getElementById('battleTrack');
+    const endSound = document.getElementById('roundEndSound');
+
+    const liveBtn = document.getElementById('liveBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const opponentBtn = document.getElementById('opponentBtn');
+
+    const shareCta = document.getElementById('shareCta');
+    const shareBtn = document.getElementById('shareBtn');
+
+    const fxCanvas = document.getElementById('fxCanvas');
+    const ctx = fxCanvas.getContext('2d');
+
+    // Beat bar controls
+    const beatBar = document.getElementById('beatBar');
+    const beatStartRange = document.getElementById('beatStartRange');
+    const beatStartLabel = document.getElementById('beatStartLabel');
+    const beatMeta = document.getElementById('beatMeta');
+    const rangeWindow = document.getElementById('rangeWindow');
+    const segProgressInner = document.getElementById('segProgressInner');
+    const rangeWrap = document.getElementById('rangeWrap');
+    const waveCanvas = document.getElementById('waveCanvas');
+    const previewToggle = document.getElementById('previewToggle');
+    const rewindBtn = document.getElementById('rewindBtn');
+    const doneTrim = document.getElementById('doneTrim');
+
+    /* Navigation */
+    document.querySelectorAll('.shape[data-link]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
+    });
+    logoutBtn.addEventListener('click', ()=>{ location.href='login.html'; });
+    liveBtn.addEventListener('click', ()=>{ location.href='live.html'; });
+    opponentBtn.addEventListener('click', ()=>{ location.href='opponent.html'; });
+
+    /* Opponents */
+    const opponents = [
+      { video: "user2.mp4", image: "user2.jpg", handle: "@OpponentA", country: "United States", flag: "flag_us.png" },
+      { video: "user3.mp4", image: "user3.jpg", handle: "@ChallengerX", country: "Japan", flag: "flag_jp.png" },
+      { video: "user4.mp4", image: "user4.jpg", handle: "@MCNeo", country: "Brazil", flag: "flag_br.png" }
+    ];
+    let nextIndex = 0;
+    function pickNext(){ nextIndex = (nextIndex + 1) % opponents.length; return opponents[nextIndex]; }
+    function getCurrentNext(){ return opponents[nextIndex]; }
+
+    /* Opponent pad refs */
+    const pad = document.getElementById('opponentPad');
+    const padAvatar = document.getElementById('padAvatar');
+    const padName = document.getElementById('padName');
+    const padCountry = document.getElementById('padCountry');
+    const padFlag = document.getElementById('padFlag');
+    const padAccept = document.getElementById('padAccept');
+    const padNext = document.getElementById('padNext');
+
+    function showNextPad(){
+      const cand = pickNext();
+      padAvatar.src = cand.image; padName.textContent = cand.handle;
+      padCountry.textContent = cand.country; padFlag.src = cand.flag;
+      pad.style.display = 'flex';
+      startBtnWrap.style.display = 'none';
+    }
+    padAccept.onclick = ()=>{
+      const cand = getCurrentNext();
+      opponentVideo.src = cand.video;
+      pad.style.display = 'none';
+      state = { round:1, part:0, time:33, tick:null };
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "🔥 Opponent Ready — Press Start 🔥";
+      updateTurnUI();
     };
+    padNext.onclick = ()=> showNextPad();
 
-    /*********** HUD (timer/rounds) ***********/
-    const startBtn = document.getElementById("startBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const timeLeftEl = document.getElementById("timeLeft");
-    const barFill = document.getElementById("barFill");
-    const roundNowEl = document.getElementById("roundNow");
-    const roundTotalEl = document.getElementById("roundTotal"); roundTotalEl.textContent = state.totalRounds;
+    /* Camera — gesture-gated (mobile-friendly) */
+    let facing = 'user';
+    let currentStream = null;
 
-    function fmt(s){ const m=Math.floor(s/60), r=s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`; }
-    function setTimer(seconds){ state.total=seconds; state.timeLeft=seconds; timeLeftEl.textContent=fmt(seconds); barFill.style.width='0%'; }
-    function maybeEnableStart(){ startBtn.disabled = !(state.readyA && state.readyB); pauseBtn.disabled = true; resetBtn.disabled = true; }
+    async function stopStream(stream){ if(!stream) return; stream.getTracks().forEach(t=>t.stop()); }
 
-    function tick(){
-      if(!state.running) return;
-      state.timeLeft = Math.max(0, state.timeLeft - 1);
-      timeLeftEl.textContent = fmt(state.timeLeft);
-      const pct = 100 - Math.round((state.timeLeft/state.total)*100);
-      barFill.style.width = pct + '%';
-      if(state.timeLeft<=0){
-        if(state.currentRound < state.totalRounds){
-          state.currentRound += 1; roundNowEl.textContent = state.currentRound; setTimer(state.rap.length);
-        }else{ stopBattle(true); }
-      }
-    }
-    function startBattle(){
-      if(startBtn.disabled) return;
-      state.running = true; startBtn.disabled=true; pauseBtn.disabled=false; resetBtn.disabled=false;
-      clearInterval(state.tick); state.tick=setInterval(tick, 1000);
-    }
-    function pauseBattle(){ if(!state.running) return; state.running=false; pauseBtn.disabled=true; startBtn.disabled=false; clearInterval(state.tick); }
-    function stopBattle(){ state.running=false; clearInterval(state.tick); startBtn.disabled=!(state.readyA&&state.readyB); pauseBtn.disabled=true; resetBtn.disabled=false; }
-    function resetBattle(){ stopBattle(); state.currentRound=1; roundNowEl.textContent=1; setTimer(state.rap.length); resetBtn.disabled=true; }
-    setTimer(state.rap.length);
-    startBtn.addEventListener("click", startBattle);
-    pauseBtn.addEventListener("click", pauseBattle);
-    resetBtn.addEventListener("click", resetBattle);
-
-    /*********** Cameras (Side A) ***********/
-    const aVideo = document.getElementById("aVideo");
-    const aPlaceholder = document.getElementById("aPlaceholder");
-    const aMicBar = document.getElementById("aMicLevel");
-
-    async function startACamera(){
+    async function startCamera(preferFacing = facing){
       try{
-        const constraints = {
+        await stopStream(currentStream);
+
+        const constraintsPrimary = {
           audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true },
-          video: { facingMode: state.aFacing, width:{ideal:1080}, height:{ideal:1920} }
+          video: {
+            facingMode: { ideal: preferFacing },
+            width:  { ideal: 1280, max: 1920 },
+            height: { ideal: 720,  max: 1080 }
+          }
         };
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        stopAStream();
-        state.aStream = stream;
-        aVideo.srcObject = stream; aVideo.muted = true;
-        aVideo.style.display = 'block'; aPlaceholder.style.display = 'none';
-        state.aCamOn = true; setupAudioMeter(stream);
-        state.readyA = true; maybeEnableStart();
-      }catch(err){ alert("Camera/mic error: " + (err.message||err)); }
-    }
-    function stopAStream(){
-      if(state.aStream){ state.aStream.getTracks().forEach(t=>t.stop()); state.aStream=null; }
-      teardownMicMeter();
-      aVideo.srcObject = null; aVideo.pause(); aVideo.style.display='none'; aPlaceholder.style.display='grid';
-      state.aCamOn = false; state.readyA = false; maybeEnableStart();
-    }
-    function setupAudioMeter(stream){
-      try{
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        state.aAudioCtx = new AudioCtx();
-        const src = state.aAudioCtx.createMediaStreamSource(stream);
-        state.aAnalyser = state.aAudioCtx.createAnalyser();
-        state.aAnalyser.fftSize = 256;
-        state.aData = new Uint8Array(state.aAnalyser.frequencyBinCount);
-        src.connect(state.aAnalyser);
-        const loop = ()=>{
-          if(!state.aAnalyser){ aMicBar.style.width = '0%'; return; }
-          state.aAnalyser.getByteTimeDomainData(state.aData);
-          let sum=0; for(let i=0;i<state.aData.length;i++){ const v=(state.aData[i]-128)/128; sum+=v*v; }
-          const rms = Math.sqrt(sum/state.aData.length);
-          aMicBar.style.width = Math.min(100, Math.max(6, Math.round(rms*160))) + '%';
-          state.aLevelRAF = requestAnimationFrame(loop);
-        };
-        cancelAnimationFrame(state.aLevelRAF); loop();
-      }catch(e){ teardownMicMeter(); }
-    }
-    function teardownMicMeter(){
-      cancelAnimationFrame(state.aLevelRAF); state.aLevelRAF=null;
-      if(state.aAudioCtx){ try{ state.aAudioCtx.close(); }catch{} state.aAudioCtx=null; }
-      state.aAnalyser=null; state.aData=null; aMicBar.style.width='0%';
-    }
 
-    // Buttons A
-    document.getElementById("aCamera").addEventListener("click", ()=> state.aCamOn ? stopAStream() : startACamera());
-    document.getElementById("aMic").addEventListener("click", ()=>{
-      const track = state.aStream?.getAudioTracks?.()[0];
-      if(track){ track.enabled = !track.enabled; document.getElementById("aMic").textContent = track.enabled ? "Mic" : "Mic (Muted)"; }
-    });
-    document.getElementById("aSwitch").addEventListener("click", async ()=>{ state.aFacing = (state.aFacing==="user")?"environment":"user"; if(state.aCamOn) await startACamera(); });
-    document.getElementById("aUploadInput").addEventListener("change", (e)=>{
-      const file = e.target.files?.[0]; if(!file) return;
-      stopAStream();
-      const url = URL.createObjectURL(file);
-      aVideo.srcObject = null; aVideo.src = url; aVideo.controls = true; aVideo.muted=false;
-      aVideo.style.display='block'; aPlaceholder.style.display='none';
-      aVideo.play().catch(()=>{});
-    });
-    document.getElementById("aReady").addEventListener("click", ()=>{ state.readyA = !state.readyA; maybeEnableStart(); });
+        let stream;
+        try{
+          stream = await navigator.mediaDevices.getUserMedia(constraintsPrimary);
+        }catch(primaryErr){
+          const constraintsFallback = {
+            audio: true,
+            video: { facingMode: preferFacing === 'user' ? 'user' : { exact:'environment' } }
+          };
+          try{
+            stream = await navigator.mediaDevices.getUserMedia(constraintsFallback);
+          }catch(secondErr){
+            stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+          }
+        }
 
-    /*********** Side B (basic) ***********/
-    document.getElementById("bMute").addEventListener("click", ()=>{
-      const b = document.getElementById("bVideo"); b.muted = !b.muted; document.getElementById("bMute").textContent = b.muted ? "Unmute" : "Mute";
-    });
-    document.getElementById("bSwap").addEventListener("click", ()=>{
-      const arena = document.getElementById("arena");
-      arena.insertBefore(arena.lastElementChild.previousElementSibling, arena.firstElementChild);
-    });
+        currentStream = stream;
+        localVideo.srcObject = stream;
+        localVideo.muted = true;
+        localVideo.setAttribute('playsinline','');
+        await localVideo.play().catch(()=>{});
 
-    /*********** Picker logic ***********/
-    const picker = document.getElementById("picker");
-    const stepCats = document.getElementById("stepCats");
-    const stepSubs = document.getElementById("stepSubs");
-    const stepRap = document.getElementById("stepRapSetup");
-    const stepOther = document.getElementById("stepOtherSetup");
-    const subsTitle = document.getElementById("subsTitle");
-    const subsList = document.getElementById("subsList");
-    const pickCrumb = document.getElementById("pickCrumb");
-    const rapLen = document.getElementById("rapLen");
-    const rapLenVal = document.getElementById("rapLenVal");
-
-    const CAT_SUBS = {
-      "Rap": ["Freestyle","Written","Cypher","Wordplay"],
-      "Art": ["Sketch","Digital","Graffiti","Speed-paint"],
-      "Instruments": ["Guitar","Piano/Keys","Drums","Strings"],
-      "Comedy": ["Roast","Improv","Skits","One-liners"],
-      "Dance": ["Freestyle","Choreo","Break","Duo"],
-      "Fashion": ["Styled Fit","Runway","Custom Piece"]
-    };
-
-    function openPicker(step="cats"){ picker.classList.add("show"); showStep(step); updatePickCrumb(); }
-    function closePicker(){ picker.classList.remove("show"); showStep("cats"); }
-    function showStep(which){
-      stepCats.style.display = (which==="cats") ? "block" : "none";
-      stepSubs.style.display = (which==="subs") ? "block" : "none";
-      stepRap.style.display  = (which==="rap")  ? "block" : "none";
-      stepOther.style.display= (which==="other")? "block" : "none";
-    }
-    function updatePickCrumb(){
-      if(stepRap.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> → ${state.subcategory} • Setup`; }
-      else if(stepSubs.style.display==="block"){ pickCrumb.innerHTML = `<b>${state.category}</b> • Subcategories`; }
-      else{ pickCrumb.innerHTML = `<b>Categories</b>`; }
-    }
-
-    document.getElementById("catsBtn").addEventListener("click", ()=>openPicker("cats"));
-    document.getElementById("pickClose").addEventListener("click", closePicker);
-    document.getElementById("pickBack").addEventListener("click", ()=>{
-      if(stepSubs.style.display==="block" || stepRap.style.display==="block" || stepOther.style.display==="block"){ showStep("cats"); updatePickCrumb(); }
-      else closePicker();
-    });
-    document.getElementById("subsBack").addEventListener("click", ()=>{ showStep("cats"); updatePickCrumb(); });
-    document.getElementById("rapSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
-    document.getElementById("otherSetupBack").addEventListener("click", ()=>{ showStep("subs"); updatePickCrumb(); });
-
-    stepCats.querySelectorAll("button[data-cat]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        state.category = btn.dataset.cat; state.subcategory = null;
-        subsTitle.textContent = `${state.category} — Subcategories`;
-        const items = CAT_SUBS[state.category] || [];
-        subsList.innerHTML = items.map(name=>`
-          <article class="card">
-            <h4>${name}</h4>
-            <p>Tap to use</p>
-            <button class="pill" data-sub="${name}">Select</button>
-          </article>
-        `).join("");
-        subsList.querySelectorAll("button[data-sub]").forEach(b=>{
-          b.addEventListener("click", ()=>{
-            state.subcategory = b.dataset.sub;
-            if(state.category==="Rap"){ showStep("rap"); updatePickCrumb(); }
-            else{ document.getElementById("otherSetupTitle").textContent = `${state.category} Setup`; showStep("other"); updatePickCrumb(); }
-          });
-        });
-        showStep("subs"); updatePickCrumb();
-      });
-    });
-
-    rapLen.addEventListener("input", ()=>{ rapLenVal.textContent = rapLen.value + "s"; });
-
-    document.getElementById("rapApply").addEventListener("click", async ()=>{
-      state.rap.style  = document.getElementById("rapStyle").value;
-      state.rap.length = parseInt(document.getElementById("rapLen").value,10);
-      state.rap.rounds = parseInt(document.getElementById("rapRounds").value,10);
-      state.rap.beat   = document.getElementById("rapBeat").value;
-      state.rap.word   = document.getElementById("rapWord").value;
-      state.rap.filter = document.getElementById("rapFilter").value;
-      const file = document.getElementById("rapBeatFile").files?.[0] || null;
-      state.rap.beatFile = file;
-
-      // Apply timer + rounds from setup
-      state.currentRound = 1; state.totalRounds = state.rap.rounds;
-      roundNowEl.textContent = 1; document.getElementById("roundTotal").textContent = state.totalRounds;
-      setTimer(state.rap.length);
-
-      // If beat file picked, start IG meter
-      if(file){ await useBeatFile(file); }
-      // If preset beat chosen (no file), you can map to URLs here if you have them.
-      closePicker();
-    });
-
-    document.getElementById("otherApply").addEventListener("click", ()=>{ closePicker(); });
-
-    /*********** IG Music Meter ***********/
-    const beatAudio = document.getElementById("beatAudio");
-    const igMusic = document.getElementById("igMusic");
-    const igBars = Array.from(document.getElementById("igMeter").querySelectorAll('i'));
-
-    async function useBeatFile(file){
-      if(!file) return;
-      try{
-        beatAudio.src = URL.createObjectURL(file);
-        await beatAudio.play().catch(()=>beatAudio.play());
-        igMusic.style.display = 'block';
-        startBeatVisualizer();
-      }catch(e){ console.warn('Beat play failed', e); }
-    }
-
-    function startBeatVisualizer(){
-      try{
-        const AC = window.AudioContext || window.webkitAudioContext;
-        state.beatCtx = state.beatCtx || new AC();
-        const srcNode = state.beatCtx.createMediaElementSource(beatAudio);
-        state.beatAnalyser = state.beatCtx.createAnalyser();
-        state.beatAnalyser.fftSize = 256;
-        state.beatData = new Uint8Array(state.beatAnalyser.frequencyBinCount);
-        srcNode.connect(state.beatAnalyser);
-        state.beatAnalyser.connect(state.beatCtx.destination);
-
-        const loop = ()=>{
-          state.beatAnalyser.getByteFrequencyData(state.beatData);
-          const step = Math.floor(state.beatData.length / igBars.length) || 1;
-          igBars.forEach((bar,i)=>{
-            const start = i*step;
-            let sum=0; for(let j=0;j<step;j++) sum += state.beatData[start+j]||0;
-            const avg = sum / step;
-            const h = Math.max(6, Math.min(22, Math.round((avg/255)*22)));
-            bar.style.height = h+'px';
-          });
-          state.beatRAF = requestAnimationFrame(loop);
-        };
-        cancelAnimationFrame(state.beatRAF); loop();
+        camGate.classList.add('hidden');
+        camFallback.classList.add('hidden');
+        leftPane.classList.remove('error');
+        localVideo.style.transform = (preferFacing === 'user') ? 'scaleX(-1)' : 'none';
       }catch(e){
-        // fallback wiggle
-        cancelAnimationFrame(state.beatRAF);
-        const wiggle=()=>{ igBars.forEach((b,i)=> b.style.height=(6 + (Math.sin((Date.now()/160)+(i*.5))*8 + Math.random()*6)|0)+'px'); state.beatRAF=requestAnimationFrame(wiggle); };
-        state.beatRAF=requestAnimationFrame(wiggle);
+        leftPane.classList.add('error');
+        camFallback.classList.remove('hidden');
       }
     }
 
-    /*********** Quick helpers ***********/
-    // Open picker on first load so you can set rounds/beat immediately (optional)
-    // openPicker("cats");
-
-    // Wire category button on HUD to choose a beat quickly if you just want meter fast
-    document.getElementById("catsBtn").addEventListener("click", ()=>{
-      // If you want a quick beat without full picker:
-      // const input=document.createElement('input'); input.type='file'; input.accept='audio/*';
-      // input.onchange=()=> useBeatFile(input.files?.[0]); input.click();
+    enableCamNow.addEventListener('click', ()=> startCamera('user'));
+    retryCamBtn.addEventListener('click', ()=> startCamera(facing));
+    switchCamBtn.addEventListener('click', async ()=>{
+      facing = (facing === 'user') ? 'environment' : 'user';
+      await startCamera(facing);
     });
 
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState === 'visible'){
+        if(localVideo.srcObject && localVideo.paused) localVideo.play().catch(()=>{});
+        if(state.part === 1) opponentVideo.play().catch(()=>{});
+      }
+    });
+
+    /* Upload Beat Flow */
+    function openUpload(){ uploadModal.style.display = 'grid'; }
+    function closeUpload(){ uploadModal.style.display = 'none'; }
+    uploadBeatOpen.addEventListener('click', openUpload);
+
+    let uploadedBeatUrl = null;
+    let selectedStart = 0;
+    const SEG_LEN = 33;
+
+    function formatTime(s){
+      s = Math.max(0, s|0);
+      const m = (s/60)|0, r = s%60;
+      return `${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`;
+    }
+
+    /* Waveform rendering (best effort; falls back silently if CORS) */
+    let audioCtx, analyser, dataArr, rafGlow;
+    const waveCtx = waveCanvas.getContext('2d');
+    async function drawWaveformFromUrl(url){
+      try{
+        if(!window.AudioContext && !window.webkitAudioContext) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ctx = audioCtx || new AC();
+        audioCtx = ctx;
+        const res = await fetch(url, {mode:'cors'});
+        const buf = await res.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(buf);
+        renderWave(audioBuf);
+      }catch(e){
+        // ignore; leave gradient bg
+        renderWave(null);
+      }
+    }
+    function renderWave(audioBuf){
+      const w = waveCanvas.clientWidth, h = waveCanvas.clientHeight;
+      waveCanvas.width = w * devicePixelRatio; waveCanvas.height = h * devicePixelRatio;
+      waveCtx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      // background
+      const g = waveCtx.createLinearGradient(0,0,w,0);
+      g.addColorStop(0,'rgba(255,255,255,.08)');
+      g.addColorStop(1,'rgba(255,255,255,.18)');
+      waveCtx.fillStyle = g;
+      waveCtx.fillRect(0,0,w,h);
+      if(!audioBuf){ return; }
+      const ch = audioBuf.getChannelData(0);
+      const step = Math.ceil(ch.length / w);
+      const amp = h/2;
+      waveCtx.strokeStyle = '#ffd700';
+      waveCtx.lineWidth = 1.2;
+      waveCtx.beginPath();
+      for(let i=0;i<w;i++){
+        let min=1, max=-1;
+        const start = i*step;
+        for(let j=0;j<step && start+j < ch.length;j++){
+          const v = ch[start+j];
+          if(v<min) min=v;
+          if(v>max) max=v;
+        }
+        waveCtx.moveTo(i, (1+min)*amp);
+        waveCtx.lineTo(i, (1+max)*amp);
+      }
+      waveCtx.stroke();
+    }
+
+    function updateBeatWindowUI(){
+      const dur = battleTrack.duration || 0;
+      const maxStart = Math.max(0, dur - SEG_LEN);
+      beatStartRange.max = String(maxStart.toFixed(1));
+      selectedStart = Math.min(selectedStart, maxStart);
+      beatStartRange.value = String(selectedStart.toFixed(1));
+
+      // window overlay position/size
+      const pctStart = (dur>0) ? (selectedStart / dur) : 0;
+      const pctWidth = (dur>0) ? Math.min(1, SEG_LEN / dur) : 0;
+      const trackRect = rangeWrap.getBoundingClientRect();
+      const trackW = trackRect.width;
+      const leftPx = pctStart * trackW;
+      const widthPx = pctWidth * trackW;
+      rangeWindow.style.left = `${leftPx}px`;
+      rangeWindow.style.width = `${widthPx}px`;
+
+      beatStartLabel.textContent = `${formatTime(selectedStart)} → ${formatTime(selectedStart + SEG_LEN)}`;
+      beatMeta.textContent = `Length: ${isFinite(dur)?formatTime(dur):'--:--'}`;
+      beatBar.style.display = 'block';
+      startBtnWrap.style.display = 'none'; // force set-up before start
+      timerEl.textContent = "Trim your 33s segment, then tap Done";
+    }
+
+    function setStartByPixel(clientX){
+      const dur = battleTrack.duration || 0; if(dur<=0) return;
+      const maxStart = Math.max(0, dur - SEG_LEN);
+      const rect = rangeWrap.getBoundingClientRect();
+      const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
+      const pct = Math.min(1, Math.max(0, x / rect.width));
+      selectedStart = Math.min(maxStart, pct * dur);
+      updateBeatWindowUI();
+    }
+
+    // Drag the selection window (touch/mouse)
+    (function enableWindowDrag(){
+      let dragging = false;
+      function onDown(e){
+        dragging = true;
+        if(e.type==='mousedown') e.preventDefault();
+        const cx = (e.touches? e.touches[0].clientX : e.clientX);
+        setStartByPixel(cx);
+        window.addEventListener('mousemove', onMove, {passive:false});
+        window.addEventListener('touchmove', onMove, {passive:false});
+        window.addEventListener('mouseup', onUp, {passive:true});
+        window.addEventListener('touchend', onUp, {passive:true});
+      }
+      function onMove(e){
+        if(!dragging) return;
+        const cx = (e.touches? e.touches[0].clientX : e.clientX);
+        setStartByPixel(cx);
+      }
+      function onUp(){
+        dragging = false;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        window.removeEventListener('touchend', onUp);
+      }
+      rangeWindow.addEventListener('mousedown', onDown);
+      rangeWindow.addEventListener('touchstart', onDown, {passive:false});
+
+      // Click on waveform/track to jump
+      rangeWrap.addEventListener('mousedown', (e)=>{ setStartByPixel(e.clientX); });
+      rangeWrap.addEventListener('touchstart', (e)=>{ setStartByPixel(e.touches[0].clientX); }, {passive:true});
+    })();
+
+    // Hidden input (kept for accessibility; updates also shift window)
+    beatStartRange.addEventListener('input', ()=>{
+      selectedStart = parseFloat(beatStartRange.value)||0;
+      updateBeatWindowUI();
+    });
+
+    // Preview controls (loop 33s, Instagram-style)
+    let previewing = false;
+    let previewRAF = 0;
+    function loopPreviewTick(){
+      if(!previewing) return;
+      const t = battleTrack.currentTime;
+      const end = selectedStart + SEG_LEN;
+      if(t < selectedStart || t > end){
+        battleTrack.currentTime = selectedStart;
+      }
+      if(t >= end){
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }
+      previewRAF = requestAnimationFrame(loopPreviewTick);
+    }
+    previewToggle.addEventListener('click', ()=>{
+      if(!battleTrack.src) return;
+      previewing = !previewing;
+      if(previewing){
+        previewToggle.textContent = '⏸ Preview';
+        try{
+          battleTrack.currentTime = selectedStart;
+          battleTrack.play().catch(()=>{});
+        }catch(e){}
+        cancelAnimationFrame(previewRAF);
+        previewRAF = requestAnimationFrame(loopPreviewTick);
+      }else{
+        previewToggle.textContent = '▶ Preview';
+        cancelAnimationFrame(previewRAF);
+        battleTrack.pause();
+      }
+    });
+    rewindBtn.addEventListener('click', ()=>{
+      selectedStart = 0;
+      updateBeatWindowUI();
+      if(previewing){
+        try{ battleTrack.currentTime = selectedStart; battleTrack.play().catch(()=>{}); }catch(e){}
+      }
+    });
+    doneTrim.addEventListener('click', ()=>{
+      // Finalize trimming choices; show Start button
+      beatBar.style.display = 'none';
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "Press Start Battle to begin";
+      if(previewing){
+        previewing = false;
+        previewToggle.textContent = '▶ Preview';
+        cancelAnimationFrame(previewRAF);
+        battleTrack.pause();
+      }
+    });
+
+    useBeatBtn.addEventListener('click', ()=>{
+      const f = beatFile.files?.[0];
+      if(!f){ alert('Please choose an audio file.'); return; }
+      if(uploadedBeatUrl) URL.revokeObjectURL(uploadedBeatUrl);
+      uploadedBeatUrl = URL.createObjectURL(f);
+      battleTrack.src = uploadedBeatUrl;
+      battleTrack.load();
+      closeUpload();
+      // Draw waveform from file (decode via FileReader -> arrayBuffer)
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try{
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if(!AC) return renderWave(null);
+          audioCtx = audioCtx || new AC();
+          const audioBuf = await audioCtx.decodeAudioData(reader.result);
+          renderWave(audioBuf);
+        }catch{ renderWave(null); }
+      };
+      reader.readAsArrayBuffer(f);
+    });
+
+    useSampleBtn.addEventListener('click', ()=>{
+      battleTrack.src = 'beat1.mp3';
+      battleTrack.load();
+      closeUpload();
+      // Attempt waveform (may be blocked by CORS depending on hosting)
+      drawWaveformFromUrl('beat1.mp3');
+    });
+
+    battleTrack.addEventListener('loadedmetadata', ()=>{
+      selectedStart = 0;
+      updateBeatWindowUI();
+    });
+
+    window.addEventListener('resize', ()=>{
+      // Keep window overlay & waveform aligned on resize/rotation
+      renderWave(null); // clear bg gradient
+      updateBeatWindowUI();
+    });
+
+    /* Battle Timer + Turn UI (dim/mute) */
+    let state = { round:1, part:0, time:SEG_LEN, tick:null };
+
+    function setMicEnabled(on){
+      try{
+        if(!currentStream) return;
+        currentStream.getAudioTracks().forEach(tr=> tr.enabled = !!on);
+      }catch(e){}
+    }
+    function updateTurnUI(){
+      if(state.part === 0){
+        leftPane.classList.remove('inactive');
+        rightPane.classList.add('inactive');
+        setMicEnabled(true);
+        opponentVideo.muted = true;
+      }else{
+        leftPane.classList.add('inactive');
+        rightPane.classList.remove('inactive');
+        setMicEnabled(false);
+        opponentVideo.muted = false;
+        opponentVideo.play().catch(()=>{});
+      }
+    }
+    function setTimer(){
+      timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`;
+      const pct = Math.max(0, Math.min(1, (SEG_LEN - state.time) / SEG_LEN));
+      segProgressInner.style.width = `${pct*100}%`;
+    }
+
+    // 5-second buffer before opponent starts
+    function bufferBeforeOpponentStart(sec=5){
+      let t = sec;
+      timerEl.textContent = `Opponent turn in ${t}s…`;
+      const b = setInterval(()=>{
+        t--;
+        if(t>0){
+          timerEl.textContent = `Opponent turn in ${t}s…`;
+        }else{
+          clearInterval(b);
+          // Reset beat for opponent
+          battleTrack.currentTime = selectedStart;
+          battleTrack.play().catch(()=>{});
+          // Switch to opponent AFTER buffer
+          state.part = 1;
+          state.time = SEG_LEN;
+          updateTurnUI();
+          startRound(); // start their timer
+        }
+      },1000);
+    }
+
+    function startRound(){
+      clearInterval(state.tick);
+      // Always reset beat to chosen window at the start of each turn
+      try{
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }catch(e){}
+      updateTurnUI();
+      setTimer();
+      state.tick = setInterval(()=>{
+        setTimer(); state.time--;
+        if(state.time <= 0){
+          battleTrack.pause();
+          clearInterval(state.tick); endSound.play();
+          if(state.part === 0){
+            timerEl.textContent = "Switching…";
+            bufferBeforeOpponentStart(5);
+          }else if(state.round < 3){
+            state.round++; state.part = 0; state.time = SEG_LEN;
+            timerEl.textContent = "Next Round…";
+            setTimeout(()=>{ updateTurnUI(); startRound(); }, 900);
+          }else{
+            timerEl.textContent = "🔥 Battle Over — GG 🔥";
+            leftPane.classList.remove('inactive');
+            rightPane.classList.remove('inactive');
+            setMicEnabled(true);
+            opponentVideo.muted = true;
+            shareCta.style.display = 'block';
+            setTimeout(showNextPad, 1000);
+          }
+        }
+      }, 1000);
+    }
+
+    /* One-shot polished FX: photonic ring + sparks on canvas (refined) */
+    function playStartFX(){
+      fxCanvas.width = window.innerWidth;
+      fxCanvas.height = window.innerHeight;
+      fxCanvas.style.display = 'block';
+
+      const cx = fxCanvas.width/2, cy = fxCanvas.height*0.66;
+      const start = performance.now();
+      const duration = 1100; // ms
+      const sparks = Array.from({length: 80}, ()=>({
+        x: cx, y: cy, a: Math.random()*Math.PI*2,
+        v: 2 + Math.random()*6, r: 1 + Math.random()*2, life: 0.8 + Math.random()*0.5
+      }));
+
+      (function loop(now){
+        const t = Math.min(1, (now - start)/duration);
+        ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+
+        // radial ring
+        const R = 40 + t*240;
+        const alpha = 1 - t;
+        const grd = ctx.createRadialGradient(cx,cy, R*0.65, cx,cy, R);
+        grd.addColorStop(0, `rgba(255,255,255,${0.35*alpha})`);
+        grd.addColorStop(0.55, `rgba(255,215,0,${0.25*alpha})`);
+        grd.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+
+        // sparks
+        for(const s of sparks){
+          const lifeT = Math.min(1, ((now - start)/1000) / s.life);
+          s.x += Math.cos(s.a) * s.v;
+          s.y += Math.sin(s.a) * s.v;
+          ctx.globalAlpha = (1 - lifeT) * 0.9;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        if(t < 1){
+          requestAnimationFrame(loop);
+        }else{
+          // gentle fade-out
+          const fadeStart = performance.now();
+          (function fade(now2){
+            const ft = Math.min(1, (now2 - fadeStart)/180);
+            ctx.fillStyle = `rgba(0,0,0,${ft})`;
+            ctx.fillRect(0,0,fxCanvas.width,fxCanvas.height);
+            if(ft < 1) requestAnimationFrame(fade);
+            else {
+              ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+              fxCanvas.style.display = 'none';
+            }
+          })(fadeStart);
+        }
+      })(start);
+    }
+
+    /* Audio reactive glow (subtle) */
+    function beginAudioGlow(){
+      try{
+        if(!audioCtx){
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if(!AC) return;
+          audioCtx = new AC();
+          const src = audioCtx.createMediaElementSource(battleTrack);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          src.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          dataArr = new Uint8Array(analyser.frequencyBinCount);
+        }
+        const loop = ()=>{
+          analyser.getByteFrequencyData(dataArr);
+          let sum=0, count=0;
+          for(let i=2;i<18 && i<dataArr.length;i++){ sum+=dataArr[i]; count++; }
+          const avg = count? sum/(count*255) : 0;
+          const eased = Math.min(1, avg*2.2);
+          document.documentElement.style.setProperty('--beatGlow', eased.toFixed(3));
+          rafGlow = requestAnimationFrame(loop);
+        };
+        cancelAnimationFrame(rafGlow);
+        rafGlow = requestAnimationFrame(loop);
+      }catch(e){}
+    }
+
+    /* Start Battle */
+    startBtn.addEventListener('click', ()=>{
+      if(!battleTrack.src){
+        openUpload();
+        return;
+      }
+      // ensure trimming is finalized
+      beatBar.style.display = 'none';
+      startBtnWrap.style.display='none';
+      shareCta.style.display = 'none';
+      timerEl.classList.add('animate');
+      playStartFX();
+
+      try{
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }catch(e){}
+      pad.style.display = 'none';
+      state = { round:1, part:0, time:33, tick:null };
+      updateTurnUI();
+      startRound();
+      beginAudioGlow();
+    });
+
+    /* Share */
+    shareBtn.addEventListener('click', async ()=>{
+      const shareData = {
+        title: 'BattleBillions — My Battle',
+        text: 'Check out my latest BattleBillions match!',
+        url: location.href
+      };
+      if(navigator.share){
+        try{ await navigator.share(shareData); }catch(e){}
+      }else{
+        try{
+          await navigator.clipboard.writeText(shareData.url);
+          shareBtn.textContent = '✅ Link Copied';
+          setTimeout(()=> shareBtn.textContent='📤 Share Battle', 1800);
+        }catch(_){
+          alert('Share this link:\n' + shareData.url);
+        }
+      }
+    });
+
+    /* Init */
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const sc = document.querySelector('.stream-container');
+      sc.style.height = window.innerHeight + 'px';
+      window.addEventListener('resize', ()=>{
+        sc.style.height = window.innerHeight + 'px';
+        fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight;
+      });
+
+      // Start with upload modal open
+      uploadModal.style.display='grid';
+      // Opponent video muted until it's their turn
+      opponentVideo.muted = true;
+
+      // Camera waits for user gesture
+      camGate.classList.remove('hidden');
+
+      // Prime empty waveform bg
+      renderWave(null);
+    });
   </script>
 </body>
 </html>
