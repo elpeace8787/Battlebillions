@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
+  <title>BattleBillions — Dual Live Battle (Mobile-First)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gold:#ffd700;
+      --gold-1:#ffe88a;
+      --gold-2:#ffcc3b;
+      --ink:#eaeaea;
+      --muted:#b8b8b8;
+      --beatGlow: 0;
+      --top-safe: max(14px, env(safe-area-inset-top));
+      --side-safe: max(14px, env(safe-area-inset-left));
+      --side-safe-r: max(14px, env(safe-area-inset-right));
+      --bottom-safe: max(16px, env(safe-area-inset-bottom));
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html, body{
+      height:100%;
+      width:100%;
+      overflow:hidden;
+      overscroll-behavior:none;
+      background:#000;
+    }
+    *::-webkit-scrollbar{ display:none; width:0; height:0 }
+
+    body{
+      font-family:'Orbitron',sans-serif;
+      color:var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* Subtle ambient depth */
+    .depth-stage{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+    .layer-nebula{
+      position:absolute; inset:-15%;
+      background: conic-gradient(from 0deg at 50% 50%,
+        rgba(255,215,0,.10), rgba(0,255,255,.08), rgba(148,0,255,.12), rgba(255,215,0,.10));
+      filter: blur(90px) saturate(130%); opacity:.38; animation: nebula 40s linear infinite;
+    }
+    @keyframes nebula{ to{ transform: rotate(360deg) } }
+    .layer-stars{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.09), transparent 60%),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.07), transparent 60%),
+        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.06), transparent 60%);
+      animation: stars 14s ease-in-out infinite alternate;
+    }
+    @keyframes stars{ from{filter:brightness(.9)} to{filter:brightness(1.1)} }
+
+    /* Split view */
+    .stream-container{
+      position:relative; z-index:1; display:flex;
+      height:100svh; width:100svw;
+      overflow:hidden;
+      contain:layout paint size;
+    }
+    .pane{ flex:1; position:relative; overflow:hidden; min-width:0; }
+    video.video-stream{
+      display:block;
+      width:100%; height:100%;
+      object-fit:cover; background:#000;
+      filter: brightness(.96) contrast(1.08) saturate(1.06);
+      transition: filter .25s ease;
+      z-index:1;
+    }
+    #localVideo{ transform:scaleX(-1); }
+
+    /* Dim/mute visuals for inactive pane */
+    .pane.inactive::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(2px);
+      z-index:2;
+    }
+    .pane.inactive video{ filter: brightness(.68) contrast(1.0) saturate(.85) }
+
+    /* Sheen */
+    .pane::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.05), transparent 20% 80%, rgba(255,255,255,.05)),
+        radial-gradient(1100px 360px at 10% 0%, rgba(255,215,0,.08), transparent 70%),
+        radial-gradient(1100px 360px at 90% 0%, rgba(148,0,255,.07), transparent 70%);
+      mix-blend-mode:screen; animation: paneSheen 6s ease-in-out infinite alternate;
+      z-index:2;
+    }
+    @keyframes paneSheen{ from{opacity:.3} to{opacity:.58} }
+
+    /* Camera fallback + enable gate */
+    .fallback{
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      flex-direction:column; gap:12px; text-align:center; padding:18px;
+      background:linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
+      font-weight:800; letter-spacing:.3px; z-index:3;
+    }
+    .fallback.hidden{ display:none; }
+    .cam-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+    .btn-mini{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800;
+      padding:10px 14px; border-radius:10px; cursor:pointer; border:none; box-shadow:0 0 16px rgba(255,215,0,.35);
+    }
+
+    /* HUD */
+    .top-bar{
+      position:absolute; left:0; right:0;
+      top: calc(var(--top-safe) + 8px);
+      z-index:10; display:flex; justify-content:space-between; padding:0 clamp(12px, 2vw, 20px);
+      font-size:14px; pointer-events:none;
+    }
+    .hud-left{ pointer-events:auto; }
+    .hud-live{
+      appearance:none; border:none; cursor:pointer;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; padding:6px 14px; border-radius:999px; font-weight:800;
+      box-shadow:0 0 18px rgba(255,215,0,.45); text-shadow:0 1px 0 rgba(255,255,255,.4);
+    }
+
+    /* Viewer chip centered in opponent screen */
+    .viewer-center{
+      position:absolute; left:50%;
+      top: calc(var(--top-safe) + 8px);
+      transform: translateX(-50%);
+      z-index:12;
+      padding:8px 16px; border-radius:999px;
+      background:rgba(0,0,0,.55); backdrop-filter: blur(8px);
+      font-weight:800; white-space:nowrap;
+    }
+
+    /* Opponent display button under viewer count */
+    .opponent-btn{
+      position:absolute; left:50%;
+      top: calc(var(--top-safe) + 56px);
+      transform: translateX(-50%);
+      z-index:12; border:none; background:transparent; padding:0; cursor:pointer;
+      width:40px; height:40px; border-radius:50%;
+      box-shadow:0 0 14px rgba(255,215,0,.35);
+    }
+    .opponent-btn img{
+      width:100%; height:100%; border-radius:50%; object-fit:cover;
+      filter: saturate(1.05) contrast(1.05);
+    }
+
+    /* Timer + CTA */
+    .round-timer{
+      position:absolute; left:50%;
+      bottom: calc(var(--bottom-safe) + 120px);
+      transform:translateX(-50%); z-index:12;
+      font-weight:800; font-size:15px; padding:10px 18px; border-radius:999px;
+      background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
+      white-space:nowrap; text-shadow:0 0 12px rgba(255,215,0,.18);
+    }
+    .round-timer.animate{ animation:pulse 1.8s infinite; }
+    @keyframes pulse{ 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.06)} }
+
+    .cta{
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:12; display:none;
+    }
+    .btn{
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2));
+      color:#000; font-weight:800; padding:14px 28px; border-radius:12px;
+      box-shadow:0 0 26px rgba(255,215,0,.45); cursor:pointer; border:none;
+    }
+    .btn-ghost{
+      background:transparent; color:var(--ink); border:none; cursor:pointer; padding:10px 14px; border-radius:12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    /* Side shapes (no boxes) */
+    .side{
+      position:absolute;
+      bottom: calc(var(--bottom-safe) + 10vh);
+      display:flex; flex-direction:column; gap:12px; z-index:14; pointer-events:auto;
+    }
+    .side.left{ left: calc(var(--side-safe)); }
+    .side.right{ right: calc(var(--side-safe-r)); }
+    .shape{
+      appearance:none; background:transparent; border:none; padding:0;
+      width:24px; height:24px; display:grid; place-items:center; cursor:pointer;
+      transition: transform .18s ease, filter .18s ease;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.08));
+      animation: floatY 3.6s ease-in-out infinite;
+    }
+    @keyframes floatY{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .side.left .shape:nth-child(1){ animation-delay:.15s }
+    .side.left .shape:nth-child(2){ animation-delay:1.05s }
+    .side.right .shape:nth-child(1){ animation-delay:.55s }
+    .side.right .shape:nth-child(2){ animation-delay:1.45s }
+    .shape:focus-visible{ filter: drop-shadow(0 0 16px rgba(255,215,0,.6)); transform:scale(1.12); }
+    .shape:hover{ transform:translateY(-2px) scale(1.08); filter:brightness(1.08); }
+    .shape svg{ width:100%; height:100%; stroke:#cfcfcf; fill:none; stroke-width:2.2; }
+    .shape svg .strokeline{ stroke-dasharray:90; stroke-dashoffset:90; animation: dash1 2.6s ease-out infinite, hue 6s linear infinite; }
+    @keyframes dash1{ 0%{stroke-dashoffset:90;opacity:.85} 60%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:0;opacity:.85} }
+    @keyframes hue{ to{ filter:hue-rotate(20deg) } }
+    .shape.gold svg{ stroke:url(#goldStroke); }
+    .shape.logout svg{ stroke:#ff5a5a; }
+    .center-triangle{ position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 80px); transform:translateX(-50%); z-index:14; }
+    .center-triangle .shape{ width:30px; height:30px; animation:floatY 3.8s ease-in-out infinite; animation-delay:.9s;
+      filter: drop-shadow(0 0 calc(10px + 16px * var(--beatGlow)) rgba(255,215,0,.5)); }
+
+    /* Next Opponent PAD */
+    .opponent-pad{
+      position:absolute;
+      left:50%; top:50%; transform:translate(-50%,-50%);
+      z-index:16;
+      display:flex; flex-direction:column; align-items:center; gap:14px;
+      padding:14px 16px; border-radius:16px;
+      background: rgba(0,0,0,.45); backdrop-filter: blur(10px);
+      box-shadow: 0 10px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.10);
+      width: min(92%, 420px);
+    }
+    .pad-top{ display:flex; align-items:center; gap:12px; width:100%; }
+    .pad-avatar{
+      width:72px; height:72px; border-radius:12px; object-fit:cover;
+      box-shadow: 0 0 14px rgba(255,215,0,.35); flex:0 0 auto;
+    }
+    .pad-meta{ display:grid; gap:6px; min-width:0 }
+    .pad-title{ font-weight:800; font-size:16px; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .pad-sub{ color:var(--muted); font-size:12px; display:flex; align-items:center; gap:8px; white-space:nowrap }
+    .pad-sub img{ width:18px; height:12px; border-radius:2px; object-fit:cover; box-shadow:0 0 4px rgba(255,255,255,.15) }
+    .pad-actions{ display:flex; gap:10px; width:100%; justify-content:center; }
+    .btn-xs{ padding:10px 14px; font-size:13px; border-radius:12px; border:none; cursor:pointer; }
+    .btn-accept{ background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; font-weight:800; box-shadow:0 0 16px rgba(255,215,0,.35) }
+    .btn-next{ background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) }
+
+    /* Upload Beat Modal */
+    .modal{ position:fixed; inset:0; display:none; place-items:center; z-index:30;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
+    .dialog{
+      width:min(92vw, 420px);
+      background: rgba(10,10,14,.86);
+      border-radius:16px; padding:18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .dialog h3{ margin:0 0 12px 0; font-size:18px; letter-spacing:.3px }
+    .file-row{ display:grid; gap:10px }
+    .file-input{
+      width:100%; padding:12px; border-radius:12px; border:none; outline:none;
+      background:#0a0a0e; color:#eaeaea;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+      font-family:'Orbitron',sans-serif; font-size:14px;
+    }
+    .dialog small{ color:var(--muted) }
+
+    /* Beat window chooser + 33s measurer (Instagram-style) */
+    .beatbar{
+      position:absolute; left:50%; bottom: calc(var(--bottom-safe) + 20px);
+      transform: translateX(-50%);
+      z-index:18;
+      display:none; /* shown after upload */
+      width:min(92vw, 620px);
+      background: rgba(0,0,0,.5);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 36px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.10);
+    }
+    .beatbar-row{ display:grid; align-items:center; gap:10px; grid-template-columns: 1fr auto; }
+    .range-wrap{ position:relative; height:48px; display:flex; flex-direction:column; justify-content:center; }
+    #waveCanvas{ width:100%; height:32px; display:block; }
+    .range-track{
+      position:absolute; left:0; right:0; height:6px; border-radius:999px; background:rgba(255,255,255,.12);
+      top:50%; transform: translateY(-50%);
+    }
+    .range-window{
+      position:absolute; height:34px; top:7px; border-radius:12px;
+      background: linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.28));
+      box-shadow:0 0 18px rgba(255,215,0,.25), inset 0 0 0 2px rgba(255,215,0,.65);
+      cursor:grab; touch-action:none;
+    }
+    .range-window:active{ cursor:grabbing }
+    input[type="range"].beat-start{
+      -webkit-appearance:none; appearance:none;
+      position:absolute; left:0; right:0; top:0; bottom:0;
+      width:100%; background:transparent; height:48px;
+    }
+    input[type="range"].beat-start::-webkit-slider-thumb{
+      -webkit-appearance:none; appearance:none;
+      width:0; height:0; /* hidden thumb; drag the window instead */
+    }
+    input[type="range"].beat-start::-moz-range-thumb{
+      width:0; height:0;
+    }
+    .bar-actions{
+      display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-top:8px;
+    }
+    .btn-pill{
+      appearance:none; border:none; border-radius:999px; padding:8px 14px; font-weight:800; cursor:pointer;
+      background:linear-gradient(180deg,var(--gold-1),var(--gold-2)); color:#000; box-shadow:0 0 16px rgba(255,215,0,.35);
+    }
+    .btn-pill.ghost{
+      background:transparent; color:var(--ink); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    .beatbar-meta{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; margin-top:8px;
+      font-size:12px; color:var(--muted);
+    }
+    .seg-progress{
+      position:relative; width:100%; height:6px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden;
+    }
+    .seg-progress > span{
+      position:absolute; left:0; top:0; bottom:0; width:0%;
+      background:linear-gradient(90deg, #fff, var(--gold));
+      box-shadow:0 0 12px rgba(255,255,255,.5) inset;
+    }
+
+    /* Share CTA */
+    .share-cta{
+      position:absolute; inset:auto 0 calc(var(--bottom-safe) + 24px) 0; margin:auto;
+      display:none; z-index:20; text-align:center;
+    }
+    .share-cta .btn{ padding:12px 22px }
+
+    /* One-shot FX Canvas */
+    #fxCanvas{ position:fixed; inset:0; z-index:50; display:none; pointer-events:none; }
+
+    /* Mobile tweaks */
+    @media (max-width: 880px){
+      .viewer-center{ top: calc(var(--top-safe) + 6px); }
+      .top-bar{ top: calc(var(--top-safe) + 6px); }
+      .side{ bottom: calc(var(--bottom-safe) + 10vh); }
+      .center-triangle{ bottom: calc(var(--bottom-safe) + 68px); }
+      .round-timer{ bottom: calc(var(--bottom-safe) + 108px); font-size:14px; }
+      .shape{ width:22px; height:22px; }
+      .center-triangle .shape{ width:28px; height:28px; }
+      .pad-avatar{ width:64px; height:64px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Gold stroke gradient for vector shapes -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="goldStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#fff4b0"/>
+        <stop offset="60%" stop-color="#ffd700"/>
+        <stop offset="100%" stop-color="#ffbf2e"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Ambient layers -->
+  <div class="depth-stage" aria-hidden="true">
+    <div class="layer-nebula"></div>
+    <div class="layer-stars"></div>
+  </div>
+
+  <!-- Particle FX canvas (one-shot on start) -->
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="stream-container" role="application" aria-label="Live Battle Split">
+    <!-- LEFT PANE (You) -->
+    <div class="pane" id="leftPane">
+      <video class="video-stream" id="localVideo" autoplay muted playsinline></video>
+
+      <!-- Enable camera gate -->
+      <div class="fallback" id="camGate">
+        <div style="font-size:15px">Tap to enable Camera & Mic</div>
+        <div class="cam-actions">
+          <button id="enableCamNow" class="btn-mini">Enable Camera</button>
+        </div>
+        <small>Use HTTPS and allow permissions. Switch camera anytime.</small>
+      </div>
+
+      <!-- Error / retry overlay -->
+      <div class="fallback hidden" id="camFallback">
+        <div style="font-size:15px">We couldn't access your camera.</div>
+        <div class="cam-actions">
+          <button id="retryCamBtn" class="btn-mini">Retry</button>
+          <button id="switchCamBtn" class="btn-mini">Switch Camera</button>
+        </div>
+        <small>Check permissions in your browser settings.</small>
+      </div>
+
+      <!-- Share CTA (appears after battle) -->
+      <div class="share-cta" id="shareCta">
+        <button class="btn" id="shareBtn">📤 Share Battle</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANE (Opponent) -->
+    <div class="pane" id="rightPane">
+      <video class="video-stream" id="opponentVideo" autoplay muted loop playsinline src="user2.mp4"></video>
+
+      <!-- Viewer count centered in opponent screen -->
+      <div class="viewer-center" id="viewerChip">👁 1.3k viewers</div>
+
+      <!-- Opponent display button (pig) under the viewer count -->
+      <button id="opponentBtn" class="opponent-btn" title="Opponent Profile" aria-label="Opponent Profile">
+        <img src="pig.png" alt="Opponent icon"/>
+      </button>
+
+      <!-- CENTERED Next Opponent PAD -->
+      <div class="opponent-pad" id="opponentPad" style="display:none;">
+        <div class="pad-top">
+          <img id="padAvatar" class="pad-avatar" src="user3.jpg" alt="Next opponent"/>
+          <div class="pad-meta">
+            <div class="pad-title" id="padName">@NextOpponent</div>
+            <div class="pad-sub">
+              <img id="padFlag" src="flag_us.png" alt="Flag"/>
+              <span id="padCountry">United States</span>
+            </div>
+          </div>
+        </div>
+        <div class="pad-actions">
+          <button id="padAccept" class="btn-xs btn-accept">Accept</button>
+          <button id="padNext" class="btn-xs btn-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="top-bar">
+      <div class="hud-left">
+        <button class="hud-live" id="liveBtn" title="Live">LIVE</button>
+      </div>
+      <div style="pointer-events:none;"></div>
+    </div>
+
+    <!-- Timer + CTA -->
+    <div class="round-timer" id="roundTimer">Upload a beat to begin…</div>
+    <div class="cta"><button id="startBattleBtn" class="btn">🔥 Start Battle</button></div>
+
+    <!-- LEFT side (circle over square) -->
+    <nav class="side left" aria-label="Left sidebar">
+      <button class="shape" data-link="home.html" title="Home" aria-label="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="strokeline" cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button class="shape" data-link="leaderboard.html" title="Leaderboard" aria-label="Leaderboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="strokeline" x="6" y="6" width="12" height="12" rx="2"/></svg>
+      </button>
+    </nav>
+
+    <!-- RIGHT side (diamond over X) -->
+    <nav class="side right" aria-label="Right sidebar">
+      <button class="shape" data-link="discover.html" title="Discover" aria-label="Discover">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,4 20,12 12,20 4,12"/></svg>
+      </button>
+      <button class="shape logout" id="logoutBtn" title="Logout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <line class="strokeline" x1="6" y1="6" x2="18" y2="18"/>
+          <line class="strokeline" x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+    </nav>
+
+    <!-- Bottom-center triangle -->
+    <div class="center-triangle">
+      <button class="shape gold" id="uploadBeatOpen" title="Upload Beat" aria-label="Upload Beat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="strokeline" points="12,5 20,19 4,19"/></svg>
+      </button>
+    </div>
+
+    <!-- Upload Beat modal -->
+    <div class="modal" id="uploadModal" aria-modal="true" role="dialog" aria-labelledby="uploadTitle" style="display:grid;">
+      <div class="dialog">
+        <h3 id="uploadTitle">Upload Beat</h3>
+        <div class="file-row">
+          <input id="beatFile" class="file-input" type="file" accept="audio/*"/>
+          <small>Pick an audio file from your device. This will be used for both sides.</small>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <button class="btn" id="useBeatBtn">Use this Beat</button>
+          <button class="btn-ghost" id="useSampleBtn" title="Use sample beat">Use Sample</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beat window chooser (Instagram-like 33s trimmer) -->
+    <div class="beatbar" id="beatBar" aria-label="Beat window chooser">
+      <div class="beatbar-row">
+        <div class="range-wrap" id="rangeWrap">
+          <canvas id="waveCanvas"></canvas>
+          <div class="range-track"></div>
+          <div class="range-window" id="rangeWindow" title="Drag to choose 33s"></div>
+          <input id="beatStartRange" class="beat-start" type="range" min="0" max="0" step="0.1" value="0" aria-label="Beat start position (seconds)"/>
+        </div>
+        <div id="beatStartLabel" style="font-size:12px; color:#fff; min-width:100px; text-align:right">00:00 → 00:33</div>
+      </div>
+
+      <div class="bar-actions">
+        <button id="previewToggle" class="btn-pill">▶ Preview</button>
+        <button id="rewindBtn" class="btn-pill ghost">↺ Reset</button>
+        <button id="doneTrim" class="btn-pill">Done</button>
+      </div>
+
+      <div class="beatbar-meta">
+        <div class="seg-progress"><span id="segProgressInner"></span></div>
+        <div id="beatMeta" style="min-width:140px; text-align:right">Length: --:--</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <audio id="battleTrack" hidden></audio>
+  <audio id="roundEndSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_38ca955dae.mp3?filename=click-124467.mp3"></audio>
+
+  <script>
+    /* Elements */
+    const localVideo = document.getElementById('localVideo');
+    const camGate = document.getElementById('camGate');
+    const camFallback = document.getElementById('camFallback');
+    const enableCamNow = document.getElementById('enableCamNow');
+    const retryCamBtn = document.getElementById('retryCamBtn');
+    const switchCamBtn = document.getElementById('switchCamBtn');
+
+    const leftPane = document.getElementById('leftPane');
+    const opponentVideo = document.getElementById('opponentVideo');
+    const rightPane = document.getElementById('rightPane');
+
+    const uploadModal = document.getElementById('uploadModal');
+    const beatFile = document.getElementById('beatFile');
+    const useBeatBtn = document.getElementById('useBeatBtn');
+    const useSampleBtn = document.getElementById('useSampleBtn');
+    const uploadBeatOpen = document.getElementById('uploadBeatOpen');
+
+    const startBtn = document.getElementById('startBattleBtn');
+    const startBtnWrap = document.querySelector('.cta');
+    const timerEl = document.getElementById('roundTimer');
+
+    const battleTrack = document.getElementById('battleTrack');
+    const endSound = document.getElementById('roundEndSound');
+
+    const liveBtn = document.getElementById('liveBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const opponentBtn = document.getElementById('opponentBtn');
+
+    const shareCta = document.getElementById('shareCta');
+    const shareBtn = document.getElementById('shareBtn');
+
+    const fxCanvas = document.getElementById('fxCanvas');
+    const ctx = fxCanvas.getContext('2d');
+
+    // Beat bar controls
+    const beatBar = document.getElementById('beatBar');
+    const beatStartRange = document.getElementById('beatStartRange');
+    const beatStartLabel = document.getElementById('beatStartLabel');
+    const beatMeta = document.getElementById('beatMeta');
+    const rangeWindow = document.getElementById('rangeWindow');
+    const segProgressInner = document.getElementById('segProgressInner');
+    const rangeWrap = document.getElementById('rangeWrap');
+    const waveCanvas = document.getElementById('waveCanvas');
+    const previewToggle = document.getElementById('previewToggle');
+    const rewindBtn = document.getElementById('rewindBtn');
+    const doneTrim = document.getElementById('doneTrim');
+
+    /* Navigation */
+    document.querySelectorAll('.shape[data-link]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ const link = btn.dataset.link; if(link) location.href = link; });
+    });
+    logoutBtn.addEventListener('click', ()=>{ location.href='login.html'; });
+    liveBtn.addEventListener('click', ()=>{ location.href='live.html'; });
+    opponentBtn.addEventListener('click', ()=>{ location.href='opponent.html'; });
+
+    /* Opponents */
+    const opponents = [
+      { video: "user2.mp4", image: "user2.jpg", handle: "@OpponentA", country: "United States", flag: "flag_us.png" },
+      { video: "user3.mp4", image: "user3.jpg", handle: "@ChallengerX", country: "Japan", flag: "flag_jp.png" },
+      { video: "user4.mp4", image: "user4.jpg", handle: "@MCNeo", country: "Brazil", flag: "flag_br.png" }
+    ];
+    let nextIndex = 0;
+    function pickNext(){ nextIndex = (nextIndex + 1) % opponents.length; return opponents[nextIndex]; }
+    function getCurrentNext(){ return opponents[nextIndex]; }
+
+    /* Opponent pad refs */
+    const pad = document.getElementById('opponentPad');
+    const padAvatar = document.getElementById('padAvatar');
+    const padName = document.getElementById('padName');
+    const padCountry = document.getElementById('padCountry');
+    const padFlag = document.getElementById('padFlag');
+    const padAccept = document.getElementById('padAccept');
+    const padNext = document.getElementById('padNext');
+
+    function showNextPad(){
+      const cand = pickNext();
+      padAvatar.src = cand.image; padName.textContent = cand.handle;
+      padCountry.textContent = cand.country; padFlag.src = cand.flag;
+      pad.style.display = 'flex';
+      startBtnWrap.style.display = 'none';
+    }
+    padAccept.onclick = ()=>{
+      const cand = getCurrentNext();
+      opponentVideo.src = cand.video;
+      pad.style.display = 'none';
+      state = { round:1, part:0, time:33, tick:null };
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "🔥 Opponent Ready — Press Start 🔥";
+      updateTurnUI();
+    };
+    padNext.onclick = ()=> showNextPad();
+
+    /* Camera — gesture-gated (mobile-friendly) */
+    let facing = 'user';
+    let currentStream = null;
+
+    async function stopStream(stream){ if(!stream) return; stream.getTracks().forEach(t=>t.stop()); }
+
+    async function startCamera(preferFacing = facing){
+      try{
+        await stopStream(currentStream);
+
+        const constraintsPrimary = {
+          audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true },
+          video: {
+            facingMode: { ideal: preferFacing },
+            width:  { ideal: 1280, max: 1920 },
+            height: { ideal: 720,  max: 1080 }
+          }
+        };
+
+        let stream;
+        try{
+          stream = await navigator.mediaDevices.getUserMedia(constraintsPrimary);
+        }catch(primaryErr){
+          const constraintsFallback = {
+            audio: true,
+            video: { facingMode: preferFacing === 'user' ? 'user' : { exact:'environment' } }
+          };
+          try{
+            stream = await navigator.mediaDevices.getUserMedia(constraintsFallback);
+          }catch(secondErr){
+            stream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+          }
+        }
+
+        currentStream = stream;
+        localVideo.srcObject = stream;
+        localVideo.muted = true;
+        localVideo.setAttribute('playsinline','');
+        await localVideo.play().catch(()=>{});
+
+        camGate.classList.add('hidden');
+        camFallback.classList.add('hidden');
+        leftPane.classList.remove('error');
+        localVideo.style.transform = (preferFacing === 'user') ? 'scaleX(-1)' : 'none';
+      }catch(e){
+        leftPane.classList.add('error');
+        camFallback.classList.remove('hidden');
+      }
+    }
+
+    enableCamNow.addEventListener('click', ()=> startCamera('user'));
+    retryCamBtn.addEventListener('click', ()=> startCamera(facing));
+    switchCamBtn.addEventListener('click', async ()=>{
+      facing = (facing === 'user') ? 'environment' : 'user';
+      await startCamera(facing);
+    });
+
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState === 'visible'){
+        if(localVideo.srcObject && localVideo.paused) localVideo.play().catch(()=>{});
+        if(state.part === 1) opponentVideo.play().catch(()=>{});
+      }
+    });
+
+    /* Upload Beat Flow */
+    function openUpload(){ uploadModal.style.display = 'grid'; }
+    function closeUpload(){ uploadModal.style.display = 'none'; }
+    uploadBeatOpen.addEventListener('click', openUpload);
+
+    let uploadedBeatUrl = null;
+    let selectedStart = 0;
+    const SEG_LEN = 33;
+
+    function formatTime(s){
+      s = Math.max(0, s|0);
+      const m = (s/60)|0, r = s%60;
+      return `${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`;
+    }
+
+    /* Waveform rendering (best effort; falls back silently if CORS) */
+    let audioCtx, analyser, dataArr, rafGlow;
+    const waveCtx = waveCanvas.getContext('2d');
+    async function drawWaveformFromUrl(url){
+      try{
+        if(!window.AudioContext && !window.webkitAudioContext) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ctx = audioCtx || new AC();
+        audioCtx = ctx;
+        const res = await fetch(url, {mode:'cors'});
+        const buf = await res.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(buf);
+        renderWave(audioBuf);
+      }catch(e){
+        // ignore; leave gradient bg
+        renderWave(null);
+      }
+    }
+    function renderWave(audioBuf){
+      const w = waveCanvas.clientWidth, h = waveCanvas.clientHeight;
+      waveCanvas.width = w * devicePixelRatio; waveCanvas.height = h * devicePixelRatio;
+      waveCtx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      // background
+      const g = waveCtx.createLinearGradient(0,0,w,0);
+      g.addColorStop(0,'rgba(255,255,255,.08)');
+      g.addColorStop(1,'rgba(255,255,255,.18)');
+      waveCtx.fillStyle = g;
+      waveCtx.fillRect(0,0,w,h);
+      if(!audioBuf){ return; }
+      const ch = audioBuf.getChannelData(0);
+      const step = Math.ceil(ch.length / w);
+      const amp = h/2;
+      waveCtx.strokeStyle = '#ffd700';
+      waveCtx.lineWidth = 1.2;
+      waveCtx.beginPath();
+      for(let i=0;i<w;i++){
+        let min=1, max=-1;
+        const start = i*step;
+        for(let j=0;j<step && start+j < ch.length;j++){
+          const v = ch[start+j];
+          if(v<min) min=v;
+          if(v>max) max=v;
+        }
+        waveCtx.moveTo(i, (1+min)*amp);
+        waveCtx.lineTo(i, (1+max)*amp);
+      }
+      waveCtx.stroke();
+    }
+
+    function updateBeatWindowUI(){
+      const dur = battleTrack.duration || 0;
+      const maxStart = Math.max(0, dur - SEG_LEN);
+      beatStartRange.max = String(maxStart.toFixed(1));
+      selectedStart = Math.min(selectedStart, maxStart);
+      beatStartRange.value = String(selectedStart.toFixed(1));
+
+      // window overlay position/size
+      const pctStart = (dur>0) ? (selectedStart / dur) : 0;
+      const pctWidth = (dur>0) ? Math.min(1, SEG_LEN / dur) : 0;
+      const trackRect = rangeWrap.getBoundingClientRect();
+      const trackW = trackRect.width;
+      const leftPx = pctStart * trackW;
+      const widthPx = pctWidth * trackW;
+      rangeWindow.style.left = `${leftPx}px`;
+      rangeWindow.style.width = `${widthPx}px`;
+
+      beatStartLabel.textContent = `${formatTime(selectedStart)} → ${formatTime(selectedStart + SEG_LEN)}`;
+      beatMeta.textContent = `Length: ${isFinite(dur)?formatTime(dur):'--:--'}`;
+      beatBar.style.display = 'block';
+      startBtnWrap.style.display = 'none'; // force set-up before start
+      timerEl.textContent = "Trim your 33s segment, then tap Done";
+    }
+
+    function setStartByPixel(clientX){
+      const dur = battleTrack.duration || 0; if(dur<=0) return;
+      const maxStart = Math.max(0, dur - SEG_LEN);
+      const rect = rangeWrap.getBoundingClientRect();
+      const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
+      const pct = Math.min(1, Math.max(0, x / rect.width));
+      selectedStart = Math.min(maxStart, pct * dur);
+      updateBeatWindowUI();
+    }
+
+    // Drag the selection window (touch/mouse)
+    (function enableWindowDrag(){
+      let dragging = false;
+      function onDown(e){
+        dragging = true;
+        if(e.type==='mousedown') e.preventDefault();
+        const cx = (e.touches? e.touches[0].clientX : e.clientX);
+        setStartByPixel(cx);
+        window.addEventListener('mousemove', onMove, {passive:false});
+        window.addEventListener('touchmove', onMove, {passive:false});
+        window.addEventListener('mouseup', onUp, {passive:true});
+        window.addEventListener('touchend', onUp, {passive:true});
+      }
+      function onMove(e){
+        if(!dragging) return;
+        const cx = (e.touches? e.touches[0].clientX : e.clientX);
+        setStartByPixel(cx);
+      }
+      function onUp(){
+        dragging = false;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        window.removeEventListener('touchend', onUp);
+      }
+      rangeWindow.addEventListener('mousedown', onDown);
+      rangeWindow.addEventListener('touchstart', onDown, {passive:false});
+
+      // Click on waveform/track to jump
+      rangeWrap.addEventListener('mousedown', (e)=>{ setStartByPixel(e.clientX); });
+      rangeWrap.addEventListener('touchstart', (e)=>{ setStartByPixel(e.touches[0].clientX); }, {passive:true});
+    })();
+
+    // Hidden input (kept for accessibility; updates also shift window)
+    beatStartRange.addEventListener('input', ()=>{
+      selectedStart = parseFloat(beatStartRange.value)||0;
+      updateBeatWindowUI();
+    });
+
+    // Preview controls (loop 33s, Instagram-style)
+    let previewing = false;
+    let previewRAF = 0;
+    function loopPreviewTick(){
+      if(!previewing) return;
+      const t = battleTrack.currentTime;
+      const end = selectedStart + SEG_LEN;
+      if(t < selectedStart || t > end){
+        battleTrack.currentTime = selectedStart;
+      }
+      if(t >= end){
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }
+      previewRAF = requestAnimationFrame(loopPreviewTick);
+    }
+    previewToggle.addEventListener('click', ()=>{
+      if(!battleTrack.src) return;
+      previewing = !previewing;
+      if(previewing){
+        previewToggle.textContent = '⏸ Preview';
+        try{
+          battleTrack.currentTime = selectedStart;
+          battleTrack.play().catch(()=>{});
+        }catch(e){}
+        cancelAnimationFrame(previewRAF);
+        previewRAF = requestAnimationFrame(loopPreviewTick);
+      }else{
+        previewToggle.textContent = '▶ Preview';
+        cancelAnimationFrame(previewRAF);
+        battleTrack.pause();
+      }
+    });
+    rewindBtn.addEventListener('click', ()=>{
+      selectedStart = 0;
+      updateBeatWindowUI();
+      if(previewing){
+        try{ battleTrack.currentTime = selectedStart; battleTrack.play().catch(()=>{}); }catch(e){}
+      }
+    });
+    doneTrim.addEventListener('click', ()=>{
+      // Finalize trimming choices; show Start button
+      beatBar.style.display = 'none';
+      startBtnWrap.style.display = 'block';
+      timerEl.textContent = "Press Start Battle to begin";
+      if(previewing){
+        previewing = false;
+        previewToggle.textContent = '▶ Preview';
+        cancelAnimationFrame(previewRAF);
+        battleTrack.pause();
+      }
+    });
+
+    useBeatBtn.addEventListener('click', ()=>{
+      const f = beatFile.files?.[0];
+      if(!f){ alert('Please choose an audio file.'); return; }
+      if(uploadedBeatUrl) URL.revokeObjectURL(uploadedBeatUrl);
+      uploadedBeatUrl = URL.createObjectURL(f);
+      battleTrack.src = uploadedBeatUrl;
+      battleTrack.load();
+      closeUpload();
+      // Draw waveform from file (decode via FileReader -> arrayBuffer)
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try{
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if(!AC) return renderWave(null);
+          audioCtx = audioCtx || new AC();
+          const audioBuf = await audioCtx.decodeAudioData(reader.result);
+          renderWave(audioBuf);
+        }catch{ renderWave(null); }
+      };
+      reader.readAsArrayBuffer(f);
+    });
+
+    useSampleBtn.addEventListener('click', ()=>{
+      battleTrack.src = 'beat1.mp3';
+      battleTrack.load();
+      closeUpload();
+      // Attempt waveform (may be blocked by CORS depending on hosting)
+      drawWaveformFromUrl('beat1.mp3');
+    });
+
+    battleTrack.addEventListener('loadedmetadata', ()=>{
+      selectedStart = 0;
+      updateBeatWindowUI();
+    });
+
+    window.addEventListener('resize', ()=>{
+      // Keep window overlay & waveform aligned on resize/rotation
+      renderWave(null); // clear bg gradient
+      updateBeatWindowUI();
+    });
+
+    /* Battle Timer + Turn UI (dim/mute) */
+    let state = { round:1, part:0, time:SEG_LEN, tick:null };
+
+    function setMicEnabled(on){
+      try{
+        if(!currentStream) return;
+        currentStream.getAudioTracks().forEach(tr=> tr.enabled = !!on);
+      }catch(e){}
+    }
+    function updateTurnUI(){
+      if(state.part === 0){
+        leftPane.classList.remove('inactive');
+        rightPane.classList.add('inactive');
+        setMicEnabled(true);
+        opponentVideo.muted = true;
+      }else{
+        leftPane.classList.add('inactive');
+        rightPane.classList.remove('inactive');
+        setMicEnabled(false);
+        opponentVideo.muted = false;
+        opponentVideo.play().catch(()=>{});
+      }
+    }
+    function setTimer(){
+      timerEl.textContent = `Round ${state.round}/3 | ${state.part===0?'@You':'@Opponent'} | ${state.time}s`;
+      const pct = Math.max(0, Math.min(1, (SEG_LEN - state.time) / SEG_LEN));
+      segProgressInner.style.width = `${pct*100}%`;
+    }
+
+    // 5-second buffer before opponent starts
+    function bufferBeforeOpponentStart(sec=5){
+      let t = sec;
+      timerEl.textContent = `Opponent turn in ${t}s…`;
+      const b = setInterval(()=>{
+        t--;
+        if(t>0){
+          timerEl.textContent = `Opponent turn in ${t}s…`;
+        }else{
+          clearInterval(b);
+          // Reset beat for opponent
+          battleTrack.currentTime = selectedStart;
+          battleTrack.play().catch(()=>{});
+          // Switch to opponent AFTER buffer
+          state.part = 1;
+          state.time = SEG_LEN;
+          updateTurnUI();
+          startRound(); // start their timer
+        }
+      },1000);
+    }
+
+    function startRound(){
+      clearInterval(state.tick);
+      // Always reset beat to chosen window at the start of each turn
+      try{
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }catch(e){}
+      updateTurnUI();
+      setTimer();
+      state.tick = setInterval(()=>{
+        setTimer(); state.time--;
+        if(state.time <= 0){
+          battleTrack.pause();
+          clearInterval(state.tick); endSound.play();
+          if(state.part === 0){
+            timerEl.textContent = "Switching…";
+            bufferBeforeOpponentStart(5);
+          }else if(state.round < 3){
+            state.round++; state.part = 0; state.time = SEG_LEN;
+            timerEl.textContent = "Next Round…";
+            setTimeout(()=>{ updateTurnUI(); startRound(); }, 900);
+          }else{
+            timerEl.textContent = "🔥 Battle Over — GG 🔥";
+            leftPane.classList.remove('inactive');
+            rightPane.classList.remove('inactive');
+            setMicEnabled(true);
+            opponentVideo.muted = true;
+            shareCta.style.display = 'block';
+            setTimeout(showNextPad, 1000);
+          }
+        }
+      }, 1000);
+    }
+
+    /* One-shot polished FX: photonic ring + sparks on canvas (refined) */
+    function playStartFX(){
+      fxCanvas.width = window.innerWidth;
+      fxCanvas.height = window.innerHeight;
+      fxCanvas.style.display = 'block';
+
+      const cx = fxCanvas.width/2, cy = fxCanvas.height*0.66;
+      const start = performance.now();
+      const duration = 1100; // ms
+      const sparks = Array.from({length: 80}, ()=>({
+        x: cx, y: cy, a: Math.random()*Math.PI*2,
+        v: 2 + Math.random()*6, r: 1 + Math.random()*2, life: 0.8 + Math.random()*0.5
+      }));
+
+      (function loop(now){
+        const t = Math.min(1, (now - start)/duration);
+        ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+
+        // radial ring
+        const R = 40 + t*240;
+        const alpha = 1 - t;
+        const grd = ctx.createRadialGradient(cx,cy, R*0.65, cx,cy, R);
+        grd.addColorStop(0, `rgba(255,255,255,${0.35*alpha})`);
+        grd.addColorStop(0.55, `rgba(255,215,0,${0.25*alpha})`);
+        grd.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.fillStyle = grd;
+        ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+
+        // sparks
+        for(const s of sparks){
+          const lifeT = Math.min(1, ((now - start)/1000) / s.life);
+          s.x += Math.cos(s.a) * s.v;
+          s.y += Math.sin(s.a) * s.v;
+          ctx.globalAlpha = (1 - lifeT) * 0.9;
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath(); ctx.arc(s.x, s.y, s.r*(1-lifeT*0.6), 0, Math.PI*2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        if(t < 1){
+          requestAnimationFrame(loop);
+        }else{
+          // gentle fade-out
+          const fadeStart = performance.now();
+          (function fade(now2){
+            const ft = Math.min(1, (now2 - fadeStart)/180);
+            ctx.fillStyle = `rgba(0,0,0,${ft})`;
+            ctx.fillRect(0,0,fxCanvas.width,fxCanvas.height);
+            if(ft < 1) requestAnimationFrame(fade);
+            else {
+              ctx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+              fxCanvas.style.display = 'none';
+            }
+          })(fadeStart);
+        }
+      })(start);
+    }
+
+    /* Audio reactive glow (subtle) */
+    function beginAudioGlow(){
+      try{
+        if(!audioCtx){
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if(!AC) return;
+          audioCtx = new AC();
+          const src = audioCtx.createMediaElementSource(battleTrack);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          src.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          dataArr = new Uint8Array(analyser.frequencyBinCount);
+        }
+        const loop = ()=>{
+          analyser.getByteFrequencyData(dataArr);
+          let sum=0, count=0;
+          for(let i=2;i<18 && i<dataArr.length;i++){ sum+=dataArr[i]; count++; }
+          const avg = count? sum/(count*255) : 0;
+          const eased = Math.min(1, avg*2.2);
+          document.documentElement.style.setProperty('--beatGlow', eased.toFixed(3));
+          rafGlow = requestAnimationFrame(loop);
+        };
+        cancelAnimationFrame(rafGlow);
+        rafGlow = requestAnimationFrame(loop);
+      }catch(e){}
+    }
+
+    /* Start Battle */
+    startBtn.addEventListener('click', ()=>{
+      if(!battleTrack.src){
+        openUpload();
+        return;
+      }
+      // ensure trimming is finalized
+      beatBar.style.display = 'none';
+      startBtnWrap.style.display='none';
+      shareCta.style.display = 'none';
+      timerEl.classList.add('animate');
+      playStartFX();
+
+      try{
+        battleTrack.currentTime = selectedStart;
+        battleTrack.play().catch(()=>{});
+      }catch(e){}
+      pad.style.display = 'none';
+      state = { round:1, part:0, time:33, tick:null };
+      updateTurnUI();
+      startRound();
+      beginAudioGlow();
+    });
+
+    /* Share */
+    shareBtn.addEventListener('click', async ()=>{
+      const shareData = {
+        title: 'BattleBillions — My Battle',
+        text: 'Check out my latest BattleBillions match!',
+        url: location.href
+      };
+      if(navigator.share){
+        try{ await navigator.share(shareData); }catch(e){}
+      }else{
+        try{
+          await navigator.clipboard.writeText(shareData.url);
+          shareBtn.textContent = '✅ Link Copied';
+          setTimeout(()=> shareBtn.textContent='📤 Share Battle', 1800);
+        }catch(_){
+          alert('Share this link:\n' + shareData.url);
+        }
+      }
+    });
+
+    /* Init */
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const sc = document.querySelector('.stream-container');
+      sc.style.height = window.innerHeight + 'px';
+      window.addEventListener('resize', ()=>{
+        sc.style.height = window.innerHeight + 'px';
+        fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight;
+      });
+
+      // Start with upload modal open
+      uploadModal.style.display='grid';
+      // Opponent video muted until it's their turn
+      opponentVideo.muted = true;
+
+      // Camera waits for user gesture
+      camGate.classList.remove('hidden');
+
+      // Prime empty waveform bg
+      renderWave(null);
+    });
+  </script>
+</body>
+</html>
