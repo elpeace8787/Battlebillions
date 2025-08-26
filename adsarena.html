@@ -1,1 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>3ATTLE33ILLIONS — Ad Arena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0b0b0c;
+      --ink:#f5f7fb;
+      --muted:#a6abb6;
+      --gold:#ffd700;
+      --danger:#ff5d5d;
+      --ok:#35d49a;
+      --glass:rgba(255,255,255,.06);
+      --ring:0 0 0 3px rgba(255,255,255,.14);
+      --dim:rgba(0,0,0,.55);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .safe{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+    .arena{position:fixed;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .pane{position:relative;isolation:isolate;background:#000}
+    video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+    .shade{position:absolute;inset:0;background:transparent;transition:background .25s ease;z-index:2}
+    .pane.dim .shade{background:var(--dim)}
+    .hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;z-index:3;pointer-events:none}
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem}
+    .chip{pointer-events:auto;display:inline-flex;align-items:center;gap:.5rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:.5rem .9rem;font-weight:700}
+    .center-top{position:absolute;left:50%;transform:translateX(-50%);top:.75rem;display:flex;gap:.5rem;align-items:center}
+    .rounds{font-family:Orbitron,Inter,sans-serif;letter-spacing:.5px}
+    .timer{font-family:Orbitron,Inter,sans-serif;min-width:86px;text-align:center}
+    .iconbtn{pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:999px;background:var(--glass);border:1px solid rgba(255,255,255,.1)}
+    .iconbtn svg{width:18px;height:18px}
+    .brand{pointer-events:auto;position:absolute;left:1rem;right:1rem;bottom:1rem;display:flex;align-items:center;gap:.75rem;background:var(--glass);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);border-radius:18px;padding:.6rem .7rem}
+    .logo{width:44px;height:44px;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.12);flex:0 0 auto;background:#111;display:grid;place-items:center}
+    .logo input{display:none}
+    .meta{min-width:0;display:flex;flex-direction:column}
+    .name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tag{font-size:.78rem;color:var(--muted)}
+    .ctas{margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap}
+    .btn{pointer-events:auto;border:none;border-radius:12px;padding:.5rem .8rem;background:#ffffff12;border:1px solid #ffffff18;color:var(--ink);font-weight:700}
+    .btn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);color:#121212;border:none}
+    .btn:active{transform:translateY(1px)}
+    .setup{position:absolute;inset:auto 1rem 6.25rem 1rem;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;z-index:4}
+    .setup .field{pointer-events:auto;background:var(--glass);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.5rem .7rem;display:flex;align-items:center;gap:.5rem}
+    .setup label{font-size:.85rem;color:var(--muted)}
+    .setup input[type="file"], .setup input[type="text"], .setup input[type="url"]{color:var(--ink);max-width:40vw}
+    .meter{pointer-events:none;position:absolute;left:50%;transform:translateX(-50%);bottom:5.8rem;width:68%;height:28px;border-radius:12px;overflow:hidden;display:none;z-index:4;border:1px solid rgba(255,255,255,.1);background:#0c0c0e}
+    canvas.eq{width:100%;height:100%}
+    .startbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + .9rem);z-index:20;display:flex;gap:.6rem;align-items:center;background:var(--glass);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:.5rem .6rem}
+    .startbar select,.startbar input[type="number"]{appearance:none;background:#ffffff10;border:1px solid #ffffff18;border-radius:999px;color:var(--ink);padding:.45rem .7rem;font-weight:700;width:84px;text-align:center}
+    .startbar .btn{padding:.6rem 1rem}
+    /* Vote counters (small, unobtrusive) */
+    .votes{position:absolute;top:3.2rem;right:1rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);padding:.35rem .6rem;border-radius:999px;font-weight:800;z-index:3}
+    /* Tap-to-vote zones */
+    .tapzone{position:absolute;inset:0;z-index:1}
+    .tapzone.left{right:50%}
+    .tapzone.right{left:50%}
+    .hint{position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(10px);padding:.4rem .65rem;border-radius:10px;font-size:.85rem;z-index:2;opacity:.85}
+    /* Hide-on-start group */
+    .hide-on-start{transition:opacity .2s ease}
+    .hidden{opacity:0;pointer-events:none}
+    /* Responsive: keep side-by-side; ensure tappables stay large */
+    @media (max-width: 860px){
+      .name{font-size:.95rem}
+      .btn{padding:.45rem .7rem}
+      .startbar select,.startbar input[type="number"]{width:76px}
+      .votes{top:2.8rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="arena safe" id="arena">
+    <!-- LEFT BRAND PANE -->
+    <section class="pane" id="paneL" data-side="left">
+      <video id="videoL" playsinline muted></video>
+      <div class="shade"></div>
+      <div class="hud">
+        <div class="topbar">
+          <!-- Exit on left -->
+          <button class="iconbtn" id="exitBtn" title="Exit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"></path>
+            </svg>
+          </button>
 
+          <!-- Center timer + rounds -->
+          <div class="center-top">
+            <div class="chip rounds" id="roundsChip">R1 / 3</div>
+            <div class="chip timer" id="timerChip">00:30</div>
+          </div>
+
+          <!-- Flag on right -->
+          <button class="iconbtn" id="flagBtn" title="Flag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-width="2" stroke-linecap="round" d="M4 4v16M4 4h11l-1.5 3H20l-2 4 2 4h-4l-1.5-3H4"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="votes" id="votesL">0</div>
+        <div class="hint hide-on-start" id="hint">Tap left/right to vote during battle</div>
+
+        <!-- Brand footer (logo, name, CTAs) -->
+        <div class="brand hide-on-start" id="brandL">
+          <label class="logo" title="Upload logo">
+            <input type="file" id="logoInputL" accept="image/*">
+            <img id="logoImgL" alt="" style="max-width:100%;max-height:100%;display:none"/>
+            <svg id="logoPhL" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="8" r="4" stroke-width="2"></circle>
+              <path d="M4 20c1.8-3.5 5-5 8-5s6.2 1.5 8 5" stroke-width="2" />
+            </svg>
+          </label>
+          <div class="meta">
+            <input type="text" id="brandNameL" class="fieldish" placeholder="Brand A Name" aria-label="Brand A Name" style="background:transparent;border:none;color:var(--ink);font-weight:800;outline:none"/>
+            <div class="tag">Verified Ad Arena</div>
+          </div>
+          <div class="ctas">
+            <a class="btn" id="ctaFollowL" href="#" target="_blank" rel="noopener">Follow</a>
+            <a class="btn gold" id="ctaShopL" href="#" target="_blank" rel="noopener">Shop</a>
+            <a class="btn" id="ctaMoreL" href="#" target="_blank" rel="noopener">Learn&nbsp;More</a>
+          </div>
+        </div>
+
+        <!-- Setup row (video + audio + start time) -->
+        <div class="setup hide-on-start">
+          <div class="field">
+            <label for="videoInputL">Ad Video</label>
+            <input id="videoInputL" type="file" accept="video/*">
+          </div>
+          <div class="field">
+            <label for="audioInputL">Audio</label>
+            <input id="audioInputL" type="file" accept="audio/*">
+          </div>
+          <div class="field">
+            <label for="startL">Start at</label>
+            <input id="startL" type="number" min="0" value="0" step="1"> <span style="color:var(--muted)">sec</span>
+          </div>
+          <div class="field">
+            <label for="linkL">CTA Link</label>
+            <input id="linkL" type="url" placeholder="https://brand-a.com">
+          </div>
+        </div>
+
+        <!-- Music meter -->
+        <div class="meter" id="meterL"><canvas class="eq" id="eqL"></canvas></div>
+      </div>
+
+      <!-- tap-to-vote zone -->
+      <div class="tapzone left" id="tapL" aria-hidden="true"></div>
+    </section>
+
+    <!-- RIGHT BRAND PANE -->
+    <section class="pane" id="paneR" data-side="right">
+      <video id="videoR" playsinline muted></video>
+      <div class="shade"></div>
+      <div class="hud">
+        <div class="topbar" aria-hidden="true"></div>
+        <div class="votes" id="votesR">0</div>
+
+        <div class="brand hide-on-start" id="brandR">
+          <label class="logo" title="Upload logo">
+            <input type="file" id="logoInputR" accept="image/*">
+            <img id="logoImgR" alt="" style="max-width:100%;max-height:100%;display:none"/>
+            <svg id="logoPhR" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="8" r="4" stroke-width="2"></circle>
+              <path d="M4 20c1.8-3.5 5-5 8-5s6.2 1.5 8 5" stroke-width="2" />
+            </svg>
+          </label>
+          <div class="meta">
+            <input type="text" id="brandNameR" class="fieldish" placeholder="Brand B Name" aria-label="Brand B Name" style="background:transparent;border:none;color:var(--ink);font-weight:800;outline:none"/>
+            <div class="tag">Verified Ad Arena</div>
+          </div>
+          <div class="ctas">
+            <a class="btn" id="ctaFollowR" href="#" target="_blank" rel="noopener">Follow</a>
+            <a class="btn gold" id="ctaShopR" href="#" target="_blank" rel="noopener">Shop</a>
+            <a class="btn" id="ctaMoreR" href="#" target="_blank" rel="noopener">Learn&nbsp;More</a>
+          </div>
+        </div>
+
+        <div class="setup hide-on-start">
+          <div class="field">
+            <label for="videoInputR">Ad Video</label>
+            <input id="videoInputR" type="file" accept="video/*">
+          </div>
+          <div class="field">
+            <label for="audioInputR">Audio</label>
+            <input id="audioInputR" type="file" accept="audio/*">
+          </div>
+          <div class="field">
+            <label for="startR">Start at</label>
+            <input id="startR" type="number" min="0" value="0" step="1"> <span style="color:var(--muted)">sec</span>
+          </div>
+          <div class="field">
+            <label for="linkR">CTA Link</label>
+            <input id="linkR" type="url" placeholder="https://brand-b.com">
+          </div>
+        </div>
+
+        <div class="meter" id="meterR"><canvas class="eq" id="eqR"></canvas></div>
+      </div>
+      <div class="tapzone right" id="tapR" aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- Start controls -->
+  <div class="startbar hide-on-start" id="startBar">
+    <span style="font-weight:800;letter-spacing:.4px">Rounds</span>
+    <select id="roundsSel" aria-label="Rounds">
+      <option>1</option><option selected>3</option><option>5</option>
+    </select>
+    <span style="font-weight:800;letter-spacing:.4px">Turn</span>
+    <select id="turnLen" aria-label="Turn Length (sec)">
+      <option>15</option><option selected>30</option><option>45</option><option>60</option>
+    </select>
+    <button class="btn gold" id="startBtn">Start Battle</button>
+  </div>
+
+  <!-- Audio elements (hidden) -->
+  <audio id="audioL" preload="auto" crossorigin="anonymous"></audio>
+  <audio id="audioR" preload="auto" crossorigin="anonymous"></audio>
+
+  <script>
+    // Utility selectors
+    const $ = (s) => document.querySelector(s);
+    const L = { pane:$('#paneL'), video:$('#videoL'), logoIn:$('#logoInputL'), logoImg:$('#logoImgL'), logoPh:$('#logoPhL'),
+                vidIn:$('#videoInputL'), audIn:$('#audioInputL'), startAt:$('#startL'), linkIn:$('#linkL'),
+                brandName:$('#brandNameL'), ctaShop:$('#ctaShopL'), ctaFollow:$('#ctaFollowL'), ctaMore:$('#ctaMoreL'),
+                meter:$('#meterL'), eq:$('#eqL'), audio:$('#audioL'), votes:$('#votesL'), tap:$('#tapL') };
+    const R = { pane:$('#paneR'), video:$('#videoR'), logoIn:$('#logoInputR'), logoImg:$('#logoImgR'), logoPh:$('#logoPhR'),
+                vidIn:$('#videoInputR'), audIn:$('#audioInputR'), startAt:$('#startR'), linkIn:$('#linkR'),
+                brandName:$('#brandNameR'), ctaShop:$('#ctaShopR'), ctaFollow:$('#ctaFollowR'), ctaMore:$('#ctaMoreR'),
+                meter:$('#meterR'), eq:$('#eqR'), audio:$('#audioR'), votes:$('#votesR'), tap:$('#tapR') };
+
+    const roundsChip = $('#roundsChip');
+    const timerChip  = $('#timerChip');
+    const roundsSel  = $('#roundsSel');
+    const turnLenSel = $('#turnLen');
+    const startBtn   = $('#startBtn');
+    const startBar   = $('#startBar');
+    const exitBtn    = $('#exitBtn');
+    const flagBtn    = $('#flagBtn');
+    const hint       = $('#hint');
+
+    // Navigation
+    exitBtn.addEventListener('click', () => {
+      window.location.href = 'home.html'; // adjust if different
+    });
+    flagBtn.addEventListener('click', () => {
+      const side = currentSide === 'left' ? (L.brandName.value||'Brand A') : (R.brandName.value||'Brand B');
+      alert('Flag submitted for: ' + side);
+    });
+
+    // File loaders
+    function loadFileTo(el, file){
+      const url = URL.createObjectURL(file);
+      el.src = url;
+      return url;
+    }
+
+    // Logos
+    [L, R].forEach(S=>{
+      S.logoIn.addEventListener('change', (e)=>{
+        const f = e.target.files?.[0];
+        if(!f) return;
+        S.logoImg.src = URL.createObjectURL(f);
+        S.logoImg.style.display = 'block';
+        S.logoPh.style.display = 'none';
+      });
+    });
+
+    // Videos
+    [L, R].forEach(S=>{
+      S.vidIn.addEventListener('change', (e)=>{
+        const f = e.target.files?.[0];
+        if(!f) return;
+        loadFileTo(S.video, f);
+        S.video.loop = true; // loop during its turn window, muted when off-turn
+        S.video.muted = true;
+        S.video.play().catch(()=>{/* will auto-play after start */});
+      });
+    });
+
+    // Audio + Instagram-style meter via Web Audio API
+    class Meter {
+      constructor(audioEl, canvas){
+        this.audioEl = audioEl;
+        this.canvas  = canvas;
+        this.ctx2d   = canvas.getContext('2d');
+        this.ac      = null;
+        this.src     = null;
+        this.an      = null;
+        this.data    = null;
+        this.raf     = null;
+      }
+      async init(){
+        if(this.ac) return;
+        this.ac = new (window.AudioContext || window.webkitAudioContext)();
+        this.src = this.ac.createMediaElementSource(this.audioEl);
+        this.an  = this.ac.createAnalyser();
+        this.an.fftSize = 256;
+        this.src.connect(this.an);
+        this.an.connect(this.ac.destination);
+        this.data = new Uint8Array(this.an.frequencyBinCount);
+      }
+      draw(){
+        const {width, height} = this.canvas;
+        this.ctx2d.clearRect(0,0,width,height);
+        this.an.getByteFrequencyData(this.data);
+        const bars = 32;
+        const step = Math.floor(this.data.length / bars);
+        const barW = width / bars;
+        for(let i=0;i<bars;i++){
+          const v = this.data[i*step] / 255;
+          const h = Math.max(2, v * height);
+          const x = i * barW;
+          const y = height - h;
+          this.ctx2d.fillStyle = 'rgba(255,255,255,.85)';
+          this.ctx2d.fillRect(x+2,y,barW-4,h);
+        }
+        this.raf = requestAnimationFrame(()=>this.draw());
+      }
+      start(){
+        cancelAnimationFrame(this.raf);
+        this.draw();
+      }
+      stop(){
+        cancelAnimationFrame(this.raf);
+        this.ctx2d.clearRect(0,0,this.canvas.width,this.canvas.height);
+      }
+    }
+
+    const meterL = new Meter($('#audioL'), $('#eqL'));
+    const meterR = new Meter($('#audioR'), $('#eqR'));
+
+    function fitCanvasHiDPI(cnv){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const rect = cnv.getBoundingClientRect();
+      cnv.width = Math.round(rect.width * dpr);
+      cnv.height = Math.round(rect.height * dpr);
+      const ctx = cnv.getContext('2d');
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    fitCanvasHiDPI($('#eqL')); fitCanvasHiDPI($('#eqR'));
+    window.addEventListener('resize', ()=>{fitCanvasHiDPI($('#eqL'));fitCanvasHiDPI($('#eqR'));});
+
+    // Load audio files & reveal meters
+    [ [L, meterL], [R, meterR] ].forEach(([S, M])=>{
+      S.audIn.addEventListener('change', async (e)=>{
+        const f = e.target.files?.[0];
+        if(!f) return;
+        await M.init();
+        loadFileTo(S.audio, f);
+        S.meter.style.display = 'block'; // show meter after upload
+      });
+    });
+
+    // CTA links bind to input
+    L.linkIn.addEventListener('input', ()=>{ L.ctaShop.href=L.linkIn.value||'#'; L.ctaMore.href=L.linkIn.value||'#'; });
+    R.linkIn.addEventListener('input', ()=>{ R.ctaShop.href=R.linkIn.value||'#'; R.ctaMore.href=R.linkIn.value||'#'; });
+
+    // START logic
+    let roundsTotal = 3, roundNow = 1, turnSeconds = 30, turnTimeLeft = 30;
+    let currentSide = 'left'; // 'left' or 'right'
+    let ticker = null;
+
+    function updateUIForTurn(){
+      roundsChip.textContent = `R${roundNow} / ${roundsTotal}`;
+      timerChip.textContent  = mmss(turnTimeLeft);
+      // Dim & mute the non-active side
+      if(currentSide==='left'){
+        L.pane.classList.remove('dim'); R.pane.classList.add('dim');
+        L.video.muted = false; R.video.muted = true;
+        if(!L.video.paused) L.video.play().catch(()=>{});
+        if(!R.video.paused) R.video.play().catch(()=>{});
+        // audio
+        if(L.audio.src) {
+          L.audio.muted = false;
+          if (L.startAt.value) L.audio.currentTime = +L.startAt.value;
+          L.audio.play().catch(()=>{});
+          meterL.start();
+        }
+        if(R.audio.src){
+          R.audio.pause();
+          meterR.stop();
+        }
+      } else {
+        R.pane.classList.remove('dim'); L.pane.classList.add('dim');
+        R.video.muted = false; L.video.muted = true;
+        if(!L.video.paused) L.video.play().catch(()=>{});
+        if(!R.video.paused) R.video.play().catch(()=>{});
+        if(R.audio.src) {
+          R.audio.muted = false;
+          if (R.startAt.value) R.audio.currentTime = +R.startAt.value;
+          R.audio.play().catch(()=>{});
+          meterR.start();
+        }
+        if(L.audio.src){
+          L.audio.pause();
+          meterL.stop();
+        }
+      }
+    }
+
+    function swapTurnOrRound(){
+      if(currentSide==='left'){
+        currentSide='right';
+        turnTimeLeft = turnSeconds;
+        updateUIForTurn();
+      } else {
+        // completed both turns of this round
+        if(roundNow < roundsTotal){
+          roundNow += 1;
+          currentSide = 'left';
+          turnTimeLeft = turnSeconds;
+          updateUIForTurn();
+        } else {
+          endBattle();
+        }
+      }
+    }
+
+    function tick(){
+      turnTimeLeft -= 1;
+      timerChip.textContent = mmss(turnTimeLeft);
+      if(turnTimeLeft<=0){
+        swapTurnOrRound();
+      }
+    }
+
+    function startBattle(){
+      roundsTotal = parseInt(roundsSel.value,10);
+      turnSeconds = parseInt(turnLenSel.value,10);
+      turnTimeLeft = turnSeconds;
+      roundNow = 1;
+      currentSide = 'left';
+
+      // Hide non-essential UI
+      document.querySelectorAll('.hide-on-start').forEach(el=>el.classList.add('hidden'));
+      hint.classList.remove('hidden'); // keep hint until first tap
+      updateUIForTurn();
+      clearInterval(ticker);
+      ticker = setInterval(tick, 1000);
+
+      // Start videos if loaded
+      [L.video,R.video].forEach(v=>{ if(v.src) v.play().catch(()=>{}); });
+    }
+
+    function endBattle(){
+      clearInterval(ticker);
+      // Stop audio meters
+      meterL.stop(); meterR.stop();
+      L.audio.pause(); R.audio.pause();
+      // Reveal setup again for next battle
+      document.querySelectorAll('.hide-on-start').forEach(el=>el.classList.remove('hidden'));
+    }
+
+    function mmss(s){
+      const m = Math.floor(s/60).toString().padStart(2,'0');
+      const ss= Math.floor(s%60).toString().padStart(2,'0');
+      return `${m}:${ss}`;
+    }
+
+    startBtn.addEventListener('click', startBattle);
+
+    // Tap-to-vote zones (not buttons; allowed during battle)
+    let votesL = 0, votesR = 0;
+    function registerVote(side){
+      if(!ticker) return; // only during battle
+      if(side==='left'){ votesL++; L.votes.textContent = votesL; }
+      else { votesR++; R.votes.textContent = votesR; }
+      hint.classList.add('hidden');
+      // small flash feedback
+      const pane = side==='left'? L.pane : R.pane;
+      pane.style.outline = '2px solid ' + (side==='left'?'#7dd3fc':'#c4b5fd');
+      setTimeout(()=>pane.style.outline='', 120);
+    }
+    L.tap.addEventListener('click', ()=>registerVote('left'));
+    R.tap.addEventListener('click', ()=>registerVote('right'));
+
+    // Ensure canvases are interactive only visually (pointer-events off by default is fine)
+    // Keep everything within view; no page scrolling
+
+    // Accessibility: keyboard quick actions (optional)
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='ArrowLeft') registerVote('left');
+      if(e.key==='ArrowRight') registerVote('right');
+      if(e.key==='Escape') exitBtn.click();
+    });
+
+    // Initialize: dim right by default (left starts)
+    R.pane.classList.add('dim');
+
+    // Prevent passive gestures from pausing audio context on mobile
+    document.addEventListener('click', async ()=>{
+      try{ await meterL.ac?.resume(); await meterR.ac?.resume(); }catch{}
+    }, {once:true});
+
+    // Resize observers for safe tap targets (no-op; structure already full-bleed)
+  </script>
+</body>
+</html>
