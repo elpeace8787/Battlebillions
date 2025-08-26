@@ -3,146 +3,103 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>3ATTLE33ILLIONS — Ad Arena</title>
+<title>Ad Arena — Vertical Battle Reels</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
 <style>
   :root{
     --bg:#0b0b0c; --ink:#f5f7fb; --muted:#a6abb6; --gold:#ffd700;
-    --ok:#35d49a; --danger:#ff5d5d; --glass:rgba(255,255,255,.06);
-    --bd:#ffffff24; --dim:rgba(0,0,0,.55);
-    /* heights are set by JS to match your device exactly */
-    --topH:56px;   /* fallback */
-    --botH:56px;   /* fallback (without safe area) */
-    --stackH:calc(100vh - var(--topH) - var(--botH));
+    --glass:rgba(255,255,255,.06); --bd:#ffffff26; --dim:rgba(0,0,0,.55);
+    /* These are measured by JS to lock the layout to the phone viewport */
+    --topH:56px; --botH:56px; --stackH:calc(100vh - var(--topH) - var(--botH));
     --paneH:calc(var(--stackH)/2);
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
   .safe{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  .app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:1fr}
+  .app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr auto}
 
-  /* ===== TOP BAR ===== */
-  .topbar{
-    position:relative;z-index:30;display:flex;gap:.6rem;align-items:center;
-    padding:.6rem .8rem;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
-    border-bottom:1px solid var(--bd);backdrop-filter:blur(10px)
-  }
+  /* Top bar */
+  .topbar{position:relative;z-index:30;display:flex;gap:.6rem;align-items:center;padding:.6rem .8rem;
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border-bottom:1px solid var(--bd);backdrop-filter:blur(10px)}
   .logoWord{font-family:Orbitron,Inter,sans-serif;font-weight:800;letter-spacing:.5px}
   .pill{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--bd);background:var(--glass);border-radius:999px;padding:.38rem .6rem}
   .pill select,.pill input{appearance:none;background:transparent;border:none;color:var(--ink);font-weight:700;outline:none;min-width:0}
-  .pill select{max-width:38vw}
   .spacer{flex:1}
-  .btn{border:1px solid var(--bd);background:#ffffff12;color:var(--ink);border-radius:12px;padding:.45rem .7rem;font-weight:800;white-space:nowrap}
+  .btn{border:1px solid var(--bd);background:#ffffff14;color:var(--ink);border-radius:12px;padding:.46rem .72rem;font-weight:800}
   .btn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
 
-  /* ===== VERTICAL ARENA STACK (no scroll) ===== */
-  .stack{
-    position:relative;inset:0;height:var(--stackH); /* exact measured space */
-    display:flex;flex-direction:column;gap:0;overflow:hidden;
-  }
-  .pane{
-    position:relative;isolation:isolate;height:var(--paneH);min-height:var(--paneH);max-height:var(--paneH); /* lock */
-    background:#000; min-width:0;
-  }
+  /* Vertical arena stack */
+  .stack{position:relative;height:var(--stackH);display:flex;flex-direction:column;gap:0;overflow:hidden}
+  .pane{position:relative;height:var(--paneH);min-height:var(--paneH);max-height:var(--paneH);background:#000}
+  .stage{position:absolute;inset:0;display:grid;place-items:center}
+  /* phone-like vertical video mask 9:16 */
+  .phone{position:relative;width:min(100%,56vh);height:100%;max-height:100%;display:grid;place-items:center}
+  .frame{position:relative;aspect-ratio:9/16;height:96%;max-height:96%;width:auto;border-radius:18px;overflow:hidden;border:1px solid #ffffff20;background:#000}
   video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
   .shade{position:absolute;inset:0;background:transparent;transition:background .25s ease;z-index:2}
   .pane.dim .shade{background:var(--dim)}
 
-  /* HUD per pane (kept inside pane bounds) */
+  /* HUD */
   .hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;z-index:3;pointer-events:none}
   .toprow{display:flex;justify-content:space-between;align-items:center;padding:.5rem .6rem}
-  .iconbtn{pointer-events:auto;display:grid;place-items:center;width:clamp(34px,4vw,40px);height:clamp(34px,4vw,40px);border-radius:999px;background:var(--glass);border:1px solid var(--bd)}
-  .iconbtn svg{width:18px;height:18px}
   .center-top{position:absolute;left:50%;transform:translateX(-50%);top:.5rem;display:flex;gap:.4rem;align-items:center}
-  .chip{pointer-events:auto;display:inline-flex;align-items:center;gap:.4rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:999px;padding:.36rem .62rem;font-weight:800}
+  .chip{pointer-events:auto;display:inline-flex;align-items:center;gap:.4rem;background:var(--glass);border:1px solid var(--bd);border-radius:999px;padding:.34rem .6rem;font-weight:800}
   .rounds,.timer{font-family:Orbitron,Inter,sans-serif;letter-spacing:.5px}
   .timer{min-width:86px;text-align:center}
-  .votes{position:absolute;top:2.6rem;right:.6rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);padding:.26rem .5rem;border-radius:999px;font-weight:800;z-index:3}
+  .iconbtn{pointer-events:auto;display:grid;place-items:center;width:38px;height:38px;border-radius:999px;background:var(--glass);border:1px solid var(--bd)}
+  .iconbtn svg{width:18px;height:18px}
+  .votes{position:absolute;top:2.6rem;right:.6rem;background:var(--glass);border:1px solid var(--bd);padding:.26rem .5rem;border-radius:999px;font-weight:800;z-index:3}
 
-  /* Setup strip + brand footer stay inside pane (no overflow) */
-  .setup{position:absolute;left:.6rem;right:.6rem;bottom:4.6rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;z-index:4}
-  .field{pointer-events:auto;display:flex;align-items:center;gap:.36rem;background:var(--glass);border:1px solid var(--bd);border-radius:12px;padding:.36rem .54rem;min-height:34px}
-  .field label{font-size:.82rem;color:var(--muted)}
-  .field input[type="file"], .field input[type="number"], .field input[type="url"], .field input[type="text"]{color:var(--ink);max-width:42vw;background:transparent;border:none;font-weight:700;outline:none}
+  /* Composer / brand controls inside pane (never overflow) */
+  .inline-controls{position:absolute;left:50%;transform:translateX(-50%);bottom:.7rem;display:flex;gap:.5rem;z-index:5}
+  .minibtn{pointer-events:auto;border:1px solid var(--bd);background:#ffffff12;color:var(--ink);border-radius:12px;padding:.4rem .6rem;font-weight:800}
+  .minibtn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
+  .hint{position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid var(--bd);
+    padding:.32rem .54rem;border-radius:10px;font-size:.82rem;z-index:2;opacity:.85}
 
-  .brand{pointer-events:auto;position:absolute;left:.6rem;right:.6rem;bottom:.6rem;display:flex;align-items:center;gap:.6rem;background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(10px);border-radius:14px;padding:.44rem .58rem}
-  .logo{width:clamp(36px,6vw,46px);height:clamp(36px,6vw,46px);border-radius:50%;overflow:hidden;border:1px solid #ffffff22;flex:0 0 auto;background:#111;display:grid;place-items:center}
-  .logo img{max-width:100%;max-height:100%;object-fit:contain}
-  .logo input{display:none}
-  .meta{min-width:0;display:flex;flex-direction:column}
-  .name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tag{font-size:.78rem;color:var(--muted)}
-  .ctas{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}
-  .btn-cta{pointer-events:auto;border:1px solid var(--bd);border-radius:12px;padding:.38rem .56rem;background:#ffffff10;color:var(--ink);font-weight:800}
-  .btn-cta.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
-
-  /* Music meter sits above brand bar */
-  .meter{pointer-events:none;position:absolute;left:50%;transform:translateX(-50%);bottom:7.4rem;width:min(90%,680px);height:26px;border-radius:10px;overflow:hidden;display:none;z-index:4;border:1px solid var(--bd);background:#0c0c0e}
-  canvas.eq{width:100%;height:100%}
-
-  /* Tap zones fill each pane */
-  .tapzone{position:absolute;inset:0;z-index:1}
-  .hint{position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(10px);padding:.32rem .54rem;border-radius:10px;font-size:.82rem;z-index:2;opacity:.85}
-
-  /* Start controls (floats centered between panes) */
-  .startbar{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:25;display:flex;gap:.5rem;align-items:center;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:999px;padding:.44rem .58rem}
-  .startbar select{appearance:none;background:#ffffff10;border:1px solid var(--bd);border-radius:999px;color:var(--ink);padding:.42rem .6rem;font-weight:800;width:80px;text-align:center}
-
-  /* Hide-on-start */
-  .hide-on-start{transition:opacity .18s ease}
-  .hidden{opacity:0;pointer-events:none}
-
-  /* ===== BOTTOM NAV ===== */
-  .bottomnav{
-    position:relative;z-index:30;display:flex;align-items:center;justify-content:space-around;
+  /* Bottom nav */
+  .bottomnav{position:relative;z-index:30;display:flex;align-items:center;justify-content:space-around;
     height:calc(56px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
-    border-top:1px solid var(--bd);background:rgba(16,16,18,.98);backdrop-filter:blur(10px)
-  }
+    border-top:1px solid var(--bd);background:rgba(16,16,18,.98);backdrop-filter:blur(10px)}
   .navbtn{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-decoration:none;color:var(--ink);opacity:.9}
   .navbtn svg{width:22px;height:22px}
   .navbtn.active{opacity:1}
   .navlbl{font-size:.7rem}
 
-  /* ===== LOBBY ===== */
-  .lobby{
-    position:fixed;top:0;right:0;height:100%;width:min(420px,92vw);background:rgba(18,18,20,.96);
-    border-left:1px solid var(--bd);backdrop-filter:blur(12px);z-index:40;transform:translateX(100%);
-    transition:transform .25s ease
-  }
-  .lobby.open{transform:translateX(0)}
-  .lobby header{display:flex;align-items:center;gap:.6rem;padding:.8rem;border-bottom:1px solid var(--bd)}
-  .lobby .filters{display:flex;flex-wrap:wrap;gap:.5rem;padding:.7rem .8rem;border-bottom:1px solid var(--bd)}
-  .lobby .filters .pill{padding:.36rem .54rem}
-  .lobby .list{position:absolute;top:132px;bottom:84px;left:0;right:0;overflow:auto;padding:.6rem .8rem}
-  .card{border:1px solid var(--bd);background:var(--glass);border-radius:14px;padding:.6rem .7rem;display:flex;gap:.6rem;align-items:center}
-  .card + .card{margin-top:.6rem}
-  .card .grow{flex:1}
-  .brandTag{font-size:.78rem;color:var(--muted)}
-  .lobby footer{position:absolute;left:0;right:0;bottom:0;padding:.7rem .8rem;border-top:1px solid var(--bd);display:flex;gap:.6rem}
-  .search{flex:1;border:1px solid var(--bd);background:#ffffff10;color:var(--ink);border-radius:10px;padding:.55rem .6rem;font-weight:700;outline:none}
-
-  /* ===== CREATE BATTLE SHEET ===== */
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:50}
+  /* Modal base */
+  .modal{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);z-index:60}
   .modal.open{display:flex}
-  .sheet{width:min(980px,96vw);max-height:86vh;overflow:auto;background:rgba(20,20,22,.98);border:1px solid var(--bd);border-radius:16px 16px 0 0;padding:1rem;backdrop-filter:blur(12px)}
+  .sheet{width:min(960px,96vw);max-height:86vh;overflow:auto;background:rgba(20,20,22,.98);
+    border:1px solid var(--bd);border-radius:16px 16px 0 0;padding:1rem;backdrop-filter:blur(12px)}
   .sheet header{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .pill.small{padding:.3rem .5rem;border-radius:10px}
   .row{display:flex;gap:.6rem;flex-wrap:wrap}
-  .full{width:100%}
+  .grid{display:grid;gap:.6rem}
+  .grid.cols2{grid-template-columns:1fr 1fr}
+  .field{display:flex;align-items:center;gap:.42rem;background:var(--glass);border:1px solid var(--bd);border-radius:12px;padding:.44rem .6rem}
+  .field label{font-size:.86rem;color:var(--muted)}
+  .field input[type="file"], .field input[type="number"], .field input[type="url"], .field input[type="text"], .field input[type="range"]{background:transparent;border:none;color:var(--ink);font-weight:700;outline:none}
+  .field input[type="range"]{width:160px}
+  .ghost{opacity:.7}
 
-  @media (max-width: 860px){
-    .grid2{grid-template-columns:1fr}
+  /* Reel preview inside composer (9:16) */
+  .reel-preview{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:.8rem}
+  .reel-phone{position:relative;aspect-ratio:9/16;border-radius:16px;border:1px solid #ffffff22;overflow:hidden;background:#000}
+  .reel-phone video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .reel-phone canvas{position:absolute;inset:auto 8px 8px 8px;height:44px;border-radius:8px;background:#0c0c0e;border:1px solid var(--bd)}
+  .reel-sidebar{display:grid;align-content:start;gap:.6rem}
+
+  @media (max-width: 900px){
+    .reel-preview{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
-<div class="app safe" id="app">
-  <!-- ===== TOP BAR ===== -->
+<div class="app safe">
+  <!-- Top bar -->
   <div class="topbar" id="topBar">
     <div class="logoWord">AD ARENA</div>
-
-    <div class="pill" title="Ad Category">
-      <span style="opacity:.8">Category</span>
+    <div class="pill"><span class="ghost">Category</span>
       <select id="adCategory">
         <option selected>Fashion</option><option>Food & Beverage</option><option>Tech</option>
         <option>Gaming</option><option>Beauty</option><option>Auto</option><option>Finance</option>
@@ -150,447 +107,435 @@
         <option>Entertainment</option><option>Sports</option><option>Health</option><option>Nonprofit</option><option>Apps</option>
       </select>
     </div>
-
-    <div class="pill" title="Subcategory">
-      <span style="opacity:.8">Sub</span>
-      <input id="adSub" placeholder="Sneakers, Energy Drinks…" />
-    </div>
-
+    <div class="pill"><span class="ghost">Sub</span><input id="adSub" placeholder="Sneakers, Energy Drinks…"/></div>
     <div class="spacer"></div>
-
-    <button class="btn" id="openLobbyBtn">Find Opponent</button>
-    <button class="btn gold" id="openCreateBtn">Create Battle</button>
+    <button class="btn" id="findBtn">Find Opponent</button>
+    <button class="btn gold" id="createBtn">Create Battle</button>
   </div>
 
-  <!-- ===== VERTICAL ARENA ===== -->
+  <!-- Vertical stack: TOP = Brand A, BOTTOM = Brand B -->
   <div class="stack" id="stack">
-    <!-- TOP PANE (Brand A) -->
-    <section class="pane" id="paneL" data-side="left">
-      <video id="videoL" playsinline muted></video>
+    <!-- Pane A -->
+    <section class="pane" id="paneA">
+      <div class="stage">
+        <div class="phone"><div class="frame"><video id="vidA" playsinline muted></video></div></div>
+      </div>
       <div class="shade"></div>
       <div class="hud">
         <div class="toprow">
           <button class="iconbtn" id="exitBtn" title="Exit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M6 6l12 12M18 6L6 18"/></svg>
           </button>
           <div class="center-top">
             <div class="chip rounds" id="roundsChip">R1 / 3</div>
             <div class="chip timer" id="timerChip">00:30</div>
           </div>
           <button class="iconbtn" id="flagBtn" title="Flag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" stroke-linecap="round" d="M4 4v16M4 4h11l-1.5 3H20l-2 4 2 4h-4l-1.5-3H4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M4 4v16M4 4h11l-1.5 3H20l-2 4 2 4h-4l-1.5-3H4"/></svg>
           </button>
         </div>
-
-        <div class="votes" id="votesL">0</div>
+        <div class="votes" id="votesA">0</div>
         <div class="hint hide-on-start" id="hint">Tap a pane to vote during battle</div>
-
-        <div class="setup hide-on-start" id="setupL">
-          <div class="field"><label for="videoInputL">Video</label><input id="videoInputL" type="file" accept="video/*"></div>
-          <div class="field"><label for="audioInputL">Audio</label><input id="audioInputL" type="file" accept="audio/*"></div>
-          <div class="field"><label for="startL">Start</label><input id="startL" type="number" min="0" value="0" step="1"><span style="color:var(--muted)">s</span></div>
-          <div class="field"><label for="linkL">CTA</label><input id="linkL" type="url" placeholder="https://brand-a.com"></div>
-        </div>
-
-        <div class="meter" id="meterL"><canvas class="eq" id="eqL"></canvas></div>
-
-        <div class="brand hide-on-start" id="brandL">
-          <label class="logo" title="Upload logo">
-            <input type="file" id="logoInputL" accept="image/*">
-            <img id="logoImgL" alt="" style="display:none"/>
-            <svg id="logoPhL" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4" stroke-width="2"></circle><path d="M4 20c1.8-3.5 5-5 8-5s6.2 1.5 8 5" stroke-width="2"/></svg>
-          </label>
-          <div class="meta">
-            <input type="text" id="brandNameL" placeholder="Brand A Name" style="background:transparent;border:none;color:var(--ink);font-weight:800;outline:none"/>
-            <div class="tag">Verified Ad Arena</div>
-          </div>
-          <div class="ctas">
-            <a class="btn-cta" id="ctaFollowL" href="#" target="_blank" rel="noopener">Follow</a>
-            <a class="btn-cta gold" id="ctaShopL" href="#" target="_blank" rel="noopener">Shop</a>
-            <a class="btn-cta" id="ctaMoreL" href="#" target="_blank" rel="noopener">Learn&nbsp;More</a>
-          </div>
-        </div>
       </div>
-      <div class="tapzone" id="tapL" aria-hidden="true"></div>
+      <div class="inline-controls hide-on-start">
+        <button class="minibtn" id="composeA">Edit Reel</button>
+        <a class="minibtn" id="ctaA" href="#" target="_blank" rel="noopener">CTA</a>
+      </div>
+      <div class="tapzone" id="tapA" style="position:absolute;inset:0;z-index:1"></div>
     </section>
 
-    <!-- BOTTOM PANE (Brand B) -->
-    <section class="pane" id="paneR" data-side="right">
-      <video id="videoR" playsinline muted></video>
+    <!-- Pane B -->
+    <section class="pane" id="paneB">
+      <div class="stage">
+        <div class="phone"><div class="frame"><video id="vidB" playsinline muted></video></div></div>
+      </div>
       <div class="shade"></div>
       <div class="hud">
         <div class="toprow" aria-hidden="true"></div>
-        <div class="votes" id="votesR">0</div>
-
-        <div class="setup hide-on-start" id="setupR">
-          <div class="field"><label for="videoInputR">Video</label><input id="videoInputR" type="file" accept="video/*"></div>
-          <div class="field"><label for="audioInputR">Audio</label><input id="audioInputR" type="file" accept="audio/*"></div>
-          <div class="field"><label for="startR">Start</label><input id="startR" type="number" min="0" value="0" step="1"><span style="color:var(--muted)">s</span></div>
-          <div class="field"><label for="linkR">CTA</label><input id="linkR" type="url" placeholder="https://brand-b.com"></div>
-        </div>
-
-        <div class="meter" id="meterR"><canvas class="eq" id="eqR"></canvas></div>
-
-        <div class="brand hide-on-start" id="brandR">
-          <label class="logo" title="Upload logo">
-            <input type="file" id="logoInputR" accept="image/*">
-            <img id="logoImgR" alt="" style="display:none"/>
-            <svg id="logoPhR" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4" stroke-width="2"></circle><path d="M4 20c1.8-3.5 5-5 8-5s6.2 1.5 8 5" stroke-width="2"/></svg>
-          </label>
-          <div class="meta">
-            <input type="text" id="brandNameR" placeholder="Brand B Name" style="background:transparent;border:none;color:var(--ink);font-weight:800;outline:none"/>
-            <div class="tag">Verified Ad Arena</div>
-          </div>
-          <div class="ctas">
-            <a class="btn-cta" id="ctaFollowR" href="#" target="_blank" rel="noopener">Follow</a>
-            <a class="btn-cta gold" id="ctaShopR" href="#" target="_blank" rel="noopener">Shop</a>
-            <a class="btn-cta" id="ctaMoreR" href="#" target="_blank" rel="noopener">Learn&nbsp;More</a>
-          </div>
-        </div>
+        <div class="votes" id="votesB">0</div>
       </div>
-      <div class="tapzone" id="tapR" aria-hidden="true"></div>
+      <div class="inline-controls hide-on-start">
+        <button class="minibtn" id="composeB">Edit Reel</button>
+        <a class="minibtn" id="ctaB" href="#" target="_blank" rel="noopener">CTA</a>
+      </div>
+      <div class="tapzone" id="tapB" style="position:absolute;inset:0;z-index:1"></div>
     </section>
 
-    <!-- Start controls: centered between panes -->
-    <div class="startbar hide-on-start" id="startBar">
-      <span style="font-weight:800;letter-spacing:.4px">Rounds</span>
+    <!-- Start controls (center) -->
+    <div class="chip hide-on-start" id="startBar" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:.5rem;align-items:center">
+      <span style="font-weight:800">Rounds</span>
       <select id="roundsSel"><option>1</option><option selected>3</option><option>5</option></select>
-      <span style="font-weight:800;letter-spacing:.4px">Turn</span>
-      <select id="turnLen"><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
-      <button class="btn gold" id="startBtn">Start</button>
+      <span style="font-weight:800">Turn</span>
+      <select id="turnSel"><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
+      <button class="minibtn gold" id="startBtn">Start</button>
     </div>
   </div>
 
-  <!-- ===== BOTTOM NAV ===== -->
+  <!-- Bottom nav -->
   <nav class="bottomnav" id="bottomNav">
-    <a class="navbtn" href="home.html" title="Home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5H9v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-      <span class="navlbl">Home</span>
-    </a>
-    <a class="navbtn" href="discover.html" title="Discover">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke-width="2"/></svg>
-      <span class="navlbl">Discover</span>
-    </a>
-    <a class="navbtn active" href="adsarena.html" title="Ad Arena">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="4" width="14" height="7" rx="1.5" stroke-width="2"/><rect x="5" y="13" width="14" height="7" rx="1.5" stroke-width="2"/></svg>
-      <span class="navlbl">Ad Arena</span>
-    </a>
-    <a class="navbtn" href="inbox.html" title="Inbox">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path stroke-width="2" d="M7 10l5 5 5-5"/><path stroke-width="2" d="M12 15V3"/></svg>
-      <span class="navlbl">Inbox</span>
-    </a>
-    <a class="navbtn" href="profile.html" title="Profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4" stroke-width="2"/><path stroke-width="2" d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
-      <span class="navlbl">Profile</span>
-    </a>
+    <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M3 11l9-8 9 8v9"/></svg><span class="navlbl">Home</span></a>
+    <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke-width="2"/></svg><span class="navlbl">Discover</span></a>
+    <a class="navbtn active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="4" width="14" height="7" rx="1.5" stroke-width="2"/><rect x="5" y="13" width="14" height="7" rx="1.5" stroke-width="2"/></svg><span class="navlbl">Ad Arena</span></a>
+    <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path stroke-width="2" d="M7 10l5 5 5-5"/></svg><span class="navlbl">Inbox</span></a>
+    <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4" stroke-width="2"/><path stroke-width="2" d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg><span class="navlbl">Profile</span></a>
   </nav>
 </div>
 
-<!-- ===== LOBBY ===== -->
-<aside class="lobby" id="lobby">
-  <header>
-    <button class="iconbtn" id="closeLobby" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div style="font-weight:800;letter-spacing:.4px">Find Opponent</div>
-  </header>
-
-  <div class="filters">
-    <div class="pill">
-      <span style="opacity:.8">Category</span>
-      <select id="filterCategory">
-        <option>All</option><option>Fashion</option><option>Food & Beverage</option><option>Tech</option><option>Gaming</option>
-        <option>Beauty</option><option>Auto</option><option>Finance</option><option>Fitness</option><option>Music</option>
-        <option>Travel</option><option>Education</option><option>Entertainment</option><option>Sports</option><option>Health</option><option>Nonprofit</option><option>Apps</option>
-      </select>
-    </div>
-    <div class="pill">
-      <span style="opacity:.8">Rounds</span>
-      <select id="filterRounds"><option>Any</option><option>1</option><option selected>3</option><option>5</option></select>
-    </div>
-    <div class="pill">
-      <span style="opacity:.8">Turn</span>
-      <select id="filterTurn"><option>Any</option><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
-    </div>
-  </div>
-
-  <div class="list" id="challengeList"></div>
-
-  <footer>
-    <input class="search" id="searchBrand" placeholder="Search brands or tags…"/>
-    <button class="btn" id="refreshLobby">Refresh</button>
-  </footer>
-</aside>
-
-<!-- ===== CREATE BATTLE (Company-friendly) ===== -->
-<div class="modal" id="createModal">
+<!-- =================== REEL COMPOSER (Reusable for A or B) =================== -->
+<div class="modal" id="composer">
   <div class="sheet">
     <header>
-      <button class="iconbtn" id="closeCreate" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <div style="font-weight:800">Create Product Battle</div>
+      <button class="btn" id="closeComposer">Close</button>
+      <div style="font-weight:800;margin-left:.4rem">Reel Composer</div>
+      <div class="spacer"></div>
+      <button class="btn gold" id="applyReel">Apply to Pane</button>
     </header>
 
-    <div class="row full">
-      <div class="pill"><span style="opacity:.8">Category</span>
-        <select id="createCategory">
-          <option selected>Fashion</option><option>Food & Beverage</option><option>Tech</option><option>Gaming</option>
-          <option>Beauty</option><option>Auto</option><option>Finance</option><option>Fitness</option><option>Music</option>
-          <option>Travel</option><option>Education</option><option>Entertainment</option><option>Sports</option><option>Health</option><option>Nonprofit</option><option>Apps</option>
-        </select>
+    <div class="reel-preview">
+      <div class="reel-phone">
+        <video id="reelVideo" playsinline muted loop></video>
+        <canvas id="eqCanvas"></canvas>
       </div>
-      <div class="pill"><span style="opacity:.8">Rounds</span>
-        <select id="createRounds"><option>1</option><option selected>3</option><option>5</option></select>
-      </div>
-      <div class="pill"><span style="opacity:.8">Turn</span>
-        <select id="createTurn"><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
+
+      <div class="reel-sidebar">
+        <div class="row">
+          <div class="pill small"><span class="ghost">Aspect</span>
+            <select id="aspectSel">
+              <option value="9:16" selected>9:16</option>
+              <option value="4:5">4:5</option>
+              <option value="1:1">1:1</option>
+            </select>
+          </div>
+          <div class="pill small"><span class="ghost">Loop</span>
+            <select id="loopSel"><option>On</option><option>Off</option></select>
+          </div>
+          <div class="pill small"><span class="ghost">Speed</span>
+            <select id="speedSel"><option>0.5x</option><option selected>1x</option><option>1.5x</option><option>2x</option></select>
+          </div>
+        </div>
+
+        <div class="grid cols2">
+          <div class="field full"><label>Video</label><input id="reelVideoFile" type="file" accept="video/*" capture="user"/></div>
+          <div class="field full"><label>Music</label><input id="reelAudioFile" type="file" accept="audio/*"/></div>
+        </div>
+
+        <div class="field"><label>Music Offset</label><input id="musicOffset" type="number" min="0" value="0"/><span class="ghost">sec</span></div>
+
+        <div class="row">
+          <div class="field"><label>Trim Start</label><input id="trimStart" type="number" min="0" value="0"/></div>
+          <div class="field"><label>Trim End</label><input id="trimEnd" type="number" min="1" value="30"/></div>
+        </div>
+
+        <div class="row">
+          <div class="field"><label>Video Vol</label><input id="volVideo" type="range" min="0" max="1" step="0.05" value="1"/></div>
+          <div class="field"><label>Music Vol</label><input id="volMusic" type="range" min="0" max="1" step="0.05" value="0.9"/></div>
+        </div>
+
+        <div class="grid">
+          <div class="field full"><label>CTA Link</label><input id="reelCTA" placeholder="https://your-landingpage.com"/></div>
+          <div class="field full"><label>Cover Frame (sec)</label><input id="coverSec" type="number" min="0" value="0"/></div>
+        </div>
+
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn" id="previewBtn">Preview Range</button>
+        </div>
       </div>
     </div>
 
-    <div class="grid2 full" style="margin-top:.6rem">
-      <div class="field full"><label>Brand A Name</label><input id="cNameL" class="full" placeholder="Brand A"/></div>
-      <div class="field full"><label>Brand B Name</label><input id="cNameR" class="full" placeholder="Brand B"/></div>
-
-      <div class="field full"><label>Brand A Site</label><input id="cLinkL" class="full" placeholder="https://brand-a.com"/></div>
-      <div class="field full"><label>Brand B Site</label><input id="cLinkR" class="full" placeholder="https://brand-b.com"/></div>
-
-      <div class="field full"><label>Brand A Video</label><input id="cVidL" type="file" accept="video/*"/></div>
-      <div class="field full"><label>Brand B Video</label><input id="cVidR" type="file" accept="video/*"/></div>
-
-      <div class="field full"><label>Brand A Audio</label><input id="cAudL" type="file" accept="audio/*"/></div>
-      <div class="field full"><label>Brand B Audio</label><input id="cAudR" type="file" accept="audio/*"/></div>
-
-      <div class="field full"><label>Brand A Start (sec)</label><input id="cStartL" type="number" min="0" value="0"/></div>
-      <div class="field full"><label>Brand B Start (sec)</label><input id="cStartR" type="number" min="0" value="0"/></div>
-    </div>
-
-    <div class="row" style="margin-top:.8rem;justify-content:flex-end">
-      <button class="btn" id="createLoad">Load Into Arena</button>
-      <button class="btn gold" id="createAndStart">Load & Start</button>
-    </div>
   </div>
 </div>
 
-<!-- Hidden audio -->
-<audio id="audioL" preload="auto" crossorigin="anonymous"></audio>
-<audio id="audioR" preload="auto" crossorigin="anonymous"></audio>
+<!-- Hidden audio for panes -->
+<audio id="audA" preload="auto" crossorigin="anonymous"></audio>
+<audio id="audB" preload="auto" crossorigin="anonymous"></audio>
 
 <script>
   const $ = (s)=>document.querySelector(s);
 
-  /* Measure top/bottom and lock pane heights to the exact phone viewport */
-  const topBar = $('#topBar');
-  const bottomNav = $('#bottomNav');
-  function setHeights(){
-    const topH = Math.round(topBar.getBoundingClientRect().height);
-    const botH = Math.round(bottomNav.getBoundingClientRect().height);
-    document.documentElement.style.setProperty('--topH', topH + 'px');
-    document.documentElement.style.setProperty('--botH', botH + 'px');
-    // Force each pane to exactly half of remaining space:
-    const stackH = window.innerHeight - topH - botH;
-    document.documentElement.style.setProperty('--stackH', stackH + 'px');
-    document.documentElement.style.setProperty('--paneH', (stackH/2) + 'px');
+  /* ——— Viewport locking (no overflow) ——— */
+  const topBar = $('#topBar'), bottomNav = $('#bottomNav');
+  function lockHeights(){
+    const t = Math.round(topBar.getBoundingClientRect().height);
+    const b = Math.round(bottomNav.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--topH', t+'px');
+    document.documentElement.style.setProperty('--botH', b+'px');
+    const stackH = window.innerHeight - t - b;
+    document.documentElement.style.setProperty('--stackH', stackH+'px');
+    document.documentElement.style.setProperty('--paneH', (stackH/2)+'px');
   }
-  addEventListener('load', setHeights);
-  addEventListener('resize', setHeights);
-  addEventListener('orientationchange', setHeights);
+  addEventListener('load', lockHeights);
+  addEventListener('resize', lockHeights);
+  addEventListener('orientationchange', lockHeights);
 
-  /* ELEMENTS */
-  const L = { pane:$('#paneL'), video:$('#videoL'), logoIn:$('#logoInputL'), logoImg:$('#logoImgL'), logoPh:$('#logoPhL'),
-              vidIn:$('#videoInputL'), audIn:$('#audioInputL'), startAt:$('#startL'), linkIn:$('#linkL'),
-              brandName:$('#brandNameL'), ctaShop:$('#ctaShopL'), ctaFollow:$('#ctaFollowL'), ctaMore:$('#ctaMoreL'),
-              meter:$('#meterL'), eq:$('#eqL'), audio:$('#audioL'), votes:$('#votesL'), tap:$('#tapL') };
-  const R = { pane:$('#paneR'), video:$('#videoR'), logoIn:$('#logoInputR'), logoImg:$('#logoImgR'), logoPh:$('#logoPhR'),
-              vidIn:$('#videoInputR'), audIn:$('#audioInputR'), startAt:$('#startR'), linkIn:$('#linkR'),
-              brandName:$('#brandNameR'), ctaShop:$('#ctaShopR'), ctaFollow:$('#ctaFollowR'), ctaMore:$('#ctaMoreR'),
-              meter:$('#meterR'), eq:$('#eqR'), audio:$('#audioR'), votes:$('#votesR'), tap:$('#tapR') };
+  /* ——— Elements ——— */
+  const vidA = $('#vidA'), vidB = $('#vidB');
+  const audA = $('#audA'), audB = $('#audB');
+  const votesA = $('#votesA'), votesB = $('#votesB');
+  const hint = $('#hint');
+  const roundsChip = $('#roundsChip'), timerChip = $('#timerChip');
+  const roundsSel = $('#roundsSel'), turnSel = $('#turnSel');
+  const startBtn = $('#startBtn');
+  const startBar = $('#startBar');
+  const exitBtn = $('#exitBtn'), flagBtn = $('#flagBtn');
 
-  const roundsChip=$('#roundsChip'), timerChip=$('#timerChip');
-  const roundsSel=$('#roundsSel'), turnLenSel=$('#turnLen');
-  const startBtn=$('#startBtn'), startBar=$('#startBar');
-  const exitBtn=$('#exitBtn'), flagBtn=$('#flagBtn'), hint=$('#hint');
-  const adCategory=$('#adCategory'), adSub=$('#adSub');
+  // Pane dimming (top starts)
+  $('#paneB').classList.add('dim');
 
-  /* NAV */
-  exitBtn.addEventListener('click', ()=>location.href='home.html');
-  flagBtn.addEventListener('click', ()=>{
-    const side = currentSide==='left' ? (L.brandName.value||'Brand A') : (R.brandName.value||'Brand B');
-    alert('Flag submitted for: ' + side);
-  });
+  /* ——— Composer state ——— */
+  const composer = $('#composer');
+  const closeComposer = $('#closeComposer');
+  const applyReel = $('#applyReel');
+  const previewBtn = $('#previewBtn');
+  const reelVideo = $('#reelVideo');
+  const reelVideoFile = $('#reelVideoFile');
+  const reelAudioFile = $('#reelAudioFile');
+  const eqCanvas = $('#eqCanvas');
+  const musicOffset = $('#musicOffset');
+  const trimStart = $('#trimStart');
+  const trimEnd = $('#trimEnd');
+  const volVideo = $('#volVideo'), volMusic = $('#volMusic');
+  const aspectSel = $('#aspectSel'), loopSel = $('#loopSel'), speedSel = $('#speedSel');
+  const reelCTA = $('#reelCTA');
+  const coverSec = $('#coverSec');
 
-  /* UTIL */
-  function loadFileTo(el,file){ const url=URL.createObjectURL(file); el.src=url; return url; }
+  // Which pane are we editing?
+  let activePane = 'A';
 
-  /* LOGOS + VIDEOS */
-  [L,R].forEach(S=>{
-    S.logoIn?.addEventListener('change', e=>{
-      const f=e.target.files?.[0]; if(!f) return;
-      S.logoImg.src=URL.createObjectURL(f); S.logoImg.style.display='block'; S.logoPh.style.display='none';
-    });
-    S.vidIn?.addEventListener('change', e=>{
-      const f=e.target.files?.[0]; if(!f) return;
-      loadFileTo(S.video,f); S.video.loop=true; S.video.muted=true; S.video.play().catch(()=>{});
-    });
-  });
+  $('#composeA').addEventListener('click', ()=>openComposer('A'));
+  $('#composeB').addEventListener('click', ()=>openComposer('B'));
 
-  /* ===== Music Meter ===== */
-  class Meter{
-    constructor(audioEl,canvas){ this.audioEl=audioEl; this.canvas=canvas; this.ctx=canvas.getContext('2d'); this.ac=null; this.src=null; this.an=null; this.data=null; this.raf=null; }
-    async init(){ if(this.ac) return; this.ac=new (window.AudioContext||window.webkitAudioContext)(); this.src=this.ac.createMediaElementSource(this.audioEl); this.an=this.ac.createAnalyser(); this.an.fftSize=256; this.src.connect(this.an); this.an.connect(this.ac.destination); this.data=new Uint8Array(this.an.frequencyBinCount); }
-    draw(){ const {width,height}=this.canvas; this.ctx.clearRect(0,0,width,height); this.an.getByteFrequencyData(this.data); const bars=28, step=Math.floor(this.data.length/bars), w=width/bars; for(let i=0;i<bars;i++){ const v=this.data[i*step]/255; const h=Math.max(2,v*height); const x=i*w, y=height-h; this.ctx.fillStyle='rgba(255,255,255,.9)'; this.ctx.fillRect(x+2,y,w-4,h); } this.raf=requestAnimationFrame(()=>this.draw()); }
-    start(){ cancelAnimationFrame(this.raf); this.draw(); }
-    stop(){ cancelAnimationFrame(this.raf); this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height); }
-  }
-  const meterL=new Meter($('#audioL'),$('#eqL')); const meterR=new Meter($('#audioR'),$('#eqR'));
-
-  function fitCanvas(c){ const dpr=Math.max(1,window.devicePixelRatio||1); const r=c.getBoundingClientRect(); c.width=Math.round(r.width*dpr); c.height=Math.round(r.height*dpr); c.getContext('2d').setTransform(dpr,0,0,dpr,0,0); }
-  const fitAll=()=>[$('#eqL'),$('#eqR')].forEach(fitCanvas);
-  addEventListener('load', fitAll); addEventListener('resize', fitAll);
-
-  [[L,meterL],[R,meterR]].forEach(([S,M])=>{
-    S.audIn?.addEventListener('change', async e=>{
-      const f=e.target.files?.[0]; if(!f) return;
-      await M.init(); loadFileTo(S.audio,f); S.meter.style.display='block';
-    });
-  });
-
-  /* CTA bindings */
-  L.linkIn?.addEventListener('input',()=>{ L.ctaShop.href=L.linkIn.value||'#'; L.ctaMore.href=L.linkIn.value||'#'; });
-  R.linkIn?.addEventListener('input',()=>{ R.ctaShop.href=R.linkIn.value||'#'; R.ctaMore.href=R.linkIn.value||'#'; });
-
-  /* ===== Battle Flow (vertical switching) ===== */
-  let roundsTotal=3, roundNow=1, turnSeconds=30, turnTimeLeft=30, currentSide='left', ticker=null;
-  R.pane.classList.add('dim');
-
-  function mmss(s){ const m=String(Math.floor(s/60)).padStart(2,'0'); const ss=String(Math.floor(s%60)).padStart(2,'0'); return `${m}:${ss}`; }
-
-  function updateUIForTurn(){
-    roundsChip.textContent=`R${roundNow} / ${roundsTotal}`;
-    timerChip.textContent=mmss(turnTimeLeft);
-    if(currentSide==='left'){
-      L.pane.classList.remove('dim'); R.pane.classList.add('dim');
-      L.video.muted=false; R.video.muted=true;
-      if(L.video.src) L.video.play().catch(()=>{}); if(R.video.src) R.video.play().catch(()=>{});
-      if(L.audio.src){ L.audio.muted=false; if(L.startAt.value) L.audio.currentTime=+L.startAt.value; L.audio.play().catch(()=>{}); meterL.start(); }
-      if(R.audio.src){ R.audio.pause(); meterR.stop(); }
-    }else{
-      R.pane.classList.remove('dim'); L.pane.classList.add('dim');
-      R.video.muted=false; L.video.muted=true;
-      if(L.video.src) L.video.play().catch(()=>{}); if(R.video.src) R.video.play().catch(()=>{});
-      if(R.audio.src){ R.audio.muted=false; if(R.startAt.value) R.audio.currentTime=+R.startAt.value; R.audio.play().catch(()=>{}); meterR.start(); }
-      if(L.audio.src){ L.audio.pause(); meterL.stop(); }
+  function openComposer(pane){
+    activePane = pane;
+    composer.classList.add('open');
+    // seed current settings per pane (if any)
+    const s = state[pane];
+    if(s.loaded){
+      trimStart.value = s.trimStart ?? 0;
+      trimEnd.value = s.trimEnd ?? Math.ceil((s.duration||30));
+      musicOffset.value = s.musicOffset ?? 0;
+      volVideo.value = s.volVideo ?? 1;
+      volMusic.value = s.volMusic ?? 0.9;
+      loopSel.value = s.loop ? 'On' : 'Off';
+      speedSel.value = (s.speed||1)+'x';
+      aspectSel.value = s.aspect || '9:16';
+      reelCTA.value = s.cta || '';
+      coverSec.value = s.coverSec ?? 0;
+      if(s.videoURL){ reelVideo.src = s.videoURL; }
+      reelVideo.muted = true;
+      reelVideo.loop = loopSel.value==='On';
+      reelVideo.play().catch(()=>{});
+      setAspectOn(reelVideo, aspectSel.value);
+    } else {
+      // reset
+      [trimStart.value, musicOffset.value, coverSec.value] = [0,0,0];
+      trimEnd.value = 30;
+      volVideo.value = 1; volMusic.value = 0.9;
+      loopSel.value = 'On'; speedSel.value = '1x'; aspectSel.value='9:16'; reelCTA.value='';
+      reelVideo.removeAttribute('src'); reelVideo.load();
     }
   }
-  function swapTurnOrRound(){
-    if(currentSide==='left'){ currentSide='right'; turnTimeLeft=turnSeconds; updateUIForTurn(); }
-    else{ if(roundNow<roundsTotal){ roundNow++; currentSide='left'; turnTimeLeft=turnSeconds; updateUIForTurn(); } else { endBattle(); } }
+  closeComposer.addEventListener('click', ()=>composer.classList.remove('open'));
+
+  reelVideoFile.addEventListener('change', e=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    reelVideo.src = url; reelVideo.play().catch(()=>{});
+    setTimeout(()=>{ trimEnd.value = Math.ceil(reelVideo.duration||30) }, 300);
+  });
+
+  reelAudioFile.addEventListener('change', e=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    // store as pane state later on apply
+  });
+
+  aspectSel.addEventListener('change', ()=> setAspectOn(reelVideo, aspectSel.value));
+  function setAspectOn(videoEl, val){
+    const phone = videoEl.closest('.reel-phone');
+    if(!phone) return;
+    // enforce mask via CSS aspect ratio on container
+    phone.style.aspectRatio = (val==='4:5') ? '4/5' : (val==='1:1' ? '1/1' : '9/16');
   }
-  function tick(){ turnTimeLeft--; timerChip.textContent=mmss(turnTimeLeft); if(turnTimeLeft<=0) swapTurnOrRound(); }
-  function hideNonEssential(h=true){
-    document.querySelectorAll('.hide-on-start').forEach(el=>el.classList.toggle('hidden',h));
-    adCategory.disabled=h; adSub.disabled=h;
+  loopSel.addEventListener('change', ()=> reelVideo.loop = (loopSel.value==='On'));
+  speedSel.addEventListener('change', ()=>{
+    const s = parseFloat(speedSel.value.replace('x',''))||1;
+    reelVideo.playbackRate = s;
+  });
+
+  // simple analyser bar (music appears after audio attach on apply)
+  const eqCtx = eqCanvas.getContext('2d');
+  function drawEQ(level=0){
+    const w = eqCanvas.clientWidth || 280;
+    const h = 44;
+    const dpr = window.devicePixelRatio||1;
+    eqCanvas.width = Math.round(w*dpr); eqCanvas.height = Math.round(h*dpr);
+    eqCtx.setTransform(dpr,0,0,dpr,0,0);
+    eqCtx.clearRect(0,0,w,h);
+    const bars = 28, bw = w/bars;
+    for(let i=0;i<bars;i++){
+      const v = Math.abs(Math.sin((i+level)*0.6))*0.9+0.1;
+      const barH = v*h;
+      eqCtx.fillStyle = 'rgba(255,255,255,.9)';
+      eqCtx.fillRect(i*bw+2, h-barH, bw-4, barH);
+    }
+  }
+  drawEQ();
+
+  previewBtn.addEventListener('click', ()=>{
+    const start = +trimStart.value||0;
+    const end = +trimEnd.value||start+5;
+    reelVideo.currentTime = start;
+    reelVideo.playbackRate = parseFloat(speedSel.value.replace('x',''))||1;
+    reelVideo.play().catch(()=>{});
+    clearTimeout(previewBtn._t);
+    previewBtn._t = setTimeout(()=>{ reelVideo.pause(); }, Math.max(0,(end-start)*1000/ reelVideo.playbackRate));
+  });
+
+  // Save composer settings into pane state and load into main panes
+  applyReel.addEventListener('click', async ()=>{
+    const pane = activePane;
+    const vid = pane==='A'?vidA:vidB;
+    const aud = pane==='A'?audA:audB;
+    const s = state[pane];
+
+    // Video
+    if(reelVideo.src){ s.videoURL = reelVideo.src; vid.src = s.videoURL; }
+    s.aspect = aspectSel.value;
+    s.loop = (loopSel.value==='On');
+    s.speed = parseFloat(speedSel.value.replace('x',''))||1;
+
+    // Trim
+    s.trimStart = +trimStart.value||0;
+    s.trimEnd = +trimEnd.value||Math.ceil(vid.duration||30);
+    s.coverSec = +coverSec.value||0;
+
+    // Music
+    s.musicOffset = +musicOffset.value||0;
+    s.volVideo = +volVideo.value;
+    s.volMusic = +volMusic.value;
+
+    // If a new audio file was picked, store it
+    const newAudio = reelAudioFile.files?.[0];
+    if(newAudio){ s.audioURL = URL.createObjectURL(newAudio); }
+
+    // CTA
+    s.cta = reelCTA.value||'#';
+    (pane==='A'?$('#ctaA'):$('#ctaB')).href = s.cta;
+
+    // Apply immediate playback defaults (muted in preview panes)
+    vid.muted = true;
+    vid.loop = true;
+    vid.playbackRate = s.speed;
+    try{ await vid.play(); }catch{}
+
+    s.loaded = true;
+    composer.classList.remove('open');
+  });
+
+  /* ——— Minimal battle engine (vertical) ——— */
+  let roundsTotal = 3, roundNow = 1, turnSecs = 30, tLeft = 30, current = 'A', ticker=null;
+  function mmss(s){ const m=String(Math.floor(s/60)).padStart(2,'0'); const ss=String(Math.floor(s%60)).padStart(2,'0'); return `${m}:${ss}`; }
+  function setEssentials(show){
+    document.querySelectorAll('.hide-on-start').forEach(el=>el.classList.toggle('hidden', !show));
   }
   function startBattle(){
-    roundsTotal=parseInt(roundsSel.value,10);
-    turnSeconds=parseInt(turnLenSel.value,10);
-    turnTimeLeft=turnSeconds; roundNow=1; currentSide='left';
-    hideNonEssential(true); hint.classList.remove('hidden'); updateUIForTurn();
-    clearInterval(ticker); ticker=setInterval(tick,1000);
-    [L.video,R.video].forEach(v=>{ if(v.src) v.play().catch(()=>{}); });
+    roundsTotal = +roundsSel.value||3;
+    turnSecs = +turnSel.value||30;
+    tLeft = turnSecs; roundNow=1; current='A';
+    setEssentials(false); hint.classList.remove('hidden');
+    updateTurn(); clearInterval(ticker); ticker=setInterval(tick,1000);
   }
-  function endBattle(){ clearInterval(ticker); ticker=null; meterL.stop(); meterR.stop(); L.audio.pause(); R.audio.pause(); hideNonEssential(false); }
+  function endBattle(){
+    clearInterval(ticker); ticker=null;
+    try{ audA.pause(); audB.pause(); }catch{}
+    setEssentials(true);
+  }
+  function tick(){ tLeft--; timerChip.textContent = mmss(tLeft); if(tLeft<=0) swapTurn(); }
   startBtn.addEventListener('click', startBattle);
+  exitBtn.addEventListener('click', ()=>location.href='home.html');
+  flagBtn.addEventListener('click', ()=>alert('Flag submitted'));
 
-  // Voting (tap top pane for A, bottom pane for B)
-  let votesL=0, votesR=0;
-  function vote(side){
-    if(!ticker) return;
-    if(side==='left'){ votesL++; L.votes.textContent=votesL; } else { votesR++; R.votes.textContent=votesR; }
-    hint.classList.add('hidden');
-    const pane=side==='left'?L.pane:R.pane; pane.style.outline='2px solid ' + (side==='left'?'#7dd3fc':'#c4b5fd'); setTimeout(()=>pane.style.outline='',120);
+  function swapTurn(){
+    if(current==='A'){ current='B'; tLeft=turnSecs; updateTurn(); }
+    else{ // completed both turns in round
+      if(roundNow<roundsTotal){ roundNow++; current='A'; tLeft=turnSecs; updateTurn(); }
+      else{ endBattle(); }
+    }
   }
-  L.tap.addEventListener('click',()=>vote('left'));
-  R.tap.addEventListener('click',()=>vote('right'));
-  addEventListener('keydown',(e)=>{ if(e.key==='ArrowUp')vote('left'); if(e.key==='ArrowDown')vote('right'); if(e.key==='Escape')exitBtn.click(); });
-  addEventListener('click', async ()=>{ try{ await meterL.ac?.resume(); await meterR.ac?.resume(); }catch{} }, {once:true});
 
-  /* ===== LOBBY ===== */
-  const lobby=$('#lobby'), openLobbyBtn=$('#openLobbyBtn'), closeLobby=$('#closeLobby');
-  const challengeList=$('#challengeList'), filterCategory=$('#filterCategory'), filterRounds=$('#filterRounds'), filterTurn=$('#filterTurn'), searchBrand=$('#searchBrand'), refreshLobby=$('#refreshLobby');
-
-  const demoListings=[
-    {brand:'Volt Sneakers', category:'Fashion', sub:'Sneakers', rounds:3, turn:30, tags:['street','drops'], link:'https://voltsneakers.example'},
-    {brand:'Pulse Energy', category:'Food & Beverage', sub:'Energy Drinks', rounds:3, turn:30, tags:['esports','new'], link:'https://pulse.example'},
-    {brand:'Nebula Phones', category:'Tech', sub:'Smartphones', rounds:5, turn:45, tags:['camera','5G'], link:'https://nebula.example'},
-    {brand:'Glow Cosmetics', category:'Beauty', sub:'Lips', rounds:1, turn:30, tags:['vegan'], link:'https://glow.example'},
-    {brand:'Apex Motors', category:'Auto', sub:'EV', rounds:3, turn:60, tags:['ev','lux'], link:'https://apex.example'},
-    {brand:'SkyFit', category:'Fitness', sub:'Wearables', rounds:3, turn:15, tags:['coach'], link:'https://skyfit.example'},
-  ];
-  let listings=[...demoListings];
-
-  function renderListings(){
-    const cat=filterCategory.value, rr=filterRounds.value, tt=filterTurn.value, q=searchBrand.value.trim().toLowerCase();
-    challengeList.innerHTML='';
-    const filtered=listings.filter(it=>{
-      if(cat!=='All' && it.category!==cat) return false;
-      if(rr!=='Any' && String(it.rounds)!==rr) return false;
-      if(tt!=='Any' && String(it.turn)!==tt) return false;
-      if(q && !(it.brand.toLowerCase().includes(q) || it.tags.join(' ').toLowerCase().includes(q))) return false;
-      return true;
-    });
-    if(!filtered.length){ const empty=document.createElement('div'); empty.style.opacity='.7'; empty.style.padding='.8rem'; empty.textContent='No open challenges. Create one!'; challengeList.appendChild(empty); return; }
-    filtered.forEach(it=>{
-      const card=document.createElement('div'); card.className='card';
-      card.innerHTML=`
-        <div class="logo" style="width:36px;height:36px;border-radius:10px;background:#111"></div>
-        <div class="grow">
-          <div style="font-weight:800">${it.brand}</div>
-          <div class="brandTag">${it.category}${it.sub?(' • '+it.sub):''} • ${it.rounds}R • ${it.turn}s • #${it.tags.join(' #')}</div>
-        </div>
-        <a class="btn" href="${it.link}" target="_blank" rel="noopener">Site</a>
-        <button class="btn gold">Challenge</button>`;
-      card.querySelector('.btn.gold').addEventListener('click',()=>{
-        adCategory.value=it.category; adSub.value=it.sub||''; roundsSel.value=String(it.rounds); turnLenSel.value=String(it.turn);
-        closeLobbyFn();
-      });
-      challengeList.appendChild(card);
-    });
+  function updateTurn(){
+    roundsChip.textContent = `R${roundNow} / ${roundsTotal}`;
+    timerChip.textContent = mmss(tLeft);
+    const top = $('#paneA'), bottom = $('#paneB');
+    if(current==='A'){
+      top.classList.remove('dim'); bottom.classList.add('dim');
+      playPane('A'); pausePane('B');
+    } else {
+      bottom.classList.remove('dim'); top.classList.add('dim');
+      playPane('B'); pausePane('A');
+    }
   }
-  function openLobby(){ lobby.classList.add('open'); renderListings(); }
-  function closeLobbyFn(){ lobby.classList.remove('open'); }
-  openLobbyBtn.addEventListener('click', openLobby);
-  closeLobby.addEventListener('click', closeLobbyFn);
-  refreshLobby.addEventListener('click', renderListings);
-  [filterCategory,filterRounds,filterTurn].forEach(el=>el.addEventListener('change', renderListings));
-  searchBrand.addEventListener('input', renderListings);
 
-  /* ===== CREATE BATTLE ===== */
-  const createModal=$('#createModal'), openCreateBtn=$('#openCreateBtn'), closeCreate=$('#closeCreate');
-  const cNameL=$('#cNameL'), cNameR=$('#cNameR'), cLinkL=$('#cLinkL'), cLinkR=$('#cLinkR');
-  const cVidL=$('#cVidL'), cVidR=$('#cVidR'), cAudL=$('#cAudL'), cAudR=$('#cAudR'), cStartL=$('#cStartL'), cStartR=$('#cStartR');
-  const createCategory=$('#createCategory'), createRounds=$('#createRounds'), createTurn=$('#createTurn');
-  const createLoad=$('#createLoad'), createAndStart=$('#createAndStart');
+  function playPane(p){
+    const s = state[p];
+    const v = (p==='A'?vidA:vidB);
+    const a = (p==='A'?audA:audB);
+    if(!s.loaded) return;
 
-  function openCreate(){ createModal.classList.add('open'); }
-  function closeCreateFn(){ createModal.classList.remove('open'); }
-  openCreateBtn.addEventListener('click', openCreate);
-  closeCreate.addEventListener('click', closeCreateFn);
+    // Video trim boundaries
+    const st = s.trimStart||0;
+    v.currentTime = st;
+    v.muted = (s.volVideo===0);
+    v.playbackRate = s.speed||1;
+    v.loop = false;
 
-  function applyCreateToArena(){
-    adCategory.value=createCategory.value; roundsSel.value=createRounds.value; turnLenSel.value=createTurn.value;
-    if(cNameL.value) L.brandName.value=cNameL.value;
-    if(cNameR.value) R.brandName.value=cNameR.value;
-    if(cLinkL.value){ L.linkIn.value=cLinkL.value; L.ctaShop.href=cLinkL.value; L.ctaMore.href=cLinkL.value; }
-    if(cLinkR.value){ R.linkIn.value=cLinkR.value; R.ctaShop.href=cLinkR.value; R.ctaMore.href=cLinkR.value; }
-    if(cStartL.value) L.startAt.value=cStartL.value;
-    if(cStartR.value) R.startAt.value=cStartR.value;
-    if(cVidL.files[0]){ loadFileTo(L.video,cVidL.files[0]); L.video.loop=true; L.video.muted=true; L.video.play().catch(()=>{}); }
-    if(cVidR.files[0]){ loadFileTo(R.video,cVidR.files[0]); R.video.loop=true; R.video.muted=true; R.video.play().catch(()=>{}); }
-    if(cAudL.files[0]){ loadFileTo(L.audio,cAudL.files[0]); L.meter.style.display='block'; (async()=>{ try{ await meterL.init(); }catch{} })(); }
-    if(cAudR.files[0]){ loadFileTo(R.audio,cAudR.files[0]); R.meter.style.display='block'; (async()=>{ try{ await meterR.init(); }catch{} })(); }
+    v.onended = null;
+    v.ontimeupdate = ()=>{
+      if(v.currentTime >= (s.trimEnd||v.duration||30)){
+        // stop this turn at end of trimmed segment
+        v.pause();
+      }
+    };
+    v.play().catch(()=>{});
+
+    // Audio (music)
+    if(s.audioURL){
+      a.src = s.audioURL;
+      a.currentTime = s.musicOffset||0;
+      a.volume = s.volMusic ?? 0.9;
+      a.play().catch(()=>{});
+    }
   }
-  createLoad.addEventListener('click', ()=>{ applyCreateToArena(); closeCreateFn(); });
-  createAndStart.addEventListener('click', ()=>{ applyCreateToArena(); closeCreateFn(); startBattle(); });
+  function pausePane(p){
+    const v = (p==='A'?vidA:vidB);
+    const a = (p==='A'?audA:audB);
+    try{ v.pause(); }catch{}
+    try{ a.pause(); }catch{}
+  }
 
-  /* INIT */
-  (function init(){ hideNonEssential(false); setHeights(); fitAll(); })();
+  // Voting
+  let aVotes=0, bVotes=0;
+  $('#tapA').addEventListener('click', ()=>{ if(ticker){ aVotes++; votesA.textContent=aVotes; hint.classList.add('hidden'); flash('#paneA'); }});
+  $('#tapB').addEventListener('click', ()=>{ if(ticker){ bVotes++; votesB.textContent=bVotes; hint.classList.add('hidden'); flash('#paneB'); }});
+  addEventListener('keydown',(e)=>{ if(e.key==='ArrowUp')$('#tapA').click(); if(e.key==='ArrowDown')$('#tapB').click(); });
+
+  function flash(sel){ const el=$(sel); el.style.outline='2px solid #7dd3fc'; setTimeout(()=>el.style.outline='',120); }
+
+  // Pane state
+  const state = {
+    A: { loaded:false, videoURL:null, audioURL:null, trimStart:0, trimEnd:30, musicOffset:0, volVideo:1, volMusic:0.9, aspect:'9:16', speed:1, loop:true, cta:'#', coverSec:0 },
+    B: { loaded:false, videoURL:null, audioURL:null, trimStart:0, trimEnd:30, musicOffset:0, volVideo:1, volMusic:0.9, aspect:'9:16', speed:1, loop:true, cta:'#', coverSec:0 }
+  };
+
+  // Find/Create (stubs for now)
+  $('#findBtn').addEventListener('click', ()=>alert('Open matchmaking lobby (wire to backend)'));
+  $('#createBtn').addEventListener('click', ()=>openComposer('A'));
+
+  // EQ animation placeholder
+  let eqT=0; setInterval(()=>{ drawEQ(eqT+=0.3); }, 120);
+
+  // Ensure initial UI shows setup controls
+  function init(){ setEssentials(true); lockHeights(); }
+  init();
 </script>
 </body>
 </html>
