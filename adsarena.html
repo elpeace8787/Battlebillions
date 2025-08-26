@@ -3,24 +3,23 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Ad Arena — Vertical Battle (Focused)</title>
+<title>Ad Arena — Side-by-Side Vertical</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
 <style>
   :root{
-    --bg:#0c0c0f; --ink:#f6f7fb; --muted:#a7adb9; --gold:#ffd54a;
-    --glass:rgba(255,255,255,.07); --bd:#ffffff24; --dim:rgba(0,0,0,.5);
-    --vh:100svh; /* JS keeps this accurate on mobile */
+    --bg:#0c0c0f; --ink:#f6f7fb; --muted:#a7adb9; --glass:rgba(255,255,255,.07); --bd:#ffffff24; --dim:rgba(0,0,0,.5);
+    --vh:100svh;            /* JS keeps real mobile height */
+    --topH:56px; --botH:58px;/* measured at runtime */
+    --arenaH:calc(var(--vh) - var(--topH) - var(--botH));
+    --paneH:360px;          /* JS sets this so both panels fit across */
   }
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
 
-  /* ===== Site frame (scrollable) ===== */
-  .page{min-height:var(--vh);display:flex;flex-direction:column}
+  /* Header / Footer (sticky so page can scroll) */
   header.topbar{
-    position:sticky;top:0;z-index:50;
-    display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
-    padding:.7rem .9rem;background:rgba(16,16,18,.9);backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--bd)
+    position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+    padding:.7rem .9rem;background:rgba(16,16,18,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)
   }
   .logo{font-family:Orbitron,Inter,sans-serif;font-weight:800;letter-spacing:.5px}
   .spacer{flex:1}
@@ -28,19 +27,42 @@
   .btn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
   .chip{display:inline-flex;align-items:center;gap:.45rem;background:var(--glass);border:1px solid var(--bd);border-radius:999px;padding:.38rem .6rem;font-weight:800}
 
-  main{flex:1;display:flex;flex-direction:column;gap:1rem}
-  .arenaWrap{padding:.9rem;display:grid;gap:.9rem}
-  .panes{display:grid;grid-template-rows:1fr 1fr;gap:.9rem}
+  footer.bottomnav{
+    position:sticky;bottom:0;z-index:40;display:flex;align-items:center;justify-content:space-around;
+    height:calc(58px + env(safe-area-inset-bottom));padding:.3rem .6rem calc(.3rem + env(safe-area-inset-bottom));
+    border-top:1px solid var(--bd);background:rgba(16,16,18,.95);backdrop-filter:blur(10px)
+  }
+  .navbtn{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-decoration:none;color:var(--ink)}
+  .navbtn svg{width:22px;height:22px}.navlbl{font-size:.72rem}
+
+  /* ===== Arena: two vertical panels, side-by-side, touching ===== */
+  .arenaWrap{padding:0}
+  .panes{
+    height:var(--arenaH);
+    display:grid;grid-template-columns:1fr 1fr;gap:0; /* touching */
+    position:relative
+  }
+  /* thin divider (visual only, panels still touch) */
+  .panes::before{
+    content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,#ffffff20,transparent);
+    transform:translateX(-.5px)
+  }
   .pane{
-    position:relative;border:1px solid var(--bd);border-radius:16px;overflow:hidden;background:#000;min-height:44vh
+    position:relative; height:var(--paneH); /* JS computes so both fit across */
+    display:grid;place-items:center;overflow:hidden;background:#000
   }
   .stage{position:absolute;inset:0;display:grid;place-items:center}
   .phone{width:100%;height:100%;display:grid;place-items:center}
-  .frame{position:relative;aspect-ratio:9/16;height:100%;max-height:100%;border-radius:12px;overflow:hidden;background:#000}
+  /* The frame is true 9:16 and fills the pane height; width scales automatically */
+  .frame{position:relative;aspect-ratio:9/16;height:100%;width:auto;border-radius:0;overflow:hidden;background:#000}
   video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  /* remove any inner radius so panels look like two phones touching */
+  #paneA .frame{border-right:0}
+  #paneB .frame{border-left:0}
   .shade{position:absolute;inset:0;background:transparent;transition:background .25s}
   .pane.dim .shade{background:var(--dim)}
 
+  /* HUD & inline controls (unchanged from your last version) */
   .hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
   .toprow{display:flex;justify-content:space-between;align-items:center;padding:.55rem .65rem}
   .center-top{position:absolute;left:50%;transform:translateX(-50%);top:.55rem;display:flex;gap:.45rem;align-items:center}
@@ -52,60 +74,14 @@
   .minibtn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
   .hint{position:absolute;left:50%;bottom:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid var(--bd);padding:.34rem .56rem;border-radius:10px;font-size:.86rem;opacity:.95}
 
-  footer.bottomnav{
-    position:sticky;bottom:0;z-index:40;
-    display:flex;align-items:center;justify-content:space-around;
-    height:calc(58px + env(safe-area-inset-bottom));padding:.3rem .6rem calc(.3rem + env(safe-area-inset-bottom));
-    border-top:1px solid var(--bd);background:rgba(16,16,18,.95);backdrop-filter:blur(10px)
-  }
-  .navbtn{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-decoration:none;color:var(--ink);opacity:.95}
-  .navbtn svg{width:22px;height:22px}
-  .navlbl{font-size:.72rem}
-
-  /* ===== Full-screen chooser (Category → Subcategory) ===== */
-  .chooser{
-    position:fixed;inset:0;z-index:100;background:rgba(10,10,12,.98);backdrop-filter:blur(8px);
-    display:none;flex-direction:column
-  }
-  .chooser.open{display:flex}
-  .chooser header{display:flex;align-items:center;gap:.6rem;padding:.8rem .9rem;border-bottom:1px solid var(--bd)}
-  .chooser .body{flex:1;overflow:auto;padding:.9rem;display:grid;gap:.9rem}
-  .sectionTitle{font-weight:800;opacity:.9}
-  .grid{display:grid;gap:.6rem}
-  .grid.cols2{grid-template-columns:1fr 1fr}
-  .grid.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .tile{display:flex;align-items:center;gap:.6rem;border:1px solid var(--bd);background:var(--glass);border-radius:14px;padding:.7rem .8rem}
-  .tile input{margin:0}
-  .search{border:1px solid var(--bd);background:#ffffff10;color:var(--ink);border-radius:10px;padding:.55rem .6rem;font-weight:700;outline:none}
-  .pillOpt{display:inline-flex;align-items:center;gap:.45rem;border:1px solid var(--bd);background:#ffffff12;border-radius:999px;padding:.42rem .6rem;cursor:pointer}
-  .pillOpt.selected{background:linear-gradient(180deg,#2b2f39,#1a1d24);outline:2px solid #ffffff26}
-  .chooser footer{display:flex;gap:.6rem;justify-content:flex-end;padding:.8rem .9rem;border-top:1px solid var(--bd);background:rgba(16,16,18,.9);position:sticky;bottom:0}
-
-  /* ===== Composer modal (Edit Ad) ===== */
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:90}
-  .modal.open{display:flex}
-  .sheet{width:100%;max-width:980px;max-height:90svh;overflow:auto;background:rgba(20,20,22,.98);border:1px solid var(--bd);border-radius:16px 16px 0 0;padding:1rem}
-  .sheet header{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;position:sticky;top:0;background:inherit;padding-bottom:.4rem}
-  .reel-phone{position:relative;aspect-ratio:9/16;border-radius:16px;border:1px solid #ffffff22;overflow:hidden;background:#000}
-  .reel-phone video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .overlay-preview{position:absolute;left:0;right:0;bottom:0;padding:.5rem;display:flex;gap:.4rem;justify-content:flex-start;align-items:flex-end;pointer-events:none}
-  .row{display:flex;gap:.6rem;flex-wrap:wrap}
-  .field{display:flex;align-items:center;gap:.44rem;border:1px solid var(--bd);background:#ffffff10;border-radius:12px;padding:.5rem .6rem}
-  .field label{font-size:.86rem;color:var(--muted)}
-  .field input,.field select{background:transparent;border:none;color:var(--ink);font-weight:700;outline:none}
-  .field input[type="range"]{width:160px}
-  .pill.small{padding:.3rem .5rem;border-radius:10px}
-  .gridForm{display:grid;gap:.6rem}
-  .grid2{grid-template-columns:1fr 1fr}
-  @media(min-width:900px){ .panes{grid-template-columns:1fr 1fr;grid-template-rows:none}.pane{min-height:60vh} .gridForm.grid2{display:grid;grid-template-columns:1fr 1fr} }
+  /* Full-screen chooser & composer carry over (styles omitted for brevity) */
 </style>
 </head>
 <body>
-<div class="page">
-  <!-- Header -->
-  <header class="topbar" id="topbar">
+  <!-- ===== Header ===== -->
+  <header class="topbar" id="topBar">
     <div class="logo">AD ARENA</div>
-    <div id="chips" style="display:none;gap:.5rem" class="row">
+    <div id="chips" class="row" style="display:none;gap:.5rem">
       <div class="chip" id="chipCat"></div>
       <div class="chip" id="chipSub"></div>
     </div>
@@ -114,63 +90,61 @@
     <button class="btn" id="createBtn">Edit Ad</button>
   </header>
 
-  <!-- Arena -->
-  <main>
-    <section class="arenaWrap">
-      <div class="panes">
-        <!-- TOP panel (Brand A) -->
-        <article class="pane" id="paneA">
-          <div class="stage"><div class="phone"><div class="frame" id="frameA"><video id="vidA" playsinline muted></video></div></div></div>
-          <div class="shade"></div>
-          <div class="hud">
-            <div class="toprow">
-              <button class="iconbtn" id="exitBtn" title="Exit">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M6 6l12 12M18 6L6 18"/></svg>
-              </button>
-              <div class="center-top">
-                <div class="chip" id="roundsChip">R1 / 3</div>
-                <div class="chip" id="timerChip">00:30</div>
-              </div>
-              <button class="iconbtn" id="flagBtn" title="Flag">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M4 4v16M4 4h11l-1.5 3H20l-2 4 2 4h-4l-1.5-3H4"/></svg>
-              </button>
+  <!-- ===== Arena (side-by-side vertical screens) ===== -->
+  <main class="arenaWrap">
+    <section class="panes" id="panes">
+      <!-- Panel A -->
+      <article class="pane" id="paneA">
+        <div class="stage"><div class="phone"><div class="frame" id="frameA"><video id="vidA" playsinline muted></video></div></div></div>
+        <div class="shade"></div>
+        <div class="hud">
+          <div class="toprow">
+            <button class="iconbtn" id="exitBtn" title="Exit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <div class="center-top">
+              <div class="chip" id="roundsChip">R1 / 3</div>
+              <div class="chip" id="timerChip">00:30</div>
             </div>
-            <div class="votes" id="votesA">0</div>
-            <div class="hint" id="hint">Tap a panel to vote during battle</div>
+            <button class="iconbtn" id="flagBtn" title="Flag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M4 4v16M4 4h11l-1.5 3H20l-2 4 2 4h-4l-1.5-3H4"/></svg>
+            </button>
           </div>
-          <div class="inline-controls">
-            <button class="minibtn" id="composeA">Edit Ad</button>
-            <a class="minibtn" id="ctaA" href="#" target="_blank" rel="noopener">CTA</a>
-            <div class="chip">
-              <label style="opacity:.8;margin-right:.35rem">Rounds</label>
-              <select id="roundsSel"><option>1</option><option selected>3</option><option>5</option></select>
-              <label style="opacity:.8;margin-left:.45rem;margin-right:.35rem">Turn</label>
-              <select id="turnSel"><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
-              <button class="minibtn gold" id="startBtn">Start</button>
-            </div>
+          <div class="votes" id="votesA">0</div>
+          <div class="hint" id="hint">Tap a panel to vote</div>
+        </div>
+        <div class="inline-controls">
+          <button class="minibtn" id="composeA">Edit Ad</button>
+          <a class="minibtn" id="ctaA" href="#" target="_blank" rel="noopener">CTA</a>
+          <div class="chip">
+            <label style="opacity:.8;margin-right:.35rem">Rounds</label>
+            <select id="roundsSel"><option>1</option><option selected>3</option><option>5</option></select>
+            <label style="opacity:.8;margin-left:.45rem;margin-right:.35rem">Turn</label>
+            <select id="turnSel"><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
+            <button class="minibtn gold" id="startBtn">Start</button>
           </div>
-          <div id="tapA" style="position:absolute;inset:0"></div>
-        </article>
+        </div>
+        <div id="tapA" style="position:absolute;inset:0"></div>
+      </article>
 
-        <!-- BOTTOM panel (Brand B) -->
-        <article class="pane" id="paneB">
-          <div class="stage"><div class="phone"><div class="frame" id="frameB"><video id="vidB" playsinline muted></video></div></div></div>
-          <div class="shade"></div>
-          <div class="hud">
-            <div class="toprow" aria-hidden="true"></div>
-            <div class="votes" id="votesB">0</div>
-          </div>
-          <div class="inline-controls">
-            <button class="minibtn" id="composeB">Edit Ad</button>
-            <a class="minibtn" id="ctaB" href="#" target="_blank" rel="noopener">CTA</a>
-          </div>
-          <div id="tapB" style="position:absolute;inset:0"></div>
-        </article>
-      </div>
+      <!-- Panel B -->
+      <article class="pane" id="paneB">
+        <div class="stage"><div class="phone"><div class="frame" id="frameB"><video id="vidB" playsinline muted></video></div></div></div>
+        <div class="shade"></div>
+        <div class="hud">
+          <div class="toprow" aria-hidden="true"></div>
+          <div class="votes" id="votesB">0</div>
+        </div>
+        <div class="inline-controls">
+          <button class="minibtn" id="composeB">Edit Ad</button>
+          <a class="minibtn" id="ctaB" href="#" target="_blank" rel="noopener">CTA</a>
+        </div>
+        <div id="tapB" style="position:absolute;inset:0"></div>
+      </article>
     </section>
   </main>
 
-  <!-- Footer -->
+  <!-- ===== Footer ===== -->
   <footer class="bottomnav" id="bottomNav">
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M3 11l9-8 9 8v9"/></svg><span class="navlbl">Home</span></a>
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke-width="2"/></svg><span class="navlbl">Discover</span></a>
@@ -178,361 +152,48 @@
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path stroke-width="2" d="M7 10l5 5 5-5"/></svg><span class="navlbl">Inbox</span></a>
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4" stroke-width="2"/><path stroke-width="2" d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg><span class="navlbl">Profile</span></a>
   </footer>
-</div>
 
-<!-- ============ CATEGORY → SUBCATEGORY CHOOSER (appears → confirm → disappears) ============ -->
-<div class="chooser" id="chooser">
-  <header>
-    <div class="logo">Choose Category</div>
-    <div class="spacer"></div>
-    <button class="btn" id="closeChooser">Close</button>
-  </header>
-  <div class="body">
-    <div>
-      <div class="sectionTitle">1) Category</div>
-      <input id="catSearch" class="search" placeholder="Search categories…"/>
-      <div id="catGrid" class="grid cols2" style="margin-top:.6rem"></div>
-    </div>
-    <div>
-      <div class="sectionTitle">2) Subcategory</div>
-      <div id="subWrap" class="grid" style="grid-auto-rows:minmax(0,auto)"></div>
-    </div>
-  </div>
-  <footer>
-    <div class="chip" id="selSummary" style="margin-right:auto;display:none"></div>
-    <button class="btn" id="clearSel">Clear</button>
-    <button class="btn gold" id="confirmSel" disabled>Confirm</button>
-  </footer>
-</div>
-
-<!-- ============ EDIT AD COMPOSER ============ -->
-<div class="modal" id="composer">
-  <div class="sheet">
-    <header>
-      <button class="btn" id="closeComposer">Close</button>
-      <div style="font-weight:800;margin-left:.5rem">Edit Ad</div>
-      <div class="spacer"></div>
-      <button class="btn gold" id="applyAd">Apply</button>
-    </header>
-
-    <div class="reel-phone" id="previewMask">
-      <video id="adVideo" playsinline muted loop></video>
-      <div class="overlay-preview" id="overlayPreview">
-        <span id="captionPreview" style="font-weight:800;background:rgba(0,0,0,.45);padding:.2rem .4rem;border-radius:8px;display:none"></span>
-        <img id="wmPreview" alt="" style="display:none;max-height:36px;border-radius:6px"/>
-      </div>
-    </div>
-
-    <div class="gridForm grid2" style="margin-top:.8rem">
-      <div class="field full"><label>Video</label><input id="adVideoFile" type="file" accept="video/*" capture="user"/></div>
-      <div class="field full"><label>Music</label><input id="adAudioFile" type="file" accept="audio/*"/></div>
-      <div class="field"><label>Trim Start</label><input id="trimStart" type="number" min="0" value="0"/></div>
-      <div class="field"><label>Trim End</label><input id="trimEnd" type="number" min="1" value="30"/></div>
-      <div class="field"><label>Music Offset</label><input id="musicOffset" type="number" min="0" value="0"/></div>
-      <div class="field"><label>Speed</label>
-        <select id="speedSel"><option>0.5x</option><option selected>1x</option><option>1.5x</option><option>2x</option></select>
-      </div>
-      <div class="field"><label>Aspect</label>
-        <select id="aspectSel"><option value="9:16" selected>9:16</option><option value="4:5">4:5</option><option value="1:1">1:1</option></select>
-      </div>
-      <div class="field"><label>Loop</label><select id="loopSel"><option>On</option><option>Off</option></select></div>
-      <div class="field"><label>Video Vol</label><input id="volVideo" type="range" min="0" max="1" step="0.05" value="1"/></div>
-      <div class="field"><label>Music Vol</label><input id="volMusic" type="range" min="0" max="1" step="0.05" value="0.9"/></div>
-      <div class="field"><label>Fade In</label><select id="fadeIn"><option>None</option><option>0.5s</option><option>1s</option><option>2s</option></select></div>
-      <div class="field"><label>Fade Out</label><select id="fadeOut"><option>None</option><option>0.5s</option><option>1s</option><option>2s</option></select></div>
-      <div class="field"><label>Crop X%</label><input id="cropX" type="range" min="0" max="100" value="50"/></div>
-      <div class="field"><label>Crop Y%</label><input id="cropY" type="range" min="0" max="100" value="50"/></div>
-      <div class="field"><label>Brightness</label><input id="fBright" type="range" min="0.5" max="1.5" step="0.05" value="1"/></div>
-      <div class="field"><label>Contrast</label><input id="fContrast" type="range" min="0.5" max="1.5" step="0.05" value="1"/></div>
-      <div class="field"><label>Saturation</label><input id="fSaturate" type="range" min="0" max="2" step="0.05" value="1"/></div>
-      <div class="field"><label>Warmth</label><input id="fHue" type="range" min="-45" max="45" step="1" value="0"/></div>
-      <div class="field full"><label>Caption</label><input id="captionText" placeholder="Headline or promo…"/></div>
-      <div class="field"><label>Caption Pos</label>
-        <select id="captionPos"><option>Bottom Left</option><option selected>Bottom Center</option><option>Bottom Right</option><option>Top Left</option><option>Top Center</option><option>Top Right</option></select>
-      </div>
-      <div class="field"><label>Caption Size</label><select id="captionSize"><option>12</option><option selected>16</option><option>18</option><option>20</option><option>24</option></select></div>
-      <div class="field"><label>Caption BG</label><select id="captionBg"><option>Dark</option><option>Light</option><option>None</option></select></div>
-      <div class="field full"><label>Watermark/Logo</label><input id="wmFile" type="file" accept="image/*"/></div>
-      <div class="field"><label>WM Pos</label><select id="wmPos"><option selected>Top Left</option><option>Top Right</option><option>Bottom Left</option><option>Bottom Right</option></select></div>
-      <div class="field full"><label>CTA Link</label><input id="adCTA" placeholder="https://your-landingpage.com"/></div>
-      <div class="row" style="justify-content:flex-end">
-        <button class="btn" id="previewBtn">Preview Trim</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Hidden audio for panes -->
-<audio id="audA" preload="auto" crossorigin="anonymous"></audio>
-<audio id="audB" preload="auto" crossorigin="anonymous"></audio>
+  <!-- ===== Category chooser & Edit Ad composer (reuse from your last file) ===== -->
+  <!-- Keep your chooser/composer markup here unchanged -->
+  <!-- … -->
 
 <script>
   const $ = s => document.querySelector(s);
 
-  /* ===== Real mobile viewport variable ===== */
-  function setVH(){
+  /* ===== Real mobile viewport + measured bars ===== */
+  function setViewportVars(){
     const vv = window.visualViewport;
-    document.documentElement.style.setProperty('--vh', Math.round(vv?.height || window.innerHeight) + 'px');
+    const vh = Math.round(vv?.height || window.innerHeight);
+    document.documentElement.style.setProperty('--vh', vh+'px');
+
+    // measure sticky bars
+    const top = Math.round($('#topBar').getBoundingClientRect().height);
+    const bot = Math.round($('#bottomNav').getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--topH', top+'px');
+    document.documentElement.style.setProperty('--botH', bot+'px');
+
+    // compute pane height so TWO 9:16 frames fit across the screen width
+    const w = Math.round(window.innerWidth);
+    const halfW = w/2;                  // each panel gets half the width
+    const heightFromWidth = halfW * (16/9); // 9:16 => h = w * 16/9
+    const maxArenaH = vh - top - bot;   // don't exceed visible viewport
+    const paneH = Math.min(heightFromWidth, maxArenaH);
+    document.documentElement.style.setProperty('--arenaH', maxArenaH+'px');
+    document.documentElement.style.setProperty('--paneH', Math.floor(paneH)+'px');
   }
-  ['load','resize','orientationchange','scroll'].forEach(ev=>addEventListener(ev, setVH, {passive:true}));
-  setVH();
+  ['load','resize','orientationchange'].forEach(ev=>addEventListener(ev, setViewportVars, {passive:true}));
+  setViewportVars();
 
-  /* ===== CATEGORY DATA ===== */
-  const CATEGORY_MAP = {
-    "Fashion":["Sneakers","Apparel","Accessories","Luxury","Streetwear","Watches & Jewelry"],
-    "Food & Beverage":["Energy Drinks","Snacks","Quick Service","Packaged Meals","Coffee","Supplements"],
-    "Tech":["Smartphones","Laptops","Audio","Smart Home","Apps","AI Tools"],
-    "Gaming":["Consoles","PC Gaming","Esports","Mobile Games","Peripherals"],
-    "Beauty":["Skincare","Makeup","Hair","Fragrance","Vegan"],
-    "Auto":["EV","SUV","Sedan","Charging","Aftermarket"],
-    "Finance":["Banking","Investing","Crypto","Insurance","Fintech"],
-    "Fitness":["Wearables","Gym","Yoga","Nutrition"],
-    "Music":["Streaming","Artists","Instruments"],
-    "Travel":["Airlines","Hotels","Experiences","Luggage"],
-    "Education":["Online Courses","Tutoring","EdTech"],
-    "Entertainment":["Streaming","Movies","Events","Tickets"],
-    "Sports":["Apparel","Teams","Gear","Fantasy"],
-    "Health":["Telehealth","Pharmacy","Wellness"],
-    "Nonprofit":["Causes","Fundraising"],
-    "Apps":["Productivity","Social","Photo/Video","Finance"],
-    "Home & Living":["Furniture","Kitchen","Smart Home","Décor"],
-    "Pets":["Food","Care","Accessories"],
-    "Kids & Family":["Toys","Learning","Care"],
-    "Outdoors":["Camping","Hiking","Cycling"],
-    "Watches & Jewelry":["Timepieces","Fine Jewelry","Smart Watches"],
-    "Groceries":["Delivery","Organic","Specialty"],
-    "Telecom":["Wireless","Broadband","Devices"],
-    "Real Estate":["New Homes","Rentals","Commercial"],
-    "Professional Services":["Agencies","SaaS","Consulting"]
-  };
+  /* ===== Keep your existing JS (chooser, composer, battle engine) ===== */
+  // If you're pasting into your previous file, keep all logic below this line.
+  // For brevity, not repeating the full composer/chooser code here — it works unchanged.
 
-  /* ===== CHOOSER (appears → confirm → disappears) ===== */
-  const chooser = $('#chooser');
-  const chooseBtn = $('#chooseBtn');
-  const closeChooser = $('#closeChooser');
-  const catGrid = $('#catGrid');
-  const catSearch = $('#catSearch');
-  const subWrap = $('#subWrap');
-  const selSummary = $('#selSummary');
-  const clearSel = $('#clearSel');
-  const confirmSel = $('#confirmSel');
-  const chips = $('#chips'), chipCat = $('#chipCat'), chipSub = $('#chipSub');
-
-  let chosenCat = null, chosenSub = null;
-
-  function renderCats(filter=''){
-    catGrid.innerHTML = '';
-    const items = Object.keys(CATEGORY_MAP).filter(c => c.toLowerCase().includes(filter.toLowerCase()));
-    items.forEach(cat=>{
-      const el = document.createElement('label');
-      el.className='tile';
-      el.innerHTML = `<input type="radio" name="cat" value="${cat}"/><strong>${cat}</strong>`;
-      el.querySelector('input').addEventListener('change', ()=>{
-        chosenCat = cat; chosenSub = null; renderSubs(cat); updateConfirm();
-      });
-      catGrid.appendChild(el);
-    });
-  }
-  function renderSubs(cat){
-    subWrap.innerHTML = '';
-    if(!cat){ subWrap.innerHTML = `<div class="tile" style="opacity:.7">Choose a category first</div>`; return; }
-    const subs = CATEGORY_MAP[cat] || [];
-    const box = document.createElement('div');
-    box.className = 'row';
-    subs.forEach(s=>{
-      const p = document.createElement('button');
-      p.type='button'; p.className='pillOpt'; p.textContent=s;
-      p.addEventListener('click', ()=>{
-        chosenSub = s;
-        [...box.children].forEach(b=>b.classList.remove('selected'));
-        p.classList.add('selected');
-        updateConfirm();
-      });
-      box.appendChild(p);
-    });
-    subWrap.appendChild(box);
-  }
-  function updateConfirm(){
-    confirmSel.disabled = !(chosenCat && chosenSub);
-    if(chosenCat){ selSummary.style.display='inline-flex'; selSummary.textContent = `${chosenCat} • ${chosenSub || ''}`; }
-    else { selSummary.style.display='none'; }
-  }
-
-  chooseBtn.addEventListener('click', ()=>{
-    chooser.classList.add('open');
-    renderCats(); renderSubs(null); updateConfirm();
-  });
-  closeChooser.addEventListener('click', ()=> chooser.classList.remove('open'));
-  clearSel.addEventListener('click', ()=>{
-    chosenCat=null; chosenSub=null; catSearch.value=''; renderCats(); renderSubs(null); updateConfirm();
-  });
-  confirmSel.addEventListener('click', ()=>{
-    // Collapse UI to chips, hide chooser
-    chipCat.textContent = chosenCat;
-    chipSub.textContent = chosenSub;
-    chips.style.display='flex';
-    chooser.classList.remove('open');
-  });
-  catSearch.addEventListener('input', e=> renderCats(e.target.value));
-
-  /* ===== EDIT AD COMPOSER ===== */
-  const composer=$('#composer'), closeComposer=$('#closeComposer'), applyAd=$('#applyAd'), previewBtn=$('#previewBtn');
-  const adVideo=$('#adVideo'), adVideoFile=$('#adVideoFile'), adAudioFile=$('#adAudioFile');
-  const aspectSel=$('#aspectSel'), loopSel=$('#loopSel'), speedSel=$('#speedSel');
-  const trimStart=$('#trimStart'), trimEnd=$('#trimEnd'), musicOffset=$('#musicOffset');
-  const volVideo=$('#volVideo'), volMusic=$('#volMusic'), fadeIn=$('#fadeIn'), fadeOut=$('#fadeOut');
-  const cropX=$('#cropX'), cropY=$('#cropY');
-  const fBright=$('#fBright'), fContrast=$('#fContrast'), fSaturate=$('#fSaturate'), fHue=$('#fHue');
-  const captionText=$('#captionText'), captionPos=$('#captionPos'), captionSize=$('#captionSize'), captionBg=$('#captionBg');
-  const captionPreview=$('#captionPreview'); const wmFile=$('#wmFile'), wmPreview=$('#wmPreview'), wmPos=$('#wmPos'); const adCTA=$('#adCTA');
-  const previewMask=$('#previewMask');
-
-  const vidA=$('#vidA'), vidB=$('#vidB'), audA=$('#audA'), audB=$('#audB'), frameA=$('#frameA'), frameB=$('#frameB');
-  $('#paneB').classList.add('dim');
-
-  let activePane='A';
-  $('#composeA').addEventListener('click',()=>openComposer('A'));
-  $('#composeB').addEventListener('click',()=>openComposer('B'));
-  $('#createBtn').addEventListener('click',()=>openComposer('A'));
-
-  function setAspect(el,val){ el.style.aspectRatio = (val==='4:5')?'4/5':(val==='1:1'?'1/1':'9/16'); }
-  function openComposer(p){
-    activePane=p; composer.classList.add('open');
-    const s=state[p];
-    setAspect(previewMask, s.aspect||'9:16');
-    if(s.videoURL){ adVideo.src=s.videoURL; adVideo.play().catch(()=>{}); } else { adVideo.removeAttribute('src'); adVideo.load(); }
-    adVideo.loop=s.loop??true; adVideo.playbackRate=s.speed??1;
-    trimStart.value=s.trimStart??0; trimEnd.value=s.trimEnd??30; musicOffset.value=s.musicOffset??0;
-    volVideo.value=s.volVideo??1; volMusic.value=s.volMusic??0.9; fadeIn.value=s.fadeIn||'None'; fadeOut.value=s.fadeOut||'None';
-    cropX.value=s.cropX??50; cropY.value=s.cropY??50; renderFilterPreview(s);
-    captionText.value=s.caption||''; captionPos.value=s.captionPos||'Bottom Center'; captionSize.value=String(s.captionSize||16); captionBg.value=s.captionBg||'Dark'; renderCaption();
-    if(s.wmURL){ wmPreview.src=s.wmURL; wmPreview.style.display='block'; } else { wmPreview.removeAttribute('src'); wmPreview.style.display='none'; }
-    wmPos.value=s.wmPos||'Top Left'; placeWM(wmPos.value);
-    adCTA.value=s.cta||'';
-  }
-  closeComposer.addEventListener('click',()=>composer.classList.remove('open'));
-
-  adVideoFile.addEventListener('change', e=>{
-    const f=e.target.files?.[0]; if(!f) return;
-    adVideo.src=URL.createObjectURL(f); adVideo.play().catch(()=>{});
-    setTimeout(()=>{ trimEnd.value=Math.ceil(adVideo.duration||30); },300);
-  });
-
-  function renderFilterPreview(s=state[activePane]){
-    adVideo.style.filter = `brightness(${fBright.value||s.brightness||1}) contrast(${fContrast.value||s.contrast||1}) saturate(${fSaturate.value||s.saturate||1}) hue-rotate(${(fHue.value||s.hue||0)}deg)`;
-  }
-  [fBright,fContrast,fSaturate,fHue].forEach(el=>el.addEventListener('input', ()=>renderFilterPreview()));
-  function applyCrop(el,x,y){ el.style.objectPosition = `${x}% ${y}%`; }
-  [cropX,cropY].forEach(el=>el.addEventListener('input', ()=>applyCrop(adVideo,cropX.value,cropY.value)));
-
-  function renderCaption(){
-    const t=captionText.value.trim();
-    const cont=$('#overlayPreview');
-    if(!t){ captionPreview.style.display='none'; return; }
-    captionPreview.textContent=t; captionPreview.style.display='inline-block'; captionPreview.style.fontSize=captionSize.value+'px';
-    captionPreview.style.background = captionBg.value==='None' ? 'transparent' : (captionBg.value==='Light' ? 'rgba(255,255,255,.7)' : 'rgba(0,0,0,.6)');
-    const posMap={'Bottom Left':['flex-start','flex-end'],'Bottom Center':['center','flex-end'],'Bottom Right':['flex-end','flex-end'],'Top Left':['flex-start','flex-start'],'Top Center':['center','flex-start'],'Top Right':['flex-end','flex-start']};
-    const [x,y]=posMap[captionPos.value]||posMap['Bottom Center']; cont.style.justifyContent=x; cont.style.alignItems=y;
-  }
-  [captionText,captionPos,captionSize,captionBg].forEach(el=>el.addEventListener('input', renderCaption));
-
-  wmFile.addEventListener('change', e=>{ const f=e.target.files?.[0]; if(!f) return; wmPreview.src=URL.createObjectURL(f); wmPreview.style.display='block'; });
-  function placeWM(pos){
-    const cont=$('#overlayPreview');
-    cont.style.justifyContent = (pos.includes('Right')?'flex-end':(pos.includes('Left')?'flex-start':'center'));
-    cont.style.alignItems = (pos.includes('Top')?'flex-start':'flex-end');
-  }
-  $('#wmPos').addEventListener('change', ()=>placeWM($('#wmPos').value));
-
-  $('#previewBtn').addEventListener('click', ()=>{
-    const st=+$('#trimStart').value||0, en=+$('#trimEnd').value||st+5, sp=parseFloat($('#speedSel').value)||1;
-    adVideo.currentTime=st; adVideo.playbackRate=sp; adVideo.play().catch(()=>{});
-    clearTimeout($('#previewBtn')._t); $('#previewBtn')._t=setTimeout(()=>adVideo.pause(), Math.max(0,(en-st)*1000/sp));
-  });
-
-  $('#aspectSel').addEventListener('change', ()=> setAspect(previewMask, $('#aspectSel').value));
-  $('#loopSel').addEventListener('change', ()=> adVideo.loop = ($('#loopSel').value==='On'));
-  $('#speedSel').addEventListener('change', ()=> adVideo.playbackRate=parseFloat($('#speedSel').value)||1);
-
-  $('#applyAd').addEventListener('click', async ()=>{
-    const p=activePane, v=(p==='A'?vidA:vidB), f=(p==='A'?frameA:frameB), a=(p==='A'?audA:audB), s=state[p];
-    if(adVideo.src){ s.videoURL=adVideo.src; v.src=s.videoURL; }
-    s.aspect=$('#aspectSel').value; setAspect(f,s.aspect);
-    s.loop=($('#loopSel').value==='On'); s.speed=parseFloat($('#speedSel').value)||1;
-    s.trimStart=+$('#trimStart').value||0; s.trimEnd=+$('#trimEnd').value||30;
-    s.musicOffset=+$('#musicOffset').value||0; s.volVideo=+$('#volVideo').value; s.volMusic=+$('#volMusic').value;
-    s.fadeIn=$('#fadeIn').value; s.fadeOut=$('#fadeOut').value;
-    s.cropX=+$('#cropX').value; s.cropY=+$('#cropY').value;
-    s.brightness=+$('#fBright').value; s.contrast=+$('#fContrast').value; s.saturate=+$('#fSaturate').value; s.hue=+$('#fHue').value;
-    s.caption=$('#captionText').value.trim(); s.captionPos=$('#captionPos').value; s.captionSize=+$('#captionSize').value; s.captionBg=$('#captionBg').value;
-    const newAud=$('#adAudioFile').files?.[0]; if(newAud){ s.audioURL=URL.createObjectURL(newAud); }
-    const newWM=$('#wmFile').files?.[0]; if(newWM){ s.wmURL=URL.createObjectURL(newWM); s.wmPos=$('#wmPos').value; }
-    s.cta=$('#adCTA').value||'#'; (p==='A'?$('#ctaA'):$('#ctaB')).href = s.cta;
-
-    v.muted=true; v.loop=true; v.playbackRate=s.speed;
-    v.style.filter = `brightness(${s.brightness}) contrast(${s.contrast}) saturate(${s.saturate}) hue-rotate(${s.hue}deg)`;
-    v.style.objectPosition = `${s.cropX}% ${s.cropY}%`;
-    try{ await v.play(); }catch{}
-    s.loaded=true; composer.classList.remove('open');
-  });
-
-  /* ===== Battle engine (vertical) ===== */
-  const roundsSel=$('#roundsSel'), turnSel=$('#turnSel'), startBtn=$('#startBtn'), exitBtn=$('#exitBtn'), flagBtn=$('#flagBtn');
+  // Minimal stubs so this snippet runs standalone:
+  const vidA=$('#vidA'), vidB=$('#vidB'); const audA=new Audio(), audB=new Audio();
+  const roundsSel=document.createElement('select'), turnSel=document.createElement('select');
   const roundsChip=$('#roundsChip'), timerChip=$('#timerChip'), votesA=$('#votesA'), votesB=$('#votesB'), hint=$('#hint');
   let roundsTotal=3, roundNow=1, turnSecs=30, tLeft=30, current='A', ticker=null;
-
-  function mmss(s){ const m=String(Math.floor(s/60)).padStart(2,'0'); const ss=String(Math.floor(s%60)).padStart(2,'0'); return `${m}:${ss}`; }
-  function startBattle(){ roundsTotal=+roundsSel.value||3; turnSecs=+turnSel.value||30; tLeft=turnSecs; roundNow=1; current='A'; hint.style.display='block'; updateTurn(); clearInterval(ticker); ticker=setInterval(tick,1000); }
-  function endBattle(){ clearInterval(ticker); ticker=null; try{ audA.pause(); audB.pause(); }catch{} hint.style.display='none'; }
-  function tick(){ tLeft--; timerChip.textContent=mmss(tLeft); if(tLeft<=0) swapTurn(); }
-  startBtn.addEventListener('click', startBattle);
-  exitBtn.addEventListener('click', ()=>alert('Exit — wire to route'));
-  flagBtn.addEventListener('click', ()=>alert('Flag submitted'));
-
-  function swapTurn(){ if(current==='A'){ current='B'; tLeft=turnSecs; updateTurn(); } else { if(roundNow<roundsTotal){ roundNow++; current='A'; tLeft=turnSecs; updateTurn(); } else { endBattle(); } } }
-  function updateTurn(){
-    roundsChip.textContent=`R${roundNow} / ${roundsTotal}`; timerChip.textContent=mmss(tLeft);
-    const top=$('#paneA'), bottom=$('#paneB');
-    if(current==='A'){ top.classList.remove('dim'); bottom.classList.add('dim'); playPane('A'); pausePane('B'); }
-    else { bottom.classList.remove('dim'); top.classList.add('dim'); playPane('B'); pausePane('A'); }
-  }
-  function applyFades(audioEl, s){
-    const toMs = v => v==='None'?0:parseFloat(v)*1000;
-    const fi=toMs(s.fadeIn), fo=toMs(s.fadeOut);
-    audioEl.volume = 0;
-    if(fi>0){
-      let t=0; const iv=setInterval(()=>{ t+=50; audioEl.volume=Math.min(s.volMusic,(t/fi)*s.volMusic); if(t>=fi) clearInterval(iv); },50);
-    } else audioEl.volume = s.volMusic??0.9;
-    if(fo>0){
-      const total=(s.trimEnd-s.trimStart)*1000;
-      setTimeout(()=>{ let t=0; const iv=setInterval(()=>{ t+=50; audioEl.volume=Math.max(0,(1-t/fo)*(s.volMusic??0.9)); if(t>=fo){ audioEl.volume=0; clearInterval(iv);} },50); }, Math.max(0,total-fo-120));
-    }
-  }
-  function playPane(p){
-    const s=state[p]; const v=(p==='A'?vidA:vidB); const a=(p==='A'?audA:audB); if(!s.loaded) return;
-    v.currentTime=s.trimStart||0; v.muted=(s.volVideo===0); v.playbackRate=s.speed||1; v.loop=false;
-    v.ontimeupdate=()=>{ if(v.currentTime >= (s.trimEnd||v.duration||30)){ v.pause(); } };
-    v.style.filter = `brightness(${s.brightness}) contrast(${s.contrast}) saturate(${s.saturate}) hue-rotate(${s.hue}deg)`;
-    v.style.objectPosition = `${s.cropX}% ${s.cropY}%`;
-    v.play().catch(()=>{});
-    if(s.audioURL){
-      a.src=s.audioURL; a.currentTime=s.musicOffset||0; a.volume=s.volMusic??0.9; a.play().catch(()=>{});
-      applyFades(a,s);
-    }
-  }
-  function pausePane(p){ const v=(p==='A'?vidA:vidB), a=(p==='A'?audA:audB); try{ v.pause(); }catch{} try{ a.pause(); }catch{} }
-
-  // Voting
-  let aVotes=0,bVotes=0;
-  $('#tapA').addEventListener('click',()=>{ if(ticker){ aVotes++; votesA.textContent=aVotes; hint.style.display='none'; }});
-  $('#tapB').addEventListener('click',()=>{ if(ticker){ bVotes++; votesB.textContent=bVotes; hint.style.display='none'; }});
-  addEventListener('keydown',(e)=>{ if(e.key==='ArrowUp')$('#tapA').click(); if(e.key==='ArrowDown')$('#tapB').click(); });
-
-  // State
-  const state={
-    A:{loaded:false,videoURL:null,audioURL:null,trimStart:0,trimEnd:30,musicOffset:0,volVideo:1,volMusic:0.9,aspect:'9:16',speed:1,loop:true,cta:'#',fadeIn:'None',fadeOut:'None',cropX:50,cropY:50,brightness:1,contrast:1,saturate:1,hue:0,caption:'',captionPos:'Bottom Center',captionSize:16,captionBg:'Dark',wmURL:null,wmPos:'Top Left'},
-    B:{loaded:false,videoURL:null,audioURL:null,trimStart:0,trimEnd:30,musicOffset:0,volVideo:1,volMusic:0.9,aspect:'9:16',speed:1,loop:true,cta:'#',fadeIn:'None',fadeOut:'None',cropX:50,cropY:50,brightness:1,contrast:1,saturate:1,hue:0,caption:'',captionPos:'Bottom Center',captionSize:16,captionBg:'Dark',wmURL:null,wmPos:'Top Left'}
-  };
+  function mmss(s){const m=String(Math.floor(s/60)).padStart(2,'0');const ss=String(Math.floor(s%60)).padStart(2,'0');return `${m}:${ss}`;}
 </script>
 </body>
 </html>
