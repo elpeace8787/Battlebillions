@@ -10,6 +10,11 @@
     --bg:#0b0b0c; --ink:#f5f7fb; --muted:#a6abb6; --gold:#ffd700;
     --ok:#35d49a; --danger:#ff5d5d; --glass:rgba(255,255,255,.06);
     --bd:#ffffff24; --dim:rgba(0,0,0,.55);
+    /* heights are set by JS to match your device exactly */
+    --topH:56px;   /* fallback */
+    --botH:56px;   /* fallback (without safe area) */
+    --stackH:calc(100vh - var(--topH) - var(--botH));
+    --paneH:calc(var(--stackH)/2);
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
@@ -18,92 +23,96 @@
 
   /* ===== TOP BAR ===== */
   .topbar{
-    position:relative;z-index:20;display:flex;gap:.6rem;align-items:center;
-    padding:clamp(.5rem,.7rem,1rem) .8rem;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+    position:relative;z-index:30;display:flex;gap:.6rem;align-items:center;
+    padding:.6rem .8rem;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
     border-bottom:1px solid var(--bd);backdrop-filter:blur(10px)
   }
-  .logoWord{font-family:Orbitron,Inter,sans-serif;font-weight:800;letter-spacing:.5px;margin-right:.25rem}
-  .pill{display:inline-flex;align-items:center;gap:.45rem;border:1px solid var(--bd);background:var(--glass);border-radius:999px;padding:.4rem .6rem}
+  .logoWord{font-family:Orbitron,Inter,sans-serif;font-weight:800;letter-spacing:.5px}
+  .pill{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--bd);background:var(--glass);border-radius:999px;padding:.38rem .6rem}
   .pill select,.pill input{appearance:none;background:transparent;border:none;color:var(--ink);font-weight:700;outline:none;min-width:0}
   .pill select{max-width:38vw}
   .spacer{flex:1}
-  .btn{border:1px solid var(--bd);background:#ffffff12;color:var(--ink);border-radius:12px;padding:.5rem .8rem;font-weight:800;white-space:nowrap}
+  .btn{border:1px solid var(--bd);background:#ffffff12;color:var(--ink);border-radius:12px;padding:.45rem .7rem;font-weight:800;white-space:nowrap}
   .btn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
 
-  /* ===== ARENA (NO SCROLL) ===== */
-  .arena{position:relative;inset:0;display:grid;grid-template-columns:1fr 1fr}
-  .pane{position:relative;isolation:isolate;background:#000;min-width:0}
+  /* ===== VERTICAL ARENA STACK (no scroll) ===== */
+  .stack{
+    position:relative;inset:0;height:var(--stackH); /* exact measured space */
+    display:flex;flex-direction:column;gap:0;overflow:hidden;
+  }
+  .pane{
+    position:relative;isolation:isolate;height:var(--paneH);min-height:var(--paneH);max-height:var(--paneH); /* lock */
+    background:#000; min-width:0;
+  }
   video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
   .shade{position:absolute;inset:0;background:transparent;transition:background .25s ease;z-index:2}
   .pane.dim .shade{background:var(--dim)}
 
-  /* HUD in each pane */
+  /* HUD per pane (kept inside pane bounds) */
   .hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;z-index:3;pointer-events:none}
-  .toprow{display:flex;justify-content:space-between;align-items:center;padding:.6rem .75rem}
-  .iconbtn{pointer-events:auto;display:grid;place-items:center;width:clamp(36px,4vw,40px);height:clamp(36px,4vw,40px);border-radius:999px;background:var(--glass);border:1px solid var(--bd)}
+  .toprow{display:flex;justify-content:space-between;align-items:center;padding:.5rem .6rem}
+  .iconbtn{pointer-events:auto;display:grid;place-items:center;width:clamp(34px,4vw,40px);height:clamp(34px,4vw,40px);border-radius:999px;background:var(--glass);border:1px solid var(--bd)}
   .iconbtn svg{width:18px;height:18px}
-  .center-top{position:absolute;left:50%;transform:translateX(-50%);top:.6rem;display:flex;gap:.45rem;align-items:center}
-  .chip{pointer-events:auto;display:inline-flex;align-items:center;gap:.45rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:999px;padding:.4rem .7rem;font-weight:800}
+  .center-top{position:absolute;left:50%;transform:translateX(-50%);top:.5rem;display:flex;gap:.4rem;align-items:center}
+  .chip{pointer-events:auto;display:inline-flex;align-items:center;gap:.4rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:999px;padding:.36rem .62rem;font-weight:800}
   .rounds,.timer{font-family:Orbitron,Inter,sans-serif;letter-spacing:.5px}
   .timer{min-width:86px;text-align:center}
-  .votes{position:absolute;top:3rem;right:.7rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);padding:.28rem .55rem;border-radius:999px;font-weight:800;z-index:3}
+  .votes{position:absolute;top:2.6rem;right:.6rem;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);padding:.26rem .5rem;border-radius:999px;font-weight:800;z-index:3}
 
-  /* Setup row + brand footer (kept inside safe area) */
-  .setup{position:absolute;left:.7rem;right:.7rem;bottom:calc(5.2rem + env(safe-area-inset-bottom));display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;z-index:4}
-  .field{pointer-events:auto;display:flex;align-items:center;gap:.4rem;background:var(--glass);border:1px solid var(--bd);border-radius:14px;padding:.42rem .58rem;min-height:38px}
-  .field label{font-size:.85rem;color:var(--muted)}
-  .field input[type="file"], .field input[type="number"], .field input[type="url"], .field input[type="text"]{color:var(--ink);max-width:40vw;background:transparent;border:none;font-weight:700;outline:none}
+  /* Setup strip + brand footer stay inside pane (no overflow) */
+  .setup{position:absolute;left:.6rem;right:.6rem;bottom:4.6rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;z-index:4}
+  .field{pointer-events:auto;display:flex;align-items:center;gap:.36rem;background:var(--glass);border:1px solid var(--bd);border-radius:12px;padding:.36rem .54rem;min-height:34px}
+  .field label{font-size:.82rem;color:var(--muted)}
+  .field input[type="file"], .field input[type="number"], .field input[type="url"], .field input[type="text"]{color:var(--ink);max-width:42vw;background:transparent;border:none;font-weight:700;outline:none}
 
-  .brand{pointer-events:auto;position:absolute;left:.7rem;right:.7rem;bottom:calc(1rem + env(safe-area-inset-bottom));display:flex;align-items:center;gap:.7rem;background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(10px);border-radius:16px;padding:.5rem .65rem}
-  .logo{width:clamp(40px,6vw,48px);height:clamp(40px,6vw,48px);border-radius:50%;overflow:hidden;border:1px solid #ffffff22;flex:0 0 auto;background:#111;display:grid;place-items:center}
+  .brand{pointer-events:auto;position:absolute;left:.6rem;right:.6rem;bottom:.6rem;display:flex;align-items:center;gap:.6rem;background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(10px);border-radius:14px;padding:.44rem .58rem}
+  .logo{width:clamp(36px,6vw,46px);height:clamp(36px,6vw,46px);border-radius:50%;overflow:hidden;border:1px solid #ffffff22;flex:0 0 auto;background:#111;display:grid;place-items:center}
   .logo img{max-width:100%;max-height:100%;object-fit:contain}
   .logo input{display:none}
   .meta{min-width:0;display:flex;flex-direction:column}
   .name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tag{font-size:.78rem;color:var(--muted)}
-  .ctas{margin-left:auto;display:flex;gap:.45rem;flex-wrap:wrap}
-  .btn-cta{pointer-events:auto;border:1px solid var(--bd);border-radius:12px;padding:.42rem .62rem;background:#ffffff10;color:var(--ink);font-weight:800}
+  .ctas{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}
+  .btn-cta{pointer-events:auto;border:1px solid var(--bd);border-radius:12px;padding:.38rem .56rem;background:#ffffff10;color:var(--ink);font-weight:800}
   .btn-cta.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
 
-  /* Music meter */
-  .meter{pointer-events:none;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(7.9rem + env(safe-area-inset-bottom));width:min(72%,680px);height:28px;border-radius:12px;overflow:hidden;display:none;z-index:4;border:1px solid var(--bd);background:#0c0c0e}
+  /* Music meter sits above brand bar */
+  .meter{pointer-events:none;position:absolute;left:50%;transform:translateX(-50%);bottom:7.4rem;width:min(90%,680px);height:26px;border-radius:10px;overflow:hidden;display:none;z-index:4;border:1px solid var(--bd);background:#0c0c0e}
   canvas.eq{width:100%;height:100%}
 
-  /* Tap-to-vote zones */
+  /* Tap zones fill each pane */
   .tapzone{position:absolute;inset:0;z-index:1}
-  .tapzone.left{right:50%}
-  .tapzone.right{left:50%}
-  .hint{position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(10px);padding:.35rem .6rem;border-radius:10px;font-size:.85rem;z-index:2;opacity:.85}
+  .hint{position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(10px);padding:.32rem .54rem;border-radius:10px;font-size:.82rem;z-index:2;opacity:.85}
 
-  /* Start controls (fixed above bottom nav) */
-  .startbar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(3.6rem + env(safe-area-inset-bottom));z-index:12;display:flex;gap:.55rem;align-items:center;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:999px;padding:.45rem .6rem}
-  .startbar select{appearance:none;background:#ffffff10;border:1px solid var(--bd);border-radius:999px;color:var(--ink);padding:.45rem .7rem;font-weight:800;width:80px;text-align:center}
+  /* Start controls (floats centered between panes) */
+  .startbar{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:25;display:flex;gap:.5rem;align-items:center;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--bd);border-radius:999px;padding:.44rem .58rem}
+  .startbar select{appearance:none;background:#ffffff10;border:1px solid var(--bd);border-radius:999px;color:var(--ink);padding:.42rem .6rem;font-weight:800;width:80px;text-align:center}
 
-  /* Hide-on-start group */
-  .hide-on-start{transition:opacity .2s ease}
+  /* Hide-on-start */
+  .hide-on-start{transition:opacity .18s ease}
   .hidden{opacity:0;pointer-events:none}
 
   /* ===== BOTTOM NAV ===== */
   .bottomnav{
-    position:relative;z-index:21;display:flex;align-items:center;justify-content:space-around;
+    position:relative;z-index:30;display:flex;align-items:center;justify-content:space-around;
     height:calc(56px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
     border-top:1px solid var(--bd);background:rgba(16,16,18,.98);backdrop-filter:blur(10px)
   }
-  .navbtn{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-decoration:none;color:var(--ink);opacity:.88}
+  .navbtn{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-decoration:none;color:var(--ink);opacity:.9}
   .navbtn svg{width:22px;height:22px}
   .navbtn.active{opacity:1}
   .navlbl{font-size:.7rem}
 
-  /* ===== MATCHMAKING LOBBY (Find Opponent) ===== */
+  /* ===== LOBBY ===== */
   .lobby{
     position:fixed;top:0;right:0;height:100%;width:min(420px,92vw);background:rgba(18,18,20,.96);
-    border-left:1px solid var(--bd);backdrop-filter:blur(12px);z-index:30;transform:translateX(100%);
+    border-left:1px solid var(--bd);backdrop-filter:blur(12px);z-index:40;transform:translateX(100%);
     transition:transform .25s ease
   }
   .lobby.open{transform:translateX(0)}
   .lobby header{display:flex;align-items:center;gap:.6rem;padding:.8rem;border-bottom:1px solid var(--bd)}
   .lobby .filters{display:flex;flex-wrap:wrap;gap:.5rem;padding:.7rem .8rem;border-bottom:1px solid var(--bd)}
-  .lobby .filters .pill{padding:.4rem .6rem}
+  .lobby .filters .pill{padding:.36rem .54rem}
   .lobby .list{position:absolute;top:132px;bottom:84px;left:0;right:0;overflow:auto;padding:.6rem .8rem}
   .card{border:1px solid var(--bd);background:var(--glass);border-radius:14px;padding:.6rem .7rem;display:flex;gap:.6rem;align-items:center}
   .card + .card{margin-top:.6rem}
@@ -112,34 +121,16 @@
   .lobby footer{position:absolute;left:0;right:0;bottom:0;padding:.7rem .8rem;border-top:1px solid var(--bd);display:flex;gap:.6rem}
   .search{flex:1;border:1px solid var(--bd);background:#ffffff10;color:var(--ink);border-radius:10px;padding:.55rem .6rem;font-weight:700;outline:none}
 
-  /* ===== CREATE BATTLE MODAL ===== */
-  .modal{
-    position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:40
-  }
+  /* ===== CREATE BATTLE SHEET ===== */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:50}
   .modal.open{display:flex}
-  .sheet{
-    width:min(980px,96vw);max-height:86vh;overflow:auto;background:rgba(20,20,22,.98);border:1px solid var(--bd);
-    border-radius:16px 16px 0 0;padding:1rem;backdrop-filter:blur(12px)
-  }
+  .sheet{width:min(980px,96vw);max-height:86vh;overflow:auto;background:rgba(20,20,22,.98);border:1px solid var(--bd);border-radius:16px 16px 0 0;padding:1rem;backdrop-filter:blur(12px)}
   .sheet header{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-  .grid2 .field{width:100%}
   .row{display:flex;gap:.6rem;flex-wrap:wrap}
-  .mini{font-size:.85rem;color:var(--muted)}
   .full{width:100%}
-  .w-50{width:50%}
-  .w-33{width:33%}
-  .w-25{width:25%}
 
-  @media (max-width: 880px){
-    .arena{grid-template-columns:1fr} /* stack videos on very small screens */
-
-    .setup{bottom:calc(5.5rem + env(safe-area-inset-bottom))}
-    .meter{bottom:calc(8.2rem + env(safe-area-inset-bottom));width:90%}
-    .brand{bottom:calc(1rem + env(safe-area-inset-bottom))}
-    .center-top{top:.5rem}
-    .votes{top:2.6rem}
-    .startbar{bottom:calc(3.9rem + env(safe-area-inset-bottom))}
+  @media (max-width: 860px){
     .grid2{grid-template-columns:1fr}
   }
 </style>
@@ -147,7 +138,7 @@
 <body>
 <div class="app safe" id="app">
   <!-- ===== TOP BAR ===== -->
-  <div class="topbar hide-on-start" id="topBar">
+  <div class="topbar" id="topBar">
     <div class="logoWord">AD ARENA</div>
 
     <div class="pill" title="Ad Category">
@@ -171,9 +162,9 @@
     <button class="btn gold" id="openCreateBtn">Create Battle</button>
   </div>
 
-  <!-- ===== ARENA ===== -->
-  <div class="arena" id="arena">
-    <!-- LEFT PANE -->
+  <!-- ===== VERTICAL ARENA ===== -->
+  <div class="stack" id="stack">
+    <!-- TOP PANE (Brand A) -->
     <section class="pane" id="paneL" data-side="left">
       <video id="videoL" playsinline muted></video>
       <div class="shade"></div>
@@ -192,12 +183,12 @@
         </div>
 
         <div class="votes" id="votesL">0</div>
-        <div class="hint hide-on-start" id="hint">Tap left/right to vote during battle</div>
+        <div class="hint hide-on-start" id="hint">Tap a pane to vote during battle</div>
 
         <div class="setup hide-on-start" id="setupL">
           <div class="field"><label for="videoInputL">Video</label><input id="videoInputL" type="file" accept="video/*"></div>
           <div class="field"><label for="audioInputL">Audio</label><input id="audioInputL" type="file" accept="audio/*"></div>
-          <div class="field"><label for="startL">Start</label><input id="startL" type="number" min="0" value="0" step="1"><span class="mini">sec</span></div>
+          <div class="field"><label for="startL">Start</label><input id="startL" type="number" min="0" value="0" step="1"><span style="color:var(--muted)">s</span></div>
           <div class="field"><label for="linkL">CTA</label><input id="linkL" type="url" placeholder="https://brand-a.com"></div>
         </div>
 
@@ -220,10 +211,10 @@
           </div>
         </div>
       </div>
-      <div class="tapzone left" id="tapL" aria-hidden="true"></div>
+      <div class="tapzone" id="tapL" aria-hidden="true"></div>
     </section>
 
-    <!-- RIGHT PANE -->
+    <!-- BOTTOM PANE (Brand B) -->
     <section class="pane" id="paneR" data-side="right">
       <video id="videoR" playsinline muted></video>
       <div class="shade"></div>
@@ -234,7 +225,7 @@
         <div class="setup hide-on-start" id="setupR">
           <div class="field"><label for="videoInputR">Video</label><input id="videoInputR" type="file" accept="video/*"></div>
           <div class="field"><label for="audioInputR">Audio</label><input id="audioInputR" type="file" accept="audio/*"></div>
-          <div class="field"><label for="startR">Start</label><input id="startR" type="number" min="0" value="0" step="1"><span class="mini">sec</span></div>
+          <div class="field"><label for="startR">Start</label><input id="startR" type="number" min="0" value="0" step="1"><span style="color:var(--muted)">s</span></div>
           <div class="field"><label for="linkR">CTA</label><input id="linkR" type="url" placeholder="https://brand-b.com"></div>
         </div>
 
@@ -257,10 +248,10 @@
           </div>
         </div>
       </div>
-      <div class="tapzone right" id="tapR" aria-hidden="true"></div>
+      <div class="tapzone" id="tapR" aria-hidden="true"></div>
     </section>
 
-    <!-- Start controls -->
+    <!-- Start controls: centered between panes -->
     <div class="startbar hide-on-start" id="startBar">
       <span style="font-weight:800;letter-spacing:.4px">Rounds</span>
       <select id="roundsSel"><option>1</option><option selected>3</option><option>5</option></select>
@@ -270,7 +261,7 @@
     </div>
   </div>
 
-  <!-- ===== BOTTOM NAV (Icons) ===== -->
+  <!-- ===== BOTTOM NAV ===== -->
   <nav class="bottomnav" id="bottomNav">
     <a class="navbtn" href="home.html" title="Home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5H9v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -281,7 +272,7 @@
       <span class="navlbl">Discover</span>
     </a>
     <a class="navbtn active" href="adsarena.html" title="Ad Arena">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="7" height="14" rx="1.5" stroke-width="2"/><rect x="14" y="5" width="7" height="14" rx="1.5" stroke-width="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="4" width="14" height="7" rx="1.5" stroke-width="2"/><rect x="5" y="13" width="14" height="7" rx="1.5" stroke-width="2"/></svg>
       <span class="navlbl">Ad Arena</span>
     </a>
     <a class="navbtn" href="inbox.html" title="Inbox">
@@ -295,7 +286,7 @@
   </nav>
 </div>
 
-<!-- ===== MATCHMAKING LOBBY ===== -->
+<!-- ===== LOBBY ===== -->
 <aside class="lobby" id="lobby">
   <header>
     <button class="iconbtn" id="closeLobby" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -329,7 +320,7 @@
   </footer>
 </aside>
 
-<!-- ===== CREATE BATTLE MODAL (2-screen quick setup) ===== -->
+<!-- ===== CREATE BATTLE (Company-friendly) ===== -->
 <div class="modal" id="createModal">
   <div class="sheet">
     <header>
@@ -384,6 +375,23 @@
 <script>
   const $ = (s)=>document.querySelector(s);
 
+  /* Measure top/bottom and lock pane heights to the exact phone viewport */
+  const topBar = $('#topBar');
+  const bottomNav = $('#bottomNav');
+  function setHeights(){
+    const topH = Math.round(topBar.getBoundingClientRect().height);
+    const botH = Math.round(bottomNav.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--topH', topH + 'px');
+    document.documentElement.style.setProperty('--botH', botH + 'px');
+    // Force each pane to exactly half of remaining space:
+    const stackH = window.innerHeight - topH - botH;
+    document.documentElement.style.setProperty('--stackH', stackH + 'px');
+    document.documentElement.style.setProperty('--paneH', (stackH/2) + 'px');
+  }
+  addEventListener('load', setHeights);
+  addEventListener('resize', setHeights);
+  addEventListener('orientationchange', setHeights);
+
   /* ELEMENTS */
   const L = { pane:$('#paneL'), video:$('#videoL'), logoIn:$('#logoInputL'), logoImg:$('#logoImgL'), logoPh:$('#logoPhL'),
               vidIn:$('#videoInputL'), audIn:$('#audioInputL'), startAt:$('#startL'), linkIn:$('#linkL'),
@@ -400,15 +408,6 @@
   const exitBtn=$('#exitBtn'), flagBtn=$('#flagBtn'), hint=$('#hint');
   const adCategory=$('#adCategory'), adSub=$('#adSub');
 
-  const lobby=$('#lobby'), openLobbyBtn=$('#openLobbyBtn'), closeLobby=$('#closeLobby');
-  const challengeList=$('#challengeList'), filterCategory=$('#filterCategory'), filterRounds=$('#filterRounds'), filterTurn=$('#filterTurn'), searchBrand=$('#searchBrand'), refreshLobby=$('#refreshLobby');
-
-  const createModal=$('#createModal'), openCreateBtn=$('#openCreateBtn'), closeCreate=$('#closeCreate');
-  const cNameL=$('#cNameL'), cNameR=$('#cNameR'), cLinkL=$('#cLinkL'), cLinkR=$('#cLinkR');
-  const cVidL=$('#cVidL'), cVidR=$('#cVidR'), cAudL=$('#cAudL'), cAudR=$('#cAudR'), cStartL=$('#cStartL'), cStartR=$('#cStartR');
-  const createCategory=$('#createCategory'), createRounds=$('#createRounds'), createTurn=$('#createTurn');
-  const createLoad=$('#createLoad'), createAndStart=$('#createAndStart');
-
   /* NAV */
   exitBtn.addEventListener('click', ()=>location.href='home.html');
   flagBtn.addEventListener('click', ()=>{
@@ -421,11 +420,11 @@
 
   /* LOGOS + VIDEOS */
   [L,R].forEach(S=>{
-    S.logoIn.addEventListener('change', e=>{
+    S.logoIn?.addEventListener('change', e=>{
       const f=e.target.files?.[0]; if(!f) return;
       S.logoImg.src=URL.createObjectURL(f); S.logoImg.style.display='block'; S.logoPh.style.display='none';
     });
-    S.vidIn.addEventListener('change', e=>{
+    S.vidIn?.addEventListener('change', e=>{
       const f=e.target.files?.[0]; if(!f) return;
       loadFileTo(S.video,f); S.video.loop=true; S.video.muted=true; S.video.play().catch(()=>{});
     });
@@ -435,27 +434,28 @@
   class Meter{
     constructor(audioEl,canvas){ this.audioEl=audioEl; this.canvas=canvas; this.ctx=canvas.getContext('2d'); this.ac=null; this.src=null; this.an=null; this.data=null; this.raf=null; }
     async init(){ if(this.ac) return; this.ac=new (window.AudioContext||window.webkitAudioContext)(); this.src=this.ac.createMediaElementSource(this.audioEl); this.an=this.ac.createAnalyser(); this.an.fftSize=256; this.src.connect(this.an); this.an.connect(this.ac.destination); this.data=new Uint8Array(this.an.frequencyBinCount); }
-    draw(){ const {width,height}=this.canvas; this.ctx.clearRect(0,0,width,height); this.an.getByteFrequencyData(this.data); const bars=32, step=Math.floor(this.data.length/bars), w=width/bars; for(let i=0;i<bars;i++){ const v=this.data[i*step]/255; const h=Math.max(2,v*height); const x=i*w, y=height-h; this.ctx.fillStyle='rgba(255,255,255,.9)'; this.ctx.fillRect(x+2,y,w-4,h); } this.raf=requestAnimationFrame(()=>this.draw()); }
+    draw(){ const {width,height}=this.canvas; this.ctx.clearRect(0,0,width,height); this.an.getByteFrequencyData(this.data); const bars=28, step=Math.floor(this.data.length/bars), w=width/bars; for(let i=0;i<bars;i++){ const v=this.data[i*step]/255; const h=Math.max(2,v*height); const x=i*w, y=height-h; this.ctx.fillStyle='rgba(255,255,255,.9)'; this.ctx.fillRect(x+2,y,w-4,h); } this.raf=requestAnimationFrame(()=>this.draw()); }
     start(){ cancelAnimationFrame(this.raf); this.draw(); }
     stop(){ cancelAnimationFrame(this.raf); this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height); }
   }
   const meterL=new Meter($('#audioL'),$('#eqL')); const meterR=new Meter($('#audioR'),$('#eqR'));
 
   function fitCanvas(c){ const dpr=Math.max(1,window.devicePixelRatio||1); const r=c.getBoundingClientRect(); c.width=Math.round(r.width*dpr); c.height=Math.round(r.height*dpr); c.getContext('2d').setTransform(dpr,0,0,dpr,0,0); }
-  [$('#eqL'),$('#eqR')].forEach(fitCanvas); addEventListener('resize',()=>[$('#eqL'),$('#eqR')].forEach(fitCanvas));
+  const fitAll=()=>[$('#eqL'),$('#eqR')].forEach(fitCanvas);
+  addEventListener('load', fitAll); addEventListener('resize', fitAll);
 
   [[L,meterL],[R,meterR]].forEach(([S,M])=>{
-    S.audIn.addEventListener('change', async e=>{
+    S.audIn?.addEventListener('change', async e=>{
       const f=e.target.files?.[0]; if(!f) return;
       await M.init(); loadFileTo(S.audio,f); S.meter.style.display='block';
     });
   });
 
   /* CTA bindings */
-  L.linkIn.addEventListener('input',()=>{ L.ctaShop.href=L.linkIn.value||'#'; L.ctaMore.href=L.linkIn.value||'#'; });
-  R.linkIn.addEventListener('input',()=>{ R.ctaShop.href=R.linkIn.value||'#'; R.ctaMore.href=R.linkIn.value||'#'; });
+  L.linkIn?.addEventListener('input',()=>{ L.ctaShop.href=L.linkIn.value||'#'; L.ctaMore.href=L.linkIn.value||'#'; });
+  R.linkIn?.addEventListener('input',()=>{ R.ctaShop.href=R.linkIn.value||'#'; R.ctaMore.href=R.linkIn.value||'#'; });
 
-  /* ===== Battle Flow ===== */
+  /* ===== Battle Flow (vertical switching) ===== */
   let roundsTotal=3, roundNow=1, turnSeconds=30, turnTimeLeft=30, currentSide='left', ticker=null;
   R.pane.classList.add('dim');
 
@@ -498,7 +498,7 @@
   function endBattle(){ clearInterval(ticker); ticker=null; meterL.stop(); meterR.stop(); L.audio.pause(); R.audio.pause(); hideNonEssential(false); }
   startBtn.addEventListener('click', startBattle);
 
-  // Voting
+  // Voting (tap top pane for A, bottom pane for B)
   let votesL=0, votesR=0;
   function vote(side){
     if(!ticker) return;
@@ -506,11 +506,15 @@
     hint.classList.add('hidden');
     const pane=side==='left'?L.pane:R.pane; pane.style.outline='2px solid ' + (side==='left'?'#7dd3fc':'#c4b5fd'); setTimeout(()=>pane.style.outline='',120);
   }
-  L.tap.addEventListener('click',()=>vote('left')); R.tap.addEventListener('click',()=>vote('right'));
-  addEventListener('keydown',(e)=>{ if(e.key==='ArrowLeft')vote('left'); if(e.key==='ArrowRight')vote('right'); if(e.key==='Escape')exitBtn.click(); });
+  L.tap.addEventListener('click',()=>vote('left'));
+  R.tap.addEventListener('click',()=>vote('right'));
+  addEventListener('keydown',(e)=>{ if(e.key==='ArrowUp')vote('left'); if(e.key==='ArrowDown')vote('right'); if(e.key==='Escape')exitBtn.click(); });
   addEventListener('click', async ()=>{ try{ await meterL.ac?.resume(); await meterR.ac?.resume(); }catch{} }, {once:true});
 
-  /* ===== LOBBY (Find Opponent) ===== */
+  /* ===== LOBBY ===== */
+  const lobby=$('#lobby'), openLobbyBtn=$('#openLobbyBtn'), closeLobby=$('#closeLobby');
+  const challengeList=$('#challengeList'), filterCategory=$('#filterCategory'), filterRounds=$('#filterRounds'), filterTurn=$('#filterTurn'), searchBrand=$('#searchBrand'), refreshLobby=$('#refreshLobby');
+
   const demoListings=[
     {brand:'Volt Sneakers', category:'Fashion', sub:'Sneakers', rounds:3, turn:30, tags:['street','drops'], link:'https://voltsneakers.example'},
     {brand:'Pulse Energy', category:'Food & Beverage', sub:'Energy Drinks', rounds:3, turn:30, tags:['esports','new'], link:'https://pulse.example'},
@@ -544,7 +548,7 @@
         <button class="btn gold">Challenge</button>`;
       card.querySelector('.btn.gold').addEventListener('click',()=>{
         adCategory.value=it.category; adSub.value=it.sub||''; roundsSel.value=String(it.rounds); turnLenSel.value=String(it.turn);
-        closeLobby.click();
+        closeLobbyFn();
       });
       challengeList.appendChild(card);
     });
@@ -557,39 +561,36 @@
   [filterCategory,filterRounds,filterTurn].forEach(el=>el.addEventListener('change', renderListings));
   searchBrand.addEventListener('input', renderListings);
 
-  /* ===== CREATE BATTLE (2-screen wizard) ===== */
+  /* ===== CREATE BATTLE ===== */
+  const createModal=$('#createModal'), openCreateBtn=$('#openCreateBtn'), closeCreate=$('#closeCreate');
+  const cNameL=$('#cNameL'), cNameR=$('#cNameR'), cLinkL=$('#cLinkL'), cLinkR=$('#cLinkR');
+  const cVidL=$('#cVidL'), cVidR=$('#cVidR'), cAudL=$('#cAudL'), cAudR=$('#cAudR'), cStartL=$('#cStartL'), cStartR=$('#cStartR');
+  const createCategory=$('#createCategory'), createRounds=$('#createRounds'), createTurn=$('#createTurn');
+  const createLoad=$('#createLoad'), createAndStart=$('#createAndStart');
+
   function openCreate(){ createModal.classList.add('open'); }
   function closeCreateFn(){ createModal.classList.remove('open'); }
   openCreateBtn.addEventListener('click', openCreate);
   closeCreate.addEventListener('click', closeCreateFn);
 
   function applyCreateToArena(){
-    // Category & rules
     adCategory.value=createCategory.value; roundsSel.value=createRounds.value; turnLenSel.value=createTurn.value;
-
-    // Names + links
     if(cNameL.value) L.brandName.value=cNameL.value;
     if(cNameR.value) R.brandName.value=cNameR.value;
     if(cLinkL.value){ L.linkIn.value=cLinkL.value; L.ctaShop.href=cLinkL.value; L.ctaMore.href=cLinkL.value; }
     if(cLinkR.value){ R.linkIn.value=cLinkR.value; R.ctaShop.href=cLinkR.value; R.ctaMore.href=cLinkR.value; }
-
-    // Start points
     if(cStartL.value) L.startAt.value=cStartL.value;
     if(cStartR.value) R.startAt.value=cStartR.value;
-
-    // Media
     if(cVidL.files[0]){ loadFileTo(L.video,cVidL.files[0]); L.video.loop=true; L.video.muted=true; L.video.play().catch(()=>{}); }
     if(cVidR.files[0]){ loadFileTo(R.video,cVidR.files[0]); R.video.loop=true; R.video.muted=true; R.video.play().catch(()=>{}); }
     if(cAudL.files[0]){ loadFileTo(L.audio,cAudL.files[0]); L.meter.style.display='block'; (async()=>{ try{ await meterL.init(); }catch{} })(); }
     if(cAudR.files[0]){ loadFileTo(R.audio,cAudR.files[0]); R.meter.style.display='block'; (async()=>{ try{ await meterR.init(); }catch{} })(); }
   }
-
   createLoad.addEventListener('click', ()=>{ applyCreateToArena(); closeCreateFn(); });
   createAndStart.addEventListener('click', ()=>{ applyCreateToArena(); closeCreateFn(); startBattle(); });
 
-  /* INITIAL */
-  function hideNonEssentialInit(){ hideNonEssential(false); }
-  hideNonEssentialInit();
+  /* INIT */
+  (function init(){ hideNonEssential(false); setHeights(); fitAll(); })();
 </script>
 </body>
 </html>
