@@ -3,196 +3,236 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Ad Arena — Vertical Battle Ads</title>
+<title>Ad Arena — Mobile-Friendly</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet"/>
 <style>
   :root{
     --bg:#0b0b0c; --ink:#f5f7fb; --muted:#a6abb6; --gold:#ffd700;
     --glass:rgba(255,255,255,.06); --bd:#ffffff26; --dim:rgba(0,0,0,.55);
-    /* JS updates these so panes never overflow on phones */
-    --topH:56px; --botH:56px; --stackH:calc(100vh - var(--topH) - var(--botH)); --paneH:calc(var(--stackH)/2);
+    /* viewport fallback var (JS updates this) */
+    --vh: 100svh; /* supported on modern mobile */
+    --topH: 56px; --botH: 56px;
   }
+
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
-  .safe{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  .app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr auto}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  a{color:inherit}
 
-  /* Top bar */
-  .topbar{position:relative;z-index:30;display:flex;gap:.6rem;align-items:center;padding:.6rem .8rem;
-    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border-bottom:1px solid var(--bd);backdrop-filter:blur(10px)}
-  .logoWord{font-family:Orbitron,Inter,sans-serif;font-weight:800;letter-spacing:.5px}
-  .pill{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--bd);background:var(--glass);border-radius:999px;padding:.38rem .6rem}
+  /* ===== LAYOUT ===== */
+  .page{min-height:var(--vh);display:flex;flex-direction:column}
+  header.topbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;
+    padding:.7rem .9rem;background:rgba(16,16,18,.9);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--bd)
+  }
+  .logoWord{font-family:Orbitron,Inter,sans-serif;font-weight:800;letter-spacing:.5px;margin-right:.25rem}
+  .pill{display:inline-flex;align-items:center;gap:.45rem;border:1px solid var(--bd);background:var(--glass);border-radius:999px;padding:.5rem .7rem}
   .pill select,.pill input{appearance:none;background:transparent;border:none;color:var(--ink);font-weight:700;outline:none;min-width:0}
-  .pill select{max-width:40vw}
+  .pill select{max-width:44vw}
   .spacer{flex:1}
-  .btn{border:1px solid var(--bd);background:#ffffff14;color:var(--ink);border-radius:12px;padding:.46rem .72rem;font-weight:800}
+  .btn{border:1px solid var(--bd);background:#ffffff14;color:var(--ink);border-radius:12px;padding:.56rem .9rem;font-weight:800}
   .btn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
+  .btn.wide{min-width:44px}
 
-  /* Vertical arena stack */
-  .stack{position:relative;height:var(--stackH);display:flex;flex-direction:column;gap:0;overflow:hidden}
-  .pane{position:relative;height:var(--paneH);min-height:var(--paneH);max-height:var(--paneH);background:#000}
-  .stage{position:absolute;inset:0;display:grid;place-items:center}
-  /* vertical phone mask (9:16 default) */
-  .phone{position:relative;height:100%;width:100%;display:grid;place-items:center}
-  .frame{position:relative;aspect-ratio:9/16;height:94%;max-height:94%;width:auto;border-radius:18px;overflow:hidden;border:1px solid #ffffff20;background:#000}
-  video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
-  .shade{position:absolute;inset:0;background:transparent;transition:background .25s ease;z-index:2}
+  main.content{flex:1;display:flex;flex-direction:column;gap:1rem}
+  .arenaWrap{
+    /* visible viewport minus sticky bars */
+    min-height:calc(var(--vh) - var(--topH) - var(--botH));
+    display:grid;gap:.9rem;padding:.9rem
+  }
+
+  /* MOBILE: two vertical panels stacked */
+  .panes{display:grid;grid-template-rows:1fr 1fr;gap:.9rem}
+  .pane{
+    position:relative;border:1px solid var(--bd);border-radius:16px;overflow:hidden;background:#000;min-height:44vh
+  }
+  .pane .stage{position:absolute;inset:0;display:grid;place-items:center}
+  .phone{width:100%;height:100%;display:grid;place-items:center}
+  .frame{position:relative;aspect-ratio:9/16;height:100%;max-height:100%;border-radius:12px;overflow:hidden;background:#000}
+  video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .shade{position:absolute;inset:0;background:transparent;transition:background .25s ease}
   .pane.dim .shade{background:var(--dim)}
 
-  /* HUD */
-  .hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;z-index:3;pointer-events:none}
-  .toprow{display:flex;justify-content:space-between;align-items:center;padding:.5rem .6rem}
-  .center-top{position:absolute;left:50%;transform:translateX(-50%);top:.5rem;display:flex;gap:.4rem;align-items:center}
-  .chip{pointer-events:auto;display:inline-flex;align-items:center;gap:.4rem;background:var(--glass);border:1px solid var(--bd);border-radius:999px;padding:.34rem .6rem;font-weight:800}
-  .rounds,.timer{font-family:Orbitron,Inter,sans-serif;letter-spacing:.5px}
+  /* HUD (kept inside each pane) */
+  .hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+  .toprow{display:flex;justify-content:space-between;align-items:center;padding:.55rem .65rem}
+  .center-top{position:absolute;left:50%;transform:translateX(-50%);top:.55rem;display:flex;gap:.45rem;align-items:center}
+  .chip{pointer-events:auto;display:inline-flex;align-items:center;gap:.4rem;background:var(--glass);border:1px solid var(--bd);border-radius:999px;padding:.36rem .64rem;font-weight:800}
   .timer{min-width:86px;text-align:center}
-  .iconbtn{pointer-events:auto;display:grid;place-items:center;width:38px;height:38px;border-radius:999px;background:var(--glass);border:1px solid var(--bd)}
-  .iconbtn svg{width:18px;height:18px}
-  .votes{position:absolute;top:2.6rem;right:.6rem;background:var(--glass);border:1px solid var(--bd);padding:.26rem .5rem;border-radius:999px;font-weight:800;z-index:3}
+  .votes{position:absolute;top:2.7rem;right:.65rem;background:var(--glass);border:1px solid var(--bd);padding:.28rem .55rem;border-radius:999px;font-weight:800}
+  .iconbtn{pointer-events:auto;display:grid;place-items:center;width:42px;height:42px;border-radius:999px;background:var(--glass);border:1px solid var(--bd)}
+  .iconbtn svg{width:20px;height:20px}
 
-  /* Inline controls */
-  .inline-controls{position:absolute;left:50%;transform:translateX(-50%);bottom:.7rem;display:flex;gap:.5rem;z-index:5}
-  .minibtn{pointer-events:auto;border:1px solid var(--bd);background:#ffffff12;color:var(--ink);border-radius:12px;padding:.4rem .6rem;font-weight:800}
+  .inline-controls{position:absolute;left:50%;transform:translateX(-50%);bottom:.7rem;display:flex;gap:.55rem;z-index:3}
+  .minibtn{pointer-events:auto;border:1px solid var(--bd);background:#ffffff12;color:var(--ink);border-radius:12px;padding:.42rem .62rem;font-weight:800}
   .minibtn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#121212}
-  .hint{position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid var(--bd);
-    padding:.32rem .54rem;border-radius:10px;font-size:.82rem;z-index:2;opacity:.9}
+  .hint{position:absolute;left:50%;bottom:50%;transform:translate(-50%,50%);background:var(--glass);border:1px solid var(--bd);padding:.34rem .56rem;border-radius:10px;font-size:.86rem;opacity:.92}
 
-  /* Bottom nav */
-  .bottomnav{position:relative;z-index:30;display:flex;align-items:center;justify-content:space-around;
-    height:calc(56px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
-    border-top:1px solid var(--bd);background:rgba(16,16,18,.98);backdrop-filter:blur(10px)}
-  .navbtn{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-decoration:none;color:var(--ink);opacity:.9}
-  .navbtn svg{width:22px;height:22px}
-  .navbtn.active{opacity:1}
-  .navlbl{font-size:.7rem}
-
-  /* Modal base */
-  .modal{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);z-index:60}
-  .modal.open{display:flex}
-  .sheet{width:min(980px,96vw);max-height:86vh;overflow:auto;background:rgba(20,20,22,.98);
-    border:1px solid var(--bd);border-radius:16px 16px 0 0;padding:1rem;backdrop-filter:blur(12px)}
-  .sheet header{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
-  .pill.small{padding:.3rem .5rem;border-radius:10px}
+  /* Site sections below arena (so you can scroll and see everything) */
+  .below{
+    display:grid;gap:1rem;padding:0 .9rem 1rem
+  }
+  .card{border:1px solid var(--bd);background:var(--glass);border-radius:14px;padding:.8rem}
   .row{display:flex;gap:.6rem;flex-wrap:wrap}
-  .grid{display:grid;gap:.6rem}
-  .grid.cols2{grid-template-columns:1fr 1fr}
-  .field{display:flex;align-items:center;gap:.44rem;background:var(--glass);border:1px solid var(--bd);border-radius:12px;padding:.44rem .6rem}
+  .field{display:flex;align-items:center;gap:.44rem;border:1px solid var(--bd);background:#ffffff10;border-radius:12px;padding:.5rem .6rem}
   .field label{font-size:.86rem;color:var(--muted)}
   .field input,.field select{background:transparent;border:none;color:var(--ink);font-weight:700;outline:none}
-  .field input[type="range"]{width:160px}
-  .ghost{opacity:.75}
 
-  .reel-preview{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:.8rem}
+  footer.bottomnav{
+    position:sticky;bottom:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-around;
+    height:calc(58px + env(safe-area-inset-bottom));padding:.3rem .6rem calc(.3rem + env(safe-area-inset-bottom));
+    border-top:1px solid var(--bd);background:rgba(16,16,18,.95);backdrop-filter:blur(10px)
+  }
+  .navbtn{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-decoration:none;color:var(--ink);opacity:.95}
+  .navbtn svg{width:22px;height:22px}
+  .navlbl{font-size:.72rem}
+
+  /* ===== MODAL (Edit Ad) ===== */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:100}
+  .modal.open{display:flex}
+  .sheet{
+    width:100%;max-width:980px;max-height:90svh;overflow:auto;
+    background:rgba(20,20,22,.98);border:1px solid var(--bd);border-radius:16px 16px 0 0;padding:1rem
+  }
+  .sheet header{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;position:sticky;top:0;background:inherit;padding-bottom:.4rem}
+  .reel-preview{display:grid;grid-template-columns:1fr;gap:.8rem}
   .reel-phone{position:relative;aspect-ratio:9/16;border-radius:16px;border:1px solid #ffffff22;overflow:hidden;background:#000}
   .reel-phone video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .reel-sidebar{display:grid;align-content:start;gap:.6rem}
   .overlay-preview{position:absolute;left:0;right:0;bottom:0;padding:.5rem;display:flex;gap:.4rem;justify-content:flex-start;align-items:flex-end;pointer-events:none}
+  .grid{display:grid;gap:.6rem}
+  .grid.cols2{grid-template-columns:1fr 1fr}
+  .pill.small{padding:.3rem .5rem;border-radius:10px}
 
-  @media (max-width: 900px){
-    .reel-preview{grid-template-columns:1fr}
+  /* ===== RESPONSIVE: wide screens show panes side-by-side ===== */
+  @media (min-width: 900px){
+    .panes{grid-template-columns:1fr 1fr;grid-template-rows:none}
+    .pane{min-height:60vh}
   }
 </style>
 </head>
 <body>
-<div class="app safe">
-  <!-- Top bar -->
-  <div class="topbar" id="topBar">
+<div class="page">
+  <!-- ===== Header (sticky) ===== -->
+  <header class="topbar" id="topBar">
     <div class="logoWord">AD ARENA</div>
-
     <div class="pill">
-      <span class="ghost">Category</span>
+      <span style="opacity:.8">Category</span>
       <select id="adCategory">
         <option selected>Fashion</option><option>Food & Beverage</option><option>Tech</option><option>Gaming</option>
         <option>Beauty</option><option>Auto</option><option>Finance</option><option>Fitness</option><option>Music</option>
-        <option>Travel</option><option>Education</option><option>Entertainment</option><option>Sports</option>
-        <option>Health</option><option>Nonprofit</option><option>Apps</option><option>Home & Living</option>
-        <option>Pets</option><option>Kids & Family</option><option>Outdoors</option><option>Watches & Jewelry</option>
-        <option>Groceries</option><option>Telecom</option><option>Real Estate</option><option>Professional Services</option>
+        <option>Travel</option><option>Education</option><option>Entertainment</option><option>Sports</option><option>Health</option>
+        <option>Nonprofit</option><option>Apps</option><option>Home & Living</option><option>Pets</option><option>Kids & Family</option>
+        <option>Outdoors</option><option>Watches & Jewelry</option><option>Groceries</option><option>Telecom</option><option>Real Estate</option>
+        <option>Professional Services</option>
       </select>
     </div>
-
-    <div class="pill"><span class="ghost">Sub</span><input id="adSub" placeholder="e.g., Sneakers, Energy Drinks…"/></div>
+    <div class="pill"><span style="opacity:.8">Sub</span><input id="adSub" placeholder="Sneakers, Energy Drinks…"/></div>
     <div class="spacer"></div>
     <button class="btn" id="findBtn">Find Opponent</button>
     <button class="btn gold" id="createBtn">Create Battle</button>
-  </div>
+  </header>
 
-  <!-- Vertical stack: TOP = A, BOTTOM = B -->
-  <div class="stack" id="stack">
-    <!-- Pane A -->
-    <section class="pane" id="paneA">
-      <div class="stage">
-        <div class="phone"><div class="frame" id="frameA"><video id="vidA" playsinline muted></video></div></div>
-      </div>
-      <div class="shade"></div>
-      <div class="hud">
-        <div class="toprow">
-          <button class="iconbtn" id="exitBtn" title="Exit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M6 6l12 12M18 6L6 18"/></svg>
-          </button>
-          <div class="center-top">
-            <div class="chip rounds" id="roundsChip">R1 / 3</div>
-            <div class="chip timer" id="timerChip">00:30</div>
-          </div>
-          <button class="iconbtn" id="flagBtn" title="Flag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M4 4v16M4 4h11l-1.5 3H20l-2 4 2 4h-4l-1.5-3H4"/></svg>
-          </button>
+  <!-- ===== Arena (scrolls with the page, no clipping) ===== -->
+  <section class="arenaWrap">
+    <div class="panes">
+      <!-- TOP / LEFT panel -->
+      <article class="pane" id="paneA">
+        <div class="stage">
+          <div class="phone"><div class="frame" id="frameA"><video id="vidA" playsinline muted></video></div></div>
         </div>
-        <div class="votes" id="votesA">0</div>
-        <div class="hint hide-on-start" id="hint">Tap a panel to vote during battle</div>
-      </div>
-      <div class="inline-controls hide-on-start">
-        <button class="minibtn" id="composeA">Edit Ad</button>
-        <a class="minibtn" id="ctaA" href="#" target="_blank" rel="noopener">CTA</a>
-      </div>
-      <div id="tapA" style="position:absolute;inset:0;z-index:1"></div>
-    </section>
+        <div class="shade"></div>
+        <div class="hud">
+          <div class="toprow">
+            <button class="iconbtn" id="exitBtn" title="Exit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <div class="center-top">
+              <div class="chip" id="roundsChip">R1 / 3</div>
+              <div class="chip timer" id="timerChip">00:30</div>
+            </div>
+            <button class="iconbtn" id="flagBtn" title="Flag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M4 4v16M4 4h11l-1.5 3H20l-2 4 2 4h-4l-1.5-3H4"/></svg>
+            </button>
+          </div>
+          <div class="votes" id="votesA">0</div>
+          <div class="hint" id="hint">Tap a panel to vote during battle</div>
+        </div>
+        <div class="inline-controls">
+          <button class="minibtn" id="composeA">Edit Ad</button>
+          <a class="minibtn" id="ctaA" href="#" target="_blank" rel="noopener">CTA</a>
+          <div class="chip">
+            <label style="opacity:.8;margin-right:.35rem">Rounds</label>
+            <select id="roundsSel"><option>1</option><option selected>3</option><option>5</option></select>
+            <label style="opacity:.8;margin-left:.45rem;margin-right:.35rem">Turn</label>
+            <select id="turnSel"><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
+            <button class="minibtn gold" id="startBtn">Start</button>
+          </div>
+        </div>
+        <div id="tapA" style="position:absolute;inset:0"></div>
+      </article>
 
-    <!-- Pane B -->
-    <section class="pane" id="paneB">
-      <div class="stage">
-        <div class="phone"><div class="frame" id="frameB"><video id="vidB" playsinline muted></video></div></div>
-      </div>
-      <div class="shade"></div>
-      <div class="hud">
-        <div class="toprow" aria-hidden="true"></div>
-        <div class="votes" id="votesB">0</div>
-      </div>
-      <div class="inline-controls hide-on-start">
-        <button class="minibtn" id="composeB">Edit Ad</button>
-        <a class="minibtn" id="ctaB" href="#" target="_blank" rel="noopener">CTA</a>
-      </div>
-      <div id="tapB" style="position:absolute;inset:0;z-index:1"></div>
-    </section>
-
-    <!-- Start controls (center) -->
-    <div class="chip hide-on-start" id="startBar" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:.5rem;align-items:center">
-      <span style="font-weight:800">Rounds</span>
-      <select id="roundsSel"><option>1</option><option selected>3</option><option>5</option></select>
-      <span style="font-weight:800">Turn</span>
-      <select id="turnSel"><option>15</option><option selected>30</option><option>45</option><option>60</option></select>
-      <button class="minibtn gold" id="startBtn">Start</button>
+      <!-- BOTTOM / RIGHT panel -->
+      <article class="pane" id="paneB">
+        <div class="stage">
+          <div class="phone"><div class="frame" id="frameB"><video id="vidB" playsinline muted></video></div></div>
+        </div>
+        <div class="shade"></div>
+        <div class="hud">
+          <div class="toprow" aria-hidden="true"></div>
+          <div class="votes" id="votesB">0</div>
+        </div>
+        <div class="inline-controls">
+          <button class="minibtn" id="composeB">Edit Ad</button>
+          <a class="minibtn" id="ctaB" href="#" target="_blank" rel="noopener">CTA</a>
+        </div>
+        <div id="tapB" style="position:absolute;inset:0"></div>
+      </article>
     </div>
-  </div>
+  </section>
 
-  <!-- Bottom nav -->
-  <nav class="bottomnav" id="bottomNav">
+  <!-- ===== More (scrollable) ===== -->
+  <section class="below">
+    <div class="card">
+      <strong>Tips</strong>
+      <ul style="margin:.5rem 0 0 1rem;color:#cfd3dc">
+        <li>Use <em>Edit Ad</em> to trim, set music offset, crop focus, add captions & watermark.</li>
+        <li>Start a battle: set rounds/turn, press <em>Start</em>. Top vs Bottom on mobile (Left vs Right on desktop).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Matchmaking</label>
+          <select id="quickCat">
+            <option>All</option><option>Fashion</option><option>Food & Beverage</option><option>Tech</option><option>Gaming</option>
+            <option>Beauty</option><option>Auto</option><option>Finance</option><option>Fitness</option><option>Music</option>
+          </select>
+        </div>
+        <button class="btn" id="findBtn2">Find Opponent</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer (sticky) ===== -->
+  <footer class="bottomnav" id="bottomNav">
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M3 11l9-8 9 8v9"/></svg><span class="navlbl">Home</span></a>
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke-width="2"/></svg><span class="navlbl">Discover</span></a>
-    <a class="navbtn active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="4" width="14" height="7" rx="1.5" stroke-width="2"/><rect x="5" y="13" width="14" height="7" rx="1.5" stroke-width="2"/></svg><span class="navlbl">Ad Arena</span></a>
+    <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="4" width="14" height="7" rx="1.5" stroke-width="2"/><rect x="5" y="13" width="14" height="7" rx="1.5" stroke-width="2"/></svg><span class="navlbl">Ad Arena</span></a>
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path stroke-width="2" d="M7 10l5 5 5-5"/></svg><span class="navlbl">Inbox</span></a>
     <a class="navbtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="7" r="4" stroke-width="2"/><path stroke-width="2" d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg><span class="navlbl">Profile</span></a>
-  </nav>
+  </footer>
 </div>
 
-<!-- =============== EDIT AD COMPOSER (Reusable for A or B) =============== -->
+<!-- ===== Edit Ad Composer (mobile full-width, scrollable) ===== -->
 <div class="modal" id="composer">
   <div class="sheet">
     <header>
-      <button class="btn" id="closeComposer">Close</button>
-      <div style="font-weight:800;margin-left:.4rem">Edit Ad</div>
+      <button class="btn wide" id="closeComposer">Close</button>
+      <div style="font-weight:800;margin-left:.5rem">Edit Ad</div>
       <div class="spacer"></div>
-      <button class="btn gold" id="applyAd">Apply to Panel</button>
+      <button class="btn gold wide" id="applyAd">Apply</button>
     </header>
 
     <div class="reel-preview">
@@ -204,119 +244,106 @@
         </div>
       </div>
 
-      <div class="reel-sidebar">
-        <div class="row">
-          <div class="pill small"><span class="ghost">Aspect</span>
-            <select id="aspectSel">
-              <option value="9:16" selected>9:16</option>
-              <option value="4:5">4:5</option>
-              <option value="1:1">1:1</option>
-            </select>
-          </div>
-          <div class="pill small"><span class="ghost">Loop</span>
-            <select id="loopSel"><option>On</option><option>Off</option></select>
-          </div>
-          <div class="pill small"><span class="ghost">Speed</span>
-            <select id="speedSel"><option>0.5x</option><option selected>1x</option><option>1.5x</option><option>2x</option></select>
-          </div>
-        </div>
+      <div class="grid cols2">
+        <div class="field full"><label>Video</label><input id="adVideoFile" type="file" accept="video/*" capture="user"/></div>
+        <div class="field full"><label>Music</label><input id="adAudioFile" type="file" accept="audio/*"/></div>
+      </div>
 
-        <div class="grid cols2">
-          <div class="field full"><label>Video</label><input id="adVideoFile" type="file" accept="video/*" capture="user"/></div>
-          <div class="field full"><label>Music</label><input id="adAudioFile" type="file" accept="audio/*"/></div>
+      <div class="row">
+        <div class="pill small"><span style="opacity:.8">Aspect</span>
+          <select id="aspectSel"><option value="9:16" selected>9:16</option><option value="4:5">4:5</option><option value="1:1">1:1</option></select>
         </div>
-
-        <div class="row">
-          <div class="field"><label>Trim Start</label><input id="trimStart" type="number" min="0" value="0"/></div>
-          <div class="field"><label>Trim End</label><input id="trimEnd" type="number" min="1" value="30"/></div>
-          <div class="field"><label>Music Offset</label><input id="musicOffset" type="number" min="0" value="0"/><span class="ghost">s</span></div>
+        <div class="pill small"><span style="opacity:.8">Loop</span>
+          <select id="loopSel"><option>On</option><option>Off</option></select>
         </div>
-
-        <div class="row">
-          <div class="field"><label>Video Vol</label><input id="volVideo" type="range" min="0" max="1" step="0.05" value="1"/></div>
-          <div class="field"><label>Music Vol</label><input id="volMusic" type="range" min="0" max="1" step="0.05" value="0.9"/></div>
-          <div class="field"><label>Fade In</label><select id="fadeIn"><option>None</option><option>0.5s</option><option>1s</option><option>2s</option></select></div>
-          <div class="field"><label>Fade Out</label><select id="fadeOut"><option>None</option><option>0.5s</option><option>1s</option><option>2s</option></select></div>
-        </div>
-
-        <div class="row">
-          <div class="field"><label>Crop X%</label><input id="cropX" type="range" min="0" max="100" value="50"/></div>
-          <div class="field"><label>Crop Y%</label><input id="cropY" type="range" min="0" max="100" value="50"/></div>
-        </div>
-
-        <div class="row">
-          <div class="field"><label>Brightness</label><input id="fBright" type="range" min="0.5" max="1.5" step="0.05" value="1"/></div>
-          <div class="field"><label>Contrast</label><input id="fContrast" type="range" min="0.5" max="1.5" step="0.05" value="1"/></div>
-          <div class="field"><label>Saturation</label><input id="fSaturate" type="range" min="0" max="2" step="0.05" value="1"/></div>
-          <div class="field"><label>Warmth</label><input id="fHue" type="range" min="-45" max="45" step="1" value="0"/></div>
-        </div>
-
-        <div class="grid">
-          <div class="field full"><label>Caption</label><input id="captionText" placeholder="Headline or promo…"/></div>
-          <div class="row">
-            <div class="field"><label>Caption Pos</label>
-              <select id="captionPos"><option>Bottom Left</option><option selected>Bottom Center</option><option>Bottom Right</option><option>Top Left</option><option>Top Center</option><option>Top Right</option></select>
-            </div>
-            <div class="field"><label>Size</label><select id="captionSize"><option>12</option><option selected>16</option><option>18</option><option>20</option><option>24</option></select></div>
-            <div class="field"><label>BG</label><select id="captionBg"><option>Dark</option><option>Light</option><option>None</option></select></div>
-          </div>
-        </div>
-
-        <div class="grid cols2">
-          <div class="field full"><label>Watermark/Logo</label><input id="wmFile" type="file" accept="image/*"/></div>
-          <div class="field"><label>WM Pos</label>
-            <select id="wmPos"><option selected>Top Left</option><option>Top Right</option><option>Bottom Left</option><option>Bottom Right</option></select>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div class="field full"><label>CTA Link</label><input id="adCTA" placeholder="https://your-landingpage.com"/></div>
-        </div>
-
-        <div class="row" style="justify-content:flex-end">
-          <button class="btn" id="previewBtn">Preview Trim</button>
+        <div class="pill small"><span style="opacity:.8">Speed</span>
+          <select id="speedSel"><option>0.5x</option><option selected>1x</option><option>1.5x</option><option>2x</option></select>
         </div>
       </div>
-    </div>
 
+      <div class="row">
+        <div class="field"><label>Trim Start</label><input id="trimStart" type="number" min="0" value="0"/></div>
+        <div class="field"><label>Trim End</label><input id="trimEnd" type="number" min="1" value="30"/></div>
+        <div class="field"><label>Music Offset</label><input id="musicOffset" type="number" min="0" value="0"/></div>
+      </div>
+
+      <div class="row">
+        <div class="field"><label>Video Vol</label><input id="volVideo" type="range" min="0" max="1" step="0.05" value="1"/></div>
+        <div class="field"><label>Music Vol</label><input id="volMusic" type="range" min="0" max="1" step="0.05" value="0.9"/></div>
+        <div class="field"><label>Fade In</label><select id="fadeIn"><option>None</option><option>0.5s</option><option>1s</option><option>2s</option></select></div>
+        <div class="field"><label>Fade Out</label><select id="fadeOut"><option>None</option><option>0.5s</option><option>1s</option><option>2s</option></select></div>
+      </div>
+
+      <div class="row">
+        <div class="field"><label>Crop X%</label><input id="cropX" type="range" min="0" max="100" value="50"/></div>
+        <div class="field"><label>Crop Y%</label><input id="cropY" type="range" min="0" max="100" value="50"/></div>
+      </div>
+
+      <div class="row">
+        <div class="field"><label>Brightness</label><input id="fBright" type="range" min="0.5" max="1.5" step="0.05" value="1"/></div>
+        <div class="field"><label>Contrast</label><input id="fContrast" type="range" min="0.5" max="1.5" step="0.05" value="1"/></div>
+        <div class="field"><label>Saturation</label><input id="fSaturate" type="range" min="0" max="2" step="0.05" value="1"/></div>
+        <div class="field"><label>Warmth</label><input id="fHue" type="range" min="-45" max="45" step="1" value="0"/></div>
+      </div>
+
+      <div class="grid">
+        <div class="field full"><label>Caption</label><input id="captionText" placeholder="Headline or promo…"/></div>
+        <div class="row">
+          <div class="field"><label>Caption Pos</label>
+            <select id="captionPos"><option>Bottom Left</option><option selected>Bottom Center</option><option>Bottom Right</option><option>Top Left</option><option>Top Center</option><option>Top Right</option></select>
+          </div>
+          <div class="field"><label>Size</label><select id="captionSize"><option>12</option><option selected>16</option><option>18</option><option>20</option><option>24</option></select></div>
+          <div class="field"><label>BG</label><select id="captionBg"><option>Dark</option><option>Light</option><option>None</option></select></div>
+        </div>
+      </div>
+
+      <div class="grid cols2">
+        <div class="field full"><label>Watermark/Logo</label><input id="wmFile" type="file" accept="image/*"/></div>
+        <div class="field"><label>WM Pos</label>
+          <select id="wmPos"><option selected>Top Left</option><option>Top Right</option><option>Bottom Left</option><option>Bottom Right</option></select>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field full"><label>CTA Link</label><input id="adCTA" placeholder="https://your-landingpage.com"/></div>
+      </div>
+
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn" id="previewBtn">Preview Trim</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Hidden audio for panes -->
+<!-- Hidden audio -->
 <audio id="audA" preload="auto" crossorigin="anonymous"></audio>
 <audio id="audB" preload="auto" crossorigin="anonymous"></audio>
 
 <script>
   const $ = s => document.querySelector(s);
 
-  /* ===== Viewport locking: never overflows on phones ===== */
-  function getVH(){
-    // Use visualViewport when available (iOS Safari toolbars)
+  /* ===== Real mobile viewport (no clipping). Also works when toolbars show/hide. ===== */
+  function setVH(){
     const vv = window.visualViewport;
-    return Math.round((vv?.height || window.innerHeight));
+    const h = Math.round((vv?.height || window.innerHeight)) + 'px';
+    document.documentElement.style.setProperty('--vh', h);
+    // measure sticky bars for docs
+    document.documentElement.style.setProperty('--topH', Math.round($('#topBar').getBoundingClientRect().height) + 'px');
+    document.documentElement.style.setProperty('--botH', Math.round($('#bottomNav').getBoundingClientRect().height) + 'px');
   }
-  function lockHeights(){
-    const top = $('#topBar').getBoundingClientRect().height;
-    const bot = $('#bottomNav').getBoundingClientRect().height;
-    document.documentElement.style.setProperty('--topH', top+'px');
-    document.documentElement.style.setProperty('--botH', bot+'px');
-    const stack = getVH() - top - bot;
-    document.documentElement.style.setProperty('--stackH', stack+'px');
-    document.documentElement.style.setProperty('--paneH', (stack/2)+'px');
-  }
-  ['load','resize','orientationchange','scroll'].forEach(ev=>addEventListener(ev, lockHeights, {passive:true}));
+  ['load','resize','orientationchange','scroll'].forEach(ev=>addEventListener(ev, setVH, {passive:true}));
+  setVH();
 
-  /* ===== Elements & state ===== */
+  /* ===== Elements ===== */
   const vidA=$('#vidA'), vidB=$('#vidB'), audA=$('#audA'), audB=$('#audB');
   const frameA=$('#frameA'), frameB=$('#frameB');
   const votesA=$('#votesA'), votesB=$('#votesB'), hint=$('#hint');
   const roundsChip=$('#roundsChip'), timerChip=$('#timerChip');
   const roundsSel=$('#roundsSel'), turnSel=$('#turnSel');
-  const startBtn=$('#startBtn'), startBar=$('#startBar');
-  const exitBtn=$('#exitBtn'), flagBtn=$('#flagBtn');
+  const startBtn=$('#startBtn'), exitBtn=$('#exitBtn'), flagBtn=$('#flagBtn');
   $('#paneB').classList.add('dim');
 
-  // Composer
+  /* ===== Composer ===== */
   const composer=$('#composer'), closeComposer=$('#closeComposer'), applyAd=$('#applyAd'), previewBtn=$('#previewBtn');
   const adVideo=$('#adVideo'), adVideoFile=$('#adVideoFile'), adAudioFile=$('#adAudioFile');
   const aspectSel=$('#aspectSel'), loopSel=$('#loopSel'), speedSel=$('#speedSel');
@@ -327,111 +354,77 @@
   const captionText=$('#captionText'), captionPos=$('#captionPos'), captionSize=$('#captionSize'), captionBg=$('#captionBg');
   const captionPreview=$('#captionPreview');
   const wmFile=$('#wmFile'), wmPreview=$('#wmPreview'), wmPos=$('#wmPos');
-  const adCTA=$('#adCTA'); const previewMask=$('#previewMask');
-
+  const adCTA=$('#adCTA');
   let activePane='A';
+
   $('#composeA').addEventListener('click',()=>openComposer('A'));
   $('#composeB').addEventListener('click',()=>openComposer('B'));
+
   function openComposer(p){
-    activePane=p;
-    composer.classList.add('open');
-    // seed preview from state
-    const s=state[p];
-    setAspect(previewMask, s.aspect||'9:16');
-    if(s.videoURL){ adVideo.src=s.videoURL; adVideo.play().catch(()=>{}); }
-    adVideo.loop = s.loop ?? true;
-    adVideo.playbackRate = s.speed ?? 1;
-    trimStart.value = s.trimStart ?? 0; trimEnd.value = s.trimEnd ?? 30;
-    musicOffset.value = s.musicOffset ?? 0;
-    volVideo.value = s.volVideo ?? 1; volMusic.value = s.volMusic ?? 0.9;
-    fadeIn.value = s.fadeIn || 'None'; fadeOut.value = s.fadeOut || 'None';
-    cropX.value = s.cropX ?? 50; cropY.value = s.cropY ?? 50;
-    fBright.value=s.brightness??1; fContrast.value=s.contrast??1; fSaturate.value=s.saturate??1; fHue.value=s.hue??0;
-    captionText.value=s.caption||''; captionSize.value=String(s.captionSize||16); captionBg.value=s.captionBg||'Dark'; captionPos.value=s.captionPos||'Bottom Center';
-    adCTA.value=s.cta||'';
+    activePane=p; composer.classList.add('open');
+    const s=state[p]; setAspect($('#previewMask'), s.aspect||'9:16');
+    if(s.videoURL){ adVideo.src=s.videoURL; adVideo.play().catch(()=>{}); } else { adVideo.removeAttribute('src'); adVideo.load(); }
+    adVideo.loop = s.loop ?? true; adVideo.playbackRate = s.speed ?? 1;
+    trimStart.value=s.trimStart??0; trimEnd.value=s.trimEnd??30; musicOffset.value=s.musicOffset??0;
+    volVideo.value=s.volVideo??1; volMusic.value=s.volMusic??0.9; fadeIn.value=s.fadeIn||'None'; fadeOut.value=s.fadeOut||'None';
+    cropX.value=s.cropX??50; cropY.value=s.cropY??50; renderFilterPreview(s); captionText.value=s.caption||'';
+    captionPos.value=s.captionPos||'Bottom Center'; captionSize.value=String(s.captionSize||16); captionBg.value=s.captionBg||'Dark'; renderCaptionPreview();
     if(s.wmURL){ wmPreview.src=s.wmURL; wmPreview.style.display='block'; } else { wmPreview.removeAttribute('src'); wmPreview.style.display='none'; }
-    wmPos.value=s.wmPos||'Top Left';
-    renderFilterPreview();
-    renderCaptionPreview();
-    placeWatermark(wmPos.value);
+    wmPos.value=s.wmPos||'Top Left'; placeWatermark(wmPos.value);
+    adCTA.value=s.cta||'';
   }
   closeComposer.addEventListener('click',()=>composer.classList.remove('open'));
-
-  function setAspect(container,val){
-    container.style.aspectRatio = (val==='4:5')?'4/5':(val==='1:1'?'1/1':'9/16');
-  }
-  aspectSel.addEventListener('change', ()=> setAspect(previewMask, aspectSel.value));
-  loopSel.addEventListener('change', ()=> adVideo.loop = (loopSel.value==='On'));
-  speedSel.addEventListener('change', ()=> adVideo.playbackRate=parseFloat(speedSel.value)||1);
 
   adVideoFile.addEventListener('change', e=>{
     const f=e.target.files?.[0]; if(!f) return;
     adVideo.src=URL.createObjectURL(f); adVideo.play().catch(()=>{});
     setTimeout(()=>{ trimEnd.value=Math.ceil(adVideo.duration||30); },300);
   });
-  adAudioFile.addEventListener('change', ()=>{/* saved on apply */});
+  adAudioFile.addEventListener('change', ()=>{/* stored on apply */});
 
-  // Filters & crop preview
-  [fBright,fContrast,fSaturate,fHue].forEach(el=>el.addEventListener('input', renderFilterPreview));
-  function renderFilterPreview(){
-    adVideo.style.filter = `brightness(${fBright.value}) contrast(${fContrast.value}) saturate(${fSaturate.value}) hue-rotate(${fHue.value}deg)`;
+  function setAspect(container,val){ container.style.aspectRatio = (val==='4:5')?'4/5':(val==='1:1'?'1/1':'9/16'); }
+  aspectSel.addEventListener('change', ()=> setAspect($('#previewMask'), aspectSel.value));
+  loopSel.addEventListener('change', ()=> adVideo.loop = (loopSel.value==='On'));
+  speedSel.addEventListener('change', ()=> adVideo.playbackRate=parseFloat(speedSel.value)||1);
+
+  [fBright,fContrast,fSaturate,fHue].forEach(el=>el.addEventListener('input', ()=>renderFilterPreview()));
+  function renderFilterPreview(s=state[activePane]){
+    adVideo.style.filter = `brightness(${fBright.value||s.brightness||1}) contrast(${fContrast.value||s.contrast||1}) saturate(${fSaturate.value||s.saturate||1}) hue-rotate(${(fHue.value||s.hue||0)}deg)`;
   }
-  function applyCropTo(el, x, y){
-    // simulate focus by moving object-position
-    el.style.objectPosition = `${x}% ${y}%`;
-  }
+  function applyCropTo(el,x,y){ el.style.objectPosition = `${x}% ${y}%`; }
   [cropX,cropY].forEach(el=>el.addEventListener('input', ()=>applyCropTo(adVideo, cropX.value, cropY.value)));
 
-  // Captions
   [captionText,captionPos,captionSize,captionBg].forEach(el=>el.addEventListener('input', renderCaptionPreview));
   function renderCaptionPreview(){
-    const txt = captionText.value.trim();
-    if(!txt){ captionPreview.style.display='none'; return; }
-    captionPreview.textContent = txt;
-    captionPreview.style.display='inline-block';
-    captionPreview.style.fontSize = captionSize.value+'px';
+    const t=captionText.value.trim();
+    if(!t){ captionPreview.style.display='none'; return; }
+    captionPreview.textContent=t; captionPreview.style.display='inline-block';
+    captionPreview.style.fontSize=captionSize.value+'px';
     captionPreview.style.background = captionBg.value==='None' ? 'transparent' : (captionBg.value==='Light' ? 'rgba(255,255,255,.7)' : 'rgba(0,0,0,.6)');
-    const map = {
-      'Bottom Left':['8px','8px','auto','auto'],'Bottom Center':['50%','8px','auto','auto'],
-      'Bottom Right':['auto','8px','8px','auto'],'Top Left':['8px','auto','auto','8px'],
-      'Top Center':['50%','auto','auto','50%'],'Top Right':['auto','auto','8px','8px']
+    const map={
+      'Bottom Left':['flex-start','flex-end'], 'Bottom Center':['center','flex-end'], 'Bottom Right':['flex-end','flex-end'],
+      'Top Left':['flex-start','flex-start'], 'Top Center':['center','flex-start'], 'Top Right':['flex-end','flex-start']
     };
-    const [left,bottom,right,top]=map[captionPos.value]||map['Bottom Center'];
-    captionPreview.style.left = left==='50%'?'50%':left;
-    captionPreview.style.right = right==='50%'?'50%':right;
-    captionPreview.style.top = top==='50%'?'8px':top;
-    captionPreview.style.bottom = bottom==='50%'?'8px':bottom;
-    captionPreview.style.transform = (captionPos.value.includes('Center') && (captionPos.value.startsWith('Top')||captionPos.value.startsWith('Bottom'))) ? 'translateX(-50%)' : 'none';
+    const [x,y]=map[captionPos.value]||map['Bottom Center'];
+    const cont=$('#overlayPreview'); cont.style.justifyContent=x; cont.style.alignItems=y;
   }
 
-  // Watermark
-  wmFile.addEventListener('change', e=>{
-    const f=e.target.files?.[0]; if(!f) return;
-    wmPreview.src=URL.createObjectURL(f); wmPreview.style.display='block';
-  });
+  wmFile.addEventListener('change', e=>{ const f=e.target.files?.[0]; if(!f) return; wmPreview.src=URL.createObjectURL(f); wmPreview.style.display='block'; });
   wmPos.addEventListener('change', ()=>placeWatermark(wmPos.value));
   function placeWatermark(pos){
-    wmPreview.style.position='relative';
-    wmPreview.style.margin='0';
-    const cont = $('#overlayPreview');
+    const cont=$('#overlayPreview');
     cont.style.justifyContent = (pos.includes('Right')?'flex-end':(pos.includes('Left')?'flex-start':'center'));
     cont.style.alignItems = (pos.includes('Top')?'flex-start':'flex-end');
   }
 
-  // Trim preview
   previewBtn.addEventListener('click', ()=>{
     const st=+trimStart.value||0, en=+trimEnd.value||st+5;
-    adVideo.currentTime = st;
-    adVideo.playbackRate = parseFloat(speedSel.value)||1;
-    adVideo.play().catch(()=>{});
-    clearTimeout(previewBtn._t);
-    previewBtn._t=setTimeout(()=>adVideo.pause(), Math.max(0,(en-st)*1000/adVideo.playbackRate));
+    adVideo.currentTime=st; adVideo.playbackRate=parseFloat(speedSel.value)||1; adVideo.play().catch(()=>{});
+    clearTimeout(previewBtn._t); previewBtn._t=setTimeout(()=>adVideo.pause(), Math.max(0,(en-st)*1000/adVideo.playbackRate));
   });
 
-  // Save to pane state & load in arena
   applyAd.addEventListener('click', async ()=>{
     const p=activePane, v=(p==='A'?vidA:vidB), f=(p==='A'?frameA:frameB), a=(p==='A'?audA:audB), s=state[p];
-    // video
     if(adVideo.src){ s.videoURL=adVideo.src; v.src=s.videoURL; }
     s.aspect=aspectSel.value; setAspect(f, s.aspect);
     s.loop=(loopSel.value==='On'); s.speed=parseFloat(speedSel.value)||1;
@@ -441,61 +434,39 @@
     s.cropX=+cropX.value; s.cropY=+cropY.value;
     s.brightness=+fBright.value; s.contrast=+fContrast.value; s.saturate=+fSaturate.value; s.hue=+fHue.value;
     s.caption=captionText.value.trim(); s.captionPos=captionPos.value; s.captionSize=+captionSize.value; s.captionBg=captionBg.value;
-    if(wmPreview.src){ s.wmURL=wmPreview.src; s.wmPos=wmPos.value; }
-    s.cta=adCTA.value||'#';
-    (p==='A'?$('#ctaA'):$('#ctaB')).href = s.cta;
+    const newAud=adAudioFile.files?.[0]; if(newAud){ s.audioURL=URL.createObjectURL(newAud); }
+    const newWM=wmFile.files?.[0]; if(newWM){ s.wmURL=URL.createObjectURL(newWM); s.wmPos=wmPos.value; }
+    s.cta=$('#adCTA').value||'#'; (p==='A'?$('#ctaA'):$('#ctaB')).href = s.cta;
 
     v.muted=true; v.loop=true; v.playbackRate=s.speed;
     v.style.filter = `brightness(${s.brightness}) contrast(${s.contrast}) saturate(${s.saturate}) hue-rotate(${s.hue}deg)`;
     v.style.objectPosition = `${s.cropX}% ${s.cropY}%`;
     try{ await v.play(); }catch{}
-    s.loaded=true;
-    composer.classList.remove('open');
+    s.loaded=true; composer.classList.remove('open');
   });
 
-  /* ===== Battle Engine ===== */
+  /* ===== Battle Engine (simple) ===== */
   let roundsTotal=3, roundNow=1, turnSecs=30, tLeft=30, current='A', ticker=null;
   function mmss(s){ const m=String(Math.floor(s/60)).padStart(2,'0'); const ss=String(Math.floor(s%60)).padStart(2,'0'); return `${m}:${ss}`; }
-  function setSetupVisible(show){ document.querySelectorAll('.hide-on-start').forEach(el=>el.classList.toggle('hidden', !show)); }
-  function startBattle(){ roundsTotal=+roundsSel.value||3; turnSecs=+turnSel.value||30; tLeft=turnSecs; roundNow=1; current='A'; setSetupVisible(false); hint.classList.remove('hidden'); updateTurn(); clearInterval(ticker); ticker=setInterval(tick,1000); }
-  function endBattle(){ clearInterval(ticker); ticker=null; try{ audA.pause(); audB.pause(); }catch{} setSetupVisible(true); }
+  function startBattle(){ roundsTotal=+roundsSel.value||3; turnSecs=+turnSel.value||30; tLeft=turnSecs; roundNow=1; current='A'; hint.style.display='block'; updateTurn(); clearInterval(ticker); ticker=setInterval(tick,1000); }
+  function endBattle(){ clearInterval(ticker); ticker=null; try{ audA.pause(); audB.pause(); }catch{} hint.style.display='none'; }
   function tick(){ tLeft--; timerChip.textContent=mmss(tLeft); if(tLeft<=0) swapTurn(); }
   startBtn.addEventListener('click', startBattle);
-  exitBtn.addEventListener('click', ()=>location.href='home.html');
+  exitBtn.addEventListener('click', ()=>alert('Exit — wire to route'));
   flagBtn.addEventListener('click', ()=>alert('Flag submitted'));
 
   function swapTurn(){
     if(current==='A'){ current='B'; tLeft=turnSecs; updateTurn(); }
     else{ if(roundNow<roundsTotal){ roundNow++; current='A'; tLeft=turnSecs; updateTurn(); } else { endBattle(); } }
   }
-
   function updateTurn(){
-    roundsChip.textContent=`R${roundNow} / ${roundsTotal}`;
-    timerChip.textContent=mmss(tLeft);
+    roundsChip.textContent=`R${roundNow} / ${roundsTotal}`; timerChip.textContent=mmss(tLeft);
     const top=$('#paneA'), bottom=$('#paneB');
     if(current==='A'){ top.classList.remove('dim'); bottom.classList.add('dim'); playPane('A'); pausePane('B'); }
     else { bottom.classList.remove('dim'); top.classList.add('dim'); playPane('B'); pausePane('A'); }
   }
-
-  function applyFades(audioEl, s){
-    // simple fades by ramping volume over time
-    const parseFade = val => val==='None'?0:parseFloat(val)*1000;
-    const fi=parseFade(s.fadeIn), fo=parseFade(s.fadeOut);
-    audioEl.volume = 0;
-    if(fi>0){
-      let t=0; const iv=setInterval(()=>{ t+=50; audioEl.volume=Math.min(s.volMusic, (t/fi)*s.volMusic); if(t>=fi) clearInterval(iv); },50);
-    } else audioEl.volume = s.volMusic??0.9;
-    if(fo>0){
-      const total=(s.trimEnd-s.trimStart)*1000;
-      setTimeout(()=>{
-        let t=0; const iv=setInterval(()=>{ t+=50; audioEl.volume=Math.max(0, (1 - t/fo) * (s.volMusic??0.9)); if(t>=fo){ audioEl.volume=0; clearInterval(iv);} },50);
-      }, Math.max(0,total-fo-100));
-    }
-  }
-
   function playPane(p){
-    const s=state[p]; const v=(p==='A'?vidA:vidB); const a=(p==='A'?audA:audB);
-    if(!s.loaded) return;
+    const s=state[p]; const v=(p==='A'?vidA:vidB); const a=(p==='A'?audA:audB); if(!s.loaded) return;
     v.currentTime=s.trimStart||0; v.muted=(s.volVideo===0); v.playbackRate=s.speed||1; v.loop=false;
     v.onended=null; v.ontimeupdate=()=>{ if(v.currentTime >= (s.trimEnd||v.duration||30)){ v.pause(); } };
     v.style.filter = `brightness(${s.brightness}) contrast(${s.contrast}) saturate(${s.saturate}) hue-rotate(${s.hue}deg)`;
@@ -503,39 +474,29 @@
     v.play().catch(()=>{});
     if(s.audioURL){
       a.src=s.audioURL; a.currentTime=s.musicOffset||0; a.volume=s.volMusic??0.9; a.play().catch(()=>{});
-      applyFades(a,s);
+      // simple fade-in
+      const fi = (s.fadeIn==='None'?0:parseFloat(s.fadeIn)*1000);
+      if(fi>0){ a.volume=0; let t=0; const iv=setInterval(()=>{ t+=50; a.volume=Math.min(s.volMusic,(t/fi)*s.volMusic); if(t>=fi) clearInterval(iv); },50); }
     }
   }
   function pausePane(p){ const v=(p==='A'?vidA:vidB), a=(p==='A'?audA:audB); try{ v.pause(); }catch{} try{ a.pause(); }catch{} }
 
   // Voting
   let aVotes=0,bVotes=0;
-  $('#tapA').addEventListener('click',()=>{ if(ticker){ aVotes++; votesA.textContent=aVotes; hint.classList.add('hidden'); flash('#paneA'); }});
-  $('#tapB').addEventListener('click',()=>{ if(ticker){ bVotes++; votesB.textContent=bVotes; hint.classList.add('hidden'); flash('#paneB'); }});
+  $('#tapA').addEventListener('click',()=>{ if(ticker){ aVotes++; votesA.textContent=aVotes; hint.style.display='none'; }});
+  $('#tapB').addEventListener('click',()=>{ if(ticker){ bVotes++; votesB.textContent=bVotes; hint.style.display='none'; }});
   addEventListener('keydown',(e)=>{ if(e.key==='ArrowUp')$('#tapA').click(); if(e.key==='ArrowDown')$('#tapB').click(); });
 
-  function flash(sel){ const el=$(sel); el.style.outline='2px solid #7dd3fc'; setTimeout(()=>el.style.outline='',120); }
-
-  // Pane state
+  // State
   const state={
     A:{loaded:false,videoURL:null,audioURL:null,trimStart:0,trimEnd:30,musicOffset:0,volVideo:1,volMusic:0.9,aspect:'9:16',speed:1,loop:true,cta:'#',fadeIn:'None',fadeOut:'None',cropX:50,cropY:50,brightness:1,contrast:1,saturate:1,hue:0,caption:'',captionPos:'Bottom Center',captionSize:16,captionBg:'Dark',wmURL:null,wmPos:'Top Left'},
     B:{loaded:false,videoURL:null,audioURL:null,trimStart:0,trimEnd:30,musicOffset:0,volVideo:1,volMusic:0.9,aspect:'9:16',speed:1,loop:true,cta:'#',fadeIn:'None',fadeOut:'None',cropX:50,cropY:50,brightness:1,contrast:1,saturate:1,hue:0,caption:'',captionPos:'Bottom Center',captionSize:16,captionBg:'Dark',wmURL:null,wmPos:'Top Left'}
   };
 
-  // Save audio file URL into state on apply
-  applyAd.addEventListener('click', ()=>{
-    const p=activePane, s=state[p];
-    const newAud=adAudioFile.files?.[0]; if(newAud){ s.audioURL=URL.createObjectURL(newAud); }
-    const newWM=wmFile.files?.[0]; if(newWM){ s.wmURL=URL.createObjectURL(newWM); }
-  });
-
-  // Find/Create stubs
-  $('#findBtn').addEventListener('click', ()=>alert('Open matchmaking (to be wired)'));
+  // Quick stubs
   $('#createBtn').addEventListener('click', ()=>openComposer('A'));
-
-  // Init
-  function init(){ lockHeights(); setSetupVisible(true); }
-  init();
+  $('#findBtn').addEventListener('click', ()=>alert('Open matchmaking (wire to backend)'));
+  $('#findBtn2').addEventListener('click', ()=>$('#findBtn').click());
 </script>
 </body>
 </html>
