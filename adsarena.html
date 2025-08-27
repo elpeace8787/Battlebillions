@@ -1,296 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Arena — Dual Camera Preview & Recording</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Arena — Galaxy + Person-Only Dual Panels</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
 <style>
-  :root{
-    --vh:100svh;
-    --bg:#07080c; --ink:#f6f7fb; --bd:#ffffff24;
-    --accent:#4cf0ff; --accent2:#ff2e6f;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  :root{ --vh:100svh; --ink:#f6f7fb; --bd:#ffffff24; --glass:rgba(255,255,255,.06); }
+  *{ box-sizing:border-box }
+  html,body{ margin:0; background:#07080c; color:var(--ink); font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
 
   header{
-    position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:.6rem;
-    padding:.55rem .8rem;background:rgba(10,11,16,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)
+    position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:.5rem;
+    padding:.6rem .8rem; background:rgba(10,11,16,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--bd)
   }
-  .spacer{flex:1}
-  .btn{border:1px solid var(--bd);background:#151827;color:var(--ink);border-radius:12px;padding:.5rem .8rem;font-weight:800}
-  .btn.gold{background:linear-gradient(180deg,#ffe88a,#ffc400);border:none;color:#141414}
-  .btn.small{padding:.42rem .6rem;border-radius:10px}
-  .tag{font-weight:800;opacity:.85}
+  .spacer{ flex:1 }
+  .btn{ border:1px solid var(--bd); background:#151827; color:var(--ink); border-radius:12px; padding:.46rem .72rem; font-weight:800 }
+  .btn.gold{ background:linear-gradient(180deg,#ffe88a,#ffc400); border:none; color:#141414 }
+  .tag{ opacity:.85; font-weight:800 }
 
   /* Arena surface */
-  .arena{height:var(--vh);position:relative;overflow:hidden}
-  /* Animated background stack */
+  .arena{ height:var(--vh); position:relative; overflow:hidden }
+
+  /* Three.js background canvas fills surface */
+  #galaxy{ position:absolute; inset:0; z-index:0; display:block }
+
+  /* Animated hue shimmer over galaxy */
   .bgHue{
-    position:absolute;inset:-12% -12% 0 -12%;z-index:0;
+    position:absolute; inset:-10% -10% 0 -10%; z-index:0; pointer-events:none;
     background:
       radial-gradient(1200px 520px at 50% -220px, rgba(255,255,255,.06), transparent 60%),
-      radial-gradient(1000px 460px at 50% 115%, rgba(76,240,255,.09), transparent 60%),
-      linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,.75));
-    animation:hue 30s linear infinite alternate
+      radial-gradient(1000px 460px at 50% 115%, rgba(76,240,255,.08), transparent 60%),
+      linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.75));
+    animation:hue 28s linear infinite alternate
   }
-  @keyframes hue{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(20deg)}}
-  canvas#stars{position:absolute;inset:-6% -6% 0 -6%;z-index:0}
-  .scan{position:absolute;inset:0;z-index:0;mix-blend-mode:soft-light;opacity:.18;
-    background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px)}
+  @keyframes hue{ from{ filter:hue-rotate(0deg) } to{ filter:hue-rotate(20deg) } }
 
-  .arcs{position:absolute;left:50%;top:52%;width:82vw;max-width:920px;transform:translateX(-50%);z-index:0;opacity:.65}
-  .arcs path{fill:none;stroke:url(#arcGrad);stroke-width:3;stroke-linecap:round;stroke-dasharray:320;stroke-dashoffset:320;animation:draw 7s ease-in-out infinite}
-  .arcs path:nth-child(2){animation-delay:.8s;opacity:.8}
-  .arcs path:nth-child(3){animation-delay:1.6s;opacity:.55}
-  @keyframes draw{50%{stroke-dashoffset:0}100%{stroke-dashoffset:-320}}
-
-  /* Two vertical panels that read like one screen */
-  .panes{
-    position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:0;z-index:1
+  /* Film scanlines for grit */
+  .scan{ position:absolute; inset:0; z-index:0; mix-blend-mode:soft-light; opacity:.18;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 3px)
   }
-  .pane{position:relative;overflow:hidden;background:#000}
-  .pane video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    filter:contrast(1.08) saturate(1.05) brightness(1.02)}
-  /* Feather center masks to remove the split */
-  .left video{mask-image:linear-gradient(to right, black 0 86%, transparent 100%);-webkit-mask-image:linear-gradient(to right, black 0 86%, transparent 100%)}
-  .right video{mask-image:linear-gradient(to left, black 0 86%, transparent 100%);-webkit-mask-image:linear-gradient(to left, black 0 86%, transparent 100%)}
-  /* subtle seam glow */
-  .panes:after{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;transform:translateX(-1.5px);
-    background:linear-gradient(180deg,transparent,#ffffff1f 20%,#88f0ff33 50%,transparent 80%);filter:blur(.5px);opacity:.7}
 
-  /* Control dock */
-  .dock{
-    position:absolute;left:0;right:0;bottom:0;z-index:5;
-    padding:.6rem .7rem calc(.7rem + env(safe-area-inset-bottom));
-    background:linear-gradient(180deg,transparent 0%, rgba(8,8,10,.75) 22%, rgba(8,8,10,.96) 70%);
-    border-top:1px solid var(--bd)
+  /* Two “one-screen” panels (we render to canvases) */
+  .panes{ position:absolute; inset:0; display:grid; grid-template-columns:1fr 1fr; gap:0; z-index:1 }
+  .pane{ position:relative; overflow:hidden; }
+  /* feathered inner edges so the split disappears */
+  .pane.left  canvas{ -webkit-mask-image:linear-gradient(to right, black 0 86%, transparent 100%); mask-image:linear-gradient(to right, black 0 86%, transparent 100%) }
+  .pane.right canvas{ -webkit-mask-image:linear-gradient(to left,  black 0 86%, transparent 100%); mask-image:linear-gradient(to left,  black 0 86%, transparent 100%) }
+  .panes:after{
+    content:""; position:absolute; left:50%; top:0; bottom:0; width:3px; transform:translateX(-1.5px);
+    background:linear-gradient(180deg, transparent, #ffffff22 20%, #8df0ff33 50%, transparent 80%); filter:blur(.5px); opacity:.75
   }
-  .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center}
 
-  /* Recorder preview */
-  .recbar{position:sticky;bottom:0;z-index:22;padding:.4rem .6rem;background:rgba(10,11,16,.9);border-top:1px solid var(--bd);display:flex;gap:.5rem;align-items:center}
-  video#recPreview{max-width:180px;max-height:120px;border-radius:10px;border:1px solid var(--bd)}
+  /* Center prompt */
+  .center{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:2; display:grid; place-items:center; pointer-events:none }
+  .hint{ background:var(--glass); border:1px solid var(--bd); padding:.5rem .7rem; border-radius:12px; font-weight:800 }
+
+  /* Bottom dock */
+  .dock{ position:absolute; left:0; right:0; bottom:0; z-index:3; padding:.6rem .7rem calc(.7rem + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg, transparent 0%, rgba(8,8,10,.7) 22%, rgba(8,8,10,.95) 70%); border-top:1px solid var(--bd) }
+  .row{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; justify-content:center }
+  .note{ opacity:.8 }
+
+  video#cam{ position:fixed; left:-9999px; top:-9999px; width:1px; height:1px; } /* hidden raw camera */
 </style>
 </head>
 <body>
 <header>
-  <strong class="tag">ARENA</strong>
+  <strong class="tag">ARENA • Galaxy (3D) + Person Cutout</strong>
   <div class="spacer"></div>
-  <button class="btn small" id="flip">Flip Cam</button>
-  <button class="btn small" id="startCam">Start Camera</button>
-  <button class="btn small" id="stopCam">Stop Camera</button>
-  <button class="btn gold small" id="startRec">Start Recording</button>
-  <button class="btn small" id="stopRec" disabled>Stop & Save</button>
+  <button class="btn" id="flip">Flip Cam</button>
+  <button class="btn" id="start">Start Camera</button>
+  <button class="btn" id="stop" disabled>Stop</button>
+  <button class="btn gold" id="record">Record 10s</button>
 </header>
 
 <section class="arena" id="arena">
-  <!-- Animated background -->
+  <!-- 3D galaxy background -->
+  <canvas id="galaxy"></canvas>
   <div class="bgHue"></div>
-  <canvas id="stars"></canvas>
   <div class="scan"></div>
-  <svg class="arcs" viewBox="0 0 800 300" preserveAspectRatio="none" aria-hidden="true">
-    <defs><linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#4cf0ff"/><stop offset="1" stop-color="#ff2e6f"/></linearGradient></defs>
-    <path d="M20 240 Q 400 40 780 240"/>
-    <path d="M80 260 Q 400 70 720 260"/>
-    <path d="M160 280 Q 400 110 640 280"/>
-  </svg>
 
-  <!-- Two “one-screen” panels (same camera on both sides) -->
+  <!-- Dual panels -->
   <div class="panes">
-    <article class="pane left"><video id="vidA" playsinline muted></video></article>
-    <article class="pane right"><video id="vidB" playsinline muted></video></article>
+    <div class="pane left"><canvas id="panelA"></canvas></div>
+    <div class="pane right"><canvas id="panelB"></canvas></div>
   </div>
 
-  <!-- Controls dock -->
+  <div class="center"><div class="hint">Start camera → your background is removed • move to test framing</div></div>
+
+  <!-- bottom controls -->
   <div class="dock">
     <div class="row">
-      <span class="tag">Camera appears on both panels • Recording saves the full arena</span>
+      <span class="note">Tip: hold phone vertical; flip camera for rear lens.</span>
     </div>
   </div>
 </section>
 
-<!-- Recorder preview row -->
-<div class="recbar">
-  <video id="recPreview" playsinline muted></video>
-  <a id="downloadLink" class="btn small" style="display:none">Download</a>
-  <span id="recStatus" class="tag">Idle</span>
-</div>
+<!-- Hidden camera element -->
+<video id="cam" playsinline muted></video>
+
+<!-- Three.js & MediaPipe (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/postprocessing/UnrealBloomPass.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
 <script>
   const $ = s => document.querySelector(s);
 
-  /* True mobile viewport */
+  /* ========= Viewport fix ========= */
   function setVH(){ const vv=window.visualViewport; document.documentElement.style.setProperty('--vh', Math.round(vv?.height||innerHeight)+'px'); }
   ['load','resize','orientationchange','scroll'].forEach(e=>addEventListener(e,setVH,{passive:true})); setVH();
 
-  /* ===== Animated stars (Canvas) ===== */
-  const canvas = $('#stars'), ctx = canvas.getContext('2d');
-  function resizeCanvas(){
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    const H = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vh'));
-    canvas.width = Math.floor(innerWidth * dpr);
-    canvas.height = Math.floor(H * dpr);
-    canvas.style.width = innerWidth + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  resizeCanvas(); addEventListener('resize', resizeCanvas, {passive:true});
+  /* ========= Three.js Galaxy (stars + mini “explosions”) ========= */
+  let renderer, scene, camera3D, stars, composer, bloom;
+  const galaxyCanvas = $('#galaxy');
 
-  const stars = Array.from({length: 120}).map(()=>({
-    x: Math.random()*innerWidth,
-    y: Math.random()*innerHeight,
-    r: Math.random()*1.5 + 0.3,
-    s: Math.random()*0.3 + 0.05
-  }));
-  function drawStars(){
-    ctx.clearRect(0,0,innerWidth,parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vh')));
-    ctx.globalCompositeOperation='lighter';
-    for(const st of stars){
-      ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(200,220,255,0.35)'; ctx.fill();
-      st.y -= st.s; if(st.y < -2){ st.y = innerHeight+2; st.x = Math.random()*innerWidth; }
+  function initGalaxy(){
+    renderer = new THREE.WebGLRenderer({ canvas: galaxyCanvas, antialias:true, alpha:true });
+    resizeGalaxy();
+
+    scene = new THREE.Scene();
+    camera3D = new THREE.PerspectiveCamera(60, innerWidth/heightVH(), 0.1, 2000);
+    camera3D.position.set(0,0,220);
+
+    // Starfield (points)
+    const starGeo = new THREE.BufferGeometry();
+    const N = 4000;
+    const positions = new Float32Array(N*3);
+    const sizes = new Float32Array(N);
+    for(let i=0;i<N;i++){
+      const r = 600 * Math.pow(Math.random(), .6);
+      const theta = Math.random()*Math.PI*2;
+      const phi = Math.acos(2*Math.random()-1);
+      positions[i*3+0] = r*Math.sin(phi)*Math.cos(theta);
+      positions[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
+      positions[i*3+2] = r*Math.cos(phi);
+      sizes[i] = Math.random()*1.8 + 0.4;
     }
-    requestAnimationFrame(drawStars);
-  }
-  drawStars();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+    const starMat = new THREE.PointsMaterial({ color:0x9ecbff, size:1.2, sizeAttenuation:true, transparent:true, opacity:0.8, blending:THREE.AdditiveBlending });
+    stars = new THREE.Points(starGeo, starMat);
+    scene.add(stars);
 
-  /* ===== Camera to both panels ===== */
-  const vidA = $('#vidA'), vidB = $('#vidB');
-  let facing = 'user'; // or 'environment'
+    // Glow fog plane (subtle)
+    const fogGeo = new THREE.PlaneGeometry(2000,1200);
+    const fogMat = new THREE.MeshBasicMaterial({ color:0x112233, transparent:true, opacity:0.25, blending:THREE.AdditiveBlending });
+    const fog = new THREE.Mesh(fogGeo, fogMat);
+    fog.position.z = -100;
+    scene.add(fog);
+
+    // Post: bloom
+    const renderPass = new THREE.RenderPass(scene, camera3D);
+    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(innerWidth, heightVH()), 0.6, 0.8, 0.2);
+    composer = new THREE.EffectComposer(renderer);
+    composer.addPass(renderPass);
+    composer.addPass(bloom);
+
+    animateGalaxy();
+    // periodic mini explosions
+    setInterval(spawnExplosion, 1600 + Math.random()*1200);
+  }
+
+  function spawnExplosion(){
+    const group = new THREE.Group();
+    const pgeo = new THREE.BufferGeometry();
+    const COUNT = 80;
+    const pos = new Float32Array(COUNT*3);
+    const vel = new Float32Array(COUNT*3);
+    for(let i=0;i<COUNT;i++){
+      pos[i*3+0]=0; pos[i*3+1]=0; pos[i*3+2]=0;
+      const ang = Math.random()*Math.PI*2;
+      const elev = (Math.random()-0.5)*0.6;
+      const speed = 0.6 + Math.random()*1.8;
+      vel[i*3+0] = Math.cos(ang)*speed;
+      vel[i*3+1] = Math.sin(ang)*speed;
+      vel[i*3+2] = elev*speed;
+    }
+    pgeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    pgeo.setAttribute('velocity', new THREE.BufferAttribute(vel,3));
+    const mat = new THREE.PointsMaterial({ color:0xff86b3, size:2.2, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending });
+    const points = new THREE.Points(pgeo, mat);
+    points.position.set((Math.random()-0.5)*280, (Math.random()-0.5)*160, -40 - Math.random()*80);
+    group.add(points);
+    scene.add(group);
+
+    let life = 0;
+    const updater = ()=>{
+      life += 0.016;
+      const p = pgeo.getAttribute('position');
+      const v = pgeo.getAttribute('velocity');
+      for(let i=0;i<p.count;i++){
+        p.array[i*3+0] += v.array[i*3+0];
+        p.array[i*3+1] += v.array[i*3+1];
+        p.array[i*3+2] += v.array[i*3+2];
+      }
+      p.needsUpdate = true;
+      mat.opacity = Math.max(0, 0.9 - life*1.2);
+      if(life < 1.2) requestAnimationFrame(updater);
+      else scene.remove(group);
+    };
+    updater();
+  }
+
+  function animateGalaxy(){
+    requestAnimationFrame(animateGalaxy);
+    const t = performance.now()*0.00006;
+    stars.rotation.y = t*3;
+    stars.rotation.x = Math.sin(t*0.6)*0.2;
+    composer.render();
+  }
+
+  function heightVH(){ return parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vh')) || innerHeight; }
+  function resizeGalaxy(){
+    const w = innerWidth, h = heightVH();
+    renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+    renderer.setSize(w,h,false);
+    if(camera3D){ camera3D.aspect = w/h; camera3D.updateProjectionMatrix(); }
+    if(composer){ composer.setSize(w,h); bloom.setSize(w,h); }
+  }
+  addEventListener('resize', resizeGalaxy, {passive:true});
+
+  /* ========= MediaPipe Selfie Segmentation (person cutout) ========= */
+  const camEl = $('#cam');
+  let facing = 'user';
   let camStream = null;
+
+  // output canvases (what you see on panels)
+  const panelA = $('#panelA'), panelB = $('#panelB');
+  const ctxA = panelA.getContext('2d'), ctxB = panelB.getContext('2d');
+
+  // internal canvases for processing
+  const procW = 256, procH = 256; // small for speed on phones
+  const maskCanvas = document.createElement('canvas'); maskCanvas.width=procW; maskCanvas.height=procH;
+  const personCanvas = document.createElement('canvas'); // full-size person
+  const personCtx = personCanvas.getContext('2d');
+
+  function sizePanels(){
+    const W = innerWidth, H = heightVH();
+    panelA.width = Math.floor(W/2); panelA.height = H;
+    panelB.width = Math.floor(W/2); panelB.height = H;
+    personCanvas.width = W; personCanvas.height = H;
+  }
+  sizePanels(); addEventListener('resize', sizePanels, {passive:true});
+
+  // Create segmenter
+  const segmenter = new SelfieSegmentation.SelfieSegmentation({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+  });
+  segmenter.setOptions({ modelSelection: 1 }); // 0 fast/close, 1 full-range
+  segmenter.onResults(onSegResults);
+
+  let running = false, rafId = null;
+  let lastSent = 0;
 
   async function startCamera(){
     try{
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video:{ facingMode: { ideal: facing } }, audio:false
-      });
-      camStream = stream;
-      // Use the SAME stream on both panels
-      vidA.srcObject = stream; vidB.srcObject = stream;
-      vidA.muted = true; vidB.muted = true;
-      await Promise.allSettled([vidA.play(), vidB.play()]);
-      setStatus('Camera running');
-    }catch(e){ alert('Camera error: ' + (e?.message||e)); }
+      camStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:facing } }, audio:false });
+      camEl.srcObject = camStream; camEl.muted = true;
+      await camEl.play();
+      running = true;
+      loop();
+      $('#start').disabled = true; $('#stop').disabled = false;
+    }catch(err){ alert('Camera error: ' + (err?.message||err)); }
   }
   function stopCamera(){
-    if(!camStream) return;
-    camStream.getTracks().forEach(t=>t.stop());
-    camStream = null;
-    [vidA,vidB].forEach(v=>{ if(v.srcObject){ v.pause(); v.srcObject=null; }});
-    setStatus('Camera stopped');
+    running = false;
+    if(rafId) cancelAnimationFrame(rafId);
+    if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream = null; }
+    camEl.pause(); camEl.srcObject = null;
+    ctxA.clearRect(0,0,panelA.width,panelA.height);
+    ctxB.clearRect(0,0,panelB.width,panelB.height);
+    $('#start').disabled = false; $('#stop').disabled = true;
   }
   async function flipCamera(){
-    facing = facing === 'user' ? 'environment' : 'user';
-    if(camStream) { stopCamera(); await startCamera(); }
+    facing = (facing==='user' ? 'environment' : 'user');
+    if(camStream){ stopCamera(); await startCamera(); }
   }
 
-  $('#startCam').addEventListener('click', startCamera);
-  $('#stopCam').addEventListener('click', stopCamera);
+  // Draw the person into personCanvas, then copy into both panels (cover-fit)
+  function onSegResults(results){
+    const W = personCanvas.width, H = personCanvas.height;
+    const mask = results.segmentationMask; // HTMLCanvasElement
+
+    // 1) Clear
+    personCtx.clearRect(0,0,W,H);
+
+    // 2) Draw mask scaled to full size
+    personCtx.save();
+    personCtx.drawImage(mask, 0, 0, W, H);
+
+    // 3) Keep only person: source-in
+    personCtx.globalCompositeOperation = 'source-in';
+    // draw camera feed with cover fit into full canvas
+    drawCover(personCtx, camEl, 0, 0, W, H);
+    personCtx.restore();
+
+    // 4) Render person onto both panels with their own cover (already full size so just crop halves)
+    drawCover(ctxA, personCanvas, 0, 0, panelA.width, panelA.height);
+    drawCover(ctxB, personCanvas, 0, 0, panelB.width, panelB.height);
+  }
+
+  function drawCover(ctx, source, x, y, w, h){
+    const sw = source.videoWidth || source.width || 16;
+    const sh = source.videoHeight|| source.height|| 9;
+    const sAspect = sw/sh, dAspect = w/h;
+    let dw=w, dh=h, dx=x, dy=y;
+    if(sAspect > dAspect){ // source wider
+      dh = h; dw = dh*sAspect; dx = x + (w - dw)/2;
+    }else{
+      dw = w; dh = dw/sAspect; dy = y + (h - dh)/2;
+    }
+    ctx.clearRect(x,y,w,h);
+    ctx.drawImage(source, dx, dy, dw, dh);
+  }
+
+  async function loop(){
+    if(!running) return;
+    const now = performance.now();
+    // send at ~30fps max, avoid overlap
+    if(now - lastSent > 33){
+      lastSent = now;
+      await segmenter.send({ image: camEl });
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  /* ========= 10s Composited Recording of the whole arena ========= */
+  const recordBtn = $('#record');
+  recordBtn.addEventListener('click', async ()=>{
+    // Use the galaxy canvas stream + panel canvases composited into one stream using an offscreen canvas
+    const recCanvas = document.createElement('canvas');
+    recCanvas.width = innerWidth; recCanvas.height = heightVH();
+    const rctx = recCanvas.getContext('2d');
+
+    // capture streams
+    const galaxyStream = galaxyCanvas.captureStream(30);
+    // We'll just redraw from current canvases instead of mixing streams (more compatible)
+    let t=0; const draw = ()=>{
+      const W=recCanvas.width, H=recCanvas.height;
+      rctx.clearRect(0,0,W,H);
+      rctx.drawImage(galaxyCanvas, 0,0,W,H);                 // background
+      rctx.drawImage(panelA, 0,0, W/2, H);                   // left person
+      rctx.drawImage(panelB, W/2,0, W/2, H);                 // right person
+      // seam glow
+      const g = rctx.createLinearGradient(W/2-40,0,W/2+40,0);
+      g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.5,'rgba(255,255,255,.18)'); g.addColorStop(1,'rgba(0,0,0,0)');
+      rctx.fillStyle=g; rctx.fillRect(W/2-40,0,80,H);
+      t=requestAnimationFrame(draw);
+    };
+    draw();
+
+    const stream = recCanvas.captureStream(30);
+    let chunks=[];
+    const rec = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9'});
+    rec.ondataavailable = e => { if(e.data.size) chunks.push(e.data); };
+    rec.onstop = ()=>{
+      cancelAnimationFrame(t);
+      const blob = new Blob(chunks,{type:'video/webm'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download='arena-galaxy-person.webm';
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    rec.start(200);
+    // auto-stop after 10s
+    setTimeout(()=> rec.state!=='inactive' && rec.stop(), 10000);
+  });
+
+  /* ========= Wire up UI ========= */
+  $('#start').addEventListener('click', startCamera);
+  $('#stop').addEventListener('click', stopCamera);
   $('#flip').addEventListener('click', flipCamera);
 
-  /* ===== Composited recording (background + both panels) =====
-     We render the arena to a hidden canvas and captureStream() from it. */
-  const recCanvas = document.createElement('canvas');
-  const recCtx = recCanvas.getContext('2d');
-  let recStream = null, recorder = null, chunks = [], rafId = null;
+  // Boot galaxy
+  initGalaxy();
 
-  function layoutSizes(){
-    const W = innerWidth;
-    const H = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--vh'));
-    recCanvas.width = W; recCanvas.height = H;
-    // panel rects (left/right halves)
-    return { W, H, left:{x:0,y:0,w:W/2,h:H}, right:{x:W/2,y:0,w:W/2,h:H} };
-  }
-
-  function drawFrame(){
-    const {W,H,left,right} = layoutSizes();
-    // background gradient
-    const g1 = recCtx.createRadialGradient(W/2, -220, 0, W/2, -220, 600);
-    g1.addColorStop(0, 'rgba(255,255,255,0.06)'); g1.addColorStop(1, 'rgba(0,0,0,0)');
-    recCtx.fillStyle = 'rgba(0,0,0,0.75)'; recCtx.fillRect(0,0,W,H);
-    recCtx.globalCompositeOperation='lighter';
-    recCtx.fillStyle = g1; recCtx.fillRect(0,0,W,H);
-    recCtx.globalCompositeOperation='source-over';
-
-    // draw camera into left & right (cover halves)
-    if(vidA.srcObject){
-      drawCoverVideo(recCtx, vidA, left.x, left.y, left.w, left.h);
-      drawCoverVideo(recCtx, vidB, right.x, right.y, right.w, right.h);
-    }
-    // feather seam overlay
-    const seam = recCtx.createLinearGradient(W/2-40,0,W/2+40,0);
-    seam.addColorStop(0,'rgba(0,0,0,0)');
-    seam.addColorStop(0.5,'rgba(255,255,255,0.18)');
-    seam.addColorStop(1,'rgba(0,0,0,0)');
-    recCtx.fillStyle = seam; recCtx.fillRect(W/2-40,0,80,H);
-
-    // subtle scanlines
-    recCtx.globalAlpha = 0.12;
-    for(let y=0;y<H;y+=3){ recCtx.fillStyle='rgba(255,255,255,0.05)'; recCtx.fillRect(0,y,W,1); }
-    recCtx.globalAlpha = 1;
-
-    rafId = requestAnimationFrame(drawFrame);
-  }
-
-  function drawCoverVideo(ctx, video, x, y, w, h){
-    const vw = video.videoWidth || 16, vh = video.videoHeight || 9;
-    const vidAspect = vw / vh, boxAspect = w / h;
-    let dw = w, dh = h, dx = x, dy = y;
-    if(vidAspect > boxAspect){ // video wider than box
-      dh = h; dw = dh * vidAspect; dx = x + (w - dw)/2;
-    } else {
-      dw = w; dh = dw / vidAspect; dy = y + (h - dh)/2;
-    }
-    ctx.drawImage(video, dx, dy, dw, dh);
-  }
-
-  function startRecording(){
-    // Kick off compositor draw loop
-    cancelAnimationFrame(rafId); drawFrame();
-    recStream = recCanvas.captureStream(30); // 30fps
-    chunks = [];
-    const opts = { mimeType: 'video/webm;codecs=vp9' };
-    try{
-      recorder = new MediaRecorder(recStream, opts);
-    }catch{
-      recorder = new MediaRecorder(recStream); // fallback
-    }
-    recorder.ondataavailable = e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
-    recorder.onstop = saveRecording;
-    recorder.start(200); // gather chunks
-    $('#startRec').disabled = true; $('#stopRec').disabled = false;
-    setStatus('Recording…');
-  }
-  function stopRecording(){
-    if(recorder && recorder.state!=='inactive'){ recorder.stop(); }
-    if(recStream){ recStream.getTracks().forEach(t=>t.stop()); recStream=null; }
-    cancelAnimationFrame(rafId);
-    $('#startRec').disabled = false; $('#stopRec').disabled = true;
-    setStatus('Processing…');
-  }
-  function saveRecording(){
-    const blob = new Blob(chunks, {type:'video/webm'});
-    const url = URL.createObjectURL(blob);
-    const a = $('#downloadLink');
-    a.href = url; a.download = 'arena-recording.webm';
-    a.style.display = 'inline-block';
-    $('#recPreview').src = url; $('#recPreview').loop = true; $('#recPreview').play().catch(()=>{});
-    setStatus('Saved');
-  }
-
-  $('#startRec').addEventListener('click', startRecording);
-  $('#stopRec').addEventListener('click', stopRecording);
-
-  function setStatus(s){ $('#recStatus').textContent = s; }
-
-  // Start camera immediately if permission already granted (nice DX)
+  // If camera already permitted, auto-start
   (async () => {
     try{
-      const perms = await navigator.permissions?.query?.({name:'camera'});
-      if(perms && perms.state==='granted'){ startCamera(); }
+      const p = await navigator.permissions?.query?.({name:'camera'});
+      if(p && p.state==='granted') startCamera();
     }catch{}
   })();
 </script>
