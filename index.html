@@ -538,576 +538,408 @@
     document.getElementById("modeBtn").addEventListener("click",()=>{ location.hash="/auth/create"; });
   </script>
 
-  <!-- ===== FIREBASE EMAIL/PASSWORD ONLY ===== -->
+  <!-- ===== Advanced Three.js Background (GPU + Bloom, with fallbacks) ===== -->
   <script type="module">
-    // Try your local firebase.js (should export initialized auth + db)
-    let local = {};
-    try{ local = await import("./firebase.js"); }catch{}
+  import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+  import { GPUComputationRenderer } from 'https://unpkg.com/three@0.160.0/examples/jsm/misc/GPUComputationRenderer.js';
+  import { EffectComposer } from 'https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js';
+  import { RenderPass } from 'https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/RenderPass.js';
+  import { UnrealBloomPass } from 'https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js';
 
-    const {
-      auth, db,
-      onAuthStateChanged:OASC, signInWithEmailAndPassword:SWE,
-      createUserWithEmailAndPassword:CUW,
-      doc:DOC, getDoc:GDC, setDoc:SDC, serverTimestamp:SVT
-    } = local;
+  (function(){
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canvas = document.getElementById('bg3d');
 
-    // Backfill from CDN if some helpers missing (still use your initialized auth/db)
-    let onAuthStateChanged=OASC, signInWithEmailAndPassword=SWE, createUserWithEmailAndPassword=CUW;
-    let doc=DOC, getDoc=GDC, setDoc=SDC, serverTimestamp=SVT;
-
-    if(!(onAuthStateChanged && signInWithEmailAndPassword && createUserWithEmailAndPassword)){
-      const a = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-      onAuthStateChanged = onAuthStateChanged || a.onAuthStateChanged;
-      signInWithEmailAndPassword = signInWithEmailAndPassword || a.signInWithEmailAndPassword;
-      createUserWithEmailAndPassword = createUserWithEmailAndPassword || a.createUserWithEmailAndPassword;
-    }
-    if(!(doc && getDoc && setDoc && serverTimestamp)){
-      const f = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-      doc=doc||f.doc; getDoc=getDoc||f.getDoc; setDoc=setDoc||f.setDoc; serverTimestamp=serverTimestamp||f.serverTimestamp;
-    }
-
-    const statusEl = document.getElementById("status");
-
-    // Ensure user doc exists; minimal profile scaffold
-    async function ensureUserDoc(user){
-      if(!db) return {existed:true, data:null}; // allow nav without DB write
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-      if(!snap.exists()){
-        await setDoc(ref, {
-          email:user.email||"", avatarURL:user.photoURL||"", createdAt:serverTimestamp(),
-          account_type:null,
-          username:null, country:null,state:null,city:null,tz:null,
-          dob:null, age:null, chineseZodiac:null, languages:[], ethnicity:null,
-          education:{ hs:null, college:null, role:null }, categories:[]
-        });
-        return {existed:false, data:null};
+    // Quick capability gate (keeps login UI snappy on low devices)
+    const gl = canvas.getContext('webgl2', { alpha:true, antialias:false, powerPreference:'high-performance' });
+    if (!gl || reduced) {
+      // Minimal starfield fallback (static twinkle) to honor reduced motion or missing WebGL2
+      const ctx = canvas.getContext('2d');
+      function resize2d(){ canvas.width = innerWidth; canvas.height = innerHeight; draw(); }
+      function draw(){
+        const w=canvas.width,h=canvas.height;
+        const grd = ctx.createRadialGradient(w*0.3,h*0.2,0,w*0.3,h*0.2,Math.max(w,h)*0.8);
+        grd.addColorStop(0,'#101012'); grd.addColorStop(1,'#000');
+        ctx.fillStyle = grd; ctx.fillRect(0,0,w,h);
+        const n = Math.min(800, Math.floor(w*h/3000));
+        for(let i=0;i<n;i++){
+          const x=Math.random()*w, y=Math.random()*h, r=Math.random()*1.4+0.2, a=Math.random()*0.6+0.2;
+          ctx.fillStyle = `rgba(255,240,200,${a})`;
+          ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+        }
       }
-      return {existed:true, data:snap.data()};
+      addEventListener('resize', resize2d, {passive:true}); resize2d();
+      return;
     }
 
-    // Different completion rules for user vs company (NEW)
-    const needsCompletion = (d)=>{
-      if(!d) return true;
-      if(d.account_type === 'company'){
-        // For companies, just require a handle at minimum (no DOB/age)
-        return !(d.username);
+    // ========= THREE Setup =========
+    const renderer = new THREE.WebGLRenderer({ canvas, context: gl, alpha:true, antialias:false, preserveDrawingBuffer:false });
+    const DPR_LIMIT = 1.75;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, DPR_LIMIT));
+    renderer.setSize(innerWidth, innerHeight, false);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.0011);
+
+    const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 4000);
+    const baseCam = new THREE.Vector3(0,0,140);
+    camera.position.copy(baseCam);
+
+    // Lighting to give the rings a warm gold tone
+    const hemi = new THREE.HemisphereLight(0x999999, 0x080808, 0.7);
+    const dir  = new THREE.DirectionalLight(0xffe7a4, 0.9); dir.position.set(80, 120, 160);
+    scene.add(hemi, dir);
+
+    // ========= Post FX (Bloom) =========
+    const composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.9, 0.8, 0.85);
+    composer.addPass(bloom);
+
+    // ========= GPU Compute (positions + velocities) =========
+    const SIZE = 256; // 256x256 = 65,536 particles (scales well on mobiles)
+    const gpu = new GPUComputationRenderer(SIZE, SIZE, renderer);
+    const dtPos = gpu.createTexture();
+    const dtVel = gpu.createTexture();
+
+    // Seed textures
+    (function seed(){
+      const p = dtPos.image.data;
+      const v = dtVel.image.data;
+      for (let i=0; i<p.length; i+=4){
+        // Spiral-ish seed near origin
+        const r = Math.random()*6 + Math.random()*8;
+        const a = Math.random()*Math.PI*2;
+        const h = (Math.random()-0.5)*4.0;
+        p[i+0] = Math.cos(a)*r;
+        p[i+1] = h;
+        p[i+2] = Math.sin(a)*r;
+        p[i+3] = 1;
+
+        // Tangential initial velocity
+        const speed = 0.6 + Math.random()*0.8;
+        v[i+0] = -Math.sin(a)*speed * 0.6;
+        v[i+1] = (Math.random()-0.5)*0.2;
+        v[i+2] =  Math.cos(a)*speed;
+        v[i+3] = 1;
       }
-      return !(d && d.username && d.dob && typeof d.age==="number");
+    })();
+
+    const posVar = gpu.addVariable('texturePosition', `
+      uniform float uTime;
+      uniform float uAttractorStrength;
+      uniform sampler2D textureVelocity;
+      vec2 uvCell = gl_FragCoord.xy / resolution.xy;
+
+      void main(){
+        vec4 pos = texture2D(texturePosition, uvCell);
+        vec4 vel = texture2D(textureVelocity, uvCell);
+
+        // Integrate
+        pos.xyz += vel.xyz;
+
+        // Soft boundary to keep swarm in view (spherical)
+        float R = 120.0;
+        float d = length(pos.xyz);
+        if (d > R){
+          pos.xyz *= 0.98; // gentle pull-back
+        }
+
+        gl_FragColor = pos;
+      }
+    `, dtPos);
+
+    const velVar = gpu.addVariable('textureVelocity', `
+      uniform float uTime;
+      uniform float uAttractorStrength;
+      uniform vec3  uAttractor;
+      uniform float uCurlScale;
+
+      // Simple curl noise based on 3D noise derivative (cheap-ish)
+      // Hash/Noise helpers
+      float hash(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7, 74.7)))*43758.5453); }
+      float noise(vec3 x){
+        vec3 p = floor(x), f = fract(x);
+        f = f*f*(3.0-2.0*f);
+        float n = p.x + p.y*57.0 + 113.0*p.z;
+        float res = mix(
+          mix(mix(hash(vec3(n+0.0, n+1.0, n+2.0)), hash(vec3(n+1.0, n+2.0, n+3.0)), f.x),
+              mix(hash(vec3(n+57.0, n+58.0, n+59.0)), hash(vec3(n+58.0, n+59.0, n+60.0)), f.x), f.y),
+          mix(mix(hash(vec3(n+113.0, n+114.0, n+115.0)), hash(vec3(n+114.0, n+115.0, n+116.0)), f.x),
+              mix(hash(vec3(n+170.0, n+171.0, n+172.0)), hash(vec3(n+171.0, n+172.0, n+173.0)), f.x), f.y),
+          f.z);
+        return res;
+      }
+      vec3 curl(vec3 p){
+        float e = 0.1;
+        vec3 dx = vec3(e,0.0,0.0), dy = vec3(0.0,e,0.0), dz = vec3(0.0,0.0,e);
+        float p_yz1 = noise(p + dy) - noise(p - dy);
+        float p_zz1 = noise(p + dz) - noise(p - dz);
+        float p_xz1 = noise(p + dx) - noise(p - dx);
+        return normalize(vec3(p_yz1 - p_zz1, p_zz1 - p_xz1, p_xz1 - p_yz1) + 1e-6);
+      }
+
+      void main(){
+        vec2 uvCell = gl_FragCoord.xy / resolution.xy;
+        vec4 pos = texture2D(texturePosition, uvCell);
+        vec4 vel = texture2D(textureVelocity, uvCell);
+
+        // Core golden reactor attractor + curl flow
+        vec3 toCore = normalize(uAttractor - pos.xyz);
+        vec3 flow   = curl(pos.xyz * 0.035 + vec3(uTime*0.03)) * uCurlScale;
+
+        vec3 acc = toCore * uAttractorStrength + flow;
+
+        // Gentle angular momentum (swirl)
+        acc += cross(toCore, vec3(0.0, 0.8, 0.0)) * 0.12;
+
+        vel.xyz = mix(vel.xyz * 0.985, vel.xyz + acc * 0.06, 0.9);
+
+        // Cap velocity slightly for stability
+        float m = length(vel.xyz);
+        if (m > 2.0) vel.xyz = normalize(vel.xyz) * 2.0;
+
+        gl_FragColor = vel;
+      }
+    `, dtVel);
+
+    gpu.setVariableDependencies(posVar, [posVar, velVar]);
+    gpu.setVariableDependencies(velVar, [posVar, velVar]);
+
+    posVar.material.uniforms = {
+      uTime: { value: 0 },
+      uAttractorStrength: { value: 0.06 },
+      textureVelocity: { value: null }
+    };
+    velVar.material.uniforms = {
+      uTime: { value: 0 },
+      uAttractorStrength: { value: 0.06 },
+      uAttractor: { value: new THREE.Vector3(0,0,0) },
+      uCurlScale: { value: 1.2 }
     };
 
-    // Email Login
-    document.getElementById("authForm").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const email=(document.getElementById("email").value||"").trim();
-      const pw=document.getElementById("password").value||"";
-      statusEl.textContent="Signing in...";
-      try{
-        if(auth){ await signInWithEmailAndPassword(auth, email, pw); }
-        else{
-          statusEl.textContent = "Auth is not configured. Add firebase.js to enable sign-in.";
-        }
-      }catch(err){
-        statusEl.textContent = err?.message || "Sign-in failed.";
+    const initOk = gpu.init();
+    if (initOk !== null) {
+      console.warn('GPUComputation init error:', initOk);
+      // If something fails, bail to simple fallback
+      renderer.getContext().finish();
+      return;
+    }
+
+    // ========= Particle Render Material =========
+    const particleGeo = new THREE.BufferGeometry();
+    const num = SIZE*SIZE;
+    const ref = new Float32Array(num*2);
+    let p = 0;
+    for(let y=0; y<SIZE; y++){
+      for(let x=0; x<SIZE; x++){
+        ref[p++] = x/(SIZE-1);
+        ref[p++] = y/(SIZE-1);
       }
+    }
+    particleGeo.setAttribute('ref', new THREE.BufferAttribute(ref, 2));
+    // Screen-space size attenuation via shader; no per-vertex size attr needed.
+
+    const particleMat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime: { value: 0 },
+        uPos:  { value: null },
+        uVel:  { value: null },
+        uColorA: { value: new THREE.Color('#fff4cc') },
+        uColorB: { value: new THREE.Color('#ffd700') },
+        uColorC: { value: new THREE.Color('#ffb84d') },
+        uSize:   { value: 16.0 },
+        uCam:    { value: new THREE.Vector3().copy(baseCam) }
+      },
+      vertexShader: `
+        precision highp float;
+        uniform sampler2D uPos;
+        uniform sampler2D uVel;
+        uniform float uTime;
+        uniform float uSize;
+        attribute vec2 ref;
+        varying float vHot;
+        varying vec3  vColMix;
+
+        void main(){
+          vec3 pos = texture2D(uPos, ref).xyz;
+          vec3 vel = texture2D(uVel, ref).xyz;
+
+          // Hotness from speed (trails feel)
+          float speed = clamp(length(vel)*0.5, 0.0, 1.0);
+          vHot = speed;
+
+          // Slight pulsation
+          float pulse = 0.5 + 0.5*sin(uTime*2.0 + ref.x*20.0 + ref.y*10.0);
+
+          vec4 mv = modelViewMatrix * vec4(pos,1.0);
+          gl_Position = projectionMatrix * mv;
+
+          // Size attenuates with perspective
+          gl_PointSize = uSize * (1.0 + speed*0.6 + pulse*0.2) * (300.0 / -mv.z);
+          vColMix = normalize(vel*0.5 + vec3(0.5));
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying float vHot;
+        varying vec3  vColMix;
+        uniform vec3  uColorA;
+        uniform vec3  uColorB;
+        uniform vec3  uColorC;
+
+        void main(){
+          // Smooth circular sprite
+          vec2 uv = gl_PointCoord*2.0 - 1.0;
+          float r = dot(uv, uv);
+          float alpha = smoothstep(1.0, 0.2, r);
+
+          // Gold gradient based on heat + velocity direction
+          vec3 col = mix(uColorA, uColorB, vHot);
+          col = mix(col, uColorC, clamp(vColMix.y*0.6+0.5, 0.0, 1.0));
+
+          gl_FragColor = vec4(col, alpha * (0.6 + vHot*0.4));
+        }
+      `
     });
 
-    // Auth state -> route
-    if(auth && onAuthStateChanged){
-      onAuthStateChanged(auth, async (u)=>{
-        if(!u) return;
-        if(location.hash.startsWith("#/auth")){
-          try{
-            const { data } = await ensureUserDoc(u);
-            location.hash = needsCompletion(data) ? "/auth/create" : "/home";
-          }catch{
-            location.hash="/home";
+    const particles = new THREE.Points(particleGeo, particleMat);
+    particles.frustumCulled = false;
+    scene.add(particles);
+
+    // ========= Golden Shockwave Rings =========
+    function makeShockwave(){
+      const geo = new THREE.RingGeometry(4.5, 5.8, 96, 1);
+      const mat = new THREE.ShaderMaterial({
+        transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+        uniforms: {
+          uTime: { value: 0 },
+          uHue:  { value: 0.12 }, // gold-ish
+          uOpacity: { value: 0.9 }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main(){
+            vUv = uv;
+            vec4 mv = modelViewMatrix * vec4(position,1.0);
+            gl_Position = projectionMatrix * mv;
           }
-        }
-      });
-    }
-
-    /* ===== Create Wizard: UI + Submit ===== */
-    let _wizardReady = false;
-    function initCreateWizardUI(){
-      if(_wizardReady) return; _wizardReady=true;
-
-      // helper: get hash ?type=
-      function getHashParam(key){
-        try{
-          const raw = location.hash || "#/auth/create";
-          const q = raw.split("?")[1] || "";
-          const params = new URLSearchParams(q);
-          return params.get(key);
-        }catch{ return null; }
-      }
-
-      const steps = Array.from(document.querySelectorAll('.ca-step'));
-      const dots  = Array.from(document.querySelectorAll('[data-stepdot]'));
-      const barFill = document.getElementById('barFill');
-      const get = id => document.getElementById(id);
-
-      const f = {
-        handle:get('ca-handle'), invite:get('ca-invite'),
-        email:get('ca-email'), pw:get('ca-password'), pw2:get('ca-password2'),
-        m:get('ca-dob-month'), d:get('ca-dob-day'), y:get('ca-dob-year'),
-        zodiac:get('ca-zodiac'), tz:get('ca-timezone'),
-        terms:get('ca-terms'), privacy:get('ca-privacy'),
-        country:get('ca-country'), state:get('ca-state'), city:get('ca-city'),
-        hs:get('ca-hs'), college:get('ca-college'), role:get('ca-role')
-      };
-      const err = {
-        handle:get('err-handle'), email:get('err-email'),
-        pw:get('err-password'), pw2:get('err-password2'), dob:get('err-dob')
-      };
-      // Validate case-insensitively here; normalize later on submit
-      const reHandle=/^[a-z0-9_]{3,20}$/i; const reEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      /* --- NEW: account type + company refs --- */
-      let accountType = "user"; // "user" | "company"
-      const acctChips = document.getElementById('accountTypeChips');
-      const acctHint  = document.getElementById('acctHint');
-      const companyFields = document.getElementById('companyFields');
-      const adsPolicyRow = document.getElementById('adsPolicyRow');
-
-      const co = {
-        name: document.getElementById('co-name'),
-        website: document.getElementById('co-website'),
-        contactName: document.getElementById('co-contact-name'),
-        contactEmail: document.getElementById('co-contact-email'),
-        adsPolicy: document.getElementById('ads-policy')
-      };
-      const errCo = {
-        name: document.getElementById('err-co-name'),
-        contact: document.getElementById('err-co-contact'),
-        contactEmail: document.getElementById('err-co-contact-email'),
-        adsPolicy: document.getElementById('err-ads-policy')
-      };
-
-      // Elements we hide for companies (DOB + zodiac + step 3)
-      const dobWraps = [
-        document.getElementById('dob-month-wrap'),
-        document.getElementById('dob-day-wrap'),
-        document.getElementById('dob-year-wrap'),
-      ];
-      const dobHintEl = document.getElementById('dob-hint');
-      const zodiacWrap = document.getElementById('zodiac-wrap');
-      const step3 = document.querySelector('.ca-step[data-step="3"]');
-
-      function applyTypeVisibility(){
-        const isCo = accountType === 'company';
-        companyFields.style.display = isCo ? 'block' : 'none';
-        adsPolicyRow.style.display = isCo ? 'block' : 'none';
-        acctHint.textContent = isCo
-          ? "Company accounts can run Ad Battles and appear in Discover/Live feeds."
-          : "You can create ad battles later if you’re a company.";
-
-        // Hide DOB/zodiac for companies
-        dobWraps.forEach(el => { if(el) el.style.display = isCo ? 'none' : 'block'; });
-        if(dobHintEl) dobHintEl.style.display = isCo ? 'none' : 'block';
-        if(zodiacWrap) zodiacWrap.style.display = isCo ? 'none' : 'block';
-
-        // Hide entire Step 3 for companies (education/community)
-        if(step3){
-          if(isCo && step3.classList.contains('active')) showStep(4);
-          step3.style.display = isCo ? 'none' : '';
-          // Recompute progress right away after visibility changes
-          updateProgressForCurrent();
-        }
-      }
-
-      // Preselect type from URL hash
-      const typeFromHash = (getHashParam('type')||'').toLowerCase();
-      if(typeFromHash === 'company'){
-        accountType = 'company';
-        [...acctChips.children].forEach(c=>{
-          c.classList.toggle('active', c.dataset.type === 'company');
-        });
-      }
-
-      // Months/Years
-      const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-      f.m.innerHTML = '<option value="">Month</option>' + months.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
-      const now=new Date(), startYear=now.getFullYear()-100, endYear=now.getFullYear();
-      let yhtml='<option value="">Year</option>'; for(let y=endYear; y>=startYear; y--){ yhtml+=`<option value="${y}">${y}</option>`; } f.y.innerHTML=yhtml;
-      function daysInMonth(m,y){ if(!m||!y) return 31; return new Date(y,m,0).getDate(); }
-      function refreshDays(){ const m=parseInt(f.m.value||'0',10), y=parseInt(f.y.value||'0',10), max=daysInMonth(m,y); const cur=parseInt(f.d.value||'0',10); let html='<option value="">Day</option>'; for(let i=1;i<=max;i++){ html+=`<option value="${i}">${i}</option>`;} f.d.innerHTML=html; if(cur&&cur<=max) f.d.value=String(cur); }
-      f.m.addEventListener('change', refreshDays); f.y.addEventListener('change', refreshDays); refreshDays();
-
-      // Chinese zodiac
-      const zodiacNames=['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
-      function chineseZodiacByYear(year){ const idx=((year-2008)%12+12)%12; return zodiacNames[idx]; }
-      f.y.addEventListener('change', ()=>{ const y=parseInt(f.y.value,10); if(y && !f.zodiac.dataset.userOverride){ f.zodiac.value=chineseZodiacByYear(y); } });
-      f.zodiac.addEventListener('change', ()=>{ f.zodiac.dataset.userOverride='1'; });
-
-      // Password strength
-      const pwHint = document.getElementById('pw-hint');
-      f.pw && f.pw.addEventListener('input', ()=>{ const s=f.pw.value; let score=0; if(s.length>=8)score++; if(/[a-zA-Z]/.test(s))score++; if(/[0-9]/.test(s))score++; pwHint.textContent='Strength: '+(['—','Weak','OK','Strong'][score]); });
-
-      // Stepper helpers
-      function visibleSteps(){
-        return steps.filter(s => s.style.display !== 'none');
-      }
-      function updateProgress(n){
-        const vis = visibleSteps();
-        const idx = vis.findIndex(s => Number(s.dataset.step) === n);
-        const pct = idx <= 0 ? 0 : (idx/(vis.length-1))*100;
-        barFill.style.width = pct+'%';
-        dots.forEach((d,i)=> d.classList.toggle('active', i <= idx));
-      }
-      function updateProgressForCurrent(){
-        const active = steps.find(s=>s.classList.contains('active'));
-        if(active) updateProgress(Number(active.dataset.step));
-      }
-      function showStep(n){
-        steps.forEach(s=>s.classList.toggle('active', Number(s.dataset.step)===n));
-        updateProgress(n);
-      }
-      function ageFromParts(y,m,d){ if(!y||!m||!d) return 0; const t=new Date(), dob=new Date(y,m-1,d); let a=t.getFullYear()-dob.getFullYear(); const mm=t.getMonth()-dob.getMonth(); if(mm<0||(mm===0&&t.getDate()<dob.getDate())) a--; return a; }
-
-      // Toggle account type chips (NEW)
-      acctChips.addEventListener('click', (e)=>{
-        const chip = e.target.closest('.chip');
-        if(!chip) return;
-        [...acctChips.children].forEach(c=>c.classList.remove('active'));
-        chip.classList.add('active');
-        accountType = chip.dataset.type || 'user';
-        applyTypeVisibility();
-      });
-
-      // Nav buttons
-      get('ca-cancel-1').onclick=()=>{ location.hash='/auth/login'; };
-      get('ca-next-1').onclick=()=>{
-        let ok=true;
-        const handleVal = (f.handle.value||'').trim();
-        if(!reHandle.test(handleVal)){ err.handle.style.display='block'; ok=false; } else err.handle.style.display='none';
-        if(!reEmail.test((f.email.value||'').trim())){ err.email.style.display='block'; ok=false; } else err.email.style.display='none';
-        const pw=f.pw.value||'', pw2=f.pw2.value||''; const pwOk=pw.length>=8 && /[a-zA-Z]/.test(pw) && /[0-9]/.test(pw);
-        if(!pwOk){ err.pw.style.display='block'; ok=false; } else err.pw.style.display='none';
-        if(pw2!==pw){ err.pw2.style.display='block'; ok=false; } else err.pw2.style.display='none';
-
-        // company-only validation (NEW)
-        if(accountType === 'company'){
-          const nameOk = (co.name.value||'').trim().length >= 2;
-          const contactOk = (co.contactName.value||'').trim().length >= 2;
-          const contactEmailOk = reEmail.test((co.contactEmail.value||'').trim());
-          errCo.name.style.display = nameOk ? 'none' : 'block';
-          errCo.contact.style.display = contactOk ? 'none' : 'block';
-          errCo.contactEmail.style.display = contactEmailOk ? 'none' : 'block';
-          ok = ok && nameOk && contactOk && contactEmailOk;
-        }
-
-        if(ok) showStep(2);
-      };
-      get('ca-back-2').onclick=()=> showStep(1);
-      get('ca-next-2').onclick=()=>{
-        if(accountType !== 'company'){
-          const y=parseInt(f.y.value,10), m=parseInt(f.m.value,10), d=parseInt(f.d.value,10);
-          const a=ageFromParts(y,m,d);
-          if(a<13 || !y || !m || !d){ err.dob.style.display='block'; return; } else err.dob.style.display='none';
-        }
-        if(!f.tz.value){ try{ f.tz.value=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch{} }
-        // Skip step 3 for companies
-        showStep(accountType==='company' ? 4 : 3);
-      };
-      get('ca-back-3').onclick=()=> showStep(2);
-      get('ca-next-3').onclick=()=> showStep(4);
-      get('ca-back-4').onclick=()=> showStep(accountType==='company' ? 2 : 3);
-
-      // Avatar preview
-      document.getElementById('ca-avatar').addEventListener('change', (e)=>{
-        const file=e.target.files?.[0]; if(!file) return;
-        const img=document.getElementById('avatarImg'); const reader=new FileReader();
-        reader.onload=ev=>{ img.src=ev.target.result; img.style.display='block'; }; reader.readAsDataURL(file);
-      });
-
-      // Category chips
-      document.getElementById('catChips').addEventListener('click',(e)=>{ const c=e.target.closest('.chip'); if(!c) return; c.classList.toggle('active'); });
-
-      // Initial tz
-      try{ f.tz.value=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch{}
-
-      // Submit (create)
-      document.getElementById('ca-submit').onclick=async ()=>{
-        const st = document.getElementById('createStatus4');
-        st.textContent="";
-        const unameRaw=(f.handle.value||'').trim();
-        const uname=unameRaw.toLowerCase(); // normalize for storage
-        const email=(f.email.value||'').trim();
-        const pw=f.pw.value||'';
-        const pw2=f.pw2.value||'';
-        const y=parseInt(f.y.value||'0',10), m=parseInt(f.m.value||'0',10), d=parseInt(f.d.value||'0',10);
-        const dobISO = (accountType==='company') ? null : ((y && m && d) ? `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}` : null);
-        const age=(function(){ if(!dobISO) return null; const t=new Date(); const dd=new Date(y,m-1,d); let a=t.getFullYear()-dd.getFullYear(); const mm=t.getMonth()-dd.getMonth(); if(mm<0||(mm===0&&t.getDate()<dd.getDate())) a--; return a; })();
-
-        if(!/^[a-z0-9_]{3,20}$/.test(uname)) return void(st.textContent="Invalid username.");
-        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return void(st.textContent="Enter a valid email.");
-        if(!(pw.length>=8 && /[A-Za-z]/.test(pw) && /[0-9]/.test(pw))) return void(st.textContent="Password too weak.");
-        if(pw2!==pw) return void(st.textContent="Passwords don’t match.");
-        if(accountType!=='company' && (age===null || age<13)) return void(st.textContent="You must be at least 13.");
-        if(!(document.getElementById('ca-terms').checked && document.getElementById('ca-privacy').checked)) return void(st.textContent="Please accept Terms & Privacy.");
-
-        // If company, require Ads Policy consent (NEW)
-        if(accountType === 'company'){
-          if(!co.adsPolicy.checked){
-            errCo.adsPolicy.style.display = 'block';
-            return;
-          } else {
-            errCo.adsPolicy.style.display = 'none';
+        `,
+        fragmentShader: `
+          varying vec2 vUv;
+          uniform float uHue;
+          uniform float uOpacity;
+          // simple H to RGB
+          vec3 h2rgb(float h){
+            vec3 rgb = clamp(abs(mod(h*6.0+vec3(0.0,4.0,2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+            return rgb;
           }
-        }
-
-        st.textContent="Creating your account...";
-        try{
-          let user = auth ? (await createUserWithEmailAndPassword(auth, email, pw)).user : null;
-
-          // Save profile if Firestore is configured
-          if(user && db && setDoc){
-            const ref = doc(db, "users", user.uid);
-            const languages=[...document.getElementById('ca-lang').selectedOptions].map(o=>o.value);
-            const categories=[...document.querySelectorAll('#catChips .chip.active')].map(c=>c.textContent.trim());
-
-            // Base user payload (NEW: account_type)
-            const userPayload = {
-              email, createdAt:serverTimestamp(), username:uname,
-              account_type: accountType,
-              country:f.country.value||"", state:f.state.value||"", city:f.city.value||"", tz:f.tz.value||"",
-              dob:dobISO, age:(age===null?null:age), chineseZodiac:(accountType==='company'?null:(f.zodiac.value||null)),
-              languages, ethnicity:document.getElementById('ca-ethnicity').value||"",
-              education:(accountType==='company'?{ hs:"", college:"", role:"" }:{ hs:f.hs.value||"", college:f.college.value||"", role:f.role.value||"" }),
-              categories
-            };
-
-            // If company, create companies/{cmp_uid} and link it (NEW)
-            if(accountType === 'company'){
-              const companyId = `cmp_${user.uid}`;
-              const cRef = doc(db, "companies", companyId);
-              await setDoc(cRef, {
-                company_id: companyId,
-                owner_uid: user.uid,
-                name_public: (co.name.value||'').trim(),
-                website: (co.website.value||'').trim() || null,
-                contact: {
-                  name: (co.contactName.value||'').trim(),
-                  email: (co.contactEmail.value||'').trim()
-                },
-                country: f.country.value||"",
-                ads_policy_accepted: true,
-                status: "active",
-                created_at: serverTimestamp(),
-                updated_at: serverTimestamp()
-              }, { merge:true });
-
-              userPayload.company_id = companyId;
-            }
-
-            await setDoc(ref, userPayload, { merge:true });
+          void main(){
+            float rim = smoothstep(0.0, 0.15, 1.0 - abs(vUv.y - 0.5)*2.0);
+            vec3 gold = mix(vec3(1.0), h2rgb(uHue), 0.7);
+            gl_FragColor = vec4(gold, rim * uOpacity);
           }
-
-          // Success & route
-          document.getElementById('success').style.display='flex';
-          setTimeout(()=>{
-            if(accountType === 'company'){ location.href = "adsarena.html"; }
-            else { location.hash="/home"; }
-          }, 1000);
-        }catch(err){
-          st.textContent = err?.message || "Could not create your account.";
-        }
-      };
-
-      // Start
-      showStep(1);
-      applyTypeVisibility();
+        `
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.scale.setScalar(1);
+      mesh.position.set(0,0,0);
+      mesh.userData.t = 0;
+      return mesh;
     }
 
-    // Expose to router init
-    window.initCreateWizardUI = initCreateWizardUI;
-  </script>
+    const waves = [];
+    let lastWave = performance.now();
+    const WAVE_INTERVAL = 1000; // ms
 
-  <!-- ===== Three.js Background ===== -->
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-  <script>
-  (function(){
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const DPR_LIMIT = 1.75, MAX_EXPLOSIONS = reduced ? 6 : 12, BLAST_INTERVAL = reduced ? 1700 : 1200, START_WITH_BLAST = true;
-    const canvas = document.getElementById('bg3d');
-    try{ const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl'); if(!gl) throw 0; }catch(e){ return; }
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
-    renderer.setClearColor(0x000000, 0);
-    const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x000000, reduced ? 0.0008 : 0.0012);
-    let width = window.innerWidth, height = window.innerHeight;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT)); renderer.setSize(width, height, false);
-
-    // Keep base camera pos; apply transient shake each frame without drift
-    const camera = new THREE.PerspectiveCamera(55, width/height, 0.1, 3000);
-    const baseCamPos = new THREE.Vector3(0, 0, 140);
-    camera.position.copy(baseCamPos);
-
-    const hemi = new THREE.HemisphereLight(0xaaaaaa, 0x0a0a0a, 0.8);
-    const dir  = new THREE.DirectionalLight(0xffe7a4, 0.7); dir.position.set(60, 80, 120); scene.add(hemi, dir);
-    const particleTex = (function(){ const size=128,c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); const grad=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2); grad.addColorStop(0,'rgba(255,255,255,0.95)'); grad.addColorStop(0.35,'rgba(255,255,255,0.35)'); grad.addColorStop(1,'rgba(255,255,255,0.0)'); g.fillStyle=grad; g.fillRect(0,0,size,size); const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; tex.anisotropy=1; return tex;})();
-    const baseMat = new THREE.PointsMaterial({ size:(reduced?16:20), map:particleTex, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true });
-
-    const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
-    const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
-
-    const pool=[];
-    function getPoints(count){
-      for(let i=pool.length-1;i>=0;i--){
-        const p=pool[i];
-        const existing=p.geometry.getAttribute('position').count;
-        if(existing>=count){
-          pool.splice(i,1);
-          p.visible=true;
-          return p;
-        }
-      }
-      const g=new THREE.BufferGeometry();
-      const positions=new Float32Array(count*3);
-      const colors=new Float32Array(count*3);
-      // NOTE: PointsMaterial ignores custom per-vertex "size" without a custom shader;
-      // so we skip a size attribute to reduce churn.
-      g.setAttribute('position', new THREE.BufferAttribute(positions,3));
-      g.setAttribute('color', new THREE.BufferAttribute(colors,3));
-      const m=baseMat.clone();
-      const points=new THREE.Points(g,m);
-      points.frustumCulled=false;
-      return points;
+    // ========= Ambient Backdrop (soft points) =========
+    const ambientCount = 900;
+    const ambientGeo = new THREE.BufferGeometry();
+    const ambientPos = new Float32Array(ambientCount*3);
+    const ambientCol = new Float32Array(ambientCount*3);
+    for(let i=0;i<ambientCount;i++){
+      ambientPos[i*3+0] = (Math.random()-0.5)*480;
+      ambientPos[i*3+1] = (Math.random()-0.5)*300;
+      ambientPos[i*3+2] = Math.random()*260 - 200;
+      const t = Math.random()*0.4 + 0.35;
+      ambientCol[i*3+0] = t; ambientCol[i*3+1] = t*0.9; ambientCol[i*3+2] = t*0.85;
     }
-    function releasePoints(points){ points.visible=false; pool.push(points); }
+    ambientGeo.setAttribute('position', new THREE.BufferAttribute(ambientPos,3));
+    ambientGeo.setAttribute('color', new THREE.BufferAttribute(ambientCol,3));
+    const ambientMat = new THREE.PointsMaterial({
+      size: 2.8, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending
+    });
+    const ambientPts = new THREE.Points(ambientGeo, ambientMat);
+    ambientPts.frustumCulled = false;
+    scene.add(ambientPts);
 
-    class Explosion{
-      constructor(){
-        const x=(Math.random()-0.5)*140, y=(Math.random()-0.5)*90, z=Math.random()*80-60;
-        this.center=new THREE.Vector3(x,y,z);
-        this.life=reduced?1.5:1.9; this.t=0;
-        this.count=(Math.random()*50+(reduced?75:120))|0;
-        this.points=getPoints(this.count);
-        this.points.position.copy(this.center);
-
-        const g=this.points.geometry, pos=g.getAttribute('position').array, col=g.getAttribute('color').array;
-        this.vel=new Float32Array(this.count*3);
-        for(let i=0;i<this.count;i++){
-          const dirv=new THREE.Vector3().randomDirection();
-          const speed=Math.random()*22+12;
-          this.vel[i*3+0]=dirv.x*speed; this.vel[i*3+1]=dirv.y*speed; this.vel[i*3+2]=dirv.z*speed;
-          pos[i*3+0]=dirv.x*1.6; pos[i*3+1]=dirv.y*1.6; pos[i*3+2]=dirv.z*1.6;
-          col[i*3+0]=1; col[i*3+1]=1; col[i*3+2]=1;
-        }
-        g.getAttribute('position').needsUpdate=true; g.getAttribute('color').needsUpdate=true;
-
-        const ringGeo=new THREE.RingGeometry(5,6.6,64);
-        this.ring1=new THREE.Mesh(ringGeo, ringMatStrong.clone());
-        this.ring2=new THREE.Mesh(ringGeo, ringMatSoft.clone());
-        this.r1=5; this.r2=5;
-        this.ring1.position.copy(this.center); this.ring2.position.copy(this.center);
-        scene.add(this.ring1,this.ring2);
-
-        this.shake=0.45;
-      }
-      update(dt){
-        this.t+=dt; const f=this.t/this.life;
-        const g=this.points.geometry, pos=g.getAttribute('position').array, col=g.getAttribute('color').array;
-        const drag=1-Math.min(0.05*dt*60,0.05);
-        for(let i=0;i<this.count;i++){
-          const ix=i*3;
-          pos[ix]+=this.vel[ix]*dt;
-          pos[ix+1]+=this.vel[ix+1]*dt;
-          pos[ix+2]+=this.vel[ix+2]*dt;
-          this.vel[ix]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
-
-          const toGold = (f-0.25)/0.3;
-          const t=Math.max(0,Math.min(1,toGold));
-          col[ix]=1; col[ix+1]=1-0.28*t; col[ix+2]=1-0.72*t;
-        }
-        g.getAttribute('position').needsUpdate=true; g.getAttribute('color').needsUpdate=true;
-
-        this.r1+=100*dt; this.r2+=125*dt;
-        this.ring1.scale.setScalar(this.r1/5); this.ring2.scale.setScalar(this.r2/5);
-        this.ring1.material.opacity=Math.max(0,0.95-f*1.25);
-        this.ring2.material.opacity=Math.max(0,0.65-f*1.3);
-        this.ring1.lookAt(camera.position); this.ring2.lookAt(camera.position);
-
-        return this.t<this.life;
-      }
-      dispose(){
-        scene.remove(this.points); releasePoints(this.points);
-        scene.remove(this.ring1); scene.remove(this.ring2);
-      }
-    }
-
-    // Ambient field with base positions (no vertical accumulation)
-    const ambient=(function(){
-      const COUNT=reduced?400:800;
-      const basePos=new Float32Array(COUNT*3);
-      const g=new THREE.BufferGeometry();
-      const positions=new Float32Array(COUNT*3);
-      const colors=new Float32Array(COUNT*3);
-      for(let i=0;i<COUNT;i++){
-        const bx=(Math.random()-0.5)*440;
-        const by=(Math.random()-0.5)*280;
-        const bz=Math.random()*240-180;
-        basePos[i*3]=bx; basePos[i*3+1]=by; basePos[i*3+2]=bz;
-        positions[i*3]=bx; positions[i*3+1]=by; positions[i*3+2]=bz;
-        const t=Math.random()*0.5+0.35;
-        colors[i*3]=t; colors[i*3+1]=t*0.9; colors[i*3+2]=t*0.85;
-      }
-      g.setAttribute('position',new THREE.BufferAttribute(positions,3));
-      g.setAttribute('color',new THREE.BufferAttribute(colors,3));
-      const m=new THREE.PointsMaterial({ size:reduced?2.2:3.2, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
-      const p=new THREE.Points(g,m);
-      p.frustumCulled=false;
-      p.userData={t:0, base:basePos};
-      return p;
-    })();
-    scene.add(ambient);
-
+    // ========= Resize =========
     function resize(){
-      width=window.innerWidth; height=window.innerHeight;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,DPR_LIMIT));
-      renderer.setSize(width,height,false);
-      camera.aspect=width/height; camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(devicePixelRatio||1, DPR_LIMIT));
+      renderer.setSize(innerWidth, innerHeight, false);
+      camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+      composer.setSize(innerWidth, innerHeight);
+      bloom.setSize(innerWidth, innerHeight);
     }
-    window.addEventListener('resize', resize, { passive:true });
+    addEventListener('resize', resize, {passive:true});
 
-    const explosions=[];
-    let prev=performance.now(), lastBlast=prev;
-    if(START_WITH_BLAST) explosions.push(new Explosion());
-
+    // ========= Loop =========
+    let prev = performance.now();
     function loop(now){
-      const dt=Math.min(0.05,(now-prev)/1000); prev=now;
+      const dt = Math.min(0.05, (now - prev)/1000); prev = now;
+      const t  = now * 0.001;
 
-      // Ambient oscillation around base
-      ambient.userData.t+=dt*0.2;
-      const apos=ambient.geometry.getAttribute('position').array;
-      const base=ambient.userData.base;
-      const t=ambient.userData.t;
-      for(let i=0;i<apos.length/3;i++){
-        const ix=i*3;
-        apos[ix]=base[ix];
-        apos[ix+1]=base[ix+1] + Math.sin(t+i*0.15)*0.7; // small oscillation
-        apos[ix+2]=base[ix+2];
-      }
-      ambient.geometry.getAttribute('position').needsUpdate=true;
-
-      // Camera base + transient shake based on active explosions
-      camera.position.copy(baseCamPos);
-      let shakeAmt=0;
-      for(let i=explosions.length-1;i>=0;i--){
-        if(!explosions[i].update(dt)){ explosions[i].dispose(); explosions.splice(i,1); }
-      }
-      // proportional shake if any explosion exists
-      if(explosions.length){
-        shakeAmt = 0.35;
-        camera.position.x += (Math.random()-0.5)*shakeAmt;
-        camera.position.y += (Math.random()-0.5)*shakeAmt;
+      // Spawn shockwave
+      if (now - lastWave > WAVE_INTERVAL){
+        const wave = makeShockwave();
+        scene.add(wave);
+        waves.push(wave);
+        lastWave = now;
       }
 
-      if(now-lastBlast>BLAST_INTERVAL && explosions.length<MAX_EXPLOSIONS){
-        explosions.push(new Explosion()); lastBlast=now;
+      // Update GPU fields
+      posVar.material.uniforms.uTime.value = t;
+      velVar.material.uniforms.uTime.value = t;
+      gpu.compute();
+
+      // Bind compute textures to particle material
+      particles.material.uniforms.uTime.value = t;
+      particles.material.uniforms.uPos.value  = gpu.getCurrentRenderTarget(posVar).texture;
+      particles.material.uniforms.uVel.value  = gpu.getCurrentRenderTarget(velVar).texture;
+
+      // Gentle camera float + micro shake synced to waves
+      camera.position.copy(baseCam);
+      camera.position.x += Math.sin(t*0.25)*1.2;
+      camera.position.y += Math.sin(t*0.33)*0.8;
+
+      // Animate ambient twinkle
+      const aPos = ambientGeo.getAttribute('position');
+      for(let i=0;i<ambientCount;i++){
+        const iy = i*3+1;
+        aPos.array[iy] += Math.sin(t*0.7 + i*0.13)*0.003; // tiny oscillation
+      }
+      aPos.needsUpdate = true;
+
+      // Animate shockwaves
+      for (let i=waves.length-1;i>=0;i--){
+        const w = waves[i];
+        w.userData.t += dt;
+        const f = w.userData.t;
+        const s = 1 + f*120; // expand
+        w.scale.setScalar(s);
+        w.material.uniforms.uOpacity.value = Math.max(0, 0.9 - f*1.2);
+        w.lookAt(camera.position);
+        if (f > 1.0){
+          scene.remove(w); waves.splice(i,1);
+        }
       }
 
-      renderer.render(scene,camera);
+      composer.render();
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
