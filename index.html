@@ -498,7 +498,6 @@
       authContainer.classList.remove("route-active");
       frameView.classList.add("route-active");
 
-      // Always resolve to absolute for both compare and assignment
       const abs = new URL(src, location.href).href;
       if (visible.src === abs) return;
 
@@ -540,7 +539,6 @@
 
   <!-- ===== FIREBASE EMAIL/PASSWORD ONLY ===== -->
   <script type="module">
-    // Try your local firebase.js (should export initialized auth + db)
     let local = {};
     try{ local = await import("./firebase.js"); }catch{}
 
@@ -551,7 +549,6 @@
       doc:DOC, getDoc:GDC, setDoc:SDC, serverTimestamp:SVT
     } = local;
 
-    // Backfill from CDN if some helpers missing (still use your initialized auth/db)
     let onAuthStateChanged=OASC, signInWithEmailAndPassword=SWE, createUserWithEmailAndPassword=CUW;
     let doc=DOC, getDoc=GDC, setDoc=SDC, serverTimestamp=SVT;
 
@@ -568,9 +565,8 @@
 
     const statusEl = document.getElementById("status");
 
-    // Ensure user doc exists; minimal profile scaffold
     async function ensureUserDoc(user){
-      if(!db) return {existed:true, data:null}; // allow nav without DB write
+      if(!db) return {existed:true, data:null};
       const ref = doc(db, "users", user.uid);
       const snap = await getDoc(ref);
       if(!snap.exists()){
@@ -586,17 +582,14 @@
       return {existed:true, data:snap.data()};
     }
 
-    // Different completion rules for user vs company (NEW)
     const needsCompletion = (d)=>{
       if(!d) return true;
       if(d.account_type === 'company'){
-        // For companies, just require a handle at minimum (no DOB/age)
         return !(d.username);
       }
       return !(d && d.username && d.dob && typeof d.age==="number");
     };
 
-    // Email Login
     document.getElementById("authForm").addEventListener("submit", async (e)=>{
       e.preventDefault();
       const email=(document.getElementById("email").value||"").trim();
@@ -612,7 +605,6 @@
       }
     });
 
-    // Auth state -> route
     if(auth && onAuthStateChanged){
       onAuthStateChanged(auth, async (u)=>{
         if(!u) return;
@@ -627,12 +619,10 @@
       });
     }
 
-    /* ===== Create Wizard: UI + Submit ===== */
     let _wizardReady = false;
     function initCreateWizardUI(){
       if(_wizardReady) return; _wizardReady=true;
 
-      // helper: get hash ?type=
       function getHashParam(key){
         try{
           const raw = location.hash || "#/auth/create";
@@ -660,11 +650,9 @@
         handle:get('err-handle'), email:get('err-email'),
         pw:get('err-password'), pw2:get('err-password2'), dob:get('err-dob')
       };
-      // Validate case-insensitively here; normalize later on submit
       const reHandle=/^[a-z0-9_]{3,20}$/i; const reEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-      /* --- NEW: account type + company refs --- */
-      let accountType = "user"; // "user" | "company"
+      let accountType = "user";
       const acctChips = document.getElementById('accountTypeChips');
       const acctHint  = document.getElementById('acctHint');
       const companyFields = document.getElementById('companyFields');
@@ -684,7 +672,6 @@
         adsPolicy: document.getElementById('err-ads-policy')
       };
 
-      // Elements we hide for companies (DOB + zodiac + step 3)
       const dobWraps = [
         document.getElementById('dob-month-wrap'),
         document.getElementById('dob-day-wrap'),
@@ -702,21 +689,17 @@
           ? "Company accounts can run Ad Battles and appear in Discover/Live feeds."
           : "You can create ad battles later if you’re a company.";
 
-        // Hide DOB/zodiac for companies
         dobWraps.forEach(el => { if(el) el.style.display = isCo ? 'none' : 'block'; });
         if(dobHintEl) dobHintEl.style.display = isCo ? 'none' : 'block';
         if(zodiacWrap) zodiacWrap.style.display = isCo ? 'none' : 'block';
 
-        // Hide entire Step 3 for companies (education/community)
         if(step3){
           if(isCo && step3.classList.contains('active')) showStep(4);
           step3.style.display = isCo ? 'none' : '';
-          // Recompute progress right away after visibility changes
           updateProgressForCurrent();
         }
       }
 
-      // Preselect type from URL hash
       const typeFromHash = (getHashParam('type')||'').toLowerCase();
       if(typeFromHash === 'company'){
         accountType = 'company';
@@ -725,7 +708,6 @@
         });
       }
 
-      // Months/Years
       const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
       f.m.innerHTML = '<option value="">Month</option>' + months.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
       const now=new Date(), startYear=now.getFullYear()-100, endYear=now.getFullYear();
@@ -734,20 +716,15 @@
       function refreshDays(){ const m=parseInt(f.m.value||'0',10), y=parseInt(f.y.value||'0',10), max=daysInMonth(m,y); const cur=parseInt(f.d.value||'0',10); let html='<option value="">Day</option>'; for(let i=1;i<=max;i++){ html+=`<option value="${i}">${i}</option>`;} f.d.innerHTML=html; if(cur&&cur<=max) f.d.value=String(cur); }
       f.m.addEventListener('change', refreshDays); f.y.addEventListener('change', refreshDays); refreshDays();
 
-      // Chinese zodiac
       const zodiacNames=['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
       function chineseZodiacByYear(year){ const idx=((year-2008)%12+12)%12; return zodiacNames[idx]; }
       f.y.addEventListener('change', ()=>{ const y=parseInt(f.y.value,10); if(y && !f.zodiac.dataset.userOverride){ f.zodiac.value=chineseZodiacByYear(y); } });
       f.zodiac.addEventListener('change', ()=>{ f.zodiac.dataset.userOverride='1'; });
 
-      // Password strength
       const pwHint = document.getElementById('pw-hint');
       f.pw && f.pw.addEventListener('input', ()=>{ const s=f.pw.value; let score=0; if(s.length>=8)score++; if(/[a-zA-Z]/.test(s))score++; if(/[0-9]/.test(s))score++; pwHint.textContent='Strength: '+(['—','Weak','OK','Strong'][score]); });
 
-      // Stepper helpers
-      function visibleSteps(){
-        return steps.filter(s => s.style.display !== 'none');
-      }
+      function visibleSteps(){ return steps.filter(s => s.style.display !== 'none'); }
       function updateProgress(n){
         const vis = visibleSteps();
         const idx = vis.findIndex(s => Number(s.dataset.step) === n);
@@ -765,7 +742,6 @@
       }
       function ageFromParts(y,m,d){ if(!y||!m||!d) return 0; const t=new Date(), dob=new Date(y,m-1,d); let a=t.getFullYear()-dob.getFullYear(); const mm=t.getMonth()-dob.getMonth(); if(mm<0||(mm===0&&t.getDate()<dob.getDate())) a--; return a; }
 
-      // Toggle account type chips (NEW)
       acctChips.addEventListener('click', (e)=>{
         const chip = e.target.closest('.chip');
         if(!chip) return;
@@ -775,9 +751,8 @@
         applyTypeVisibility();
       });
 
-      // Nav buttons
-      get('ca-cancel-1').onclick=()=>{ location.hash='/auth/login'; };
-      get('ca-next-1').onclick=()=>{
+      document.getElementById('ca-cancel-1').onclick=()=>{ location.hash='/auth/login'; };
+      document.getElementById('ca-next-1').onclick=()=>{
         let ok=true;
         const handleVal = (f.handle.value||'').trim();
         if(!reHandle.test(handleVal)){ err.handle.style.display='block'; ok=false; } else err.handle.style.display='none';
@@ -786,7 +761,6 @@
         if(!pwOk){ err.pw.style.display='block'; ok=false; } else err.pw.style.display='none';
         if(pw2!==pw){ err.pw2.style.display='block'; ok=false; } else err.pw2.style.display='none';
 
-        // company-only validation (NEW)
         if(accountType === 'company'){
           const nameOk = (co.name.value||'').trim().length >= 2;
           const contactOk = (co.contactName.value||'').trim().length >= 2;
@@ -799,40 +773,35 @@
 
         if(ok) showStep(2);
       };
-      get('ca-back-2').onclick=()=> showStep(1);
-      get('ca-next-2').onclick=()=>{
+      document.getElementById('ca-back-2').onclick=()=> showStep(1);
+      document.getElementById('ca-next-2').onclick=()=>{
         if(accountType !== 'company'){
           const y=parseInt(f.y.value,10), m=parseInt(f.m.value,10), d=parseInt(f.d.value,10);
           const a=ageFromParts(y,m,d);
           if(a<13 || !y || !m || !d){ err.dob.style.display='block'; return; } else err.dob.style.display='none';
         }
         if(!f.tz.value){ try{ f.tz.value=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch{} }
-        // Skip step 3 for companies
         showStep(accountType==='company' ? 4 : 3);
       };
-      get('ca-back-3').onclick=()=> showStep(2);
-      get('ca-next-3').onclick=()=> showStep(4);
-      get('ca-back-4').onclick=()=> showStep(accountType==='company' ? 2 : 3);
+      document.getElementById('ca-back-3').onclick=()=> showStep(2);
+      document.getElementById('ca-next-3').onclick=()=> showStep(4);
+      document.getElementById('ca-back-4').onclick=()=> showStep(accountType==='company' ? 2 : 3);
 
-      // Avatar preview
       document.getElementById('ca-avatar').addEventListener('change', (e)=>{
         const file=e.target.files?.[0]; if(!file) return;
         const img=document.getElementById('avatarImg'); const reader=new FileReader();
         reader.onload=ev=>{ img.src=ev.target.result; img.style.display='block'; }; reader.readAsDataURL(file);
       });
 
-      // Category chips
       document.getElementById('catChips').addEventListener('click',(e)=>{ const c=e.target.closest('.chip'); if(!c) return; c.classList.toggle('active'); });
 
-      // Initial tz
       try{ f.tz.value=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch{}
 
-      // Submit (create)
       document.getElementById('ca-submit').onclick=async ()=>{
         const st = document.getElementById('createStatus4');
         st.textContent="";
         const unameRaw=(f.handle.value||'').trim();
-        const uname=unameRaw.toLowerCase(); // normalize for storage
+        const uname=unameRaw.toLowerCase();
         const email=(f.email.value||'').trim();
         const pw=f.pw.value||'';
         const pw2=f.pw2.value||'';
@@ -847,7 +816,6 @@
         if(accountType!=='company' && (age===null || age<13)) return void(st.textContent="You must be at least 13.");
         if(!(document.getElementById('ca-terms').checked && document.getElementById('ca-privacy').checked)) return void(st.textContent="Please accept Terms & Privacy.");
 
-        // If company, require Ads Policy consent (NEW)
         if(accountType === 'company'){
           if(!co.adsPolicy.checked){
             errCo.adsPolicy.style.display = 'block';
@@ -861,13 +829,11 @@
         try{
           let user = auth ? (await createUserWithEmailAndPassword(auth, email, pw)).user : null;
 
-          // Save profile if Firestore is configured
           if(user && db && setDoc){
             const ref = doc(db, "users", user.uid);
             const languages=[...document.getElementById('ca-lang').selectedOptions].map(o=>o.value);
             const categories=[...document.querySelectorAll('#catChips .chip.active')].map(c=>c.textContent.trim());
 
-            // Base user payload (NEW: account_type)
             const userPayload = {
               email, createdAt:serverTimestamp(), username:uname,
               account_type: accountType,
@@ -878,7 +844,6 @@
               categories
             };
 
-            // If company, create companies/{cmp_uid} and link it (NEW)
             if(accountType === 'company'){
               const companyId = `cmp_${user.uid}`;
               const cRef = doc(db, "companies", companyId);
@@ -904,7 +869,6 @@
             await setDoc(ref, userPayload, { merge:true });
           }
 
-          // Success & route
           document.getElementById('success').style.display='flex';
           setTimeout(()=>{
             if(accountType === 'company'){ location.href = "adsarena.html"; }
@@ -915,12 +879,10 @@
         }
       };
 
-      // Start
       showStep(1);
       applyTypeVisibility();
     }
 
-    // Expose to router init
     window.initCreateWizardUI = initCreateWizardUI;
   </script>
 
@@ -932,69 +894,240 @@
     const DPR_LIMIT = 1.75, MAX_EXPLOSIONS = reduced ? 6 : 12, BLAST_INTERVAL = reduced ? 1700 : 1200, START_WITH_BLAST = true;
     const canvas = document.getElementById('bg3d');
     try{ const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl'); if(!gl) throw 0; }catch(e){ return; }
+
     const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:'high-performance' });
     renderer.setClearColor(0x000000, 0);
-    const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x000000, reduced ? 0.0008 : 0.0012);
+    /* --- realism upgrades --- */
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, reduced ? 0.0008 : 0.00115);
+
     let width = window.innerWidth, height = window.innerHeight;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_LIMIT)); renderer.setSize(width, height, false);
 
-    // Keep base camera pos; apply transient shake each frame without drift
-    const camera = new THREE.PerspectiveCamera(55, width/height, 0.1, 3000);
+    const camera = new THREE.PerspectiveCamera(55, width/height, 0.1, 4000);
     const baseCamPos = new THREE.Vector3(0, 0, 140);
     camera.position.copy(baseCamPos);
 
-    const hemi = new THREE.HemisphereLight(0xaaaaaa, 0x0a0a0a, 0.8);
-    const dir  = new THREE.DirectionalLight(0xffe7a4, 0.7); dir.position.set(60, 80, 120); scene.add(hemi, dir);
-    const particleTex = (function(){ const size=128,c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); const grad=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2); grad.addColorStop(0,'rgba(255,255,255,0.95)'); grad.addColorStop(0.35,'rgba(255,255,255,0.35)'); grad.addColorStop(1,'rgba(255,255,255,0.0)'); g.fillStyle=grad; g.fillRect(0,0,size,size); const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter; tex.anisotropy=1; return tex;})();
-    const baseMat = new THREE.PointsMaterial({ size:(reduced?16:20), map:particleTex, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true, sizeAttenuation:true });
+    /* Lighting: soft hemi + warm key + transient flash per blast */
+    const hemi = new THREE.HemisphereLight(0xb6c2ff, 0x0a0a10, 0.55);
+    const key  = new THREE.DirectionalLight(0xffe3a0, 0.8); key.position.set(60, 80, 120);
+    const flash = new THREE.PointLight(0xffd36b, 0, 200, 2.0); // intensity pops on explosion
+    scene.add(hemi, key, flash);
 
-    const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.9, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
-    const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+    /* Particle sprite (glow disk) */
+    const particleTex = (function(){
+      const size=128,c=document.createElement('canvas'); c.width=c.height=size;
+      const g=c.getContext('2d');
+      const grad=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+      grad.addColorStop(0,'rgba(255,255,255,1)');
+      grad.addColorStop(0.25,'rgba(255,255,255,.45)');
+      grad.addColorStop(1,'rgba(255,255,255,0)');
+      g.fillStyle=grad; g.fillRect(0,0,size,size);
+      const tex=new THREE.CanvasTexture(c); tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter;
+      return tex;
+    })();
 
-    const pool=[];
-    function getPoints(count){
-      for(let i=pool.length-1;i>=0;i--){
-        const p=pool[i];
-        const existing=p.geometry.getAttribute('position').count;
-        if(existing>=count){
-          pool.splice(i,1);
-          p.visible=true;
-          return p;
+    /* Points shader for per-particle size + temperature flicker */
+    const pointsUniforms = {
+      uSize: { value: reduced ? 18.0 : 22.0 },
+      uTime: { value: 0.0 },
+      uPixelRatio: { value: Math.min(window.devicePixelRatio||1, DPR_LIMIT) }
+    };
+    const pointsMat = new THREE.ShaderMaterial({
+      uniforms: pointsUniforms,
+      transparent:true,
+      depthWrite:false,
+      blending:THREE.AdditiveBlending,
+      vertexColors:true,
+      uniformsNeedUpdate:true,
+      vertexShader: `
+        uniform float uSize;
+        uniform float uPixelRatio;
+        uniform float uTime;
+        attribute float aSize;
+        varying vec3 vColor;
+        void main(){
+          vColor = color;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          float dist = -mvPosition.z;
+          float flick = 0.85 + 0.15 * sin(uTime*6.0 + position.x*0.2 + position.y*0.3);
+          gl_PointSize = (aSize * uSize * flick) * (uPixelRatio * 300.0 / dist);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D pointTexture;
+        varying vec3 vColor;
+        void main(){
+          vec4 tex = texture2D(pointTexture, gl_PointCoord);
+          vec3 col = vColor;
+          gl_FragColor = vec4(col, 1.0) * tex;
+        }
+      `
+    });
+    pointsMat.uniforms.pointTexture = { value: particleTex };
+
+    /* Shockwave materials */
+    const ringMatStrong = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:0.92, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+    const ringMatSoft   = new THREE.MeshBasicMaterial({ color:0xffe18a, transparent:true, opacity:0.65, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+
+    /* Smoke system (instanced quads) */
+    const SMOKE_POOL = reduced ? 80 : 160;
+    const smokeGeo = new THREE.PlaneGeometry(1,1);
+    const smokeMat = new THREE.ShaderMaterial({
+      transparent:true,
+      depthWrite:false,
+      blending:THREE.AdditiveBlending,
+      uniforms:{
+        uTime:{value:0},
+        uTex:{value:particleTex}
+      },
+      vertexShader: `
+        uniform float uTime;
+        attribute float aStart;
+        attribute float aLife;
+        attribute vec3 aVelocity;
+        attribute float aScale;
+        varying float vAlpha;
+        void main(){
+          float t = clamp((uTime - aStart)/aLife, 0.0, 1.0);
+          vec3 pos = position;
+          pos += aVelocity * (t * 1.2);
+          float s = mix(4.0, 38.0, t) * aScale;
+          vAlpha = (1.0 - smoothstep(0.0, 1.0, t)) * 0.9;
+          vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+          mv.xy += vec2(sin(uTime*0.6 + pos.x)*0.2, cos(uTime*0.5 + pos.y)*0.2); // little turbulence
+          gl_Position = projectionMatrix * mv;
+          gl_PointSize = s;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTex;
+        varying float vAlpha;
+        void main(){
+          vec2 uv = gl_PointCoord;
+          float a = texture2D(uTex, uv).a;
+          gl_FragColor = vec4(0.95,0.8,0.55, a * vAlpha * 0.6);
+        }
+      `
+    });
+    const smoke = new THREE.InstancedMesh(smokeGeo, smokeMat, SMOKE_POOL);
+    smoke.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    smoke.frustumCulled = false;
+    smoke.userData = {
+      start: new Float32Array(SMOKE_POOL),
+      life:  new Float32Array(SMOKE_POOL),
+      vel:   new Float32Array(SMOKE_POOL*3),
+      scale: new Float32Array(SMOKE_POOL),
+      alive: new Uint8Array(SMOKE_POOL)
+    };
+    scene.add(smoke);
+
+    function spawnSmokeAt(v3){
+      for(let i=0;i<SMOKE_POOL;i++){
+        if(!smoke.userData.alive[i]){
+          smoke.userData.alive[i]=1;
+          smoke.userData.start[i]=time;
+          smoke.userData.life[i]=0.9 + Math.random()*1.1;
+          smoke.userData.scale[i]=0.7 + Math.random()*1.3;
+          const j=i*3;
+          const r = new THREE.Vector3().randomDirection().multiplyScalar(0.6+Math.random()*1.2);
+          smoke.userData.vel[j]=r.x; smoke.userData.vel[j+1]=Math.abs(r.y)*0.8; smoke.userData.vel[j+2]=r.z;
+          const m = new THREE.Matrix4().setPosition(v3);
+          smoke.setMatrixAt(i, m);
+          smoke.instanceMatrix.needsUpdate = true;
+          break;
         }
       }
+    }
+
+    /* Ambient starfield with slow vertical drift */
+    const ambient=(function(){
+      const COUNT=reduced?400:800;
+      const g=new THREE.BufferGeometry();
+      const positions=new Float32Array(COUNT*3);
+      const colors=new Float32Array(COUNT*3);
+      const sizes=new Float32Array(COUNT);
+      const base=new Float32Array(COUNT*3);
+      for(let i=0;i<COUNT;i++){
+        const bx=(Math.random()-0.5)*440;
+        const by=(Math.random()-0.5)*280;
+        const bz=Math.random()*240-180;
+        base[i*3]=bx; base[i*3+1]=by; base[i*3+2]=bz;
+        positions[i*3]=bx; positions[i*3+1]=by; positions[i*3+2]=bz;
+        const t=0.35+Math.random()*0.55;
+        colors[i*3]=t; colors[i*3+1]=t*0.9; colors[i*3+2]=t*0.85;
+        sizes[i]=0.6+Math.random()*1.6;
+      }
+      g.setAttribute('position',new THREE.BufferAttribute(positions,3));
+      g.setAttribute('color',new THREE.BufferAttribute(colors,3));
+      g.setAttribute('aSize',new THREE.BufferAttribute(sizes,1));
+      g.userData={ base };
+      const mat = pointsMat.clone();
+      const p=new THREE.Points(g,mat);
+      p.frustumCulled=false;
+      return p;
+    })();
+    scene.add(ambient);
+
+    /* Explosion system */
+    const pool=[];
+    function makePoints(count){
       const g=new THREE.BufferGeometry();
       const positions=new Float32Array(count*3);
       const colors=new Float32Array(count*3);
-      // NOTE: PointsMaterial ignores custom per-vertex "size" without a custom shader;
-      // so we skip a size attribute to reduce churn.
+      const sizes=new Float32Array(count);
       g.setAttribute('position', new THREE.BufferAttribute(positions,3));
       g.setAttribute('color', new THREE.BufferAttribute(colors,3));
-      const m=baseMat.clone();
-      const points=new THREE.Points(g,m);
-      points.frustumCulled=false;
-      return points;
+      g.setAttribute('aSize', new THREE.BufferAttribute(sizes,1));
+      const m=pointsMat.clone();
+      const pts=new THREE.Points(g,m);
+      pts.frustumCulled=false;
+      return pts;
     }
-    function releasePoints(points){ points.visible=false; pool.push(points); }
+    function release(pts){ pts.visible=false; pool.push(pts); }
+    function acquire(count){
+      for(let i=pool.length-1;i>=0;i--){
+        const p=pool[i];
+        const existing=p.geometry.getAttribute('position').count;
+        if(existing>=count){ pool.splice(i,1); p.visible=true; return p; }
+      }
+      return makePoints(count);
+    }
 
+    const GRAVITY = new THREE.Vector3(0,-18,0);
     class Explosion{
       constructor(){
-        const x=(Math.random()-0.5)*140, y=(Math.random()-0.5)*90, z=Math.random()*80-60;
+        const x=(Math.random()-0.5)*140, y=(Math.random()-0.25)*90, z=Math.random()*80-60;
         this.center=new THREE.Vector3(x,y,z);
-        this.life=reduced?1.5:1.9; this.t=0;
-        this.count=(Math.random()*50+(reduced?75:120))|0;
-        this.points=getPoints(this.count);
+        this.life=reduced?1.6:2.1; this.t=0;
+        this.count=(Math.random()*60+(reduced?90:140))|0;
+        this.points=acquire(this.count);
         this.points.position.copy(this.center);
+        scene.add(this.points);
 
-        const g=this.points.geometry, pos=g.getAttribute('position').array, col=g.getAttribute('color').array;
+        const g=this.points.geometry;
+        const pos=g.getAttribute('position').array;
+        const col=g.getAttribute('color').array;
+        const size=g.getAttribute('aSize').array;
         this.vel=new Float32Array(this.count*3);
+
         for(let i=0;i<this.count;i++){
-          const dirv=new THREE.Vector3().randomDirection();
-          const speed=Math.random()*22+12;
-          this.vel[i*3+0]=dirv.x*speed; this.vel[i*3+1]=dirv.y*speed; this.vel[i*3+2]=dirv.z*speed;
-          pos[i*3+0]=dirv.x*1.6; pos[i*3+1]=dirv.y*1.6; pos[i*3+2]=dirv.z*1.6;
-          col[i*3+0]=1; col[i*3+1]=1; col[i*3+2]=1;
+          const dir=new THREE.Vector3().randomDirection();
+          const speed=18 + Math.random()*28;
+          const ix=i*3;
+          this.vel[ix]=dir.x*speed; this.vel[ix+1]=(dir.y*speed); this.vel[ix+2]=dir.z*speed;
+          pos[ix]=dir.x*1.5; pos[ix+1]=dir.y*1.5; pos[ix+2]=dir.z*1.5;
+          col[ix]=1.0; col[ix+1]=0.95; col[ix+2]=0.85; // hot white
+          size[i]=0.8 + Math.pow(Math.random(),0.35)*2.2;
         }
-        g.getAttribute('position').needsUpdate=true; g.getAttribute('color').needsUpdate=true;
+        g.getAttribute('position').needsUpdate=true;
+        g.getAttribute('color').needsUpdate=true;
+        g.getAttribute('aSize').needsUpdate=true;
 
         const ringGeo=new THREE.RingGeometry(5,6.6,64);
         this.ring1=new THREE.Mesh(ringGeo, ringMatStrong.clone());
@@ -1003,64 +1136,96 @@
         this.ring1.position.copy(this.center); this.ring2.position.copy(this.center);
         scene.add(this.ring1,this.ring2);
 
-        this.shake=0.45;
+        // flash pop
+        flash.position.copy(this.center);
+        flash.intensity = reduced ? 9.0 : 14.0;
+        this.flashFade = 0.0;
+
+        // seed smoke
+        for(let s=0;s<10;s++) spawnSmokeAt(this.center);
+
+        this.shake=0.5;
       }
       update(dt){
         this.t+=dt; const f=this.t/this.life;
-        const g=this.points.geometry, pos=g.getAttribute('position').array, col=g.getAttribute('color').array;
-        const drag=1-Math.min(0.05*dt*60,0.05);
+        const g=this.points.geometry, pos=g.getAttribute('position').array, col=g.getAttribute('color').array, sz=g.getAttribute('aSize').array;
+        const drag=1 - Math.min(0.06*dt*60, 0.06);
         for(let i=0;i<this.count;i++){
           const ix=i*3;
-          pos[ix]+=this.vel[ix]*dt;
-          pos[ix+1]+=this.vel[ix+1]*dt;
-          pos[ix+2]+=this.vel[ix+2]*dt;
+          // integrate
+          this.vel[ix]+=GRAVITY.x*dt; this.vel[ix+1]+=GRAVITY.y*dt; this.vel[ix+2]+=GRAVITY.z*dt;
+          pos[ix]+=this.vel[ix]*dt; pos[ix+1]+=this.vel[ix+1]*dt; pos[ix+2]+=this.vel[ix+2]*dt;
           this.vel[ix]*=drag; this.vel[ix+1]*=drag; this.vel[ix+2]*=drag;
 
-          const toGold = (f-0.25)/0.3;
-          const t=Math.max(0,Math.min(1,toGold));
-          col[ix]=1; col[ix+1]=1-0.28*t; col[ix+2]=1-0.72*t;
-        }
-        g.getAttribute('position').needsUpdate=true; g.getAttribute('color').needsUpdate=true;
+          // temperature ramp: white -> gold -> ember
+          const t = Math.min(1, Math.max(0,(f-0.15)/0.55));
+          const r = 1.0;
+          const gC = 1.0 - 0.45*t;
+          const bC = 1.0 - 0.85*t;
+          col[ix]=r; col[ix+1]=gC; col[ix+2]=bC;
 
+          // slight size swell then shrink
+          sz[i] = 0.8 + 2.2*(1.0 - Math.abs(0.6 - f)*1.6);
+        }
+        g.getAttribute('position').needsUpdate=true;
+        g.getAttribute('color').needsUpdate=true;
+        g.getAttribute('aSize').needsUpdate=true;
+
+        // rings
         this.r1+=100*dt; this.r2+=125*dt;
         this.ring1.scale.setScalar(this.r1/5); this.ring2.scale.setScalar(this.r2/5);
         this.ring1.material.opacity=Math.max(0,0.95-f*1.25);
         this.ring2.material.opacity=Math.max(0,0.65-f*1.3);
         this.ring1.lookAt(camera.position); this.ring2.lookAt(camera.position);
 
+        // light flash decay
+        this.flashFade += dt;
+        flash.intensity = Math.max(0, flash.intensity - (reduced?14:22)*dt);
+
+        // trailing smoke
+        if(Math.random()<0.5) spawnSmokeAt(this.center);
+
         return this.t<this.life;
       }
       dispose(){
-        scene.remove(this.points); releasePoints(this.points);
+        scene.remove(this.points); release(this.points);
         scene.remove(this.ring1); scene.remove(this.ring2);
       }
     }
 
-    // Ambient field with base positions (no vertical accumulation)
-    const ambient=(function(){
-      const COUNT=reduced?400:800;
-      const basePos=new Float32Array(COUNT*3);
-      const g=new THREE.BufferGeometry();
-      const positions=new Float32Array(COUNT*3);
-      const colors=new Float32Array(COUNT*3);
-      for(let i=0;i<COUNT;i++){
-        const bx=(Math.random()-0.5)*440;
-        const by=(Math.random()-0.5)*280;
-        const bz=Math.random()*240-180;
-        basePos[i*3]=bx; basePos[i*3+1]=by; basePos[i*3+2]=bz;
-        positions[i*3]=bx; positions[i*3+1]=by; positions[i*3+2]=bz;
-        const t=Math.random()*0.5+0.35;
-        colors[i*3]=t; colors[i*3+1]=t*0.9; colors[i*3+2]=t*0.85;
-      }
-      g.setAttribute('position',new THREE.BufferAttribute(positions,3));
-      g.setAttribute('color',new THREE.BufferAttribute(colors,3));
-      const m=new THREE.PointsMaterial({ size:reduced?2.2:3.2, map:particleTex, transparent:true, depthWrite:false, vertexColors:true, blending:THREE.AdditiveBlending });
-      const p=new THREE.Points(g,m);
-      p.frustumCulled=false;
-      p.userData={t:0, base:basePos};
-      return p;
+    /* Vignette quad for cinematic falloff */
+    ;(function(){
+      const geo = new THREE.PlaneGeometry(2,2);
+      const mat = new THREE.ShaderMaterial({
+        depthWrite:false, depthTest:false, transparent:true,
+        uniforms:{ uStrength:{ value: 0.6 } },
+        vertexShader:`void main(){ gl_Position = vec4(position,1.0); }`,
+        fragmentShader:`
+          uniform float uStrength;
+          void main(){
+            vec2 uv = gl_FragCoord.xy / vec2(${Math.max(width,1).toFixed(1)}, ${Math.max(height,1).toFixed(1)});
+            vec2 d = uv - 0.5;
+            float v = smoothstep(0.35, 0.8, length(d));
+            gl_FragColor = vec4(0.0,0.0,0.0, v * uStrength);
+          }
+        `
+      });
+      const quad = new THREE.Mesh(geo, mat);
+      quad.renderOrder = 999;
+      scene.add(quad);
+      // keep vignette uniform with resize
+      window.addEventListener('resize', ()=>{
+        mat.fragmentShader = `
+          uniform float uStrength;
+          void main(){
+            vec2 uv = gl_FragCoord.xy / vec2(${Math.max(window.innerWidth,1).toFixed(1)}, ${Math.max(window.innerHeight,1).toFixed(1)});
+            vec2 d = uv - 0.5;
+            float v = smoothstep(0.35, 0.8, length(d));
+            gl_FragColor = vec4(0.0,0.0,0.0, v * uStrength);
+          }`;
+        mat.needsUpdate = true;
+      }, {passive:true});
     })();
-    scene.add(ambient);
 
     function resize(){
       width=window.innerWidth; height=window.innerHeight;
@@ -1071,41 +1236,64 @@
     window.addEventListener('resize', resize, { passive:true });
 
     const explosions=[];
-    let prev=performance.now(), lastBlast=prev;
+    let prev=performance.now(), lastBlast=prev, time=0;
+
     if(START_WITH_BLAST) explosions.push(new Explosion());
 
-    function loop(now){
-      const dt=Math.min(0.05,(now-prev)/1000); prev=now;
+    function updateSmoke(dt){
+      smokeMat.uniforms.uTime.value = time;
+      const ud = smoke.userData;
+      for(let i=0;i<SMOKE_POOL;i++){
+        if(!ud.alive[i]) continue;
+        const age = (time - ud.start[i]);
+        if(age > ud.life[i]){ ud.alive[i]=0; continue; }
+        const j=i*3;
+        const base = new THREE.Matrix4();
+        const p = new THREE.Vector3(
+          ud.vel[j]*age,
+          ud.vel[j+1]*age,
+          ud.vel[j+2]*age
+        );
+        base.setPosition(p);
+        smoke.setMatrixAt(i, base);
+      }
+      smoke.instanceMatrix.needsUpdate = true;
+    }
 
-      // Ambient oscillation around base
-      ambient.userData.t+=dt*0.2;
-      const apos=ambient.geometry.getAttribute('position').array;
-      const base=ambient.userData.base;
-      const t=ambient.userData.t;
+    function loop(now){
+      const dt=Math.min(0.05,(now-prev)/1000); prev=now; time += dt;
+      pointsUniforms.uTime.value = time;
+
+      // subtle camera shake + recenters each frame
+      camera.position.copy(baseCamPos);
+      if(explosions.length){
+        const s = reduced ? 0.25 : 0.4;
+        camera.position.x += (Math.random()-0.5)*s;
+        camera.position.y += (Math.random()-0.5)*s;
+      }
+
+      // ambient drift
+      const ag=ambient.geometry;
+      const apos=ag.getAttribute('position').array;
+      const base=ag.userData.base;
       for(let i=0;i<apos.length/3;i++){
         const ix=i*3;
         apos[ix]=base[ix];
-        apos[ix+1]=base[ix+1] + Math.sin(t+i*0.15)*0.7; // small oscillation
+        apos[ix+1]=base[ix+1] + Math.sin(time*0.25+i*0.17)*0.7;
         apos[ix+2]=base[ix+2];
       }
-      ambient.geometry.getAttribute('position').needsUpdate=true;
+      ag.getAttribute('position').needsUpdate=true;
 
-      // Camera base + transient shake based on active explosions
-      camera.position.copy(baseCamPos);
-      let shakeAmt=0;
+      // explosions
       for(let i=explosions.length-1;i>=0;i--){
         if(!explosions[i].update(dt)){ explosions[i].dispose(); explosions.splice(i,1); }
       }
-      // proportional shake if any explosion exists
-      if(explosions.length){
-        shakeAmt = 0.35;
-        camera.position.x += (Math.random()-0.5)*shakeAmt;
-        camera.position.y += (Math.random()-0.5)*shakeAmt;
-      }
-
       if(now-lastBlast>BLAST_INTERVAL && explosions.length<MAX_EXPLOSIONS){
         explosions.push(new Explosion()); lastBlast=now;
       }
+
+      // smoke
+      updateSmoke(dt);
 
       renderer.render(scene,camera);
       requestAnimationFrame(loop);
